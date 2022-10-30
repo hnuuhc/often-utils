@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.haic.often</groupId>
+    <artifactId>often-utils</artifactId>
+    <version>1.0.1</version>
+
+    <name>often-utils</name>
+
+    <url>https://www.example.com</url>
+
+    <properties>
+        <encoding>UTF-8</encoding>
+        <often.vendor>haicdust</often.vendor>
+        <often.module>${project.groupId}.${project.artifactId}</often.module>
+        <often.version>${project.version}</often.version>
+
+        <!-- Java版本 -->
+        <java.version>19</java.version>
+
+        <!-- Maven插件版本 -->
+        <maven.source.version>3.2.1</maven.source.version>
+        <maven.javadoc.version>3.3.1</maven.javadoc.version>
+        <maven.compiler.version>3.9.0</maven.compiler.version>
+        <maven.resources.version>3.2.0</maven.resources.version>
+        <!-- 文件编码 -->
+        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- 调试 -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+        </dependency>
+        <!-- 注解 -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>23.0.0</version>
+        </dependency>
+        <!-- htmlunit -->
+        <dependency>
+            <groupId>net.sourceforge.htmlunit</groupId>
+            <artifactId>htmlunit</artifactId>
+            <version>2.65.1</version>
+        </dependency>
+        <!-- JSOUP -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.15.3</version>
+        </dependency>
+        <!-- JSON -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>2.0.14</version>
+        </dependency>
+        <!-- websocket -->
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+        <!-- 压缩文件项目 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.21</version>
+        </dependency>
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>2.11.2</version>
+        </dependency>
+        <!-- 读取本地Chrome浏览器数据依赖 -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.70</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.peter-gergely-horvath</groupId>
+            <artifactId>windpapi4j</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!-- LevelDB 数据库 -->
+        <dependency>
+            <groupId>com.wavesplatform.leveldb-jna</groupId>
+            <artifactId>leveldb-jna-core</artifactId>
+            <version>1.23.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wavesplatform.leveldb-jna</groupId>
+            <artifactId>leveldb-jna-native</artifactId>
+            <version>1.23.1</version>
+        </dependency>
+        <!-- JDBC 数据库 -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.39.3.0</version>
+        </dependency>
+        <!-- 视频操作 -->
+        <dependency>
+            <!-- 去除日志错误 不可升级2.x版本 -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>streaming</artifactId>
+            <version>1.9.56</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>isoparser</artifactId>
+            <version>1.9.56</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>muxer</artifactId>
+            <version>1.9.56</version>
+        </dependency>
+        <!-- Image增强 -->
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-jpeg</artifactId>
+            <version>3.9.0</version>
+        </dependency>
+    </dependencies>
+
+    <!-- 环境：-P develop|release -->
+    <profiles>
+        <profile>
+            <id>develop</id>
+            <activation>
+                <!-- 设置默认 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <package.environment>develop</package.environment>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <package.environment>release</package.environment>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <!-- Maven插件 -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!--
+				编译代码：
+					mvn compile
+					mvn test-compile
+				-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compiler.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <encoding>${encoding}</encoding>
+                    </configuration>
+                </plugin>
+                <!--
+				打包资源：
+					mvn resources:resources
+					mvn resources:testResources
+					mvn resources:copy-resources
+				-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven.resources.version}</version>
+                    <configuration>
+                        <resources>
+                            <!-- 配置文件 -->
+                            <resource>
+                                <directory>src/main/resources</directory>
+                                <!-- 配置文件属性替换：properties -->
+                                <filtering>false</filtering>
+                                <includes>
+                                    <include>**</include>
+                                </includes>
+                                <!-- 排除环境资源文件 -->
+                                <excludes>
+                                    <exclude>profiles/**</exclude>
+                                </excludes>
+                            </resource>
+                            <!-- 开源协议 -->
+                            <resource>
+                                <directory>./</directory>
+                                <filtering>false</filtering>
+                                <targetPath>META-INF/</targetPath>
+                                <includes>
+                                    <include>LICENSE</include>
+                                </includes>
+                            </resource>
+                        </resources>
+                    </configuration>
+                    <executions>
+                        <!-- 自动复制环境资源 -->
+                        <execution>
+                            <id>auto-copy-resources</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <!-- 遗传 -->
+                            <inherited>true</inherited>
+                            <configuration>
+                                <!-- 覆盖资源 -->
+                                <overwrite>true</overwrite>
+                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!--
+				打包源码：
+					mvn source:jar
+					mvn source:test-jar
+				跳过源码：-D maven.source.skip=true
+				-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven.source.version}</version>
+                    <configuration>
+                        <attach>true</attach>
+                    </configuration>
+                    <executions>
+                        <!-- 自动打包源码 -->
+                        <execution>
+                            <id>auto-build-source</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <!-- 和jar一样：不会分叉构建 -->
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!--
+				打包文档：
+					mvn site
+					mvn javadoc:jar
+					mvn javadoc:javadoc
+				跳过文档：-D maven.javadoc.skip=true
+				-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven.javadoc.version}</version>
+                    <configuration>
+                        <!-- 忽略警告：注解、标签等等 -->
+                        <doclint>none</doclint>
+                        <description>${project.description}</description>
+                    </configuration>
+                    <executions>
+                        <!-- 自动打包文档 -->
+                        <execution>
+                            <id>auto-build-javadoc</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

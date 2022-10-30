@@ -1,0 +1,7 @@
+# 项目排除路径
+logs/
+target/
+.idea/
+src/test/
+*.iml
+*.db
