@@ -492,6 +492,27 @@ public class URIUtil {
 	}
 
 	/**
+	 * UrlEncode解码,与 {@link #decode} 相同,区别在于可解密被多次加密的字符串,直至获得最终解密的字符串
+	 *
+	 * @param s 待解密的字符串
+	 * @return String
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static String decodeValue(@NotNull String s) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			while (c == '%' && i + 2 < s.length() && isDigit16Char.apply(s.charAt(i + 1)) && isDigit16Char.apply(s.charAt(i + 2))) {
+				c = (char) Integer.parseInt(s, i + 1, i + 3, 16);
+				i += 2;
+			}
+			sb.append(c);
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * UrlEncode编码,如果已经加密,则返回原字符串
 	 *
 	 * @param s 待加密的字符串
