@@ -75,6 +75,10 @@ public class SystemUtil {
 	 * 用户默认语言
 	 */
 	public static final String DEFAULT_LANGUAGE = System.getProperty("user.language");
+	/**
+	 * 用户默认主目录
+	 */
+	public static final String DEFAULT_USER_HOME = System.getProperty("user.home");
 
 	/**
 	 * 打开资源管理器窗口

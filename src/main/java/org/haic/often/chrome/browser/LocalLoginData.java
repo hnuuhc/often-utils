@@ -5,6 +5,7 @@ import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
+import org.haic.often.util.SystemUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,29 +36,29 @@ public class LocalLoginData {
 	 */
 	@Contract(pure = true)
 	public static Browser home() {
-		return home(new File(System.getProperty("user.home"), "AppData\\Local\\Microsoft\\Edge\\User Data"));
+		return home(new File(SystemUtil.DEFAULT_USER_HOME, "AppData\\Local\\Microsoft\\Edge\\User Data"));
 	}
 
 	/**
 	 * 本地谷歌浏览器用户数据目录(User Data)
 	 *
-	 * @param userHome User Data目录路径
+	 * @param home User Data目录路径
 	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public static Browser home(@NotNull String userHome) {
-		return home(new File(userHome));
+	public static Browser home(@NotNull String home) {
+		return home(new File(home));
 	}
 
 	/**
 	 * 本地谷歌浏览器用户数据目录(User Data)
 	 *
-	 * @param userHome User Data目录
+	 * @param home User Data目录
 	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public static Browser home(@NotNull File userHome) {
-		return new ChromeBrowser(userHome);
+	public static Browser home(@NotNull File home) {
+		return new ChromeBrowser(home);
 	}
 
 	public static abstract class LoginData {
@@ -153,14 +154,13 @@ public class LocalLoginData {
 		private final String encryptedKey;
 		private final File storageCopy = new File(".loginData.db");
 
-		private ChromeBrowser(@NotNull File userHome) {
-			encryptedKey = Decrypt.getEncryptedKey(this.userHome = userHome);
-			storage = new File(new File(userHome, "Default"), "Login Data");
+		private ChromeBrowser(@NotNull File home) {
+			encryptedKey = Decrypt.getEncryptedKey(this.home = home);
+			storage = new File(new File(home, "Default"), "Login Data");
 		}
 
 		public Browser setProfile(@NotNull String name) {
-			File folder = new File(userHome, JSONObject.parseObject(ReadWriteUtil.orgin(new File(userHome, "Local State")).read()).getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey());
-			storage = new File(folder, "Login Data");
+			storage = new File(new File(home, Judge.isEmpty(name) ? "Default" : JSONObject.parseObject(ReadWriteUtil.orgin(new File(home, "Local State")).read()).getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey()), "Login Data");
 			return this;
 		}
 

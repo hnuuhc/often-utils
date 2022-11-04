@@ -7,7 +7,7 @@ import java.util.Map;
 
 public abstract class Browser {
 
-	protected File userHome;
+	protected File home;
 	protected File storage;
 
 	/**
