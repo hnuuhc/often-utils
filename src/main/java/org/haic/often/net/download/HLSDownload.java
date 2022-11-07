@@ -207,7 +207,7 @@ public class HLSDownload {
 		private final AtomicBoolean writeStatus = new AtomicBoolean(true);
 		private int pieceTotal;
 		private int site;
-		private long schedule; // 文件大小
+		private long schedule;
 		private final Map<String, byte[]> writeData = new ConcurrentHashMap<>();
 		private List<String> links;
 
@@ -425,7 +425,7 @@ public class HLSDownload {
 				do {
 					ThreadUtil.waitThread(millis);
 					// noinspection ConstantConditions
-					listener.bytesTransferred(fileName, schedule - rate, schedule, pieceTotal - links.size() + site, pieceTotal);
+					listener.bytesTransferred(fileName, schedule - rate, pieceTotal - links.size() + site, pieceTotal);
 					rate = schedule;
 				} while (!Thread.currentThread().isInterrupted());
 			};
@@ -537,7 +537,7 @@ public class HLSDownload {
 					fileInfo = JSON.parseObject(ReadWriteUtil.orgin(session).readBytes());
 					request.setUrl(url = fileInfo.getString("url"));
 					fileName = fileInfo.getString("fileName");
-					schedule = fileInfo.getLong("fileSize");
+					schedule = fileInfo.getLong("schedule");
 					headers = StringUtil.jsonToMap(fileInfo.getString("header"));
 					cookies = StringUtil.jsonToMap(fileInfo.getString("cookie"));
 					key = fileInfo.getString("key");
@@ -557,7 +557,7 @@ public class HLSDownload {
 			}
 
 			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
-			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("fileSize", schedule).fluentPut("renew", new JSONObject().fluentPut("status", links.size() - site).fluentPut("data", new JSONObject(writeData))).toJSONString());
+			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("schedule", schedule).fluentPut("renew", new JSONObject().fluentPut("status", links.size() - site).fluentPut("data", new JSONObject(writeData))).toJSONString());
 			Thread abnormal;
 			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
 			Thread listenTask = ThreadUtil.start(listener);
@@ -587,6 +587,7 @@ public class HLSDownload {
 				return new HttpResponse(this, request.statusCode(statusCodes.get()));
 			}
 
+			request.setFileSize(schedule); // 写入最终文件大小
 			session.delete(); // 删除会话信息文件
 			return new HttpResponse(this, request.statusCode(HttpStatus.SC_OK));
 		}
@@ -631,7 +632,7 @@ public class HLSDownload {
 					}
 					byte[] bytes = Judge.isEmpty(key) ? writeData.get(link) : AESUtil.decode(writeData.get(link), key, iv);
 					out.write(bytes, 0, bytes.length);
-					request.setFileSize(schedule += bytes.length);
+					schedule += bytes.length;
 					writeData.remove(link);
 					site++;
 				}

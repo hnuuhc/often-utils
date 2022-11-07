@@ -38,7 +38,7 @@ public class Sion {
 
 	private final StringBuffer print = new StringBuffer(); // 控制台输出
 	private final SionListener listenerSion = (fileName, rate, schedule, fileSize) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(String.format("%.2f", (float) schedule * 100 / fileSize)).append("% 下载速率: ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n"));
-	private final HLSListener listenerHLS = (fileName, rate, schedule, written, total) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(written).append("/").append(total).append(" ")).append("下载速率:" + " ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n");
+	private final HLSListener listenerHLS = (fileName, rate, written, total) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(written).append("/").append(total).append(" ")).append("下载速率:" + " ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n");
 	private final Set<String> listTask = new CopyOnWriteArraySet<>(); // 任务列表
 	private final SafetyLinkedHashMap<String, SionResponse> result = new SafetyLinkedHashMap<>(1000); // 存储下载结果
 	private final Timer timer = new Timer();
