@@ -442,6 +442,7 @@ public class HLSDownload {
 
 		@Contract(pure = true)
 		private SionResponse execute(@NotNull String method) {
+			initializationStatus();
 			Connection conn = HttpsUtil.newSession().proxy(proxy).headers(headers).cookies(cookies).retry(retry, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
 			List<String> renewLink = new ArrayList<>();
 			switch (method) {
@@ -592,6 +593,15 @@ public class HLSDownload {
 
 			session.delete(); // 删除会话信息文件
 			return new HttpResponse(this, request.setFileSize(fileSize).statusCode(HttpStatus.SC_OK));
+		}
+
+		/**
+		 * 初始化下载进度
+		 */
+		@Contract(pure = true)
+		private void initializationStatus() {
+			schedule.set(0);
+			writeData.clear();
 		}
 
 		@Contract(pure = true)
