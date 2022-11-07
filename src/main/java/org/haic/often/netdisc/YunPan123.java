@@ -213,7 +213,7 @@ public class YunPan123 {
 			data.put("driveId", "0");
 			data.put("operation", "false");
 			data.put("fileTrashInfoList", fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList());
-			return JSONObject.parseObject(conn.url(fileTrashUrl).requestBody(data.toJSONString()).post().text()).getInteger("code");
+			return JSONObject.parseObject(conn.url(fileTrashUrl).requestBody(data.toString()).post().text()).getInteger("code");
 		}
 
 		/**
@@ -223,7 +223,7 @@ public class YunPan123 {
 		 */
 		@Contract(pure = true)
 		public int emptyRecycle() {
-			return JSONObject.parseObject(conn.url(trashDeleteAllUrl).requestBody(new JSONObject().toJSONString()).post().text()).getInteger("code");
+			return JSONObject.parseObject(conn.url(trashDeleteAllUrl).requestBody(new JSONObject().toString()).post().text()).getInteger("code");
 		}
 
 		/**
@@ -245,7 +245,7 @@ public class YunPan123 {
 		 */
 		@Contract(pure = true)
 		public int clearRecycle(@NotNull List<String> fileIdList) {
-			return JSONObject.parseObject(conn.url(fileDeleteUrl).requestBody(new JSONObject().fluentPut("fileIdList", fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()).toJSONString()).post().text()).getInteger("code");
+			return JSONObject.parseObject(conn.url(fileDeleteUrl).requestBody(new JSONObject().fluentPut("fileIdList", fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()).toString()).post().text()).getInteger("code");
 		}
 
 		/**
@@ -267,7 +267,7 @@ public class YunPan123 {
 		 */
 		@Contract(pure = true)
 		public int cancelShare(@NotNull List<String> shareIdList) {
-			return JSONObject.parseObject(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("driveId", "0").fluentPut("shareInfoList", shareIdList.stream().map(l -> new JSONObject().fluentPut("shareId", l)).toList()).toJSONString()).post().text()).getInteger("code");
+			return JSONObject.parseObject(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("driveId", "0").fluentPut("shareInfoList", shareIdList.stream().map(l -> new JSONObject().fluentPut("shareId", l)).toList()).toString()).post().text()).getInteger("code");
 		}
 
 		/**
@@ -349,7 +349,7 @@ public class YunPan123 {
 			data.put("fileIdList", fileId);
 			data.put("shareName", shareName);
 			data.put("sharePwd", sharePwd);
-			return JSONObject.parseObject(conn.url(createShareUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(createShareUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -370,7 +370,7 @@ public class YunPan123 {
 			data.put("type", "1");
 			data.put("duplicate", "1");
 			data.put("NotReuse", "true");
-			return JSONObject.parseObject(conn.url(uploadRequestUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(uploadRequestUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -386,7 +386,7 @@ public class YunPan123 {
 			data.put("driveId", "0");
 			data.put("fileId", fileId);
 			data.put("fileName", fileName);
-			return JSONObject.parseObject(conn.url(renameUrl).requestBody(data.toJSONString()).post().text()).getInteger("code");
+			return JSONObject.parseObject(conn.url(renameUrl).requestBody(data.toString()).post().text()).getInteger("code");
 		}
 
 		/**
@@ -412,7 +412,7 @@ public class YunPan123 {
 			data.put("driveId", "0");
 			data.put("operation", "true");
 			data.put("fileTrashInfoList", new JSONArray().fluentAddAll(fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()));
-			return JSONObject.parseObject(conn.url(trashUrl).requestBody(data.toJSONString()).post().text()).getInteger("code");
+			return JSONObject.parseObject(conn.url(trashUrl).requestBody(data.toString()).post().text()).getInteger("code");
 		}
 
 		/**
@@ -439,7 +439,7 @@ public class YunPan123 {
 			JSONObject data = new JSONObject();
 			data.put("parentFileId", parentId);
 			data.put("fileIdList", new JSONArray().fluentAddAll(fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()));
-			return JSONObject.parseObject(conn.url(modPidUrl).requestBody(data.toJSONString()).post().text()).getInteger("code");
+			return JSONObject.parseObject(conn.url(modPidUrl).requestBody(data.toString()).post().text()).getInteger("code");
 		}
 
 		/**
@@ -536,7 +536,7 @@ public class YunPan123 {
 			data.put("size", fileInfo.getString("Size"));
 			data.put("etag", fileInfo.getString("Etag"));
 			data.put("s3KeyFlag", fileInfo.get("S3KeyFlag"));
-			return JSONObject.parseObject(conn.url(fileDownloadInfoUrl).requestBody(data.toJSONString()).post().text()).getJSONObject("data").getString("DownloadUrl");
+			return JSONObject.parseObject(conn.url(fileDownloadInfoUrl).requestBody(data.toString()).post().text()).getJSONObject("data").getString("DownloadUrl");
 		}
 
 		/**
@@ -576,7 +576,7 @@ public class YunPan123 {
 		 */
 		@Contract(pure = true)
 		public static String login(@NotNull String username, @NotNull String password) {
-			return JSONObject.parseObject(HttpsUtil.connect(signinUrl).requestBody(new JSONObject().fluentPut("passport", username).fluentPut("password", password).toJSONString()).post().text()).getJSONObject("data").getString("token");
+			return JSONObject.parseObject(HttpsUtil.connect(signinUrl).requestBody(new JSONObject().fluentPut("passport", username).fluentPut("password", password).toString()).post().text()).getJSONObject("data").getString("token");
 		}
 	}
 

@@ -96,7 +96,7 @@ public class ALiYunPan {
 		data.put("fields", "*");
 		data.put("parent_file_id", parentId);
 		data.put("share_id", shareId);
-		Response fileList = HttpsUtil.connect(fileListUrl).requestBody(data.toJSONString()).header("x-share-token", shareToken).method(Method.POST).execute();
+		Response fileList = HttpsUtil.connect(fileListUrl).requestBody(data.toString()).header("x-share-token", shareToken).method(Method.POST).execute();
 		for (JSONObject fileInfo : JSONObject.parseObject(fileList.body()).getJSONArray("items").toList(JSONObject.class)) {
 			if (fileInfo.getString("type").equals("folder")) {
 				filesInfo.addAll(getInfosAsPage(shareId, shareToken, fileInfo.getString("file_id"), path + fileInfo.getString("name") + Symbol.SLASH));
@@ -177,7 +177,7 @@ public class ALiYunPan {
 				put("method", "POST");
 				put("url", "/file/delete");
 			}}).toList()).fluentPut("resource", "file");
-			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -209,7 +209,7 @@ public class ALiYunPan {
 				put("method", "POST");
 				put("url", "/recyclebin/restore");
 			}}).toList()).fluentPut("resource", "file");
-			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -258,7 +258,7 @@ public class ALiYunPan {
 				put("method", "PUT");
 				put("url", "/file/update");
 			}}).toList()).fluentPut("resource", "file");
-			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -292,7 +292,7 @@ public class ALiYunPan {
 				put("method", "PUT");
 				put("url", "/file/update");
 			}}).toList()).fluentPut("resource", "file");
-			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -328,7 +328,7 @@ public class ALiYunPan {
 				put("share_pwd", shareCode);
 				put("sync_to_homepage", false);
 			}};
-			return JSONObject.parseObject(conn.url(createShareLinkUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(createShareLinkUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -359,7 +359,7 @@ public class ALiYunPan {
 				put("method", "POST");
 				put("url", "/recyclebin/trash");
 			}}).toList()).fluentPut("resource", "file");
-			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -395,7 +395,7 @@ public class ALiYunPan {
 				put("method", "POST");
 				put("url", "/file/move");
 			}}).toList()).fluentPut("resource", "file");
-			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(batchUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -429,7 +429,7 @@ public class ALiYunPan {
 			data.put("name", fileName);
 			data.put("check_name_mode", "refuse");
 			data.put("type", "folder");
-			return JSONObject.parseObject(conn.url(createWithFoldersUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(createWithFoldersUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -465,11 +465,11 @@ public class ALiYunPan {
 		@Contract(pure = true)
 		private List<JSONObject> inquire(@NotNull String url, @NotNull JSONObject data) {
 			JSONArray infos = new JSONArray();
-			JSONObject info = JSONObject.parseObject(conn.url(url).requestBody(data.toJSONString()).post().text());
+			JSONObject info = JSONObject.parseObject(conn.url(url).requestBody(data.toString()).post().text());
 			infos.addAll(info.getJSONArray("items"));
 			String marker = info.getString("next_marker");
 			while (!Judge.isEmpty(marker)) {
-				info = JSONObject.parseObject(conn.requestBody(data.fluentPut("marker", marker).toJSONString()).post().text());
+				info = JSONObject.parseObject(conn.requestBody(data.fluentPut("marker", marker).toString()).post().text());
 				infos.addAll(info.getJSONArray("items"));
 				marker = info.getString("next_marker");
 			}
@@ -499,7 +499,7 @@ public class ALiYunPan {
 			List<JSONObject> filesInfo = getInfosAsPage(shareId, sharePwd);
 			for (JSONObject fileInfo : filesInfo) {
 				JSONObject data = new JSONObject().fluentPut("share_id", shareId).fluentPut("file_id", fileInfo.getString("file_id"));
-				Connection connection = conn.url(shareLinkDownloadUrl).header("x-share-token", shareToken).requestBody(data.toJSONString());
+				Connection connection = conn.url(shareLinkDownloadUrl).header("x-share-token", shareToken).requestBody(data.toString());
 				fileInfo.put("url", JSONObject.parseObject(connection.post().text()).getString("download_url"));
 				connection.newRequest();
 			}
@@ -514,7 +514,7 @@ public class ALiYunPan {
 		 */
 		public String getStraight(@NotNull String fileid) {
 			JSONObject data = new JSONObject().fluentPut("drive_id", userInfo.getString("default_drive_id")).fluentPut("file_id", fileid);
-			return JSONObject.parseObject(conn.url(downloadUrl).requestBody(data.toJSONString()).post().text()).getString("url");
+			return JSONObject.parseObject(conn.url(downloadUrl).requestBody(data.toString()).post().text()).getString("url");
 		}
 
 	}

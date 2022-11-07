@@ -7,6 +7,7 @@ import org.mp4parser.muxer.builder.FragmentedMp4Builder;
 import org.mp4parser.muxer.container.mp4.MovieCreator;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * 视频工具类
@@ -33,7 +34,7 @@ public class MovieUtil {
 			MovieCreator.build(video).getTracks().forEach(movie::addTrack);
 			new FragmentedMp4Builder().build(movie).writeContainer(fos.getChannel());
 			success = true;
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.gc(); // 必须手动释放资源

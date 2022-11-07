@@ -441,8 +441,7 @@ public class SionDownload {
 		@Contract(pure = true)
 		public SionConnection listener(@NotNull SionListener listener, int millis) {
 			this.listener = () -> {
-				long rate = this.schedule.get();
-				long schedule;
+				long schedule, rate = this.schedule.get();
 				do {
 					ThreadUtil.waitThread(millis);
 					schedule = this.schedule.get();
@@ -474,7 +473,7 @@ public class SionDownload {
 						schedule.addAndGet(status.entrySet().stream().mapToLong(l -> l.getValue() - l.getKey()).sum());
 					}
 					fileInfo.remove("renew");
-					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toJSONString());  // 配置文件可能占用过多内存,重置配置文件
+					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 配置文件可能占用过多内存,重置配置文件
 				}
 				case FULL, PIECE, MULTITHREAD, MANDATORY -> {    // 获取文件信息
 					Response res = HttpsUtil.connect(url).proxy(proxy).headers(headers).cookies(cookies).retry(retry, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
@@ -534,13 +533,13 @@ public class SionDownload {
 					fileInfo.put("method", method.name());
 					fileInfo.put("header", JSONObject.toJSONString(headers));
 					fileInfo.put("cookie", JSONObject.toJSONString(cookies));
-					ReadWriteUtil.orgin(session).write(fileInfo.toJSONString());
+					ReadWriteUtil.orgin(session).write(fileInfo.toString());
 				}
 				default -> throw new RuntimeException("Unknown mode");
 			}
 
 			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
-			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", new JSONObject().fluentPut("completed", MAX_COMPLETED).fluentPut("status", status)).toJSONString());
+			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", new JSONObject().fluentPut("completed", MAX_COMPLETED).fluentPut("status", status)).toString());
 			Thread abnormal;
 			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
 			Thread listenTask = ThreadUtil.start(listener);

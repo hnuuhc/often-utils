@@ -136,7 +136,7 @@ public class KuaKeYunPan {
 		 */
 		@Contract(pure = true)
 		public boolean cancelShare(@NotNull List<String> shareIds) {
-			return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("share_ids", shareIds).toJSONString()).post().text()).getInteger("status"));
+			return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("share_ids", shareIds).toString()).post().text()).getInteger("status"));
 		}
 
 		/**
@@ -165,7 +165,7 @@ public class KuaKeYunPan {
 			data.put("fid_list", fids);
 			data.put("passcode", shareCode);
 			data.put("url_type", shareCode.isEmpty() ? 1 : 2);
-			JSONObject shareInfo = JSONObject.parseObject(conn.url(shareUrl).requestBody(data.toJSONString()).post().text()).getJSONObject("data");
+			JSONObject shareInfo = JSONObject.parseObject(conn.url(shareUrl).requestBody(data.toString()).post().text()).getJSONObject("data");
 			String taskId = shareInfo.getString("task_id");
 			if (shareInfo.getBoolean("task_sync")) {
 				JSONObject taskResp = shareInfo.getJSONObject("task_resp");
@@ -179,7 +179,7 @@ public class KuaKeYunPan {
 				JSONObject taskInfo = JSONObject.parseObject(conn.url(taskUrl + taskId).get().text()).getJSONObject("data");
 				shareId = taskInfo.getInteger("status") == 2 ? taskInfo.getString("share_id") : null;
 			}
-			return JSONObject.parseObject(conn.url(passwordUrl).requestBody(new JSONObject().fluentPut("share_id", shareId).toJSONString()).post().text()).getJSONObject("data").fluentPut("share_id", shareId);
+			return JSONObject.parseObject(conn.url(passwordUrl).requestBody(new JSONObject().fluentPut("share_id", shareId).toString()).post().text()).getJSONObject("data").fluentPut("share_id", shareId);
 		}
 
 		/**
@@ -205,7 +205,7 @@ public class KuaKeYunPan {
 			data.put("action_type", 2);
 			data.put("exclude_fids", new ArrayList<>());
 			data.put("filelist", fids);
-			return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(deleteUrl).requestBody(data.toJSONString()).post().text()).getInteger("status"));
+			return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(deleteUrl).requestBody(data.toString()).post().text()).getInteger("status"));
 		}
 
 		/**
@@ -220,7 +220,7 @@ public class KuaKeYunPan {
 			JSONObject data = new JSONObject();
 			data.put("fid", fid);
 			data.put("file_name", name);
-			return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(renameUrl).requestBody(data.toJSONString()).post().text()).getInteger("status"));
+			return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(renameUrl).requestBody(data.toString()).post().text()).getInteger("status"));
 		}
 
 		/**
@@ -249,7 +249,7 @@ public class KuaKeYunPan {
 			data.put("exclude_fids", new ArrayList<>());
 			data.put("filelist", fids);
 			data.put("to_pdir_fid", tofid);
-			return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(moveUrl).requestBody(data.toJSONString()).post().text()).getInteger("status"));
+			return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(moveUrl).requestBody(data.toString()).post().text()).getInteger("status"));
 		}
 
 		/**
@@ -266,7 +266,7 @@ public class KuaKeYunPan {
 			data.put("dir_path", "");
 			data.put("file_name", name);
 			data.put("pdir_fid", "0");
-			return JSONObject.parseObject(conn.url(fileUrl).requestBody(data.toJSONString()).post().text());
+			return JSONObject.parseObject(conn.url(fileUrl).requestBody(data.toString()).post().text());
 		}
 
 		/**
@@ -323,7 +323,7 @@ public class KuaKeYunPan {
 				preData.put("size", file.length());
 				preData.put("file_name", file.getName());
 				preData.put("format_type", URLConnection.guessContentTypeFromName(file.getName()));
-				JSONObject preInfo = JSONObject.parseObject(conn.url(preUrl).requestBody(preData.toJSONString()).post().text()).getJSONObject("data");
+				JSONObject preInfo = JSONObject.parseObject(conn.url(preUrl).requestBody(preData.toString()).post().text()).getJSONObject("data");
 				String authInfo = preInfo.getString("auth_info");
 				String taskId = preInfo.getString("task_id");
 				String bucket = preInfo.getString("bucket");
@@ -334,7 +334,7 @@ public class KuaKeYunPan {
 				authData.put("auth_info", authInfo);
 				authData.put("task_id", taskId);
 				authData.put("auth_meta", "PUT\n\nimage/jpeg\n" + date + "\nx-oss-date:" + date + "\nx-oss-user-agent:" + userAgent + "\n" + bucket + Symbol.SLASH + key + "?partNumber=1&uploadId=" + uploadId);
-				String auth = JSONObject.parseObject(conn.url(authUrl).requestBody(authData.toJSONString()).post().text()).getJSONObject("data").getString("auth_key");
+				String auth = JSONObject.parseObject(conn.url(authUrl).requestBody(authData.toString()).post().text()).getJSONObject("data").getString("auth_key");
 				String uploadUrl = "https://" + bucket + ".oss-cn-zhangjiakou.aliyuncs.com/" + key + "?uploadId=" + uploadId + "&partNumber=1";
 				Map<String, String> headers = new HashMap<>();
 				headers.put("x-oss-date", date);
@@ -344,7 +344,7 @@ public class KuaKeYunPan {
 				hashData.put("md5", FileUtil.getMD5(file));
 				hashData.put("sha1", FileUtil.getSHA1(file));
 				hashData.put("task_id", taskId);
-				return JSONObject.parseObject(conn.newRequest().url(hashUrl).requestBody(hashData.toJSONString()).post().text()).getJSONObject("data").getBoolean("finish");
+				return JSONObject.parseObject(conn.newRequest().url(hashUrl).requestBody(hashData.toString()).post().text()).getJSONObject("data").getBoolean("finish");
 			} catch (IOException e) {
 				return false;
 			}

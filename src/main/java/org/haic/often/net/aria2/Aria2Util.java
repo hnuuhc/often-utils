@@ -289,7 +289,7 @@ public class Aria2Util {
 			WebSocketClient socket = new WebSocketClient(URIUtil.getURI(aria2RpcUrl)) {
 				@Override
 				public void onOpen(ServerHandshake handshakedata) {
-					send(rpcSession().toJSONString());
+					send(rpcSession().toString());
 				}
 
 				@Override
@@ -331,7 +331,7 @@ public class Aria2Util {
 		@Contract(pure = true)
 		private String rpcSessionBody() {
 			JSONArray sessionsJson = JSON.parseArray(JSON.toJSONString(Stream.concat(rpcUrlSession().stream(), rpcSession().stream()).toList()));
-			return sessionsJson.size() == 1 ? sessionsJson.getJSONObject(0).toJSONString() : sessionsJson.toJSONString();
+			return sessionsJson.size() == 1 ? sessionsJson.getJSONObject(0).toString() : sessionsJson.toString();
 		}
 
 		@Contract(pure = true)

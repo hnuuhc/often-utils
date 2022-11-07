@@ -2,6 +2,7 @@ package org.haic.often.net.download;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.TypeReference;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
@@ -26,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 网络文件 工具类
@@ -207,7 +209,8 @@ public class HLSDownload {
 		private final AtomicBoolean writeStatus = new AtomicBoolean(true);
 		private int pieceTotal;
 		private int site;
-		private long schedule;
+		private final AtomicLong schedule = new AtomicLong();
+		private long fileSize;
 		private final Map<String, byte[]> writeData = new ConcurrentHashMap<>();
 		private List<String> links;
 
@@ -421,10 +424,10 @@ public class HLSDownload {
 		@Contract(pure = true)
 		public HLSConnection listener(@NotNull HLSListener listener, int millis) {
 			this.listener = () -> {
-				long rate = schedule;
+				long schedule, rate = 0;
 				do {
 					ThreadUtil.waitThread(millis);
-					// noinspection ConstantConditions
+					schedule = this.schedule.get();
 					listener.bytesTransferred(fileName, schedule - rate, pieceTotal - links.size() + site, pieceTotal);
 					rate = schedule;
 				} while (!Thread.currentThread().isInterrupted());
@@ -491,7 +494,7 @@ public class HLSDownload {
 					fileInfo.put("iv", iv);
 					fileInfo.put("data", links);
 					fileInfo.put("pieceSize", pieceTotal);
-					ReadWriteUtil.orgin(session).write(fileInfo.toJSONString());
+					ReadWriteUtil.orgin(session).write(fileInfo.toString());
 				}
 				case "FULL" -> {
 					if (Judge.isEmpty(fileName)) {
@@ -537,7 +540,7 @@ public class HLSDownload {
 					fileInfo = JSON.parseObject(ReadWriteUtil.orgin(session).readBytes());
 					request.setUrl(url = fileInfo.getString("url"));
 					fileName = fileInfo.getString("fileName");
-					schedule = fileInfo.getLong("schedule");
+					fileSize = fileInfo.getLong("fileSize");
 					headers = StringUtil.jsonToMap(fileInfo.getString("header"));
 					cookies = StringUtil.jsonToMap(fileInfo.getString("cookie"));
 					key = fileInfo.getString("key");
@@ -547,17 +550,17 @@ public class HLSDownload {
 					JSONObject renew = fileInfo.getJSONObject("renew");
 					if (storage.exists() && renew != null) {
 						links.subList(0, pieceTotal - renew.getInteger("status")).clear();
-						writeData.putAll(JSON.parseObject(renew.getString("data"), new TypeReference<HashMap<String, byte[]>>() {}));
+						writeData.putAll(JSON.parseObject(renew.getJSONObject("data").toString(JSONWriter.Feature.LargeObject), new TypeReference<HashMap<String, byte[]>>() {}));
 						renewLink.addAll(writeData.keySet().stream().toList());
 					}
 					fileInfo.remove("renew");
-					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toJSONString());  // 配置文件可能占用过多内存,重置配置文件
+					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 配置文件可能占用过多内存,重置配置文件
 				}
 				default -> throw new RuntimeException("Unknown mode");
 			}
 
 			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
-			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("schedule", schedule).fluentPut("renew", new JSONObject().fluentPut("status", links.size() - site).fluentPut("data", new JSONObject(writeData))).toJSONString());
+			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("fileSize", fileSize).fluentPut("renew", new JSONObject().fluentPut("status", links.size() - site).fluentPut("data", new JSONObject(writeData))));
 			Thread abnormal;
 			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
 			Thread listenTask = ThreadUtil.start(listener);
@@ -587,9 +590,8 @@ public class HLSDownload {
 				return new HttpResponse(this, request.statusCode(statusCodes.get()));
 			}
 
-			request.setFileSize(schedule); // 写入最终文件大小
 			session.delete(); // 删除会话信息文件
-			return new HttpResponse(this, request.statusCode(HttpStatus.SC_OK));
+			return new HttpResponse(this, request.setFileSize(fileSize).statusCode(HttpStatus.SC_OK));
 		}
 
 		@Contract(pure = true)
@@ -605,6 +607,7 @@ public class HLSDownload {
 				byte[] data = IOUtil.stream(inputStream).toByteArray();
 				if (Integer.parseInt(piece.header("content-length")) == data.length) {
 					writeData.put(link, data);
+					schedule.addAndGet(data.length);
 					if (writeStatus.get()) {
 						writeStatus.set(false);
 						writePiece();
@@ -632,7 +635,7 @@ public class HLSDownload {
 					}
 					byte[] bytes = Judge.isEmpty(key) ? writeData.get(link) : AESUtil.decode(writeData.get(link), key, iv);
 					out.write(bytes, 0, bytes.length);
-					schedule += bytes.length;
+					fileSize += bytes.length;
 					writeData.remove(link);
 					site++;
 				}

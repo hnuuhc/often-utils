@@ -2,6 +2,7 @@ package org.haic.often.util;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.TypeReference;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -185,6 +186,28 @@ public class StringUtil extends StringUtils {
 	}
 
 	/**
+	 * JSON格式字符串转换为JSONObject
+	 *
+	 * @param str JSON格式字符串
+	 * @return JSONObject对象
+	 */
+	@Contract(pure = true)
+	public static JSONObject toJSONObject(@NotNull String str) {
+		return JSONObject.parseObject(str, JSONObject.class, JSONReader.Feature.AllowUnQuotedFieldNames);
+	}
+
+	/**
+	 * JSON格式字符串转换为JSONArray
+	 *
+	 * @param str JSON格式字符串
+	 * @return JSONArray对象
+	 */
+	@Contract(pure = true)
+	public static JSONArray toJSONArray(@NotNull String str) {
+		return JSONArray.parseArray(str, JSONReader.Feature.AllowUnQuotedFieldNames);
+	}
+
+	/**
 	 * JSONP格式字符串转换为JSON格式字符串
 	 *
 	 * @param str JSONP格式字符串
@@ -211,7 +234,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static JSONObject jsonpToJSONObject(@NotNull String str) {
-		return JSONObject.parseObject(jsonpToJson(str));
+		return toJSONObject(jsonpToJson(str));
 	}
 
 	/**
@@ -222,7 +245,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static JSONArray jsonpToJSONArray(@NotNull String str) {
-		return JSONArray.parseArray(jsonpToJson(str));
+		return toJSONArray(jsonpToJson(str));
 	}
 
 	/**
