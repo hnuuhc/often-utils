@@ -121,7 +121,7 @@ public class HtmlUnitUtil {
 		@Contract(pure = true)
 		public HtmlConnection url(@NotNull String url) {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
-				throw new RuntimeException("Only http & https protocols supported");
+				throw new RuntimeException("Only http & https protocols supported : " + url);
 			}
 			request.setUrl(URIUtil.getURL(url));
 			return this;

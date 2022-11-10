@@ -95,7 +95,7 @@ public class JsoupUtil {
 		@Contract(pure = true)
 		public Connection url(@NotNull String url) {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
-				throw new RuntimeException("Only http & https protocols supported");
+				throw new RuntimeException("Only http & https protocols supported : " + url);
 			}
 			conn.url(url);
 			return this;

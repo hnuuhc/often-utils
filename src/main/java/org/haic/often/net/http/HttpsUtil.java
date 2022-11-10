@@ -108,7 +108,7 @@ public class HttpsUtil {
 		@Contract(pure = true)
 		public Connection url(@NotNull String url) {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
-				throw new RuntimeException("Only http & https protocols supported");
+				throw new RuntimeException("Only http & https protocols supported : " + url);
 			}
 			if (url.contains(Symbol.QUESTION)) {
 				if (url.endsWith(Symbol.QUESTION)) {
@@ -422,14 +422,7 @@ public class HttpsUtil {
 
 				String redirectUrl; // 修复重定向
 				if (followRedirects && URIUtil.statusIsNormal(res.statusCode()) && !Judge.isEmpty(redirectUrl = res.header("location"))) {
-					if (!redirectUrl.contains("://")) {
-						if (redirectUrl.startsWith(Symbol.SLASH)) {
-							redirectUrl = URIUtil.getDomain(redirectUrl) + redirectUrl;
-						} else {
-							redirectUrl = requestUrl.substring(0, requestUrl.lastIndexOf(Symbol.SLASH) + 1) + redirectUrl;
-						}
-					}
-					res = executeProgram(redirectUrl, "");
+					res = executeProgram(URIUtil.getRedirectUrl(requestUrl, redirectUrl), "");
 				}
 			} catch (IOException e) {
 				// e.printStackTrace();

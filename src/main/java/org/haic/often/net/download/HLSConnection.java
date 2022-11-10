@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Connection 接口是一个方便的 HTTP 客户端和会话对象，用于从 Web 下载文件。
@@ -70,6 +71,15 @@ public abstract class HLSConnection {
 	 */
 	@Contract(pure = true)
 	public abstract HLSConnection key(@NotNull String key, @NotNull String iv);
+
+	/**
+	 * 获取KEY时采用解密方法
+	 *
+	 * @param keyDecrypt KEY解密函数
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public abstract HLSConnection keyDecrypt(@NotNull Function<String, String> keyDecrypt);
 
 	/**
 	 * 获取新的Download对象并设置m3u8内容<br/> 配置文件 -> 包含待下载文件的下载信息的文件

@@ -37,6 +37,25 @@ public class URIUtil {
 	private static final Function<Character, Boolean> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
 
 	/**
+	 * 自动拼接跳转链接
+	 *
+	 * @param url      网址(例: <a herf="">https://xxx.xxx.com/</a>)
+	 * @param redirect 跳转链接
+	 * @return 跳转链接
+	 */
+	@Contract(pure = true)
+	public static String getRedirectUrl(@NotNull String url, @NotNull String redirect) {
+		if (!redirect.contains("://")) {
+			if (redirect.startsWith(Symbol.SLASH)) {
+				redirect = URIUtil.getDomain(url) + redirect;
+			} else {
+				redirect = url.substring(0, url.lastIndexOf(Symbol.SLASH) + 1) + redirect;
+			}
+		}
+		return redirect;
+	}
+
+	/**
 	 * 测试网络是IPv4还是IPv6访问优先(访问IPv4/IPv6双栈站点，如果返回IPv6地址，则IPv6访问优先)
 	 *
 	 * @return IP地址

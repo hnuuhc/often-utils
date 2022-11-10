@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 /**
  * 网络文件 工具类
@@ -198,6 +199,7 @@ public class HLSDownload {
 		private File session; // 配置信息文件
 		private File DEFAULT_FOLDER = SystemUtil.DEFAULT_DOWNLOAD_FOLDER; // 存储目录
 		private List<Integer> retryStatusCodes = new ArrayList<>();
+		private Function<String, String> keyDecrypt = key -> key;
 
 		private Map<String, String> headers = new HashMap<>(); // headers
 		private Map<String, String> cookies = new HashMap<>(); // cookies
@@ -206,6 +208,7 @@ public class HLSDownload {
 		private final SionRequest request = new SionRequest();
 		private JSONObject fileInfo = new JSONObject();
 		private Runnable listener;
+		private final AtomicInteger writeCount = new AtomicInteger();
 		private final AtomicBoolean writeStatus = new AtomicBoolean(true);
 		private int pieceTotal;
 		private int site;
@@ -254,6 +257,12 @@ public class HLSDownload {
 		public HLSConnection key(@NotNull String key, @NotNull String iv) {
 			this.key = key;
 			this.iv = iv;
+			return this;
+		}
+
+		@Contract(pure = true)
+		public HLSConnection keyDecrypt(@NotNull Function<String, String> keyDecrypt) {
+			this.keyDecrypt = keyDecrypt;
 			return this;
 		}
 
@@ -442,26 +451,19 @@ public class HLSDownload {
 
 		@Contract(pure = true)
 		private SionResponse execute(@NotNull String method) {
-			initializationStatus();
+			initializationStatus(); // 初始化进度
 			Connection conn = HttpsUtil.newSession().proxy(proxy).headers(headers).cookies(cookies).retry(retry, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
 			List<String> renewLink = new ArrayList<>();
 			switch (method) {
 				case "BODY" -> {
 					if (Judge.isEmpty(fileName)) {
-						throw new RuntimeException("fileName is exists");
+						throw new RuntimeException("file name is not exists");
 					}
 					String head = url.substring(0, url.lastIndexOf(Symbol.SLASH) + 1);
 					if (body.contains("#EXT-X-STREAM-INF")) {
 						List<String> info = body.lines().toList();
 						int index = info.indexOf(info.stream().filter(l -> l.startsWith("#EXT-X-STREAM-INF")).findFirst().orElseThrow());
-						String redirectUrl = info.get(index + 1);
-						if (!redirectUrl.contains("://")) {
-							if (redirectUrl.startsWith(Symbol.SLASH)) {
-								redirectUrl = URIUtil.getDomain(redirectUrl) + redirectUrl;
-							} else {
-								redirectUrl = head + redirectUrl;
-							}
-						}
+						String redirectUrl = URIUtil.getRedirectUrl(url, info.get(index + 1));
 						request.setUrl(this.url = redirectUrl);
 						fileInfo.put("url", redirectUrl);
 						return execute("FULL");
@@ -472,14 +474,19 @@ public class HLSDownload {
 						if (!encryptMethod.contains("AES")) {
 							throw new RuntimeException("unknown encryption method " + encryptMethod);
 						}
-						String keyUrl = StringUtil.strip(extKey[1].substring(4), Symbol.DOUBLE_QUOTE);
+						String keyUrl = URIUtil.getRedirectUrl(url, StringUtil.strip(extKey[1].substring(4), Symbol.DOUBLE_QUOTE));
 						Response res = conn.url(keyUrl).execute();
 						int statusCode = res.statusCode();
 						if (!URIUtil.statusIsOK(statusCode)) {
 							return new HttpResponse(this, request.statusCode(statusCode));
 						}
 						request.headers(res.headers()).cookies(res.cookies());
-						key = res.body();
+						key = keyDecrypt.apply(res.body()); // key解密
+						if (key.length() != 16 && key.length() != 24 && key.length() != 32) {
+							throw new RuntimeException("KEY长度不正确: " + key);
+						} else if (!key.matches("^[0-9a-zA-Z]+$")) {
+							throw new RuntimeException("KEY存在非法字符,可能被加密: " + key);
+						}
 						if (extKey.length == 3) {
 							iv = extKey[2].substring(3);
 						}
@@ -572,6 +579,10 @@ public class HLSDownload {
 					renewLink.remove(link);
 					continue;
 				}
+				while (writeCount.get() >= MAX_THREADS) { // 阻塞线程,防止内存存储数据过大
+					ThreadUtil.waitThread(100);
+				}
+				writeCount.incrementAndGet();
 				executor.execute(() -> {
 					int statusCode = FULL(link, retry);
 					if (!URIUtil.statusIsOK(statusCode)) {
@@ -600,6 +611,7 @@ public class HLSDownload {
 		 */
 		@Contract(pure = true)
 		private void initializationStatus() {
+			writeCount.set(0);
 			schedule.set(0);
 			writeData.clear();
 		}
@@ -648,6 +660,7 @@ public class HLSDownload {
 					fileSize += bytes.length;
 					writeData.remove(link);
 					site++;
+					writeCount.decrementAndGet();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
