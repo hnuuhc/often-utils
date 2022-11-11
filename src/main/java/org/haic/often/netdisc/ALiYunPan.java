@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalStorage;
+import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
@@ -144,7 +145,7 @@ public class ALiYunPan {
 			Response res = conn.url(userInfoUrl).requestBody("{}").method(Method.POST).execute();
 			userInfo = JSONObject.parseObject(res.body());
 			if (!URIUtil.statusIsOK(res.statusCode())) {
-				throw new RuntimeException(userInfo.getString("message"));
+				throw new YunPanException(userInfo.getString("message"));
 			}
 		}
 

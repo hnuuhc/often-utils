@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.exception.HttpException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
@@ -123,7 +124,7 @@ public class HtmlUnitUtil {
 		@Contract(pure = true)
 		public HtmlConnection url(@NotNull String url) {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
-				throw new RuntimeException("Only http & https protocols supported : " + url);
+				throw new HttpException("Only http & https protocols supported : " + url);
 			}
 			request.setUrl(URIUtil.getURL(url));
 			return this;
@@ -408,7 +409,7 @@ public class HtmlUnitUtil {
 			}
 			// webClient.close(); // 关闭webClient
 			if (failThrow && !URIUtil.statusIsNormal(statusCode)) {
-				throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + request.getUrl());
+				throw new HttpException("连接URL失败，状态码: " + statusCode + " URL: " + request.getUrl());
 			}
 			return response;
 		}

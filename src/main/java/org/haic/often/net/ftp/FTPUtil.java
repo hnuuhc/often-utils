@@ -6,6 +6,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.io.CopyStreamListener;
 import org.haic.often.Symbol;
+import org.haic.often.exception.DownloadException;
 import org.haic.often.net.URIUtil;
 import org.haic.often.util.FileUtil;
 import org.jetbrains.annotations.Contract;
@@ -222,7 +223,7 @@ public class FTPUtil {
 			remote = remote.startsWith(Symbol.SLASH) ? remote : Symbol.SLASH + remote;
 			String fileName = remote.substring(remote.lastIndexOf(Symbol.SLASH) + 1);
 			if (fileName.isEmpty()) {
-				throw new RuntimeException("not has fileName");
+				throw new DownloadException("not has fileName");
 			}
 			File localFile = new File(local);
 			String folder = remote.substring(0, remote.lastIndexOf(Symbol.SLASH) + 1);
@@ -255,7 +256,7 @@ public class FTPUtil {
 			String folder = remote.substring(0, remote.lastIndexOf(Symbol.SLASH) + 1);
 			String fileName = remote.substring(remote.lastIndexOf(Symbol.SLASH) + 1);
 			if (fileName.isEmpty()) {
-				throw new RuntimeException("not has fileName");
+				throw new DownloadException("not has fileName");
 			}
 			File localFile = new File(local);
 			FileUtil.createFolder(localFile.getParentFile());

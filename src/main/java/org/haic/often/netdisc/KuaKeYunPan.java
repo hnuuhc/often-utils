@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
+import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
@@ -87,7 +88,7 @@ public class KuaKeYunPan {
 			conn.cookies(cookies);
 			JSONObject loginInfo = JSONObject.parseObject(conn.url(flushUrl).get().text());
 			if (!URIUtil.statusIsOK(loginInfo.getInteger("status"))) {
-				throw new RuntimeException(loginInfo.getString("message"));
+				throw new YunPanException(loginInfo.getString("message"));
 			}
 		}
 

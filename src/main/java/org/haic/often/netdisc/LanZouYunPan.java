@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
+import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
@@ -220,7 +221,7 @@ public class LanZouYunPan {
 		private LanZouYunPanAPI(Map<String, String> cookies) {
 			conn.cookies(cookies);
 			if (conn.url(mydiskUrl).get().selectFirst("div[class='mydisk_bar']") == null) {
-				throw new RuntimeException("登陆信息无效,请检查cookies是否正确");
+				throw new YunPanException("登陆信息无效,请检查cookies是否正确");
 			}
 		}
 

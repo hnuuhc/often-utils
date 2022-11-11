@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
+import org.haic.often.exception.YunPanException;
 import org.haic.often.net.download.SionDownload;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
@@ -176,7 +177,7 @@ public class YunPan123 {
 			conn.auth(auth);
 			JSONObject status = JSONObject.parseObject(conn.url(userInfoUrl).execute().body());
 			if (!Judge.isEmpty(status.getInteger("code"))) {
-				throw new RuntimeException(status.getString("message"));
+				throw new YunPanException(status.getString("message"));
 			}
 		}
 

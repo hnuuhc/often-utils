@@ -2,6 +2,7 @@ package org.haic.often.util;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.haic.often.Judge;
+import org.haic.often.exception.AESException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Cipher;
@@ -38,7 +39,7 @@ public class AESUtil {
 			if (Judge.isEmpty(param.length())) {
 				params = new byte[16];
 			} else if (param.length() < 16) {
-				throw new RuntimeException("param length is error");
+				throw new AESException("param length is error");
 			} else {
 				params = param.substring(0, 16).getBytes();
 			}
@@ -47,7 +48,7 @@ public class AESUtil {
 			cipher.init(Cipher.DECRYPT_MODE, keySpec, new IvParameterSpec(params));
 			return cipher.doFinal(bytes);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new AESException(e);
 		}
 	}
 
@@ -64,7 +65,7 @@ public class AESUtil {
 			cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key.getBytes(), ALGORITHM));
 			return cipher.doFinal(bytes);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new AESException(e);
 		}
 	}
 

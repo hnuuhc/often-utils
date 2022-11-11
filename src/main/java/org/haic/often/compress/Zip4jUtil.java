@@ -6,6 +6,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.*;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.exception.ZipException;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ListUtil;
 import org.jetbrains.annotations.Contract;
@@ -186,7 +187,7 @@ public class Zip4jUtil {
 	@Contract(pure = true)
 	public List<String> compress(@NotNull File origin) {
 		if (!origin.exists()) {
-			throw new RuntimeException("Not found " + origin);
+			throw new ZipException("Not found " + origin);
 		}
 		List<String> result = new ArrayList<>();
 		try (ZipFile zipFile = new ZipFile(archive)) {
@@ -229,10 +230,10 @@ public class Zip4jUtil {
 	@Contract(pure = true)
 	public List<String> deCompress(@NotNull File out) {
 		if (!archive.isFile()) {
-			throw new RuntimeException("Not found or not file " + archive);
+			throw new ZipException("Not found or not file " + archive);
 		}
 		if (out.isFile()) {
-			throw new RuntimeException("That is a file " + out);
+			throw new ZipException("That is a file " + out);
 		}
 		File parent = out.getParentFile();
 		if (parent != null) {
@@ -242,7 +243,7 @@ public class Zip4jUtil {
 		try (ZipFile zipFile = new ZipFile(archive)) {
 			zipFile.setCharset(charset);
 			if (!zipFile.isValidZipFile()) {
-				throw new RuntimeException("压缩文件不合法,可能被损坏");
+				throw new ZipException("压缩文件不合法,可能被损坏");
 			}
 			if (zipFile.isEncrypted()) { // 3.判断是否已加密
 				zipFile.setPassword(passwd);
@@ -277,7 +278,7 @@ public class Zip4jUtil {
 	@Contract(pure = true)
 	public List<String> addFiles(@NotNull File origin) {
 		if (!origin.exists()) {
-			throw new RuntimeException("Not found " + origin);
+			throw new ZipException("Not found " + origin);
 		}
 		try (ZipFile zipFile = new ZipFile(archive)) {
 			zipFile.setCharset(charset);
@@ -332,7 +333,7 @@ public class Zip4jUtil {
 	@Contract(pure = true)
 	public boolean remove(@NotNull String origin) {
 		if (!archive.isFile()) {
-			throw new RuntimeException("Not found or not file " + archive);
+			throw new ZipException("Not found or not file " + archive);
 		}
 		try (ZipFile zipFile = new ZipFile(archive)) {
 			zipFile.removeFile(origin);
@@ -351,7 +352,7 @@ public class Zip4jUtil {
 	@Contract(pure = true)
 	public boolean remove(@NotNull List<String> origin) {
 		if (!archive.isFile()) {
-			throw new RuntimeException("Not found or not file " + archive);
+			throw new ZipException("Not found or not file " + archive);
 		}
 		try (ZipFile zipFile = new ZipFile(archive)) {
 			zipFile.removeFiles(origin);

@@ -4,6 +4,7 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.jar.JarArchiveInputStream;
 import org.apache.commons.compress.archivers.jar.JarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.haic.often.exception.ZipException;
 import org.haic.often.util.FileUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -76,7 +77,7 @@ public class JarUtil extends ZipUtil {
 	@Contract(pure = true)
 	public List<String> deCompress(@NotNull File out) {
 		if (!archive.isFile()) {
-			throw new RuntimeException("Not found or not file " + archive);
+			throw new ZipException("Not found or not file " + archive);
 		}
 		List<String> result = new ArrayList<>();
 		try (JarArchiveInputStream inputStream = new JarArchiveInputStream(new BufferedInputStream(new FileInputStream(archive)), charsetName)) {
@@ -106,7 +107,7 @@ public class JarUtil extends ZipUtil {
 	@Contract(pure = true)
 	public List<String> addBytes(@NotNull Map<String, byte[]> origin) {
 		if (!archive.isFile()) {
-			throw new RuntimeException("Not found or not file " + archive);
+			throw new ZipException("Not found or not file " + archive);
 		}
 		List<String> result = new ArrayList<>();
 		if (out == null) {

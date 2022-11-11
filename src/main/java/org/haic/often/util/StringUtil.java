@@ -8,6 +8,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.exception.StringException;
+import org.haic.often.function.ByteFunction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +18,6 @@ import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -84,7 +85,7 @@ public class StringUtil extends StringUtils {
 	 * @return 判断结果
 	 */
 	public static boolean isUTF8(byte[] bytes) {
-		Function<Byte, Integer> unsignedInt = data -> data & 0xff;
+		ByteFunction<Integer> unsignedInt = data -> data & 0xff;
 		boolean isUTF8 = true;
 		boolean isASCII = true;
 		for (int i = 0; i < bytes.length; i++) {
@@ -222,7 +223,7 @@ public class StringUtil extends StringUtils {
 		} else if (str.endsWith(Symbol.CLOSE_BRACKET)) {
 			return str.substring(str.indexOf(Symbol.OPEN_BRACKET));
 		} else {
-			throw new RuntimeException("非JSONP格式");
+			throw new StringException("非JSONP格式");
 		}
 	}
 
@@ -294,7 +295,7 @@ public class StringUtil extends StringUtils {
 		domain = Judge.isEmpty(domain.indexOf(46)) ? domain.substring(1) : domain;
 		int count = StringUtil.countMatches(domain, (char) 46);
 		if (Judge.isEmpty(count)) {
-			throw new RuntimeException(domain + " not is domain");
+			throw new StringException(domain + " not is domain");
 		}
 		String[] subdomain = domain.split("\\.");
 		return (RandomStringUtils.randomAlphanumeric(8, 16) + (char) 64 + subdomain[subdomain.length - 2] + (char) 46 + subdomain[subdomain.length - 1]).toLowerCase();
@@ -458,7 +459,7 @@ public class StringUtil extends StringUtils {
 		try {
 			return new String(str.getBytes("GBK"), StandardCharsets.UTF_8);
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			throw new StringException(e);
 		}
 	}
 
@@ -474,7 +475,7 @@ public class StringUtil extends StringUtils {
 		try {
 			return new String(str.getBytes(StandardCharsets.UTF_8), "GBK");
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			throw new StringException(e);
 		}
 	}
 

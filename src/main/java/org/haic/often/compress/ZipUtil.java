@@ -6,6 +6,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
 import org.haic.often.Symbol;
+import org.haic.often.exception.ZipException;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
 import org.jetbrains.annotations.Contract;
@@ -152,7 +153,7 @@ public class ZipUtil {
 	@Contract(pure = true)
 	public List<String> deCompress(@NotNull File out) {
 		if (!archive.isFile()) {
-			throw new RuntimeException("Not found or not file " + archive);
+			throw new ZipException("Not found or not file " + archive);
 		}
 		List<String> result = new ArrayList<>();
 		try (ZipArchiveInputStream inputStream = new ZipArchiveInputStream(new BufferedInputStream(new FileInputStream(archive)), charsetName)) {
@@ -191,7 +192,7 @@ public class ZipUtil {
 	@Contract(pure = true)
 	public List<String> compress(@NotNull File origin) {
 		if (!origin.exists()) {
-			throw new RuntimeException("Not found " + origin);
+			throw new ZipException("Not found " + origin);
 		}
 		return compress(getFilesInfo(origin));
 	}
@@ -301,7 +302,7 @@ public class ZipUtil {
 	@Contract(pure = true)
 	public List<String> addBytes(@NotNull Map<String, byte[]> origin) {
 		if (!archive.isFile()) {
-			throw new RuntimeException("Not found or not file " + archive);
+			throw new ZipException("Not found or not file " + archive);
 		}
 		List<String> result = new ArrayList<>();
 		if (out == null) {
@@ -342,7 +343,7 @@ public class ZipUtil {
 	@Contract(pure = true)
 	protected Map<String, byte[]> getFilesInfo(@NotNull File origin) {
 		if (!origin.exists()) {
-			throw new RuntimeException("Not found " + origin);
+			throw new ZipException("Not found " + origin);
 		}
 		return origin.isFile() ? Map.of(includeRoot ? origin.getParentFile().getName() + Symbol.SLASH : "" + origin.getName(), ReadWriteUtil.orgin(origin).readBytes()) : FileUtil.iterateFiles(origin).parallelStream().collect(Collectors.toMap(file -> includeRoot ? origin.getName() + Symbol.SLASH : "" + file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", Symbol.SLASH), file -> ReadWriteUtil.orgin(file).readBytes()));
 	}

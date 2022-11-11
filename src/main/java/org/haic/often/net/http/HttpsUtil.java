@@ -3,6 +3,7 @@ package org.haic.often.net.http;
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.exception.HttpException;
 import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
@@ -111,7 +112,7 @@ public class HttpsUtil {
 		@Contract(pure = true)
 		public Connection url(@NotNull String url) {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
-				throw new RuntimeException("Only http & https protocols supported : " + url);
+				throw new HttpException("Only http & https protocols supported : " + url);
 			}
 			if (url.contains(Symbol.QUESTION)) {
 				if (url.endsWith(Symbol.QUESTION)) {
@@ -368,7 +369,7 @@ public class HttpsUtil {
 				statusCode = response.statusCode();
 			}
 			if (failThrow && !URIUtil.statusIsNormal(statusCode)) {
-				throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
+				throw new HttpException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 			}
 			return response;
 		}
@@ -414,7 +415,7 @@ public class HttpsUtil {
 						conn = connection(requestUrl);
 						conn.connect();
 					}
-					default -> throw new RuntimeException("Unknown mode");
+					default -> throw new HttpException("Unknown mode");
 				}
 				conn.disconnect();
 				// 维护cookies

@@ -3,6 +3,8 @@ package org.haic.often.net.http;
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.exception.HttpException;
+import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
@@ -95,7 +97,7 @@ public class JsoupUtil {
 		@Contract(pure = true)
 		public Connection url(@NotNull String url) {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
-				throw new RuntimeException("Only http & https protocols supported : " + url);
+				throw new HttpException("Only http & https protocols supported : " + url);
 			}
 			conn.url(url);
 			return this;
@@ -354,7 +356,7 @@ public class JsoupUtil {
 				statusCode = res.statusCode();
 			}
 			if (failThrow && !URIUtil.statusIsNormal(statusCode)) {
-				throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + conn.request().url());
+				throw new YunPanException("连接URL失败，状态码: " + statusCode + " URL: " + conn.request().url());
 			}
 			return res;
 		}

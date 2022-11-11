@@ -13,7 +13,7 @@ import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.function.DoubleFunction;
 
 /**
  * 图片工具类
@@ -196,7 +196,7 @@ public class ImageUtil {
 		int centerY = height / 2;
 		double radius = Math.sqrt(centerX * centerX + centerY * centerY);
 		double angle = theta * Math.PI / 180; // 度转弧度
-		Function<Double, Double> getX = angleX -> {
+		DoubleFunction<Double> getX = angleX -> {
 			double[] results = new double[4];
 			results[0] = radius * Math.cos(angleX + angle);
 			results[1] = radius * Math.cos(Math.PI - angleX + angle);
@@ -205,7 +205,7 @@ public class ImageUtil {
 			Arrays.sort(results);
 			return results[3] - results[0];
 		};
-		Function<Double, Double> getY = angleY -> {
+		DoubleFunction<Double> getY = angleY -> {
 			double[] results = new double[4];
 			results[0] = radius * Math.sin(angleY + angle);
 			results[1] = radius * Math.sin(Math.PI - angleY + angle);

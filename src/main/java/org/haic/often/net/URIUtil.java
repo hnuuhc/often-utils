@@ -5,6 +5,7 @@ import org.apache.http.HttpStatus;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.Terminal;
+import org.haic.often.function.ToBooleanFunction;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
 import org.haic.often.util.Base64Util;
@@ -20,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
  */
 public class URIUtil {
 
-	private static final Function<Character, Boolean> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(c.toString());
-	private static final Function<Character, Boolean> safetyChar = c -> Character.isDigit(c) || Character.isLetter(c);
-	private static final Function<Character, Boolean> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
+	private static final ToBooleanFunction<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(c.toString());
+	private static final ToBooleanFunction<Character> safetyChar = c -> Character.isDigit(c) || Character.isLetter(c);
+	private static final ToBooleanFunction<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
 
 	/**
 	 * 自动拼接跳转链接
@@ -45,14 +45,7 @@ public class URIUtil {
 	 */
 	@Contract(pure = true)
 	public static String getRedirectUrl(@NotNull String url, @NotNull String redirect) {
-		if (!redirect.contains("://")) {
-			if (redirect.startsWith(Symbol.SLASH)) {
-				redirect = URIUtil.getDomain(url) + redirect;
-			} else {
-				redirect = url.substring(0, url.lastIndexOf(Symbol.SLASH) + 1) + redirect;
-			}
-		}
-		return redirect;
+		return redirect.startsWith("http") ? redirect : redirect.startsWith(Symbol.SLASH) ? getDomain(url) + redirect : url.substring(0, url.lastIndexOf(Symbol.SLASH) + 1) + redirect;
 	}
 
 	/**
@@ -356,7 +349,7 @@ public class URIUtil {
 	 */
 	@Contract(pure = true)
 	public static boolean isIPv6Address(@NotNull String ipAddr) {
-		Function<String, Boolean> valid = host -> host.length() < 40 && host.matches("^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4})*)?)::((([0-9A-Fa-f]{1,4}:)*[0-9A-Fa-f]{1,4})?)$");
+		ToBooleanFunction<String> valid = host -> host.length() < 40 && host.matches("^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4})*)?)::((([0-9A-Fa-f]{1,4}:)" + "*[0-9A-Fa-f]{1,4})?)$");
 		return ipAddr.matches("\\[.*]:\\d{1,5}") ? valid.apply(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET))) : valid.apply(ipAddr);
 	}
 

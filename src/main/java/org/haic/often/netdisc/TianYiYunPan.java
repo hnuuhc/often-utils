@@ -6,6 +6,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
+import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
@@ -23,6 +24,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -175,7 +177,7 @@ public class TianYiYunPan {
 			conn.cookies(cookies).header("accept", "application/json;charset=UTF-8").url(loginUrl).execute(); // 获取会话cookie
 			Response res = conn.url(userInfoForPortalUrl).execute();
 			if (!URIUtil.statusIsOK(res.statusCode())) {
-				throw new RuntimeException(JSONObject.parseObject(res.body()).getString("errorMsg"));
+				throw new YunPanException(JSONObject.parseObject(res.body()).getString("errorMsg"));
 			}
 		}
 
@@ -657,7 +659,7 @@ public class TianYiYunPan {
 			Response res = conn.url(loginSubmitUrl).header("lt", lt).header("reqid", reqId).header("referer", encryptConfUrl).data(data).method(Method.POST).execute();
 			JSONObject info = JSONObject.parseObject(res.body());
 			if (!info.getString("result").equals("0")) {
-				throw new RuntimeException(info.getString("msg"));
+				throw new YunPanException(info.getString("msg"));
 			}
 			return HttpsUtil.connect(info.getString("toUrl")).execute().cookies();
 		}
@@ -680,7 +682,7 @@ public class TianYiYunPan {
 
 		private static String b64tohex(String data) {
 			char[] a = data.toCharArray();
-			Function<Integer, Character> intTochar = i -> "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray()[i];
+			IntFunction<Character> intTochar = i -> "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray()[i];
 			String b64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 			StringBuilder d = new StringBuilder();
 			int e = 0, c = 0;

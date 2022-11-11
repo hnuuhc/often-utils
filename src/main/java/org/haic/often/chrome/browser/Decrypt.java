@@ -5,6 +5,7 @@ import com.github.windpapi4j.WinDPAPI;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.haic.often.Judge;
+import org.haic.often.function.StringFunction;
 import org.haic.often.util.ReadWriteUtil;
 
 import javax.crypto.Cipher;
@@ -13,7 +14,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.security.Security;
 import java.util.Arrays;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -78,7 +78,7 @@ public class Decrypt {
 	 * @return decrypt Value
 	 */
 	public static String levelDBDecode(byte[] bytes) {
-		Function<String, String> unsigned = unsignedInt -> unsignedInt.length() == 1 ? "0" + unsignedInt : unsignedInt;
+		StringFunction<String> unsigned = unsignedInt -> unsignedInt.length() == 1 ? "0" + unsignedInt : unsignedInt;
 		StringBuilder result = new StringBuilder();
 		if (Judge.isEmpty(bytes[0])) {
 			for (int i = 1; i < bytes.length - 1; i += 2) {

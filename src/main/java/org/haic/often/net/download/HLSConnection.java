@@ -1,5 +1,7 @@
 package org.haic.often.net.download;
 
+import org.haic.often.function.StringFunction;
+import org.haic.often.function.ToBooleanFunction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -7,7 +9,6 @@ import java.io.File;
 import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Connection 接口是一个方便的 HTTP 客户端和会话对象，用于从 Web 下载文件。
@@ -79,7 +80,7 @@ public abstract class HLSConnection {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract HLSConnection keyDecrypt(@NotNull Function<String, String> keyDecrypt);
+	public abstract HLSConnection keyDecrypt(@NotNull StringFunction<String> keyDecrypt);
 
 	/**
 	 * 获取新的Download对象并设置m3u8内容<br/> 配置文件 -> 包含待下载文件的下载信息的文件
@@ -89,6 +90,19 @@ public abstract class HLSConnection {
 	 */
 	@Contract(pure = true)
 	public abstract HLSConnection body(@NotNull String body);
+
+	/**
+	 * M3U8参数中可能存在多个来源(#EXT-X-STREAM-INF),通过截取段设置筛选条件,默认为选择第一个
+	 * <p>
+	 * 例: #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1100000,RESOLUTION=960x540
+	 * <p>
+	 * 参数: l -> l.contains("BANDWIDTH=1100000")
+	 *
+	 * @param select 筛选条件
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public abstract HLSConnection select(@NotNull ToBooleanFunction<String> select);
 
 	/**
 	 * 连接用户代理（ 字符串 用户代理）<br/> 设置请求用户代理标头

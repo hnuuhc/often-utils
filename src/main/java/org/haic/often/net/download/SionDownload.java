@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.exception.DownloadException;
 import org.haic.often.net.MimeType;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.HttpStatus;
@@ -229,7 +230,7 @@ public class SionDownload {
 		@Contract(pure = true)
 		public SionConnection session(@NotNull File session) {
 			if (!session.getName().endsWith(SESSION_SUFFIX)) {
-				throw new RuntimeException("Not is session file: " + session);
+				throw new DownloadException("Not is session file: " + session);
 			} else if (session.isFile()) { // 如果设置配置文件下载，并且配置文件存在，获取信息
 				fileInfo = JSONObject.parseObject(ReadWriteUtil.orgin(session).read());
 				request.setUrl(url = fileInfo.getString("url"));
@@ -239,7 +240,7 @@ public class SionDownload {
 				headers = StringUtil.jsonToMap(fileInfo.getString("header"));
 				cookies = StringUtil.jsonToMap(fileInfo.getString("cookie"));
 			} else { // 配置文件不存在，抛出异常
-				throw new RuntimeException("Not found or not is file " + session);
+				throw new DownloadException("Not found or not is file " + session);
 			}
 			this.method = SionMethod.FILE;
 			this.session = session;
@@ -288,7 +289,7 @@ public class SionDownload {
 		@Contract(pure = true)
 		public SionConnection thread(int nThread) {
 			if (nThread < 1) {
-				throw new RuntimeException("thread Less than 1");
+				throw new DownloadException("thread Less than 1");
 			}
 			MAX_THREADS = nThread;
 			return this;
@@ -535,7 +536,7 @@ public class SionDownload {
 					fileInfo.put("cookie", JSONObject.toJSONString(cookies));
 					ReadWriteUtil.orgin(session).write(fileInfo.toString());
 				}
-				default -> throw new RuntimeException("Unknown mode");
+				default -> throw new DownloadException("Unknown mode");
 			}
 
 			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
@@ -552,14 +553,14 @@ public class SionDownload {
 					statusCode = MULTITHREAD(PIECE_COUNT, (long) Math.ceil((double) fileSize / PIECE_COUNT), MAX_THREADS);
 				}
 				case MANDATORY -> statusCode = MULTITHREAD(MAX_THREADS, (long) Math.ceil((double) fileSize / MAX_THREADS), MAX_THREADS);
-				default -> throw new RuntimeException("Unknown mode");
+				default -> throw new DownloadException("Unknown mode");
 			}
 			Runtime.getRuntime().removeShutdownHook(abnormal);
 			ThreadUtil.interrupt(listenTask);
 			if (!URIUtil.statusIsOK(statusCode)) { // 验证下载状态
 				breakPoint.run(); // 下载失败写入断点
 				if (failThrow) {
-					throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
+					throw new DownloadException("文件下载失败，状态码: " + statusCode + " URL: " + url);
 				}
 				return new HttpResponse(this, request.statusCode(statusCode));
 			}
@@ -580,7 +581,7 @@ public class SionDownload {
 					failThrowText = "File verification is not accurate";
 				}
 				if (failThrow) {
-					throw new RuntimeException(failThrowText + ", Server md5:" + hash + " Local md5: " + fileHash + " URL: " + url);
+					throw new DownloadException(failThrowText + ", Server md5:" + hash + " Local md5: " + fileHash + " URL: " + url);
 				} else {
 					return new HttpResponse(this, request.statusCode(HttpStatus.SC_SERVER_RESOURCE_ERROR));
 				}

@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 /**
  * 均值哈希实现图像指纹比较
@@ -233,7 +233,7 @@ public final class FingerPrint {
 	 * @return 二值化字节数组
 	 */
 	private static byte[] binaryzation(byte[] src) {
-		Function<byte[], Integer> average = l -> { // 计算均值
+		ToIntFunction<byte[]> average = l -> { // 计算均值
 			long sum = 0;
 			for (byte b : src) { // 将数组元素转为无符号整数
 				sum += (long) b & 0xff;
@@ -241,7 +241,7 @@ public final class FingerPrint {
 			return Math.round((float) sum / src.length);
 		};
 		byte[] dst = src.clone();
-		int mean = average.apply(src);
+		int mean = average.applyAsInt(src);
 		for (int i = 0; i < dst.length; i++) { // 将数组元素转为无符号整数再比较
 			dst[i] = (byte) (((int) dst[i] & 0xff) >= mean ? 1 : 0);
 		}

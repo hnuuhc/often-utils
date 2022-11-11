@@ -3,6 +3,7 @@ package org.haic.often.util;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.exception.StringException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -104,7 +105,7 @@ public class FileUtil {
 		} else if (hash.length() == 128) {
 			result = FileUtil.getSHA512(file);
 		} else {
-			throw new RuntimeException("hash值位数不正确");
+			throw new StringException("hash值位数不正确");
 		}
 		return result.toLowerCase();
 	}
@@ -117,7 +118,7 @@ public class FileUtil {
 	@Contract(pure = true)
 	public static void fileNameValidity(@NotNull String fileName) {
 		if (FileUtil.nameLength(fileName) > 240) {
-			throw new RuntimeException("Error: File name length is greater than 240 FileName: " + fileName);
+			throw new StringException("Error: File name length is greater than 240 FileName: " + fileName);
 		}
 	}
 
