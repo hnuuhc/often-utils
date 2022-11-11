@@ -575,21 +575,19 @@ public class HLSDownload {
 			AtomicInteger statusCodes = new AtomicInteger(HttpStatus.SC_OK);
 			ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
 			for (String link : links) {
-				if (renewLink.contains(link)) {
-					renewLink.remove(link);
-					continue;
-				}
-				while (writeCount.get() >= MAX_THREADS) { // 阻塞线程,防止内存存储数据过大
-					ThreadUtil.waitThread(100);
-				}
-				writeCount.incrementAndGet();
-				executor.execute(() -> {
-					int statusCode = FULL(link, retry);
-					if (!URIUtil.statusIsOK(statusCode)) {
-						statusCodes.set(statusCode);
-						executor.shutdownNow(); // 结束未开始的线程，并关闭线程池
+				if (!renewLink.remove(link)) {
+					while (writeCount.get() >= MAX_THREADS) { // 阻塞线程,防止内存存储数据过大
+						ThreadUtil.waitThread(100);
 					}
-				});
+					writeCount.incrementAndGet();
+					executor.execute(() -> {
+						int statusCode = FULL(link, retry);
+						if (!URIUtil.statusIsOK(statusCode)) {
+							statusCodes.set(statusCode);
+							executor.shutdownNow(); // 结束未开始的线程，并关闭线程池
+						}
+					});
+				}
 			}
 			ThreadUtil.waitEnd(executor); // 等待线程结束
 			Runtime.getRuntime().removeShutdownHook(abnormal);

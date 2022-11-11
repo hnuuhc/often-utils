@@ -45,6 +45,10 @@ import java.util.zip.InflaterInputStream;
  */
 public class HttpsUtil {
 
+	static {
+		System.setProperty("http.keepAlive", "false"); // 关闭长连接复用,防止流阻塞
+	}
+
 	private HttpsUtil() {
 	}
 
@@ -92,7 +96,6 @@ public class HttpsUtil {
 		private SSLSocketFactory sslSocketFactory = IgnoreSSLSocket.MyX509TrustManager().getSocketFactory();
 
 		private HttpConnection(@NotNull String url) {
-			System.setProperty("http.keepAlive", "false"); // 关闭长连接复用,防止流阻塞
 			initialization(url);
 		}
 
