@@ -38,6 +38,10 @@ import java.util.stream.Collectors;
  */
 public class HtmlUnitUtil {
 
+	static {
+		Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF); // 屏蔽HtmlUnit日志
+	}
+
 	private HtmlUnitUtil() {
 	}
 
@@ -70,8 +74,6 @@ public class HtmlUnitUtil {
 
 	@Contract(pure = true)
 	private static WebClient createClient() {
-		// 屏蔽HtmlUnit日志
-		Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 		// HtmlUnit 模拟浏览器,浏览器基本设置
 		WebClient webClient = new WebClient(BrowserVersion.CHROME);
 		webClient.getCookieManager().setCookiesEnabled(true); // 启动cookie
