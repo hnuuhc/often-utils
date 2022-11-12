@@ -9,7 +9,6 @@ import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.exception.HLSDownloadException;
 import org.haic.often.function.StringFunction;
-import org.haic.often.function.ToBooleanFunction;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpStatus;
@@ -32,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 
 /**
  * 网络文件 工具类
@@ -203,7 +203,7 @@ public class HLSDownload {
 		private File DEFAULT_FOLDER = SystemUtil.DEFAULT_DOWNLOAD_FOLDER; // 存储目录
 		private List<Integer> retryStatusCodes = new ArrayList<>();
 		private StringFunction<String> keyDecrypt = key -> key;
-		private ToBooleanFunction<String> select = l -> true;
+		private Predicate<String> select = l -> true;
 
 		private Map<String, String> headers = new HashMap<>(); // headers
 		private Map<String, String> cookies = new HashMap<>(); // cookies
@@ -277,7 +277,7 @@ public class HLSDownload {
 		}
 
 		@Contract(pure = true)
-		public HLSConnection select(@NotNull ToBooleanFunction<String> select) {
+		public HLSConnection select(@NotNull Predicate<String> select) {
 			this.select = select;
 			return this;
 		}
@@ -465,11 +465,14 @@ public class HLSDownload {
 			List<String> renewLink = new ArrayList<>();
 			switch (method) {
 				case "BODY" -> {
-					if (body.contains("#EXT-X-STREAM-INF")) {
-						List<String> info = body.lines().toList();
+					List<String> info = body.lines().toList();
+					if (!info.get(0).equals("#EXTM3U")) {
+						throw new HLSDownloadException("内容不是M3U8格式");
+					}
+					if (info.get(1).startsWith("#EXT-X-STREAM-INF")) {
 						String redirectUrl = null;
 						for (int i = 1; i < info.size(); i += 2) {
-							if (select.apply(info.get(i))) {
+							if (select.test(info.get(i))) {
 								redirectUrl = URIUtil.getRedirectUrl(url, info.get(++i));
 								break;
 							}
@@ -484,8 +487,9 @@ public class HLSDownload {
 					if (Judge.isEmpty(fileName)) { // 随机命名
 						fileName = RandomStringUtils.randomAlphanumeric(32) + ".mp4";
 					}
-					if (body.contains("#EXT-X-KEY")) {
-						String[] extKey = StringUtil.extract(body, "#EXT-X-KEY.*").substring(11).split(Symbol.COMMA);
+					String keyInfo = info.stream().filter(l -> l.startsWith("#EXT-X-KEY")).findFirst().orElse(null);
+					if (keyInfo != null) {
+						String[] extKey = keyInfo.substring(11).split(Symbol.COMMA);
 						String encryptMethod = extKey[0].substring(7);
 						if (!encryptMethod.contains("AES")) {
 							throw new HLSDownloadException("unknown encryption method " + encryptMethod);
@@ -498,6 +502,7 @@ public class HLSDownload {
 						}
 						request.headers(res.headers()).cookies(res.cookies());
 						key = keyDecrypt.apply(res.body()); // key解密
+						// 效验key格式是否正确
 						if (key.length() != 16 && key.length() != 24 && key.length() != 32) {
 							throw new HLSDownloadException("KEY长度不正确: " + key);
 						} else if (!key.matches("^[0-9a-zA-Z]+$")) {
@@ -507,8 +512,7 @@ public class HLSDownload {
 							iv = extKey[2].substring(3);
 						}
 					}
-					links = body.substring(body.indexOf("#EXTINF"), body.indexOf("#EXT-X-ENDLIST")).lines().filter(l -> !l.startsWith(Symbol.POUND)).map(l -> URIUtil.getRedirectUrl(url, l)).toList();
-					pieceTotal = links.size();
+					links = info.stream().filter(l -> !l.startsWith(Symbol.POUND)).map(l -> URIUtil.getRedirectUrl(url, l)).toList();
 					// 创建并写入文件配置信息
 					fileInfo.put("fileName", fileName);
 					fileInfo.put("fileSize", 0);
@@ -517,7 +521,7 @@ public class HLSDownload {
 					fileInfo.put("key", key);
 					fileInfo.put("iv", iv);
 					fileInfo.put("data", links);
-					fileInfo.put("pieceSize", pieceTotal);
+					fileInfo.put("pieceTotal", pieceTotal = links.size());
 					ReadWriteUtil.orgin(session).write(fileInfo.toString());
 				}
 				case "FULL" -> {

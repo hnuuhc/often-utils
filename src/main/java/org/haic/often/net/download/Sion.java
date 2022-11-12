@@ -32,8 +32,8 @@ public class Sion {
 	private int MAX_THREADS = 10;
 	private int MAX_TASK_THREADS = 2;
 	private int MAX_LISTIN_INTERVAL = 1000;
-	private int MILLISECONDS_SLEEP; // 重试等待时间
 	private int retry; // 请求异常重试次数
+	private int unlimit;
 	private File DEFAULT_FOLDER = SystemUtil.DEFAULT_DOWNLOAD_FOLDER;
 	private Proxy proxy = Proxy.NO_PROXY;
 	private ExecutorService pool = Executors.newFixedThreadPool(MAX_TASK_THREADS); // 任务线程池
@@ -83,12 +83,12 @@ public class Sion {
 			listTask.add(url);
 			if ((url.contains(Symbol.QUESTION) ? url.substring(0, url.indexOf(Symbol.QUESTION)) : url).endsWith(".m3u8")) {
 				pool.execute(() -> {
-					result.put(url, HLSDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerHLS, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(proxy).folder(DEFAULT_FOLDER).retry(retry, MILLISECONDS_SLEEP).execute());
+					result.put(url, HLSDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerHLS, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(proxy).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
 					listTask.remove(url);
 				});
 			} else {
 				pool.execute(() -> {
-					result.put(url, SionDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerSion, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(proxy).folder(DEFAULT_FOLDER).retry(retry, MILLISECONDS_SLEEP).execute());
+					result.put(url, SionDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerSion, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(proxy).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
 					listTask.remove(url);
 				});
 			}
@@ -109,16 +109,14 @@ public class Sion {
 	}
 
 	/**
-	 * 在请求超时或者指定状态码发生时，进行重试
+	 * 在请求超时或者指定状态码发生时，无限进行重试，直至状态码正常返回
 	 *
-	 * @param retry  重试次数
-	 * @param millis 重试等待时间(毫秒)
-	 * @return this
+	 * @param unlimit 启用无限重试, 默认false
+	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public Sion retry(int retry, int millis) {
-		this.retry = retry;
-		this.MILLISECONDS_SLEEP = millis;
+	public Sion retry(boolean unlimit) {
+		this.unlimit = retry;
 		return this;
 	}
 

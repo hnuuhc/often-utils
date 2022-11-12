@@ -3,8 +3,8 @@ package org.haic.often.function;
 import java.util.function.Function;
 
 /**
- * Represents a function that produces an boolean-valued result.  This is the
- * {@code boolean}-producing primitive specialization for {@link Function}.
+ * Represents a function that produces an char-valued result.  This is the
+ * {@code char}-producing primitive specialization for {@link Function}.
  *
  * <p>This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #apply(Object)}.
@@ -16,7 +16,7 @@ import java.util.function.Function;
  * @since 2022/11/11 21:58
  */
 @FunctionalInterface
-public interface ToBooleanFunction<T> {
+public interface ToCharFunction<T> {
 
 	/**
 	 * Applies this function to the given argument.
@@ -24,5 +24,5 @@ public interface ToBooleanFunction<T> {
 	 * @param value the function argument
 	 * @return the function result
 	 */
-	boolean apply(T value);
+	char apply(T value);
 }

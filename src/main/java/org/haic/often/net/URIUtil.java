@@ -5,7 +5,6 @@ import org.apache.http.HttpStatus;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.Terminal;
-import org.haic.often.function.ToBooleanFunction;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
 import org.haic.often.util.Base64Util;
@@ -21,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
  */
 public class URIUtil {
 
-	private static final ToBooleanFunction<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(c.toString());
-	private static final ToBooleanFunction<Character> safetyChar = c -> Character.isDigit(c) || Character.isLetter(c);
-	private static final ToBooleanFunction<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
+	private static final Predicate<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(c.toString());
+	private static final Predicate<Character> safetyChar = c -> Character.isDigit(c) || Character.isLetter(c);
+	private static final Predicate<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
 
 	/**
 	 * 自动拼接跳转链接
@@ -349,8 +349,8 @@ public class URIUtil {
 	 */
 	@Contract(pure = true)
 	public static boolean isIPv6Address(@NotNull String ipAddr) {
-		ToBooleanFunction<String> valid = host -> host.length() < 40 && host.matches("^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4})*)?)::((([0-9A-Fa-f]{1,4}:)" + "*[0-9A-Fa-f]{1,4})?)$");
-		return ipAddr.matches("\\[.*]:\\d{1,5}") ? valid.apply(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET))) : valid.apply(ipAddr);
+		Predicate<String> valid = host -> host.length() < 40 && host.matches("^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4})*)?)::((([0-9A-Fa-f]{1,4}:)" + "*[0-9A-Fa-f]{1,4})?)$");
+		return ipAddr.matches("\\[.*]:\\d{1,5}") ? valid.test(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET))) : valid.test(ipAddr);
 	}
 
 	/**
@@ -469,11 +469,11 @@ public class URIUtil {
 		if (!Judge.isEmpty(s.length())) {
 			for (int i = 0; i < s.length(); i++) {
 				char c = s.charAt(i);
-				if (c == '%' && i + 2 < s.length() && isDigit16Char.apply(s.charAt(i + 1)) && isDigit16Char.apply(s.charAt(i + 2))) {
+				if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 					i += 2;
 					continue;
 				}
-				if (!safetyChar.apply(c) || !specialSafetyChar.apply(c)) {
+				if (!safetyChar.test(c) || !specialSafetyChar.test(c)) {
 					return false;
 				}
 			}
@@ -493,7 +493,7 @@ public class URIUtil {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			if (c == '%' && i + 2 < s.length() && isDigit16Char.apply(s.charAt(i + 1)) && isDigit16Char.apply(s.charAt(i + 2))) {
+			if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				sb.append((char) Integer.parseInt(s, i + 1, i + 3, 16));
 				i += 2;
 			} else {
@@ -515,7 +515,7 @@ public class URIUtil {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			while (c == '%' && i + 2 < s.length() && isDigit16Char.apply(s.charAt(i + 1)) && isDigit16Char.apply(s.charAt(i + 2))) {
+			while (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				c = (char) Integer.parseInt(s, i + 1, i + 3, 16);
 				i += 2;
 			}
@@ -538,10 +538,10 @@ public class URIUtil {
 			char c = s.charAt(i);
 			if (c == ' ') {
 				sb.append("+");
-			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.apply(s.charAt(i + 1)) && isDigit16Char.apply(s.charAt(i + 2))) {
+			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
-			} else if (safetyChar.apply(c) || specialSafetyChar.apply(c)) {
+			} else if (safetyChar.test(c) || specialSafetyChar.test(c)) {
 				sb.append(s.charAt(i));
 			} else {
 				sb.append(Symbol.PERCENT).append(Integer.toHexString(c).toUpperCase());
@@ -566,10 +566,10 @@ public class URIUtil {
 			char c = s.charAt(i);
 			if (c == ' ') {
 				sb.append("+");
-			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.apply(s.charAt(i + 1)) && isDigit16Char.apply(s.charAt(i + 2))) {
+			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
-			} else if (safetyChar.apply(c)) {
+			} else if (safetyChar.test(c)) {
 				sb.append(s.charAt(i));
 			} else {
 				sb.append(Symbol.PERCENT).append(Integer.toHexString(c).toUpperCase());

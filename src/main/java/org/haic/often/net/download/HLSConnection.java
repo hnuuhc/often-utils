@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.function.StringFunction;
-import org.haic.often.function.ToBooleanFunction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +8,7 @@ import java.io.File;
 import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Connection 接口是一个方便的 HTTP 客户端和会话对象，用于从 Web 下载文件。
@@ -102,7 +102,7 @@ public abstract class HLSConnection {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract HLSConnection select(@NotNull ToBooleanFunction<String> select);
+	public abstract HLSConnection select(@NotNull Predicate<String> select);
 
 	/**
 	 * 连接用户代理（ 字符串 用户代理）<br/> 设置请求用户代理标头
