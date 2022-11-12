@@ -318,7 +318,7 @@ public abstract class Aria2Connection {
 	public abstract Aria2Connection changeOption(@NotNull String gid, @NotNull Map<String, String> option);
 
 	/**
-	 * Socket推送 JSON数据,仅ws,wss协议有效,http和https协议会抛出异常,注意该方法会一直等待数据交互,直至获得返回数据为止
+	 * Socket推送 JSON数据,仅ws,wss协议有效,http和https协议会抛出异常
 	 *
 	 * @return 返回的json信息
 	 */

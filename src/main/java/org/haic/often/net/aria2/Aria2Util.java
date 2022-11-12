@@ -4,6 +4,8 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Symbol;
+import org.haic.often.exception.Aria2Exception;
+import org.haic.often.net.Method;
 import org.haic.often.net.URIMethod;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.HttpsUtil;
@@ -283,7 +285,7 @@ public class Aria2Util {
 		@Contract(pure = true)
 		public String send() {
 			if (!aria2RpcUrl.startsWith("ws")) {
-				throw new RuntimeException("unknown scheme: " + aria2RpcUrl.substring(0, aria2RpcUrl.indexOf(Symbol.COLON)));
+				throw new Aria2Exception("unknown scheme: " + aria2RpcUrl.substring(0, aria2RpcUrl.indexOf(Symbol.COLON)));
 			}
 			StringBuilder result = new StringBuilder();
 			WebSocketClient socket = new WebSocketClient(URIUtil.getURI(aria2RpcUrl)) {
@@ -312,20 +314,20 @@ public class Aria2Util {
 			socket.setProxy(proxy);
 			socket.connect();
 			// 判断连接状态
-			while (socket.getReadyState() == ReadyState.NOT_YET_CONNECTED) {
+			for (int i = 0; socket.getReadyState() == ReadyState.NOT_YET_CONNECTED && i < 50; i++) {
 				ThreadUtil.waitThread(100);
 			}
-			return String.valueOf(result);
+			return result.isEmpty() ? null : String.valueOf(result);
 		}
 
 		@Contract(pure = true)
 		public String get() {
-			return HttpsUtil.connect(aria2RpcUrl).data("params", Base64Util.encryptToBase64(rpcSessionBody())).proxy(proxy).get().text();
+			return HttpsUtil.connect(aria2RpcUrl).data("params", Base64Util.encryptToBase64(rpcSessionBody())).proxy(proxy).execute().body();
 		}
 
 		@Contract(pure = true)
 		public String post() {
-			return HttpsUtil.connect(aria2RpcUrl).requestBody(rpcSessionBody()).proxy(proxy).post().text();
+			return HttpsUtil.connect(aria2RpcUrl).requestBody(rpcSessionBody()).proxy(proxy).method(Method.POST).execute().body();
 		}
 
 		@Contract(pure = true)
