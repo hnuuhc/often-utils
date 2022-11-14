@@ -519,9 +519,9 @@ public class URIUtil {
 	public static String decode(@NotNull String s, @NotNull Charset charset) {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
+			int c = s.charAt(i);
 			while (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
-				c = (char) Integer.parseInt(s, i + 1, i + 3, 16);
+				c = Integer.parseInt(s, i + 1, i + 3, 16);
 				i += 2;
 			}
 			bytes.write(c);
