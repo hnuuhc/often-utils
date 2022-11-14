@@ -88,14 +88,14 @@ public class TianYiYunPan {
 	}
 
 	/**
-	 * 获取分享URL的ID等信息
+	 * 获得分享页面所有文件的信息
 	 *
-	 * @param shareUrl 天翼URL
-	 * @return JSON数据类型
+	 * @param url 天翼URL
+	 * @return List - JSON数据类型,包含文件所有信息
 	 */
 	@Contract(pure = true)
-	public static JSONObject getshareUrlInfo(@NotNull String shareUrl) {
-		return JSONObject.parseObject(HttpsUtil.connect(shareInfoByCodeUrl).data("shareCode", shareUrl.contains("code") ? StringUtil.extract(shareUrl, "code=.*").substring(5) : shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1)).header("accept", "application/json;charset=UTF-8").get().text());
+	public static List<JSONObject> getFilesInfoAsPage(@NotNull String url) {
+		return getFilesInfoAsPage(url, "");
 	}
 
 	/**
@@ -121,26 +121,35 @@ public class TianYiYunPan {
 	}
 
 	/**
+	 * 获取分享URL的ID等信息
+	 *
+	 * @param shareUrl 天翼URL
+	 * @return JSON数据类型
+	 */
+	@Contract(pure = true)
+	private static JSONObject getshareUrlInfo(@NotNull String shareUrl) {
+		return JSONObject.parseObject(HttpsUtil.connect(shareInfoByCodeUrl).data("shareCode", shareUrl.contains("code") ? StringUtil.extract(shareUrl, "code=.*").substring(5) : shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1)).header("accept", "application/json;charset=UTF-8").get().text());
+	}
+
+	/**
 	 * 通过配置获得分享页面所有文件的信息,如果文件非常多的话,可能要花较长时间
 	 *
-	 * @param data 配置信息,必须包含key
+	 * @param data 配置信息,必须包含key:
 	 *             <p>
-	 *             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"fileId"
+	 *             "fileId"
 	 *             <p>
-	 *             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"shareId"
+	 *             "shareId"
 	 *             <p>
-	 *             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"isFolder"
+	 *             "isFolder"
 	 *             <p>
-	 *             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"shareMode"
+	 *             "shareMode"
 	 *             <p>
-	 *             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"accessCode"
+	 *             "accessCode"
 	 * @return List - JSON数据类型,包含文件所有信息
 	 */
 	@Contract(pure = true)
-	public static List<JSONObject> getFilesInfoAsPage(@NotNull Map<String, String> data) {
+	private static List<JSONObject> getFilesInfoAsPage(@NotNull Map<String, String> data) {
 		Connection conn = HttpsUtil.connect(listShareDirUrl).header("accept", "application/json;charset=UTF-8");
-		System.out.println(conn.data(data).execute().body());
-		System.exit(0);
 		JSONObject infos = JSONObject.parseObject(conn.data(data).execute().body()).getJSONObject("fileListAO");
 		if (infos == null || Judge.isEmpty(infos.getInteger("count"))) {
 			return new ArrayList<>();

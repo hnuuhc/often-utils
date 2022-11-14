@@ -115,7 +115,7 @@ public class ALiYunPan {
 	 * @param sharePwd 提取码
 	 * @return ShareToken
 	 */
-	public static String getShareToken(String shareId, String sharePwd) {
+	private static String getShareToken(String shareId, String sharePwd) {
 		JSONObject apiJson = new JSONObject();
 		apiJson.put("share_id", shareId);
 		apiJson.put("share_pwd", sharePwd);
@@ -479,6 +479,8 @@ public class ALiYunPan {
 
 		/**
 		 * 获得分享页面所有文件直链(注意下载链接需要添加referer请求头参数 <a href="https://www.aliyundrive.com/">https://www.aliyundrive.com/</a>)
+		 * <p>
+		 * 警告: referer链接最后的 "/" 符号也要加上
 		 *
 		 * @param shareUrl 分享链接
 		 * @return 文件信息列表
@@ -489,6 +491,8 @@ public class ALiYunPan {
 
 		/**
 		 * 获得分享页面所有文件直链(注意下载链接需要添加referer请求头参数 <a href="https://www.aliyundrive.com/">https://www.aliyundrive.com/</a>)
+		 * <p>
+		 * 警告: referer链接最后的 "/" 符号也要加上
 		 *
 		 * @param shareUrl 分享链接
 		 * @param sharePwd 提取码
@@ -509,6 +513,8 @@ public class ALiYunPan {
 
 		/**
 		 * 获取用户主页的文件直链(注意下载链接需要添加referer请求头参数 <a href="https://www.aliyundrive.com/">https://www.aliyundrive.com/</a>)
+		 * <p>
+		 * 警告: referer链接最后的 "/" 符号也要加上
 		 *
 		 * @param fileid 文件ID
 		 * @return 文件直链

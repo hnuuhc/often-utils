@@ -13,6 +13,7 @@ import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.Charset;
@@ -429,9 +430,9 @@ public class URIUtil {
 	 */
 	@Contract(pure = true)
 	public static String getFileNameForDisposition(@NotNull String disposition) {
-		String filename = disposition.substring(disposition.lastIndexOf("filename"));
-		filename = filename.substring(filename.indexOf(Symbol.EQUALS) + 1).replaceAll(Symbol.DOUBLE_QUOTE, "");
-		return URIUtil.decode(filename.contains(Symbol.SINGLE_QUOTE) ? filename.substring(filename.lastIndexOf(Symbol.SINGLE_QUOTE) + 1) : filename);
+		String fileName = disposition.substring(disposition.lastIndexOf("filename"));
+		fileName = fileName.substring(fileName.indexOf(Symbol.EQUALS) + 1).replaceAll(Symbol.DOUBLE_QUOTE, "");
+		return decode(fileName.contains(Symbol.SINGLE_QUOTE) ? fileName.substring(fileName.lastIndexOf(Symbol.SINGLE_QUOTE) + 1) : fileName);
 	}
 
 	/**
@@ -482,7 +483,7 @@ public class URIUtil {
 	}
 
 	/**
-	 * UrlEncode解码
+	 * UrlEncode解码,可解密被多次加密的字符串,直至获得最终解密的字符串
 	 *
 	 * @param s 待解密的字符串
 	 * @return String
@@ -490,38 +491,42 @@ public class URIUtil {
 	@NotNull
 	@Contract(pure = true)
 	public static String decode(@NotNull String s) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
-			if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
-				sb.append((char) Integer.parseInt(s, i + 1, i + 3, 16));
-				i += 2;
-			} else {
-				sb.append(c);
-			}
-		}
-		return sb.toString();
+		return decode(s, StandardCharsets.UTF_8);
 	}
 
 	/**
-	 * UrlEncode解码,与 {@link #decode} 相同,区别在于可解密被多次加密的字符串,直至获得最终解密的字符串
+	 * UrlEncode解码,可解密被多次加密的字符串,直至获得最终解密的字符串
 	 *
-	 * @param s 待解密的字符串
+	 * @param s       待解密的字符串
+	 * @param charset 字符集编码名称
 	 * @return String
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String decodeValue(@NotNull String s) {
-		StringBuilder sb = new StringBuilder();
+	public static String decode(@NotNull String s, @NotNull String charset) {
+		return decode(s, Charset.forName(charset));
+	}
+
+	/**
+	 * UrlEncode解码,可解密被多次加密的字符串,直至获得最终解密的字符串
+	 *
+	 * @param s       待解密的字符串
+	 * @param charset 字符集编码
+	 * @return String
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static String decode(@NotNull String s, @NotNull Charset charset) {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
 			while (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				c = (char) Integer.parseInt(s, i + 1, i + 3, 16);
 				i += 2;
 			}
-			sb.append(c);
+			bytes.write(c);
 		}
-		return sb.toString();
+		return bytes.toString(charset);
 	}
 
 	/**

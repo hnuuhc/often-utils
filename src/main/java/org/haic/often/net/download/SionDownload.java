@@ -488,6 +488,7 @@ public class SionDownload {
 					if (Judge.isEmpty(fileName)) {
 						String disposition = res.header("content-disposition");
 						if (disposition == null || !disposition.contains("filename")) {
+							String url = res.url(); // 可能为跳转链接,使用最终URL
 							fileName = url.substring(url.lastIndexOf(Symbol.SLASH) + 1);
 							fileName = URIUtil.decode(fileName.contains(Symbol.QUESTION) ? fileName.substring(0, fileName.indexOf(Symbol.QUESTION)) : fileName);
 							fileName = fileName.contains(Symbol.DOT) ? fileName : fileName + MimeType.getMimeSuffix(res.header("content-type")); // 尝试修复后缀
