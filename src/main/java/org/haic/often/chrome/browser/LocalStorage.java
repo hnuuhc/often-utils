@@ -2,6 +2,7 @@ package org.haic.often.chrome.browser;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.protonail.leveldb.jna.*;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
 import org.haic.often.net.URIUtil;
 import org.haic.often.util.FileUtil;
@@ -87,7 +88,7 @@ public class LocalStorage {
 
 	private static class ChromeBrowser extends Browser {
 
-		private final File storageCopy = new File(".leveldb");
+		private final File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".leveldb");
 
 		private ChromeBrowser(File home) {
 			storage = new File(new File(this.home = home, "Default"), "Local Storage\\leveldb");

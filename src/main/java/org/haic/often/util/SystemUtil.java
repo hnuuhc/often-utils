@@ -79,6 +79,10 @@ public class SystemUtil {
 	 * 用户默认主目录
 	 */
 	public static final String DEFAULT_USER_HOME = System.getProperty("user.home");
+	/**
+	 * 系统缓存文件夹
+	 */
+	public static final String DEFAULT_TEMP_DIR = System.getProperty("java.io.tmpdir");
 
 	/**
 	 * 打开资源管理器窗口

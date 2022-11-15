@@ -1,6 +1,7 @@
 package org.haic.often.chrome.browser;
 
 import com.alibaba.fastjson2.JSONObject;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.util.FileUtil;
@@ -152,7 +153,7 @@ public class LocalLoginData {
 	private static class ChromeBrowser extends Browser {
 
 		private final String encryptedKey;
-		private final File storageCopy = new File(".loginData.db");
+		private final File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".loginData.db");
 
 		private ChromeBrowser(@NotNull File home) {
 			encryptedKey = Decrypt.getEncryptedKey(this.home = home);
