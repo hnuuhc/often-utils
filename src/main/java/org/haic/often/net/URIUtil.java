@@ -519,12 +519,18 @@ public class URIUtil {
 	public static String decode(@NotNull String s, @NotNull Charset charset) {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		for (int i = 0; i < s.length(); i++) {
-			int c = s.charAt(i);
+			char c = s.charAt(i);
+			boolean isByte = false;
 			while (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
-				c = Integer.parseInt(s, i + 1, i + 3, 16);
+				c = (char) Integer.parseInt(s, i + 1, i + 3, 16);
+				isByte = true;
 				i += 2;
 			}
-			bytes.write(c);
+			if (isByte) {
+				bytes.write(c);
+			} else {
+				bytes.writeBytes(String.valueOf(c).getBytes());
+			}
 		}
 		return bytes.toString(charset);
 	}
