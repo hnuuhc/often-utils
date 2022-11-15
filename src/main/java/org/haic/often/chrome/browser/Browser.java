@@ -1,12 +1,13 @@
 package org.haic.often.chrome.browser;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Map;
 
 public abstract class Browser {
-
+	
 	protected File home;
 	protected File storage;
 
@@ -16,13 +17,24 @@ public abstract class Browser {
 	 * @param name 个人资料名称
 	 * @return 此方法
 	 */
+	@Contract(pure = true)
 	public abstract Browser setProfile(@NotNull String name);
+
+	/**
+	 * 设置待解密数据复制到指定目录,默认为系统缓存文件夹
+	 *
+	 * @param folder 文件夹路径
+	 * @return 此方法
+	 */
+	@Contract(pure = true)
+	public abstract Browser setTempDir(@NotNull String folder);
 
 	/**
 	 * 获取并解密全部数据
 	 *
 	 * @return 全部数据
 	 */
+	@Contract(pure = true)
 	public abstract Map<String, Map<String, String>> getForAll();
 
 	/**
@@ -31,6 +43,7 @@ public abstract class Browser {
 	 * @param domain 域名
 	 * @return 指定域名的数据
 	 */
+	@Contract(pure = true)
 	public abstract Map<String, String> getForDomain(@NotNull String domain);
 
 }

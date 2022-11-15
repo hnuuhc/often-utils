@@ -159,7 +159,7 @@ public class LocalCookie {
 	private static class ChromeBrowser extends Browser {
 
 		private final String encryptedKey;
-		private final File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
+		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
 
 		private ChromeBrowser(@NotNull File home) {
 			encryptedKey = Decrypt.getEncryptedKey(this.home = home);
@@ -168,6 +168,7 @@ public class LocalCookie {
 			storage = storage.exists() ? storage : new File(folder, "Cookies"); // 旧版本位置
 		}
 
+		@Contract(pure = true)
 		public Browser setProfile(@NotNull String name) {
 			File folder = new File(home, Judge.isEmpty(name) ? "Default" : JSONObject.parseObject(ReadWriteUtil.orgin(new File(home, "Local State")).read()).getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey());
 			storage = new File(folder, "Network\\Cookies"); // 新版本位置
@@ -175,6 +176,14 @@ public class LocalCookie {
 			return this;
 		}
 
+		@Contract(pure = true)
+		public Browser setTempDir(@NotNull String folder) {
+			FileUtil.createFolder(folder);
+			storageCopy = new File(folder, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
+			return this;
+		}
+
+		@Contract(pure = true)
 		public Map<String, Map<String, String>> getForAll() {
 			Map<String, Map<String, String>> result = new HashMap<>();
 			Set<Cookie> cookies = processCookies(null);
@@ -190,6 +199,7 @@ public class LocalCookie {
 			return result;
 		}
 
+		@Contract(pure = true)
 		public Map<String, String> getForDomain(@NotNull String domain) {
 			return processCookies(domain).parallelStream().filter(l -> !Judge.isEmpty(l.getValue())).collect(Collectors.toMap(LocalCookie.Cookie::getName, LocalCookie.Cookie::getValue, (e1, e2) -> e2));
 		}
@@ -200,6 +210,7 @@ public class LocalCookie {
 		 * @param domainFilter domain
 		 * @return decrypted cookie
 		 */
+		@Contract(pure = true)
 		private Set<Cookie> processCookies(String domainFilter) {
 			Set<Cookie> cookies = new HashSet<>();
 			try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {

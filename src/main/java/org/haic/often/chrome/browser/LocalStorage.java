@@ -88,17 +88,26 @@ public class LocalStorage {
 
 	private static class ChromeBrowser extends Browser {
 
-		private final File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".leveldb");
+		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".leveldb");
 
 		private ChromeBrowser(File home) {
 			storage = new File(new File(this.home = home, "Default"), "Local Storage\\leveldb");
 		}
 
+		@Contract(pure = true)
 		public Browser setProfile(@NotNull String name) {
 			storage = new File(new File(home, Judge.isEmpty(name) ? "Default" : JSONObject.parseObject(ReadWriteUtil.orgin(new File(home, "Local State")).read()).getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey()), "Local Storage\\leveldb");
 			return this;
 		}
 
+		@Contract(pure = true)
+		public Browser setTempDir(@NotNull String folder) {
+			FileUtil.createFolder(folder);
+			storageCopy = new File(folder, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
+			return this;
+		}
+
+		@Contract(pure = true)
 		public Map<String, Map<String, String>> getForAll() {
 			Map<String, Map<String, String>> result = new HashMap<>();
 			Set<Storage> storages = processLevelDB(null);
@@ -114,6 +123,7 @@ public class LocalStorage {
 			return result;
 		}
 
+		@Contract(pure = true)
 		public Map<String, String> getForDomain(@NotNull String domain) {
 			return processLevelDB(domain).parallelStream().filter(l -> !Judge.isEmpty(l.getValue())).collect(Collectors.toMap(Storage::getName, Storage::getValue, (e1, e2) -> e2));
 		}
@@ -124,6 +134,7 @@ public class LocalStorage {
 		 * @param domainFilter domain
 		 * @return decrypted local storage
 		 */
+		@Contract(pure = true)
 		private Set<Storage> processLevelDB(String domainFilter) {
 			FileUtil.copyDirectory(storage, storageCopy);
 			// Map<String, Map<String, String>> result = new HashMap<>();

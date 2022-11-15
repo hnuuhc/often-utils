@@ -7,6 +7,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.haic.often.Judge;
 import org.haic.often.function.StringFunction;
 import org.haic.often.util.ReadWriteUtil;
+import org.jetbrains.annotations.Contract;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
@@ -33,6 +34,7 @@ public class Decrypt {
 	 * @param userHome userData home
 	 * @return encryptedKey
 	 */
+	@Contract(pure = true)
 	public static String getEncryptedKey(File userHome) {
 		return JSONObject.parseObject(ReadWriteUtil.orgin(new File(userHome, "Local State")).read()).getJSONObject("os_crypt").getString("encrypted_key");
 	}
@@ -44,6 +46,7 @@ public class Decrypt {
 	 * @param encryptedKey   密钥
 	 * @return decrypt Value
 	 */
+	@Contract(pure = true)
 	public static byte[] DPAPIDecode(byte[] encryptedValue, String encryptedKey) {
 		Security.addProvider(new BouncyCastleProvider());
 		int keyLength = 256 / 8;
@@ -77,6 +80,7 @@ public class Decrypt {
 	 * @param bytes encrypted Value
 	 * @return decrypt Value
 	 */
+	@Contract(pure = true)
 	public static String levelDBDecode(byte[] bytes) {
 		StringFunction<String> unsigned = unsignedInt -> unsignedInt.length() == 1 ? "0" + unsignedInt : unsignedInt;
 		StringBuilder result = new StringBuilder();

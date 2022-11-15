@@ -153,18 +153,27 @@ public class LocalLoginData {
 	private static class ChromeBrowser extends Browser {
 
 		private final String encryptedKey;
-		private final File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".loginData.db");
+		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".loginData.db");
 
 		private ChromeBrowser(@NotNull File home) {
 			encryptedKey = Decrypt.getEncryptedKey(this.home = home);
 			storage = new File(new File(home, "Default"), "Login Data");
 		}
 
+		@Contract(pure = true)
 		public Browser setProfile(@NotNull String name) {
 			storage = new File(new File(home, Judge.isEmpty(name) ? "Default" : JSONObject.parseObject(ReadWriteUtil.orgin(new File(home, "Local State")).read()).getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey()), "Login Data");
 			return this;
 		}
 
+		@Contract(pure = true)
+		public Browser setTempDir(@NotNull String folder) {
+			FileUtil.createFolder(folder);
+			storageCopy = new File(folder, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
+			return this;
+		}
+
+		@Contract(pure = true)
 		public Map<String, Map<String, String>> getForAll() {
 			Map<String, Map<String, String>> result = new HashMap<>();
 			Set<LoginData> loginDatas = processLoginData(null);
@@ -180,6 +189,7 @@ public class LocalLoginData {
 			return result;
 		}
 
+		@Contract(pure = true)
 		public Map<String, String> getForDomain(@NotNull String domain) {
 			return processLoginData(domain).parallelStream().filter(l -> !Judge.isEmpty(l.getValue())).collect(Collectors.toMap(LoginData::getName, LoginData::getValue, (e1, e2) -> e2));
 		}
@@ -190,6 +200,7 @@ public class LocalLoginData {
 		 * @param domainFilter domain
 		 * @return decrypted login data
 		 */
+		@Contract(pure = true)
 		private Set<LoginData> processLoginData(String domainFilter) {
 			Set<LoginData> loginDatas = new HashSet<>();
 			try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {
@@ -220,6 +231,7 @@ public class LocalLoginData {
 		 * @param encryptedLoginData encrypted login data
 		 * @return decrypted login data
 		 */
+		@Contract(pure = true)
 		private DecryptedLoginData decrypt(@NotNull EncryptedLoginData encryptedLoginData) {
 			return new DecryptedLoginData(encryptedLoginData.getName(), encryptedLoginData.getValueBytes(), new String(Decrypt.DPAPIDecode(encryptedLoginData.value, encryptedKey)), encryptedLoginData.getCreated(), encryptedLoginData.getDomain(), encryptedLoginData.getCookieStore());
 		}
