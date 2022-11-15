@@ -30,25 +30,35 @@ public class Terminal {
 	}
 
 	/**
-	 * 设置待执行的命令
+	 * 创建一个新的终端会话
 	 *
-	 * @param dos 待执行的命令
-	 * @return new RunCmd
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
-	public static Terminal command(@NotNull String... dos) {
-		return new Terminal().setCommand(dos);
+	public static Terminal newTerminal() {
+		return new Terminal();
 	}
 
 	/**
 	 * 设置待执行的命令
 	 *
 	 * @param dos 待执行的命令
-	 * @return new RunCmd
+	 * @return 此方法
+	 */
+	@Contract(pure = true)
+	public static Terminal command(@NotNull String... dos) {
+		return newTerminal().setCommand(dos);
+	}
+
+	/**
+	 * 设置待执行的命令
+	 *
+	 * @param dos 待执行的命令
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
 	public static Terminal command(@NotNull List<String> dos) {
-		return new Terminal().setCommand(dos);
+		return newTerminal().setCommand(dos);
 	}
 
 	/**
@@ -85,7 +95,7 @@ public class Terminal {
 	 * 设置待执行的命令
 	 *
 	 * @param dos 待执行的命令
-	 * @return this
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
 	public Terminal setCommand(@NotNull String... dos) {
@@ -96,7 +106,7 @@ public class Terminal {
 	 * 设置待执行的命令
 	 *
 	 * @param dos 待执行的命令
-	 * @return this
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
 	public Terminal setCommand(@NotNull List<String> dos) {
@@ -112,7 +122,7 @@ public class Terminal {
 	 * 设置执行命令时使用的终端
 	 *
 	 * @param terminal 终端
-	 * @return this
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
 	public Terminal terminal(@NotNull String terminal) {
@@ -124,7 +134,7 @@ public class Terminal {
 	 * 设置 字符集编码名
 	 *
 	 * @param charsetName 字符集编码名
-	 * @return this
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
 	public Terminal charset(@NotNull String charsetName) {
@@ -136,7 +146,7 @@ public class Terminal {
 	 * 设置 字符集编码
 	 *
 	 * @param charset 字符集编码
-	 * @return this
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
 	public Terminal charset(@NotNull Charset charset) {
@@ -148,7 +158,7 @@ public class Terminal {
 	 * 设置 工作目录
 	 *
 	 * @param directory 工作目录路径
-	 * @return this
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
 	public Terminal directory(@NotNull String directory) {
@@ -159,7 +169,7 @@ public class Terminal {
 	 * 设置 工作目录
 	 *
 	 * @param directory 工作目录
-	 * @return this
+	 * @return 此方法
 	 */
 	@Contract(pure = true)
 	public Terminal directory(@NotNull File directory) {

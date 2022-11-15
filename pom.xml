@@ -106,28 +106,6 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.39.3.0</version>
         </dependency>
-        <!-- 视频操作 -->
-        <dependency>
-            <!-- 去除日志错误 不可升级2.x版本 -->
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.36</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mp4parser</groupId>
-            <artifactId>streaming</artifactId>
-            <version>1.9.56</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mp4parser</groupId>
-            <artifactId>isoparser</artifactId>
-            <version>1.9.56</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mp4parser</groupId>
-            <artifactId>muxer</artifactId>
-            <version>1.9.56</version>
-        </dependency>
         <!-- Image增强 -->
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
