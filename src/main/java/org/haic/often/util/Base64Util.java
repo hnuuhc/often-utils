@@ -26,7 +26,7 @@ public class Base64Util {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptToBase64(@NotNull String str) {
+	public static String encode(@NotNull String str) {
 		return Base64.getEncoder().encodeToString(str.getBytes());
 	}
 
@@ -37,7 +37,7 @@ public class Base64Util {
 	 * @return Base64编码格式的字符串
 	 */
 	@Contract(pure = true)
-	public static byte[] encryptToBase64(byte[] bytes) {
+	public static byte[] encode(byte[] bytes) {
 		return Base64.getEncoder().encode(bytes);
 	}
 
@@ -49,8 +49,8 @@ public class Base64Util {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptToBase64ByFile(@NotNull String filePath) {
-		return encryptToBase64ByFile(new File(filePath));
+	public static String encodeByFile(@NotNull String filePath) {
+		return encodeByFile(new File(filePath));
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class Base64Util {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptToBase64ByFile(@NotNull File file) {
+	public static String encodeByFile(@NotNull File file) {
 		return Base64.getEncoder().encodeToString(ReadWriteUtil.orgin(file).readBytes());
 	}
 
@@ -73,8 +73,8 @@ public class Base64Util {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public static boolean decryptByBase64ToFile(byte[] base64, @NotNull String filePath) {
-		return decryptByBase64ToFile(base64, new File(filePath));
+	public static boolean decodeToFile(byte[] base64, @NotNull String filePath) {
+		return decodeToFile(base64, new File(filePath));
 	}
 
 	/**
@@ -85,8 +85,8 @@ public class Base64Util {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public static boolean decryptByBase64ToFile(byte[] base64, @NotNull File file) {
-		return ReadWriteUtil.orgin(file).write(decryptByBase64(base64));
+	public static boolean decodeToFile(byte[] base64, @NotNull File file) {
+		return ReadWriteUtil.orgin(file).write(decode(base64));
 	}
 
 	/**
@@ -97,8 +97,8 @@ public class Base64Util {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public static boolean decryptByBase64ToFile(@NotNull String base64, @NotNull String filePath) {
-		return decryptByBase64ToFile(base64, new File(filePath));
+	public static boolean decodeToFile(@NotNull String base64, @NotNull String filePath) {
+		return decodeToFile(base64, new File(filePath));
 	}
 
 	/**
@@ -109,8 +109,8 @@ public class Base64Util {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public static boolean decryptByBase64ToFile(@NotNull String base64, @NotNull File file) {
-		return decryptByBase64ToFile(base64.getBytes(), file);
+	public static boolean decodeToFile(@NotNull String base64, @NotNull File file) {
+		return decodeToFile(base64.getBytes(), file);
 	}
 
 	/**
@@ -121,8 +121,8 @@ public class Base64Util {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String decryptByBase64(@NotNull String base64) {
-		return new String(decryptByBase64(base64.getBytes()), StandardCharsets.UTF_8);
+	public static String decode(@NotNull String base64) {
+		return new String(decode(base64.getBytes()), StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -134,8 +134,8 @@ public class Base64Util {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String decryptByBase64(@NotNull String base64, @NotNull String charsetName) {
-		return decryptByBase64(base64, Charset.forName(charsetName));
+	public static String decode(@NotNull String base64, @NotNull String charsetName) {
+		return decode(base64, Charset.forName(charsetName));
 	}
 
 	/**
@@ -147,8 +147,8 @@ public class Base64Util {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String decryptByBase64(@NotNull String base64, Charset charset) {
-		return new String(decryptByBase64(base64.getBytes()), charset);
+	public static String decode(@NotNull String base64, Charset charset) {
+		return new String(decode(base64.getBytes()), charset);
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class Base64Util {
 	 * @return 转换后的字符串
 	 */
 	@Contract(pure = true)
-	public static byte[] decryptByBase64(byte[] base64) {
+	public static byte[] decode(byte[] base64) {
 		return Base64.getDecoder().decode(base64);
 	}
 

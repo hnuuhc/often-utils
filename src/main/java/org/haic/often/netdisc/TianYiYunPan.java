@@ -135,16 +135,13 @@ public class TianYiYunPan {
 	 * 通过配置获得分享页面所有文件的信息,如果文件非常多的话,可能要花较长时间
 	 *
 	 * @param data 配置信息,必须包含key:
-	 *             <p>
-	 *             "fileId"
-	 *             <p>
-	 *             "shareId"
-	 *             <p>
-	 *             "isFolder"
-	 *             <p>
-	 *             "shareMode"
-	 *             <p>
-	 *             "accessCode"
+	 *             <blockquote>
+	 *             <pre>		"fileId"</pre>
+	 *             <pre>		"shareId"</pre>
+	 *             <pre>		"isFolder"</pre>
+	 *             <pre>		"shareMode"</pre>
+	 *             <pre>		"accessCode"</pre>
+	 *             </blockquote>
 	 * @return List - JSON数据类型,包含文件所有信息
 	 */
 	@Contract(pure = true)

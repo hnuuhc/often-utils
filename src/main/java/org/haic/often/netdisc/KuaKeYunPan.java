@@ -96,11 +96,13 @@ public class KuaKeYunPan {
 		 * 获取指定类型的文件信息,限制最多显示前10240个文件
 		 *
 		 * @param ext 文件类型<br/>
-		 *            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bt - BT种子<br/>
-		 *            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document - 文档<br/>
-		 *            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;video - 视频<br/>
-		 *            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;audio - 音频<br/>
-		 *            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image - 图片<br/>
+		 *            <blockquote>
+		 *            <pre>	bt - BT种子</pre>
+		 *            <pre>	document - 文档</pre>
+		 *            <pre>	video - 视频</pre>
+		 *            <pre>	audio - 音频</pre>
+		 *            <pre>	image - 图片</pre>
+		 *            </blockquote>
 		 * @return 文件信息列表
 		 */
 		@Contract(pure = true)

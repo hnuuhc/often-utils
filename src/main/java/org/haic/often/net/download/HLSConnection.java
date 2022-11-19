@@ -92,11 +92,11 @@ public abstract class HLSConnection {
 	public abstract HLSConnection body(@NotNull String body);
 
 	/**
-	 * M3U8参数中可能存在多个来源(#EXT-X-STREAM-INF),通过截取段设置筛选条件,默认为选择第一个
-	 * <p>
-	 * 例: #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1100000,RESOLUTION=960x540
-	 * <p>
-	 * 参数: l -> l.contains("BANDWIDTH=1100000")
+	 * M3U8参数中可能存在多个来源,通过截取段设置筛选条件,默认为选择第一个
+	 * <blockquote>
+	 * <pre>	例: #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1100000,RESOLUTION=960x540</pre>
+	 * <pre>	设置参数: l -> l.contains("BANDWIDTH=1100000")</pre>
+	 * </blockquote>
 	 *
 	 * @param select 筛选条件
 	 * @return 此连接，用于链接

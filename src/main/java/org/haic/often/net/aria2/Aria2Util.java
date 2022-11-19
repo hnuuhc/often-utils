@@ -322,7 +322,7 @@ public class Aria2Util {
 
 		@Contract(pure = true)
 		public String get() {
-			return HttpsUtil.connect(aria2RpcUrl).data("params", Base64Util.encryptToBase64(rpcSessionBody())).proxy(proxy).execute().body();
+			return HttpsUtil.connect(aria2RpcUrl).data("params", Base64Util.encode(rpcSessionBody())).proxy(proxy).execute().body();
 		}
 
 		@Contract(pure = true)

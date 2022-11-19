@@ -456,7 +456,7 @@ public class URIUtil {
 	@NotNull
 	@Contract(pure = true)
 	public static String thunderToURL(@NotNull String thunder) {
-		String thunderUrl = Base64Util.decryptByBase64(StringUtil.stripEnd(thunder, Symbol.EQUALS).replaceFirst("thunder://", ""), "GBK");
+		String thunderUrl = Base64Util.decode(StringUtil.stripEnd(thunder, Symbol.EQUALS).replaceFirst("thunder://", ""), "GBK");
 		return thunderUrl.substring(2, thunderUrl.length() - 2);
 	}
 

@@ -37,11 +37,10 @@ public abstract class Response {
 
 	/**
 	 * 获取与响应代码一起从服务器返回的 HTTP 响应消息（如果有）。来自以下回复：
-	 * <p>
-	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HTTP/1.0 200 OK
-	 * <p>
-	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HTTP/1.0 404 Not Found
-	 * <p>
+	 * <blockquote>
+	 * <pre>	HTTP/1.0 200 OK</pre>
+	 * <pre>	HTTP/1.0 404 Not Found</pre>
+	 * </blockquote>
 	 * 分别提取字符串“OK”和“Not Found”。如果无法从响应中辨别出任何内容（结果不是有效的 HTTP），则返回 null。
 	 *
 	 * @return 状态消息

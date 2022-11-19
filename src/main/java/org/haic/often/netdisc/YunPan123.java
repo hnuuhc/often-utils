@@ -6,15 +6,16 @@ import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
+import org.haic.often.net.Method;
 import org.haic.often.net.download.SionDownload;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
+import org.haic.often.util.Base64Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 123云盘API,获取直链需要登陆
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 public class YunPan123 {
 
 	private static final String shareGetUrl = "https://www.123pan.com/b/api/share/get";
+	private static final String downloadUrl = "https://www.123pan.com/a/api/share/download/info";
+	private static final String batchDownloadUrl = "https://www.123pan.com/a/api/file/batch_download_share_info";
 
 	private YunPan123() {
 	}
@@ -126,26 +129,49 @@ public class YunPan123 {
 	}
 
 	/**
-	 * 获取分享页所有文件直链
-	 * <p>
-	 * 注意获取的链接直接下载是无法获取文件名的,下载需要添加文件名参数
+	 * 获取分享页所有文件的批量下载链接
 	 *
 	 * @param shareUrl 分享URL
 	 * @param sharePwd 提取码
 	 * @return Map - 文件名, 文件直链
 	 */
 	@Contract(pure = true)
-	public static Map<String, String> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
-		return getInfosAsPage(shareUrl, sharePwd).stream().collect(Collectors.toMap(l -> l.getString("Path") + l.getString("FileName"), l -> l.getString("DownloadUrl")));
+	public static String getStraightsAsPageOfBatch(@NotNull String shareUrl, @NotNull String sharePwd) {
+		JSONObject data = new JSONObject().fluentPut("ShareKey", shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1)).fluentPut("fileIdList", getInfosAsPage(shareUrl, sharePwd).stream().map(l -> new JSONObject().fluentPut("fileId", l.getString("FileId"))).toList());
+		String url = JSONObject.parseObject(HttpsUtil.connect(batchDownloadUrl).requestBody(data.toString()).method(Method.POST).execute().body()).getJSONObject("data").getString("DownloadUrl");
+		return Base64Util.decode(url.substring(url.indexOf("=") + 1));
 	}
 
 	/**
 	 * 获取分享页所有文件直链
-	 * <p>
-	 * 注意获取的链接直接下载是无法获取文件名的,下载需要添加文件名参数
 	 *
 	 * @param shareUrl 分享URL
-	 * @return Map - 文件名, 文件直链
+	 * @param sharePwd 提取码
+	 * @return Map - 文件名(含路径), 文件直链
+	 */
+	@Contract(pure = true)
+	public static Map<String, String> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
+		Map<String, String> result = new HashMap<>();
+		Connection conn = HttpsUtil.newSession().method(Method.POST);
+		String shareKey = shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1);
+		for (JSONObject info : getInfosAsPage(shareUrl, sharePwd)) {
+			Map<String, String> data = new HashMap<>();
+			data.put("Etag", info.getString("Etag"));
+			data.put("FileID", info.getString("FileId"));
+			data.put("S3keyFlag", info.getString("S3KeyFlag"));
+			data.put("ShareKey", shareKey);
+			data.put("Size", info.getString("Size"));
+			String url = JSONObject.parseObject(conn.url(downloadUrl).data(data).execute().body()).getJSONObject("data").getString("DownloadURL");
+			result.put(info.getString("Path") + info.getString("FileName"), Base64Util.decode(url.substring(url.indexOf("=") + 1)));
+		}
+		return result;
+	}
+
+	/**
+	 * 获取分享页所有文件直链
+	 *
+	 * @param shareUrl 分享URL
+	 * @return Map - 文件名(含路径), 文件直链
 	 */
 	@Contract(pure = true)
 	public static Map<String, String> getStraightsAsPage(@NotNull String shareUrl) {
