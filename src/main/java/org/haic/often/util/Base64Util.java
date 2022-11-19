@@ -3,14 +3,13 @@ package org.haic.often.util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.regex.Pattern;
 
 /**
- * Base64工具类
+ * Base64编码器,用于Base64的编码和解码
  *
  * @author haicdust
  * @version 1.0
@@ -21,145 +20,51 @@ public class Base64Util {
 	/**
 	 * 普通字符串转Base64编码的字符串
 	 *
-	 * @param str 普通字符串
+	 * @param data 普通字符串
 	 * @return base64编码格式的字符串
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encode(@NotNull String str) {
-		return Base64.getEncoder().encodeToString(str.getBytes());
-	}
-
-	/**
-	 * Array转Base64编码数组
-	 *
-	 * @param bytes byte类型
-	 * @return Base64编码格式的字符串
-	 */
-	@Contract(pure = true)
-	public static byte[] encode(byte[] bytes) {
-		return Base64.getEncoder().encode(bytes);
-	}
-
-	/**
-	 * 文件转Base64编码数组
-	 *
-	 * @param filePath 文件路径
-	 * @return Base64编码格式的字符串
-	 */
-	@NotNull
-	@Contract(pure = true)
-	public static String encodeByFile(@NotNull String filePath) {
-		return encodeByFile(new File(filePath));
-	}
-
-	/**
-	 * 文件转Base64编码的字符串
-	 *
-	 * @param file 文件
-	 * @return Base64编码格式的字符串
-	 */
-	@NotNull
-	@Contract(pure = true)
-	public static String encodeByFile(@NotNull File file) {
-		return Base64.getEncoder().encodeToString(ReadWriteUtil.orgin(file).readBytes());
-	}
-
-	/**
-	 * 解密Base64编码的字符串转文件
-	 *
-	 * @param base64   base64编码格式的字符串
-	 * @param filePath 文件路径
-	 * @return 写入是否成功
-	 */
-	@Contract(pure = true)
-	public static boolean decodeToFile(byte[] base64, @NotNull String filePath) {
-		return decodeToFile(base64, new File(filePath));
-	}
-
-	/**
-	 * 解密Base64编码的字符串转文件
-	 *
-	 * @param base64 base64编码格式的字符串
-	 * @param file   文件
-	 * @return 写入是否成功
-	 */
-	@Contract(pure = true)
-	public static boolean decodeToFile(byte[] base64, @NotNull File file) {
-		return ReadWriteUtil.orgin(file).write(decode(base64));
-	}
-
-	/**
-	 * 解密Base64编码的字符串转文件
-	 *
-	 * @param base64   base64编码格式的字符串
-	 * @param filePath 文件路径
-	 * @return 写入是否成功
-	 */
-	@Contract(pure = true)
-	public static boolean decodeToFile(@NotNull String base64, @NotNull String filePath) {
-		return decodeToFile(base64, new File(filePath));
-	}
-
-	/**
-	 * 解密Base64编码的字符串转文件
-	 *
-	 * @param base64 base64编码格式的字符串
-	 * @param file   文件
-	 * @return 写入是否成功
-	 */
-	@Contract(pure = true)
-	public static boolean decodeToFile(@NotNull String base64, @NotNull File file) {
-		return decodeToFile(base64.getBytes(), file);
+	public static String encode(@NotNull String data) {
+		return Base64.getEncoder().encodeToString(data.getBytes());
 	}
 
 	/**
 	 * Base64编码的字符串转普通字符串
 	 *
-	 * @param base64 base64编码格式的字符串
+	 * @param data base64编码格式的字符串
 	 * @return 转换后的字符串
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String decode(@NotNull String base64) {
-		return new String(decode(base64.getBytes()), StandardCharsets.UTF_8);
+	public static String decode(@NotNull String data) {
+		return decode(data, StandardCharsets.UTF_8);
 	}
 
 	/**
 	 * Base64编码的字符串转普通字符串
 	 *
-	 * @param base64      base64编码格式的字符串
+	 * @param data        base64编码格式的字符串
 	 * @param charsetName 需要转换的字符集编码格式
 	 * @return 转换后的字符串
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String decode(@NotNull String base64, @NotNull String charsetName) {
-		return decode(base64, Charset.forName(charsetName));
+	public static String decode(@NotNull String data, @NotNull String charsetName) {
+		return decode(data, Charset.forName(charsetName));
 	}
 
 	/**
 	 * Base64编码的字符串转普通字符串
 	 *
-	 * @param base64  base64编码格式的字符串
+	 * @param data    base64编码格式的字符串
 	 * @param charset 需要转换的字符集编码格式
 	 * @return 转换后的字符串
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String decode(@NotNull String base64, Charset charset) {
-		return new String(decode(base64.getBytes()), charset);
-	}
-
-	/**
-	 * Base64编码解密
-	 *
-	 * @param base64 base64编码
-	 * @return 转换后的字符串
-	 */
-	@Contract(pure = true)
-	public static byte[] decode(byte[] base64) {
-		return Base64.getDecoder().decode(base64);
+	public static String decode(@NotNull String data, Charset charset) {
+		return new String(Base64.getDecoder().decode(data), charset);
 	}
 
 	/**

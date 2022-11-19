@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class URIUtil {
 
 	private static final Predicate<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(c.toString());
-	private static final Predicate<Character> safetyChar = c -> Character.isDigit(c) || Character.isLetter(c);
+	private static final Predicate<Character> safetyChar = Character::isLetterOrDigit;
 	private static final Predicate<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
 
 	/**
