@@ -39,52 +39,26 @@ public class TianYiYunPan {
 	private static final String loginUrl = "https://cloud.189.cn/api/portal/loginUrl.action";
 	private static final String listShareDirUrl = "https://cloud.189.cn/api/open/share/listShareDir.action";
 	private static final String shareInfoByCodeUrl = "https://cloud.189.cn/api/open/share/getShareInfoByCode.action";
+	private static final String fileDownloadUrl = "https://cloud.189.cn/api/open/file/getFileDownloadUrl.action";
+	private static final String listFilesUrl = "https://cloud.189.cn/api/open/file/listFiles.action";
+	private static final String createBatchTaskUrl = "https://cloud.189.cn/api/open/batch/createBatchTask.action";
+	private static final String createShareLinkUrl = "https://cloud.189.cn/api/open/share/createShareLink.action";
+	private static final String cancelShareUrl = "https://cloud.189.cn/api/portal/cancelShare.action";
+	private static final String listSharesUrl = "https://cloud.189.cn/api/portal/listShares.action?";
+	private static final String renameFileUrl = "https://cloud.189.cn/api/open/file/renameFile.action";
+	private static final String renameFolderUrl = "https://cloud.189.cn/api/open/file/renameFolder.action";
+	private static final String createFolderUrl = "https://cloud.189.cn/api/open/file/createFolder.action";
+	private static final String listRecycleBinFilesUrl = "https://cloud.189.cn/api/open/file/listRecycleBinFiles.action";
+	private static final String userInfoForPortalUrl = "https://cloud.189.cn/api/open/user/getUserInfoForPortal.action";
 
-	private TianYiYunPan() {
-	}
+	private final Connection conn = HttpsUtil.newSession();
 
-	/**
-	 * 使用本地谷歌浏览器(Edge)登陆,进行需要是否验证的API操作
-	 *
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public static TianYiYunPanAPI localLogin() {
-		return login(LocalCookie.home().getForDomain("e.189.cn"));
-	}
-
-	/**
-	 * 使用本地谷歌浏览器登陆,进行需要是否验证的API操作
-	 *
-	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public static TianYiYunPanAPI localLogin(@NotNull String userHome) {
-		return login(LocalCookie.home(userHome).getForDomain("e.189.cn"));
-	}
-
-	/**
-	 * 登陆账户,进行需要是否验证的API操作
-	 *
-	 * @param userName 用户名 (不含@189.cn后缀)
-	 * @param password 密码
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public static TianYiYunPanAPI login(@NotNull String userName, @NotNull String password) {
-		return login(TianYiYunPanLogin.login(userName, password));
-	}
-
-	/**
-	 * 登陆账户,进行需要是否验证的API操作
-	 *
-	 * @param cookies cookies
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public static TianYiYunPanAPI login(@NotNull Map<String, String> cookies) {
-		return new TianYiYunPanAPI(cookies);
+	private TianYiYunPan(@NotNull Map<String, String> cookies) {
+		conn.cookies(cookies).header("accept", "application/json;charset=UTF-8").url(loginUrl).execute(); // 获取会话cookie
+		Response res = conn.url(userInfoForPortalUrl).execute();
+		if (!URIUtil.statusIsOK(res.statusCode())) {
+			throw new YunPanException(JSONObject.parseObject(res.body()).getString("errorMsg"));
+		}
 	}
 
 	/**
@@ -161,446 +135,461 @@ public class TianYiYunPan {
 	}
 
 	/**
-	 * 天翼云盘的API操作
+	 * 使用本地谷歌浏览器(Edge)登陆,进行需要是否验证的API操作
+	 *
+	 * @return 此链接, 用于身份验证的API操作
 	 */
-	public static class TianYiYunPanAPI {
+	@Contract(pure = true)
+	public static TianYiYunPan localLogin() {
+		return login(LocalCookie.home().getForDomain("e.189.cn"));
+	}
 
-		private static final String fileDownloadUrl = "https://cloud.189.cn/api/open/file/getFileDownloadUrl.action";
-		private static final String listFilesUrl = "https://cloud.189.cn/api/open/file/listFiles.action";
-		private static final String createBatchTaskUrl = "https://cloud.189.cn/api/open/batch/createBatchTask.action";
-		private static final String createShareLinkUrl = "https://cloud.189.cn/api/open/share/createShareLink.action";
-		private static final String cancelShareUrl = "https://cloud.189.cn/api/portal/cancelShare.action";
-		private static final String listSharesUrl = "https://cloud.189.cn/api/portal/listShares.action?";
-		private static final String renameFileUrl = "https://cloud.189.cn/api/open/file/renameFile.action";
-		private static final String renameFolderUrl = "https://cloud.189.cn/api/open/file/renameFolder.action";
-		private static final String createFolderUrl = "https://cloud.189.cn/api/open/file/createFolder.action";
-		private static final String listRecycleBinFilesUrl = "https://cloud.189.cn/api/open/file/listRecycleBinFiles.action";
-		private static final String userInfoForPortalUrl = "https://cloud.189.cn/api/open/user/getUserInfoForPortal.action";
+	/**
+	 * 使用本地谷歌浏览器登陆,进行需要是否验证的API操作
+	 *
+	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
+	 * @return 此链接, 用于身份验证的API操作
+	 */
+	@Contract(pure = true)
+	public static TianYiYunPan localLogin(@NotNull String userHome) {
+		return login(LocalCookie.home(userHome).getForDomain("e.189.cn"));
+	}
 
-		private final Connection conn = HttpsUtil.newSession();
+	/**
+	 * 登陆账户,进行需要是否验证的API操作
+	 *
+	 * @param userName 用户名 (不含@189.cn后缀)
+	 * @param password 密码
+	 * @return 此链接, 用于身份验证的API操作
+	 */
+	@Contract(pure = true)
+	public static TianYiYunPan login(@NotNull String userName, @NotNull String password) {
+		return login(TianYiYunPanLogin.login(userName, password));
+	}
 
-		private TianYiYunPanAPI(@NotNull Map<String, String> cookies) {
-			conn.cookies(cookies).header("accept", "application/json;charset=UTF-8").url(loginUrl).execute(); // 获取会话cookie
-			Response res = conn.url(userInfoForPortalUrl).execute();
-			if (!URIUtil.statusIsOK(res.statusCode())) {
-				throw new YunPanException(JSONObject.parseObject(res.body()).getString("errorMsg"));
-			}
+	/**
+	 * 登陆账户,进行需要是否验证的API操作
+	 *
+	 * @param cookies cookies
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public static TianYiYunPan login(@NotNull Map<String, String> cookies) {
+		return new TianYiYunPan(cookies);
+	}
+
+	/**
+	 * 获取分享页面所有文件信息
+	 *
+	 * @return List - JSON类型数据,包含了文件的所有信息
+	 */
+	@Contract(pure = true)
+	public List<JSONObject> listShares() {
+		Map<String, String> data = new HashMap<>();
+		data.put("pageNum", "1");
+		data.put("pageSize", "1");
+		data.put("shareType", "1");
+		data.put("pageSize", JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getString("recordCount"));
+		return JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getJSONArray("data").toList(JSONObject.class);
+	}
+
+	/**
+	 * 取消分享文件
+	 *
+	 * @param shareId 分享ID,可指定多个
+	 * @return 返回的响应结果状态码
+	 */
+	@Contract(pure = true)
+	public int cancelShare(@NotNull String... shareId) {
+		return cancelShare(Arrays.asList(shareId));
+	}
+
+	/**
+	 * 取消分享文件
+	 *
+	 * @param shareIdList 分享ID列表
+	 * @return 返回的响应结果状态码
+	 */
+	@Contract(pure = true)
+	public int cancelShare(@NotNull List<String> shareIdList) {
+		return JSONObject.parseObject(conn.url(cancelShareUrl).requestBody("shareIdList=" + String.join(Symbol.COMMA, shareIdList) + "&cancelType=" + 1).execute().body()).getInteger("res_code");
+	}
+
+	/**
+	 * 自定义分享文件
+	 *
+	 * @param fileId 待分享的文件ID
+	 * @param time   分享的时间(例: 1为1天), 永久为2099
+	 * @param type   分享类型: 2-公开,3 - 私密,other - 社交
+	 * @return 响应结果
+	 */
+	@Contract(pure = true)
+	public JSONObject createShareLink(@NotNull String fileId, int time, int type) {
+		return JSONObject.parseObject(conn.url(createShareLinkUrl).requestBody("fileId=" + fileId + "&expireTime=" + time + "&shareType=" + type).execute().body());
+	}
+
+	/**
+	 * 获取回收站的文件列表
+	 *
+	 * @return List - JSON类型数据,包含了文件的所有信息
+	 */
+	@Contract(pure = true)
+	public List<JSONObject> listRecycleBinFiles() {
+		Map<String, String> data = new HashMap<>();
+		data.put("pageNum", "1");
+		data.put("pageSize", "30");
+		data.put("iconOption", "1");
+		data.put("family", "false");
+		Function<JSONObject, List<JSONObject>> list = l -> l.getJSONArray("fileList").fluentAddAll(l.getJSONArray("folderList")).toList(JSONObject.class);
+		JSONObject info = JSONObject.parseObject(conn.url(listRecycleBinFilesUrl).data(data).execute().body());
+		List<JSONObject> result = list.apply(info);
+		int page = (int) Math.ceil(info.getDouble("count") / 30);
+		for (int i = 2; i <= page; i++) {
+			info = JSONObject.parseObject(conn.data("pageNum", String.valueOf(i)).execute().body());
+			result.addAll(list.apply(info));
 		}
+		return result;
+	}
 
-		/**
-		 * 获取分享页面所有文件信息
-		 *
-		 * @return List - JSON类型数据,包含了文件的所有信息
-		 */
-		@Contract(pure = true)
-		public List<JSONObject> listShares() {
-			Map<String, String> data = new HashMap<>();
-			data.put("pageNum", "1");
-			data.put("pageSize", "1");
-			data.put("shareType", "1");
-			data.put("pageSize", JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getString("recordCount"));
-			return JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getJSONArray("data").toList(JSONObject.class);
-		}
+	/**
+	 * 还原多个回收站的文件或文件夹
+	 *
+	 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @return 操作返回的结果状态码, 一般情况下, 0为成功
+	 */
+	@Contract(pure = true)
+	public int restore(@NotNull JSONObject fileInfo) {
+		return batchTask("RESTORE", fileInfo, "");
+	}
 
-		/**
-		 * 取消分享文件
-		 *
-		 * @param shareId 分享ID,可指定多个
-		 * @return 返回的响应结果状态码
-		 */
-		@Contract(pure = true)
-		public int cancelShare(@NotNull String... shareId) {
-			return cancelShare(Arrays.asList(shareId));
-		}
+	/**
+	 * 还原回收站的文件或文件夹
+	 *
+	 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @return 操作返回的结果状态码, 一般情况下, 0为成功
+	 */
+	@Contract(pure = true)
+	public int restore(@NotNull List<JSONObject> filesInfo) {
+		return batchTask("RESTORE", filesInfo, "");
+	}
 
-		/**
-		 * 取消分享文件
-		 *
-		 * @param shareIdList 分享ID列表
-		 * @return 返回的响应结果状态码
-		 */
-		@Contract(pure = true)
-		public int cancelShare(@NotNull List<String> shareIdList) {
-			return JSONObject.parseObject(conn.url(cancelShareUrl).requestBody("shareIdList=" + String.join(Symbol.COMMA, shareIdList) + "&cancelType=" + 1).execute().body()).getInteger("res_code");
-		}
+	/**
+	 * 清空回收站
+	 *
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int emptyRecycle() {
+		return batchTask("EMPTY_RECYCLE", "[]", "");
+	}
 
-		/**
-		 * 自定义分享文件
-		 *
-		 * @param fileId 待分享的文件ID
-		 * @param time   分享的时间(例: 1为1天), 永久为2099
-		 * @param type   分享类型: 2-公开,3 - 私密,other - 社交
-		 * @return 响应结果
-		 */
-		@Contract(pure = true)
-		public JSONObject createShareLink(@NotNull String fileId, int time, int type) {
-			return JSONObject.parseObject(conn.url(createShareLinkUrl).requestBody("fileId=" + fileId + "&expireTime=" + time + "&shareType=" + type).execute().body());
-		}
+	/**
+	 * 删除多个回收站的文件或文件夹
+	 *
+	 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int clearRecycle(@NotNull JSONObject fileInfo) {
+		return batchTask("CLEAR_RECYCLE", fileInfo, "");
+	}
 
-		/**
-		 * 获取回收站的文件列表
-		 *
-		 * @return List - JSON类型数据,包含了文件的所有信息
-		 */
-		@Contract(pure = true)
-		public List<JSONObject> listRecycleBinFiles() {
-			Map<String, String> data = new HashMap<>();
-			data.put("pageNum", "1");
-			data.put("pageSize", "30");
-			data.put("iconOption", "1");
-			data.put("family", "false");
-			Function<JSONObject, List<JSONObject>> list = l -> l.getJSONArray("fileList").fluentAddAll(l.getJSONArray("folderList")).toList(JSONObject.class);
-			JSONObject info = JSONObject.parseObject(conn.url(listRecycleBinFilesUrl).data(data).execute().body());
-			List<JSONObject> result = list.apply(info);
-			int page = (int) Math.ceil(info.getDouble("count") / 30);
-			for (int i = 2; i <= page; i++) {
-				info = JSONObject.parseObject(conn.data("pageNum", String.valueOf(i)).execute().body());
-				result.addAll(list.apply(info));
-			}
-			return result;
-		}
+	/**
+	 * 删除回收站的文件或文件夹
+	 *
+	 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int clearRecycle(@NotNull List<JSONObject> filesInfo) {
+		return batchTask("CLEAR_RECYCLE", filesInfo, "");
+	}
 
-		/**
-		 * 还原多个回收站的文件或文件夹
-		 *
-		 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @return 操作返回的结果状态码, 一般情况下, 0为成功
-		 */
-		@Contract(pure = true)
-		public int restore(@NotNull JSONObject fileInfo) {
-			return batchTask("RESTORE", fileInfo, "");
-		}
+	/**
+	 * 重命名文件夹名称
+	 *
+	 * @param folderId   文件夹ID
+	 * @param folderName 重命名后的文件夹名称
+	 * @return 返回的响应结果状态码
+	 */
+	@Contract(pure = true)
+	public int renameFolder(@NotNull String folderId, String folderName) {
+		return JSONObject.parseObject(conn.url(renameFolderUrl).requestBody("folderId=" + folderId + "&destFolderName=" + folderName).execute().body()).getInteger("res_code");
+	}
 
-		/**
-		 * 还原回收站的文件或文件夹
-		 *
-		 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @return 操作返回的结果状态码, 一般情况下, 0为成功
-		 */
-		@Contract(pure = true)
-		public int restore(@NotNull List<JSONObject> filesInfo) {
-			return batchTask("RESTORE", filesInfo, "");
-		}
+	/**
+	 * 重命名文件名称
+	 *
+	 * @param fileId   文件ID
+	 * @param fileName 重命名后的文件名称
+	 * @return 返回的响应结果状态码
+	 */
+	@Contract(pure = true)
+	public int renameFile(@NotNull String fileId, String fileName) {
+		return JSONObject.parseObject(conn.url(renameFileUrl).requestBody("fileId=" + fileId + "&destFileName=" + fileName).execute().body()).getInteger("res_code");
+	}
 
-		/**
-		 * 清空回收站
-		 *
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int emptyRecycle() {
-			return batchTask("EMPTY_RECYCLE", "[]", "");
-		}
+	/**
+	 * 创建文件夹
+	 *
+	 * @param parentId   父文件夹ID
+	 * @param folderName 文件夹名称
+	 * @return 返回的JSON数据
+	 */
+	@Contract(pure = true)
+	public JSONObject createFolder(@NotNull String parentId, String folderName) {
+		return JSONObject.parseObject(conn.url(createFolderUrl).requestBody("parentFolderId=" + parentId + "&folderName=" + folderName).execute().body());
+	}
 
-		/**
-		 * 删除多个回收站的文件或文件夹
-		 *
-		 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int clearRecycle(@NotNull JSONObject fileInfo) {
-			return batchTask("CLEAR_RECYCLE", fileInfo, "");
-		}
+	/**
+	 * 根据配置删除多个文件或文件夹到指定文件夹
+	 *
+	 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int delete(@NotNull List<JSONObject> filesInfo) {
+		return batchTask("DELETE", filesInfo, "");
+	}
 
-		/**
-		 * 删除回收站的文件或文件夹
-		 *
-		 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int clearRecycle(@NotNull List<JSONObject> filesInfo) {
-			return batchTask("CLEAR_RECYCLE", filesInfo, "");
-		}
+	/**
+	 * 删除单个个文件或文件夹到指定文件夹
+	 *
+	 * @param fileInfo 文指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int delete(@NotNull JSONObject fileInfo) {
+		return batchTask("DELETE", fileInfo, "");
+	}
 
-		/**
-		 * 重命名文件夹名称
-		 *
-		 * @param folderId   文件夹ID
-		 * @param folderName 重命名后的文件夹名称
-		 * @return 返回的响应结果状态码
-		 */
-		@Contract(pure = true)
-		public int renameFolder(@NotNull String folderId, String folderName) {
-			return JSONObject.parseObject(conn.url(renameFolderUrl).requestBody("folderId=" + folderId + "&destFolderName=" + folderName).execute().body()).getInteger("res_code");
-		}
+	/**
+	 * 根据配置复制多个文件或文件夹到指定文件夹
+	 *
+	 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @param folderId  目标文件夹ID
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int copy(@NotNull List<JSONObject> filesInfo, @NotNull String folderId) {
+		return batchTask("COPY", filesInfo, folderId);
+	}
 
-		/**
-		 * 重命名文件名称
-		 *
-		 * @param fileId   文件ID
-		 * @param fileName 重命名后的文件名称
-		 * @return 返回的响应结果状态码
-		 */
-		@Contract(pure = true)
-		public int renameFile(@NotNull String fileId, String fileName) {
-			return JSONObject.parseObject(conn.url(renameFileUrl).requestBody("fileId=" + fileId + "&destFileName=" + fileName).execute().body()).getInteger("res_code");
-		}
+	/**
+	 * 复制单个文件或文件夹到指定文件夹
+	 *
+	 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @param folderId 目标文件夹ID
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int copy(@NotNull JSONObject fileInfo, @NotNull String folderId) {
+		return batchTask("COPY", fileInfo, folderId);
+	}
 
-		/**
-		 * 创建文件夹
-		 *
-		 * @param parentId   父文件夹ID
-		 * @param folderName 文件夹名称
-		 * @return 返回的JSON数据
-		 */
-		@Contract(pure = true)
-		public JSONObject createFolder(@NotNull String parentId, String folderName) {
-			return JSONObject.parseObject(conn.url(createFolderUrl).requestBody("parentFolderId=" + parentId + "&folderName=" + folderName).execute().body());
-		}
+	/**
+	 * 根据配置移动多个文件或文件夹到指定文件夹
+	 *
+	 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @param folderId  目标文件夹ID
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int move(@NotNull List<JSONObject> filesInfo, @NotNull String folderId) {
+		return batchTask("MOVE", filesInfo, folderId);
+	}
 
-		/**
-		 * 根据配置删除多个文件或文件夹到指定文件夹
-		 *
-		 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int delete(@NotNull List<JSONObject> filesInfo) {
-			return batchTask("DELETE", filesInfo, "");
-		}
+	/**
+	 * 移动单个文件或文件夹到指定文件夹
+	 *
+	 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @param folderId 目标文件夹ID
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int move(@NotNull JSONObject fileInfo, @NotNull String folderId) {
+		return batchTask("MOVE", fileInfo, folderId);
+	}
 
-		/**
-		 * 删除单个个文件或文件夹到指定文件夹
-		 *
-		 * @param fileInfo 文指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int delete(@NotNull JSONObject fileInfo) {
-			return batchTask("DELETE", fileInfo, "");
-		}
-
-		/**
-		 * 根据配置复制多个文件或文件夹到指定文件夹
-		 *
-		 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @param folderId  目标文件夹ID
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int copy(@NotNull List<JSONObject> filesInfo, @NotNull String folderId) {
-			return batchTask("COPY", filesInfo, folderId);
-		}
-
-		/**
-		 * 复制单个文件或文件夹到指定文件夹
-		 *
-		 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @param folderId 目标文件夹ID
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int copy(@NotNull JSONObject fileInfo, @NotNull String folderId) {
-			return batchTask("COPY", fileInfo, folderId);
-		}
-
-		/**
-		 * 根据配置移动多个文件或文件夹到指定文件夹
-		 *
-		 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @param folderId  目标文件夹ID
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int move(@NotNull List<JSONObject> filesInfo, @NotNull String folderId) {
-			return batchTask("MOVE", filesInfo, folderId);
-		}
-
-		/**
-		 * 移动单个文件或文件夹到指定文件夹
-		 *
-		 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @param folderId 目标文件夹ID
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int move(@NotNull JSONObject fileInfo, @NotNull String folderId) {
-			return batchTask("MOVE", fileInfo, folderId);
-		}
-
-		/**
-		 * 对多个文件或文件夹执行批处理脚本操作,用于文件移动,删除,复制等
-		 *
-		 * @param type      操作类型
-		 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int batchTask(@NotNull String type, @NotNull List<JSONObject> filesInfo, @NotNull String folderId) {
-			JSONArray taskInfos = new JSONArray();
-			for (JSONObject fileInfo : filesInfo) {
-				JSONObject taskInfo = new JSONObject();
-				taskInfo.put("fileName", fileInfo.getString("name"));
-				taskInfo.put("fileId", fileInfo.getString("id"));
-				taskInfos.add(taskInfo);
-			}
-			return batchTask(type, taskInfos.toString(), folderId);
-		}
-
-		/**
-		 * 对单个文件或文件夹执行脚本操作,用于文件移动,删除,复制等
-		 *
-		 * @param type     操作类型
-		 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
-		 * @param folderId 目标文件夹ID,注意如果当前操作(如删除)没有关联文件夹,指定空字符串
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int batchTask(@NotNull String type, @NotNull JSONObject fileInfo, @NotNull String folderId) {
+	/**
+	 * 对多个文件或文件夹执行批处理脚本操作,用于文件移动,删除,复制等
+	 *
+	 * @param type      操作类型
+	 * @param filesInfo 指定的多个文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int batchTask(@NotNull String type, @NotNull List<JSONObject> filesInfo, @NotNull String folderId) {
+		JSONArray taskInfos = new JSONArray();
+		for (JSONObject fileInfo : filesInfo) {
 			JSONObject taskInfo = new JSONObject();
 			taskInfo.put("fileName", fileInfo.getString("name"));
 			taskInfo.put("fileId", fileInfo.getString("id"));
-			return batchTask(type, new JSONArray().fluentAdd(taskInfo).toString(), folderId);
+			taskInfos.add(taskInfo);
 		}
+		return batchTask(type, taskInfos.toString(), folderId);
+	}
 
-		/**
-		 * 执行脚本操作,用于文件移动,删除,复制等
-		 *
-		 * @param type      操作类型
-		 * @param taskInfos 自定义待执行的Json数据(json数组,每个元素应包含fileName和fileId选项)
-		 * @param folderId  目标文件夹ID,注意如果当前操作(如删除)没有关联文件夹,指定空字符串
-		 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
-		 */
-		@Contract(pure = true)
-		public int batchTask(@NotNull String type, @NotNull String taskInfos, @NotNull String folderId) {
-			Map<String, String> data = new HashMap<>();
-			data.put("type", type);
-			data.put("taskInfos", taskInfos);
-			data.put("targetFolderId", folderId);
-			return JSONObject.parseObject(conn.url(createBatchTaskUrl).data(data).execute().body()).getInteger("res_code");
-		}
+	/**
+	 * 对单个文件或文件夹执行脚本操作,用于文件移动,删除,复制等
+	 *
+	 * @param type     操作类型
+	 * @param fileInfo 指定的文件或文件夹,JSON类型数据,需包含"name"和"id"选项
+	 * @param folderId 目标文件夹ID,注意如果当前操作(如删除)没有关联文件夹,指定空字符串
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int batchTask(@NotNull String type, @NotNull JSONObject fileInfo, @NotNull String folderId) {
+		JSONObject taskInfo = new JSONObject();
+		taskInfo.put("fileName", fileInfo.getString("name"));
+		taskInfo.put("fileId", fileInfo.getString("id"));
+		return batchTask(type, new JSONArray().fluentAdd(taskInfo).toString(), folderId);
+	}
 
-		/**
-		 * 获取用户主页的指定文件夹下的文件信息
-		 *
-		 * @param folderId 文件夹ID
-		 * @return List - JSON类型数据,包含了文件的所有信息
-		 */
-		@Contract(pure = true)
-		public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
-			Map<String, String> data = new HashMap<>();
-			data.put("pageSize", "1");
-			data.put("folderId", folderId);
-			String urlInfo = conn.url(listFilesUrl).data(data).get().text();
-			data.put("pageSize", JSONObject.parseObject(urlInfo).getJSONObject("fileListAO").getString("count"));
-			urlInfo = conn.url(listFilesUrl).data(data).get().text();
-			JSONObject fileListAO = JSONObject.parseObject(urlInfo).getJSONObject("fileListAO");
-			JSONArray filesList = new JSONArray();
-			filesList.addAll(fileListAO.getJSONArray("fileList"));
-			filesList.addAll(fileListAO.getJSONArray("folderList"));
-			return filesList.toList(JSONObject.class);
-		}
+	/**
+	 * 执行脚本操作,用于文件移动,删除,复制等
+	 *
+	 * @param type      操作类型
+	 * @param taskInfos 自定义待执行的Json数据(json数组,每个元素应包含fileName和fileId选项)
+	 * @param folderId  目标文件夹ID,注意如果当前操作(如删除)没有关联文件夹,指定空字符串
+	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
+	 */
+	@Contract(pure = true)
+	public int batchTask(@NotNull String type, @NotNull String taskInfos, @NotNull String folderId) {
+		Map<String, String> data = new HashMap<>();
+		data.put("type", type);
+		data.put("taskInfos", taskInfos);
+		data.put("targetFolderId", folderId);
+		return JSONObject.parseObject(conn.url(createBatchTaskUrl).data(data).execute().body()).getInteger("res_code");
+	}
 
-		/**
-		 * 获取用户主页的指定文件夹下的文件(仅文件夹)信息
-		 *
-		 * @param folderId 文件夹ID
-		 * @return List - JSON类型数据,包含了文件的所有信息
-		 */
-		@Contract(pure = true)
-		public List<JSONObject> getFileInfosAsHomeOfFolder(@NotNull String folderId) {
-			return getInfosAsHomeOfFolder(folderId).stream().filter(l -> !l.containsKey("fileCount")).collect(Collectors.toList());
-		}
+	/**
+	 * 获取用户主页的指定文件夹下的文件信息
+	 *
+	 * @param folderId 文件夹ID
+	 * @return List - JSON类型数据,包含了文件的所有信息
+	 */
+	@Contract(pure = true)
+	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
+		Map<String, String> data = new HashMap<>();
+		data.put("pageSize", "1");
+		data.put("folderId", folderId);
+		String urlInfo = conn.url(listFilesUrl).data(data).get().text();
+		data.put("pageSize", JSONObject.parseObject(urlInfo).getJSONObject("fileListAO").getString("count"));
+		urlInfo = conn.url(listFilesUrl).data(data).get().text();
+		JSONObject fileListAO = JSONObject.parseObject(urlInfo).getJSONObject("fileListAO");
+		JSONArray filesList = new JSONArray();
+		filesList.addAll(fileListAO.getJSONArray("fileList"));
+		filesList.addAll(fileListAO.getJSONArray("folderList"));
+		return filesList.toList(JSONObject.class);
+	}
 
-		/**
-		 * 获取用户主页的指定文件夹下的文件(仅文件)信息
-		 *
-		 * @param folderId 文件夹ID
-		 * @return List - JSON类型数据,包含了文件的所有信息
-		 */
-		@Contract(pure = true)
-		public List<JSONObject> getFolderInfosAsHomeOfFolder(@NotNull String folderId) {
-			return getInfosAsHomeOfFolder(folderId).stream().filter(l -> l.containsKey("fileCount")).collect(Collectors.toList());
-		}
+	/**
+	 * 获取用户主页的指定文件夹下的文件(仅文件夹)信息
+	 *
+	 * @param folderId 文件夹ID
+	 * @return List - JSON类型数据,包含了文件的所有信息
+	 */
+	@Contract(pure = true)
+	public List<JSONObject> getFileInfosAsHomeOfFolder(@NotNull String folderId) {
+		return getInfosAsHomeOfFolder(folderId).stream().filter(l -> !l.containsKey("fileCount")).collect(Collectors.toList());
+	}
 
-		/**
-		 * 获取用户主页的所有文件信息
-		 *
-		 * @return List - JSON类型数据,包含了文件的所有信息
-		 */
-		@Contract(pure = true)
-		public List<JSONObject> getInfosAsHome() {
-			return getInfosAsHomeOfFolder("-11"); // -11 主页
-		}
+	/**
+	 * 获取用户主页的指定文件夹下的文件(仅文件)信息
+	 *
+	 * @param folderId 文件夹ID
+	 * @return List - JSON类型数据,包含了文件的所有信息
+	 */
+	@Contract(pure = true)
+	public List<JSONObject> getFolderInfosAsHomeOfFolder(@NotNull String folderId) {
+		return getInfosAsHomeOfFolder(folderId).stream().filter(l -> l.containsKey("fileCount")).collect(Collectors.toList());
+	}
 
-		/**
-		 * 获取指定文件夹下(包含子文件夹)所有文件信息,[-11]为根目录
-		 *
-		 * @param folderId 文件夹ID
-		 * @return List - JSON类型数据,包含了文件的所有信息
-		 */
-		@Contract(pure = true)
-		public List<JSONObject> getInfosAsHomeOfAll(@NotNull String folderId) {
-			List<JSONObject> filesInfo = new ArrayList<>();
-			for (JSONObject fileInfo : getInfosAsHomeOfFolder(folderId)) {
-				if (fileInfo.containsKey("fileCount")) {
-					filesInfo.addAll(Judge.isEmpty(fileInfo.getInteger("fileCount")) ? new ArrayList<>() : getInfosAsHomeOfFolder(fileInfo.getString("id")));
-				} else {
-					filesInfo.add(fileInfo);
-				}
+	/**
+	 * 获取用户主页的所有文件信息
+	 *
+	 * @return List - JSON类型数据,包含了文件的所有信息
+	 */
+	@Contract(pure = true)
+	public List<JSONObject> getInfosAsHome() {
+		return getInfosAsHomeOfFolder("-11"); // -11 主页
+	}
+
+	/**
+	 * 获取指定文件夹下(包含子文件夹)所有文件信息,[-11]为根目录
+	 *
+	 * @param folderId 文件夹ID
+	 * @return List - JSON类型数据,包含了文件的所有信息
+	 */
+	@Contract(pure = true)
+	public List<JSONObject> getInfosAsHomeOfAll(@NotNull String folderId) {
+		List<JSONObject> filesInfo = new ArrayList<>();
+		for (JSONObject fileInfo : getInfosAsHomeOfFolder(folderId)) {
+			if (fileInfo.containsKey("fileCount")) {
+				filesInfo.addAll(Judge.isEmpty(fileInfo.getInteger("fileCount")) ? new ArrayList<>() : getInfosAsHomeOfFolder(fileInfo.getString("id")));
+			} else {
+				filesInfo.add(fileInfo);
 			}
-			return filesInfo;
 		}
+		return filesInfo;
+	}
 
-		/**
-		 * 在需要提取码但自己没有时,可直接获得文件直链<br/>
-		 * 如果有多个文件,返回第一个文件直链
-		 *
-		 * @param url 天翼URL
-		 * @return 文件直链
-		 */
-		@Contract(pure = true)
-		public String getStraightAsNotCode(@NotNull String url) {
-			JSONObject info = getshareUrlInfo(url);
-			String straight = JSONObject.parseObject(conn.url(fileDownloadUrl + "?dt=1&fileId=" + info.getString("fileId") + "&shareId=" + info.getString("shareId")).get().text()).getString("fileDownloadUrl");
-			return straight == null ? "" : straight;
+	/**
+	 * 在需要提取码但自己没有时,可直接获得文件直链<br/>
+	 * 如果有多个文件,返回第一个文件直链
+	 *
+	 * @param url 天翼URL
+	 * @return 文件直链
+	 */
+	@Contract(pure = true)
+	public String getStraightAsNotCode(@NotNull String url) {
+		JSONObject info = getshareUrlInfo(url);
+		String straight = JSONObject.parseObject(conn.url(fileDownloadUrl + "?dt=1&fileId=" + info.getString("fileId") + "&shareId=" + info.getString("shareId")).get().text()).getString("fileDownloadUrl");
+		return straight == null ? "" : straight;
+	}
+
+	/**
+	 * 获得分享页面所有文件的直链(无密码)
+	 *
+	 * @param url 天翼URL
+	 * @return Map - 文件名 ,文件直链
+	 */
+	@Contract(pure = true)
+	public Map<String, String> getStraightsAsPage(@NotNull String url) {
+		return getStraightsAsPage(url, "");
+	}
+
+	/**
+	 * 获得分享页面所有文件的直链
+	 *
+	 * @param url        天翼URL
+	 * @param accessCode 提取码
+	 * @return Map - 文件名 ,文件直链
+	 */
+	@Contract(pure = true)
+	public Map<String, String> getStraightsAsPage(@NotNull String url, @NotNull String accessCode) {
+		Map<String, String> fileUrls = new HashMap<>();
+		for (JSONObject fileInfo : getFilesInfoAsPage(url, accessCode)) {
+			Map<String, String> params = new HashMap<>();
+			params.put("dt", "1");
+			params.put("fileId", fileInfo.getString("id"));
+			params.put("shareId", fileInfo.getString("shareId"));
+			String straight = JSONObject.parseObject(conn.url(fileDownloadUrl).data(params).get().text()).getString("fileDownloadUrl");
+			fileUrls.put(fileInfo.getString("name"), straight == null ? "" : straight);
 		}
+		return fileUrls;
+	}
 
-		/**
-		 * 获得分享页面所有文件的直链(无密码)
-		 *
-		 * @param url 天翼URL
-		 * @return Map - 文件名 ,文件直链
-		 */
-		@Contract(pure = true)
-		public Map<String, String> getStraightsAsPage(@NotNull String url) {
-			return getStraightsAsPage(url, "");
-		}
-
-		/**
-		 * 获得分享页面所有文件的直链
-		 *
-		 * @param url        天翼URL
-		 * @param accessCode 提取码
-		 * @return Map - 文件名 ,文件直链
-		 */
-		@Contract(pure = true)
-		public Map<String, String> getStraightsAsPage(@NotNull String url, @NotNull String accessCode) {
-			Map<String, String> fileUrls = new HashMap<>();
-			for (JSONObject fileInfo : getFilesInfoAsPage(url, accessCode)) {
-				Map<String, String> params = new HashMap<>();
-				params.put("dt", "1");
-				params.put("fileId", fileInfo.getString("id"));
-				params.put("shareId", fileInfo.getString("shareId"));
-				String straight = JSONObject.parseObject(conn.url(fileDownloadUrl).data(params).get().text()).getString("fileDownloadUrl");
-				fileUrls.put(fileInfo.getString("name"), straight == null ? "" : straight);
-			}
-			return fileUrls;
-		}
-
-		/**
-		 * 通过文件ID获取文件的直链,不能用于分享页面获取
-		 *
-		 * @param fileId 文件ID
-		 * @return 用于下载的直链
-		 */
-		@Contract(pure = true)
-		public String getStraight(@NotNull String fileId) {
-			return JSONObject.parseObject(conn.url(fileDownloadUrl).data("fileId", fileId).get().text()).getString("fileDownloadUrl");
-		}
-
+	/**
+	 * 通过文件ID获取文件的直链,不能用于分享页面获取
+	 *
+	 * @param fileId 文件ID
+	 * @return 用于下载的直链
+	 */
+	@Contract(pure = true)
+	public String getStraight(@NotNull String fileId) {
+		return JSONObject.parseObject(conn.url(fileDownloadUrl).data("fileId", fileId).get().text()).getString("fileDownloadUrl");
 	}
 
 	/**
