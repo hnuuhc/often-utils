@@ -68,8 +68,8 @@ public class TianYiYunPan {
 	 * @return List - JSON数据类型,包含文件所有信息
 	 */
 	@Contract(pure = true)
-	public static List<JSONObject> getFilesInfoAsPage(@NotNull String url) {
-		return getFilesInfoAsPage(url, "");
+	public static List<JSONObject> getInfoAsPage(@NotNull String url) {
+		return getInfoAsPage(url, "");
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class TianYiYunPan {
 	 * @return List - JSON数据类型,包含文件所有信息
 	 */
 	@Contract(pure = true)
-	public static List<JSONObject> getFilesInfoAsPage(@NotNull String url, @NotNull String shareCode) {
+	public static List<JSONObject> getInfoAsPage(@NotNull String url, @NotNull String shareCode) {
 		JSONObject info = getshareUrlInfo(url);
 		String shareId = info.getString("shareId");
 		Map<String, String> data = new HashMap<>();
@@ -89,7 +89,7 @@ public class TianYiYunPan {
 		data.put("isFolder", info.getString("isFolder"));
 		data.put("shareMode", info.getString("shareMode"));
 		data.put("accessCode", shareCode);
-		List<JSONObject> result = getFilesInfoAsPage(data);
+		List<JSONObject> result = getInfoAsPage(data);
 		result.forEach(l -> l.put("shareId", shareId));
 		return result;
 	}
@@ -119,7 +119,7 @@ public class TianYiYunPan {
 	 * @return List - JSON数据类型,包含文件所有信息
 	 */
 	@Contract(pure = true)
-	private static List<JSONObject> getFilesInfoAsPage(@NotNull Map<String, String> data) {
+	private static List<JSONObject> getInfoAsPage(@NotNull Map<String, String> data) {
 		Connection conn = HttpsUtil.connect(listShareDirUrl).header("accept", "application/json;charset=UTF-8");
 		JSONObject infos = JSONObject.parseObject(conn.data(data).execute().body()).getJSONObject("fileListAO");
 		if (infos == null || Judge.isEmpty(infos.getInteger("count"))) {
@@ -129,13 +129,13 @@ public class TianYiYunPan {
 		Map<String, String> thisData = new HashMap<>(data);
 		for (JSONObject folderInfo : infos.getJSONArray("folderList").toList(JSONObject.class)) {
 			thisData.put("fileId", folderInfo.getString("id"));
-			filesInfo.addAll(getFilesInfoAsPage(thisData));
+			filesInfo.addAll(getInfoAsPage(thisData));
 		}
 		return filesInfo;
 	}
 
 	/**
-	 * 使用本地谷歌浏览器(Edge)登陆,进行需要是否验证的API操作
+	 * 使用本地谷歌浏览器(Edge)登陆,进行需要身份验证的API操作
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
@@ -145,7 +145,7 @@ public class TianYiYunPan {
 	}
 
 	/**
-	 * 使用本地谷歌浏览器登陆,进行需要是否验证的API操作
+	 * 使用本地谷歌浏览器登陆,进行需要身份验证的API操作
 	 *
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
@@ -156,7 +156,7 @@ public class TianYiYunPan {
 	}
 
 	/**
-	 * 登陆账户,进行需要是否验证的API操作
+	 * 登陆账户,进行需要身份验证的API操作
 	 *
 	 * @param userName 用户名 (不含@189.cn后缀)
 	 * @param password 密码
@@ -164,7 +164,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public static TianYiYunPan login(@NotNull String userName, @NotNull String password) {
-		return login(TianYiYunPanLogin.login(userName, password));
+		return login(YunPanLogin.login(userName, password));
 	}
 
 	/**
@@ -200,8 +200,8 @@ public class TianYiYunPan {
 	 * @return 返回的响应结果状态码
 	 */
 	@Contract(pure = true)
-	public int cancelShare(@NotNull String... shareId) {
-		return cancelShare(Arrays.asList(shareId));
+	public int unShare(@NotNull String... shareId) {
+		return unShare(Arrays.asList(shareId));
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class TianYiYunPan {
 	 * @return 返回的响应结果状态码
 	 */
 	@Contract(pure = true)
-	public int cancelShare(@NotNull List<String> shareIdList) {
+	public int unShare(@NotNull List<String> shareIdList) {
 		return JSONObject.parseObject(conn.url(cancelShareUrl).requestBody("shareIdList=" + String.join(Symbol.COMMA, shareIdList) + "&cancelType=" + 1).execute().body()).getInteger("res_code");
 	}
 
@@ -224,7 +224,7 @@ public class TianYiYunPan {
 	 * @return 响应结果
 	 */
 	@Contract(pure = true)
-	public JSONObject createShareLink(@NotNull String fileId, int time, int type) {
+	public JSONObject share(@NotNull String fileId, int time, int type) {
 		return JSONObject.parseObject(conn.url(createShareLinkUrl).requestBody("fileId=" + fileId + "&expireTime=" + time + "&shareType=" + type).execute().body());
 	}
 
@@ -234,7 +234,7 @@ public class TianYiYunPan {
 	 * @return List - JSON类型数据,包含了文件的所有信息
 	 */
 	@Contract(pure = true)
-	public List<JSONObject> listRecycleBinFiles() {
+	public List<JSONObject> listRecycleBin() {
 		Map<String, String> data = new HashMap<>();
 		data.put("pageNum", "1");
 		data.put("pageSize", "30");
@@ -279,7 +279,7 @@ public class TianYiYunPan {
 	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
 	 */
 	@Contract(pure = true)
-	public int emptyRecycle() {
+	public int clearRecycle() {
 		return batchTask("EMPTY_RECYCLE", "[]", "");
 	}
 
@@ -553,7 +553,7 @@ public class TianYiYunPan {
 	 * 获得分享页面所有文件的直链(无密码)
 	 *
 	 * @param url 天翼URL
-	 * @return Map - 文件名 ,文件直链
+	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
 	@Contract(pure = true)
 	public Map<String, String> getStraightsAsPage(@NotNull String url) {
@@ -565,12 +565,12 @@ public class TianYiYunPan {
 	 *
 	 * @param url        天翼URL
 	 * @param accessCode 提取码
-	 * @return Map - 文件名 ,文件直链
+	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
 	@Contract(pure = true)
 	public Map<String, String> getStraightsAsPage(@NotNull String url, @NotNull String accessCode) {
 		Map<String, String> fileUrls = new HashMap<>();
-		for (JSONObject fileInfo : getFilesInfoAsPage(url, accessCode)) {
+		for (JSONObject fileInfo : getInfoAsPage(url, accessCode)) {
 			Map<String, String> params = new HashMap<>();
 			params.put("dt", "1");
 			params.put("fileId", fileInfo.getString("id"));
@@ -595,7 +595,7 @@ public class TianYiYunPan {
 	/**
 	 * 天翼云盘的登陆操作
 	 */
-	public static class TianYiYunPanLogin {
+	public static class YunPanLogin {
 
 		private static final String loginSubmitUrl = "https://open.e.189.cn/api/logbox/oauth2/loginSubmit.do";
 		private static final String encryptConfUrl = "https://open.e.189.cn/api/logbox/config/encryptConf.do";

@@ -56,7 +56,7 @@ public class KuaKeYunPan {
 	}
 
 	/**
-	 * 使用本地谷歌浏览器(Edge)登陆,进行需要是否验证的API操作
+	 * 使用本地谷歌浏览器(Edge)登陆,进行需要身份验证的API操作
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
@@ -66,7 +66,7 @@ public class KuaKeYunPan {
 	}
 
 	/**
-	 * 使用本地谷歌浏览器登陆,进行需要是否验证的API操作
+	 * 使用本地谷歌浏览器登陆,进行需要身份验证的API操作
 	 *
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
@@ -77,7 +77,7 @@ public class KuaKeYunPan {
 	}
 
 	/**
-	 * 登陆云盘
+	 * 登陆云盘,进行需要身份验证的API操作
 	 *
 	 * @param cookies cookies
 	 * @return 此链接, 用于身份验证的API操作
@@ -111,7 +111,7 @@ public class KuaKeYunPan {
 	 * @return 分享文件列表
 	 */
 	@Contract(pure = true)
-	public List<JSONObject> shareList() {
+	public List<JSONObject> listShares() {
 		return JSONArray.parseArray(JSONObject.parseObject(conn.url(detailUrl).get().text()).getJSONObject("data").getString("list")).toList(JSONObject.class);
 	}
 
@@ -122,8 +122,8 @@ public class KuaKeYunPan {
 	 * @return 删除状态
 	 */
 	@Contract(pure = true)
-	public boolean cancelShare(@NotNull String... shareId) {
-		return cancelShare(Arrays.asList(shareId));
+	public boolean unShare(@NotNull String... shareId) {
+		return unShare(Arrays.asList(shareId));
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class KuaKeYunPan {
 	 * @return 删除状态
 	 */
 	@Contract(pure = true)
-	public boolean cancelShare(@NotNull List<String> shareIds) {
+	public boolean unShare(@NotNull List<String> shareIds) {
 		return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("share_ids", shareIds).toString()).post().text()).getInteger("status"));
 	}
 

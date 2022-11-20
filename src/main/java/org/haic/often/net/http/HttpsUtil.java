@@ -449,7 +449,7 @@ public class HttpsUtil {
 			HttpURLConnection conn = (HttpURLConnection) URIUtil.getURL(url).openConnection(proxy);
 			conn.setRequestProperty("connection", "close");
 			conn.setRequestMethod(method.name()); // 请求方法
-			conn.setConnectTimeout(timeout < 5000 && !Judge.isEmpty(timeout) ? timeout : 5000); // 连接超时
+			conn.setConnectTimeout(timeout < 10000 && !Judge.isEmpty(timeout) ? timeout : 10000); // 连接超时
 			conn.setReadTimeout(timeout); // 读取超时
 			conn.setInstanceFollowRedirects(false); // 重定向,http和https之间无法遵守重定向
 			// https 忽略证书验证

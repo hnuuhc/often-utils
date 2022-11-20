@@ -106,7 +106,7 @@ public class LanZouYunPan {
 	 *
 	 * @param lanzouUrl 蓝奏URL
 	 * @param passwd    访问密码
-	 * @return 文件直链集合
+	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
 	@Contract(pure = true)
 	public static Map<String, String> getStraightsAsPage(@NotNull String lanzouUrl, @NotNull String passwd) {
@@ -118,7 +118,7 @@ public class LanZouYunPan {
 	 * 文件列表页面
 	 *
 	 * @param lanzouUrl 蓝奏URL
-	 * @return 文件直链集合
+	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
 	@Contract(pure = true)
 	public static Map<String, String> getStraightsAsPage(@NotNull String lanzouUrl) {
@@ -194,7 +194,7 @@ public class LanZouYunPan {
 	}
 
 	/**
-	 * 使用本地谷歌浏览器(Edge)登陆,进行需要是否验证的API操作
+	 * 使用本地谷歌浏览器(Edge)登陆,进行需要身份验证的API操作
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
@@ -204,7 +204,7 @@ public class LanZouYunPan {
 	}
 
 	/**
-	 * 使用本地谷歌浏览器登陆,进行需要是否验证的API操作
+	 * 使用本地谷歌浏览器登陆,进行需要身份验证的API操作
 	 *
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
@@ -215,7 +215,7 @@ public class LanZouYunPan {
 	}
 
 	/**
-	 * 登陆云盘
+	 * 登陆云盘,进行需要身份验证的API操作
 	 *
 	 * @param cookies cookies
 	 * @return 此链接, 用于身份验证的API操作
@@ -231,7 +231,7 @@ public class LanZouYunPan {
 	 * @return JSON类型数据, 包含了所有文件的信息
 	 */
 	@Contract(pure = true)
-	public List<JSONObject> listRecycleBinFiles() {
+	public List<JSONObject> listRecycleBin() {
 		Elements lists = conn.url(mydiskUrl).requestBody("item=recycle&action=files").get().select("tbody tr[class]");
 		return lists.size() == 1 && lists.text().contains("回收站为空") ? new ArrayList<>() : lists.stream().map(l -> {
 			Element input = l.selectFirst("input");
@@ -282,7 +282,7 @@ public class LanZouYunPan {
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
 	@Contract(pure = true)
-	public int recycleDeleteAll() {
+	public int clearRecycle() {
 		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_all&action=delete_all&formhash=a1c01e43&").method(Method.POST).execute().statusCode();
 	}
 
@@ -293,8 +293,8 @@ public class LanZouYunPan {
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
 	@Contract(pure = true)
-	public int recycleDelete(@NotNull JSONObject... fileInfo) {
-		return recycleDelete(Arrays.asList(fileInfo));
+	public int clearRecycle(@NotNull JSONObject... fileInfo) {
+		return clearRecycle(Arrays.asList(fileInfo));
 	}
 
 	/**
@@ -304,7 +304,7 @@ public class LanZouYunPan {
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
 	@Contract(pure = true)
-	public int recycleDelete(@NotNull List<JSONObject> fileInfoList) {
+	public int clearRecycle(@NotNull List<JSONObject> fileInfoList) {
 		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_complete_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + Symbol.EQUALS + l.getString("inputValue")).collect(Collectors.joining(Symbol.AND))).method(Method.POST).execute().statusCode();
 	}
 
@@ -375,7 +375,7 @@ public class LanZouYunPan {
 	 * @return 返回的JSON数据
 	 */
 	@Contract(pure = true)
-	public JSONObject alterFileOfName(@NotNull String fileId, @NotNull String fileName) {
+	public JSONObject rename(@NotNull String fileId, @NotNull String fileName) {
 		return doupload("task=46&file_id=" + fileId + "&typr=2&file_name=" + fileName);
 	}
 
@@ -512,7 +512,7 @@ public class LanZouYunPan {
 	 * @return 返回的JSON数据
 	 */
 	@Contract(pure = true)
-	public JSONObject doupload(@NotNull String body) {
+	private JSONObject doupload(@NotNull String body) {
 		return JSONObject.parseObject(conn.url(douploadUrl).requestBody(body).post().text());
 	}
 

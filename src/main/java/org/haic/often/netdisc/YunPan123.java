@@ -54,50 +54,6 @@ public class YunPan123 {
 	}
 
 	/**
-	 * 使用本地谷歌浏览器(Edge)登陆,进行需要是否验证的API操作
-	 *
-	 * @return 此链接, 用于身份验证的API操作
-	 */
-	@Contract(pure = true)
-	public static YunPan123 localLogin() {
-		return login(LocalCookie.home().getForDomain("www.123pan.com").getOrDefault("authorToken", null));
-	}
-
-	/**
-	 * 使用本地谷歌浏览器登陆,进行需要是否验证的API操作
-	 *
-	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
-	 * @return 此链接, 用于身份验证的API操作
-	 */
-	@Contract(pure = true)
-	public static YunPan123 localLogin(@NotNull String userHome) {
-		return login(LocalCookie.home().getForDomain("www.123pan.com").getOrDefault("authorToken", null));
-	}
-
-	/**
-	 * 通过账号密码登陆账号,进行需要是否验证的API操作
-	 *
-	 * @param username 用户名
-	 * @param password 密码
-	 * @return 此链接, 用于身份验证的API操作
-	 */
-	@Contract(pure = true)
-	public static YunPan123 login(@NotNull String username, @NotNull String password) {
-		return new YunPan123(YunPan123Login.login(username, password));
-	}
-
-	/**
-	 * 通过身份识别标识登陆账号,进行需要是否验证的API操作
-	 *
-	 * @param auth 身份识别标识
-	 * @return 此链接, 用于API操作
-	 */
-	@Contract(pure = true)
-	public static YunPan123 login(@NotNull String auth) {
-		return new YunPan123(auth);
-	}
-
-	/**
 	 * 获取分享页所有文件的信息
 	 *
 	 * @param shareUrl 分享URL
@@ -199,12 +155,56 @@ public class YunPan123 {
 	}
 
 	/**
+	 * 使用本地谷歌浏览器(Edge)登陆,进行需要身份验证的API操作
+	 *
+	 * @return 此链接, 用于身份验证的API操作
+	 */
+	@Contract(pure = true)
+	public static YunPan123 localLogin() {
+		return login(LocalCookie.home().getForDomain("www.123pan.com").getOrDefault("authorToken", null));
+	}
+
+	/**
+	 * 使用本地谷歌浏览器登陆,进行需要身份验证的API操作
+	 *
+	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
+	 * @return 此链接, 用于身份验证的API操作
+	 */
+	@Contract(pure = true)
+	public static YunPan123 localLogin(@NotNull String userHome) {
+		return login(LocalCookie.home().getForDomain("www.123pan.com").getOrDefault("authorToken", null));
+	}
+
+	/**
+	 * 通过账号密码登陆账号,进行需要身份验证的API操作
+	 *
+	 * @param username 用户名
+	 * @param password 密码
+	 * @return 此链接, 用于身份验证的API操作
+	 */
+	@Contract(pure = true)
+	public static YunPan123 login(@NotNull String username, @NotNull String password) {
+		return new YunPan123(YunPanLogin.login(username, password));
+	}
+
+	/**
+	 * 通过身份识别标识登陆账号,进行需要是否验证的API操作
+	 *
+	 * @param auth 身份识别标识
+	 * @return 此链接, 用于API操作
+	 */
+	@Contract(pure = true)
+	public static YunPan123 login(@NotNull String auth) {
+		return new YunPan123(auth);
+	}
+
+	/**
 	 * 获取回收站的文件列表
 	 *
 	 * @return List - JSON类型数据,包含了文件的所有信息
 	 */
 	@Contract(pure = true)
-	public List<JSONObject> listRecycleBinFiles() {
+	public List<JSONObject> listRecycleBin() {
 		return getInfoListAsHome("0", "", true);
 	}
 
@@ -240,7 +240,7 @@ public class YunPan123 {
 	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
 	 */
 	@Contract(pure = true)
-	public int emptyRecycle() {
+	public int clearRecycle() {
 		return JSONObject.parseObject(conn.url(trashDeleteAllUrl).requestBody(new JSONObject().toString()).post().text()).getInteger("code");
 	}
 
@@ -273,8 +273,8 @@ public class YunPan123 {
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
 	@Contract(pure = true)
-	public int cancelShare(@NotNull String... shareId) {
-		return cancelShare(Arrays.asList(shareId));
+	public int unShare(@NotNull String... shareId) {
+		return unShare(Arrays.asList(shareId));
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class YunPan123 {
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
 	@Contract(pure = true)
-	public int cancelShare(@NotNull List<String> shareIdList) {
+	public int unShare(@NotNull List<String> shareIdList) {
 		return JSONObject.parseObject(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("driveId", "0").fluentPut("shareInfoList", shareIdList.stream().map(l -> new JSONObject().fluentPut("shareId", l)).toList()).toString()).post().text()).getInteger("code");
 	}
 
@@ -317,8 +317,8 @@ public class YunPan123 {
 	 * @return 返回的JSON数据
 	 */
 	@Contract(pure = true)
-	public JSONObject createShare(@NotNull String shareName, @NotNull String fileId) {
-		return createShare(shareName, fileId, "", 1);
+	public JSONObject share(@NotNull String shareName, @NotNull String fileId) {
+		return share(shareName, fileId, "", 1);
 	}
 
 	/**
@@ -330,8 +330,8 @@ public class YunPan123 {
 	 * @return 返回的JSON数据
 	 */
 	@Contract(pure = true)
-	public JSONObject createShare(@NotNull String shareName, @NotNull String fileId, int day) {
-		return createShare(shareName, fileId, "", day);
+	public JSONObject share(@NotNull String shareName, @NotNull String fileId, int day) {
+		return share(shareName, fileId, "", day);
 	}
 
 	/**
@@ -343,8 +343,8 @@ public class YunPan123 {
 	 * @return 返回的JSON数据
 	 */
 	@Contract(pure = true)
-	public JSONObject createShare(@NotNull String shareName, @NotNull String fileId, @NotNull String sharePwd) {
-		return createShare(shareName, fileId, sharePwd, 1);
+	public JSONObject share(@NotNull String shareName, @NotNull String fileId, @NotNull String sharePwd) {
+		return share(shareName, fileId, sharePwd, 1);
 	}
 
 	/**
@@ -357,7 +357,7 @@ public class YunPan123 {
 	 * @return 返回的JSON数据
 	 */
 	@Contract(pure = true)
-	public JSONObject createShare(@NotNull String shareName, @NotNull String fileId, @NotNull String sharePwd, int day) {
+	public JSONObject share(@NotNull String shareName, @NotNull String fileId, @NotNull String sharePwd, int day) {
 		Calendar time = Calendar.getInstance();
 		time.add(Calendar.DAY_OF_MONTH, day);
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
@@ -579,7 +579,7 @@ public class YunPan123 {
 		fileInfos.forEach(l -> download(l, folderPath));
 	}
 
-	public static class YunPan123Login {
+	public static class YunPanLogin {
 
 		private static final String signinUrl = "https://www.123pan.com/a/api/user/sign_in";
 

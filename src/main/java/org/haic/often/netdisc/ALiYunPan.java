@@ -59,6 +59,7 @@ public class ALiYunPan {
 	 * @param shareUrl 分享链接
 	 * @return 文件信息列表
 	 */
+	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(String shareUrl) {
 		return shareUrl.contains(Symbol.POUND) ? getInfosAsPage(shareUrl.substring(0, shareUrl.indexOf(Symbol.POUND)), shareUrl.substring(shareUrl.indexOf('#') + 1)) : getInfosAsPage(shareUrl, "");
 	}
@@ -70,11 +71,13 @@ public class ALiYunPan {
 	 * @param sharePwd 提取码
 	 * @return 文件信息列表
 	 */
+	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		String shareId = shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1);
 		return getInfosAsPage(shareId, getShareToken(shareId, sharePwd), "root", Symbol.SLASH);
 	}
 
+	@Contract(pure = true)
 	private static List<JSONObject> getInfosAsPage(@NotNull String shareId, @NotNull String shareToken, @NotNull String parentId, @NotNull String path) {
 		List<JSONObject> filesInfo = new ArrayList<>();
 		JSONObject data = new JSONObject();
@@ -101,6 +104,7 @@ public class ALiYunPan {
 	 * @param sharePwd 提取码
 	 * @return ShareToken
 	 */
+	@Contract(pure = true)
 	private static String getShareToken(String shareId, String sharePwd) {
 		JSONObject apiJson = new JSONObject();
 		apiJson.put("share_id", shareId);
@@ -110,7 +114,7 @@ public class ALiYunPan {
 	}
 
 	/**
-	 * 使用本地谷歌浏览器(Edge)登陆,进行需要是否验证的API操作
+	 * 使用本地谷歌浏览器(Edge)登陆,进行需要身份验证的API操作
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
@@ -120,7 +124,7 @@ public class ALiYunPan {
 	}
 
 	/**
-	 * 使用本地谷歌浏览器登陆,进行需要是否验证的API操作
+	 * 使用本地谷歌浏览器登陆,进行需要身份验证的API操作
 	 *
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
@@ -131,11 +135,12 @@ public class ALiYunPan {
 	}
 
 	/**
-	 * 登陆账户,进行需要是否验证的API操作
+	 * 登陆账户,进行需要身份验证的API操作
 	 *
 	 * @param auth 身份识别信息,登录后,可在开发者本地存储(Local Storage)获取token项access_token值,或者在网络请求头中查找
 	 * @return 此链接, 用于身份验证的API操作
 	 */
+	@Contract(pure = true)
 	public static ALiYunPan login(@NotNull String auth) {
 		return new ALiYunPan(auth);
 	}
@@ -210,7 +215,7 @@ public class ALiYunPan {
 	 * @return 返回的JSON格式文件列表
 	 */
 	@Contract(pure = true)
-	public List<JSONObject> listRecycleBinFiles() {
+	public List<JSONObject> listRecycleBin() {
 		JSONObject data = new JSONObject();
 		data.put("drive_id", userInfo.getString("default_drive_id"));
 		data.put("limit", 100);
@@ -296,8 +301,8 @@ public class ALiYunPan {
 	 * @return 返回的JSON数据
 	 */
 	@Contract(pure = true)
-	public JSONObject createShare(int day, @NotNull String shareCode, @NotNull String... fileId) {
-		return createShare(day, shareCode, Arrays.asList(fileId));
+	public JSONObject share(int day, @NotNull String shareCode, @NotNull String... fileId) {
+		return share(day, shareCode, Arrays.asList(fileId));
 	}
 
 	/**
@@ -309,7 +314,7 @@ public class ALiYunPan {
 	 * @return 返回的JSON数据
 	 */
 	@Contract(pure = true)
-	public JSONObject createShare(int day, @NotNull String shareCode, @NotNull List<String> fileIdList) {
+	public JSONObject share(int day, @NotNull String shareCode, @NotNull List<String> fileIdList) {
 		Calendar time = Calendar.getInstance();
 		time.add(Calendar.DAY_OF_MONTH, day);
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'.094Z'");
@@ -474,8 +479,9 @@ public class ALiYunPan {
 	 * 警告: referer链接最后的 "/" 符号也要加上
 	 *
 	 * @param shareUrl 分享链接
-	 * @return 文件信息列表
+	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
+	@Contract(pure = true)
 	public List<JSONObject> getStraightsAsPage(@NotNull String shareUrl) {
 		return shareUrl.contains(Symbol.POUND) ? getStraightsAsPage(shareUrl.substring(0, shareUrl.indexOf(Symbol.POUND)), shareUrl.substring(shareUrl.indexOf('#') + 1)) : getStraightsAsPage(shareUrl, "");
 	}
@@ -487,8 +493,9 @@ public class ALiYunPan {
 	 *
 	 * @param shareUrl 分享链接
 	 * @param sharePwd 提取码
-	 * @return 文件信息列表
+	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
+	@Contract(pure = true)
 	public List<JSONObject> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		String shareId = shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1);
 		String shareToken = getShareToken(shareId, sharePwd);
@@ -510,6 +517,7 @@ public class ALiYunPan {
 	 * @param fileid 文件ID
 	 * @return 文件直链
 	 */
+	@Contract(pure = true)
 	public String getStraight(@NotNull String fileid) {
 		JSONObject data = new JSONObject().fluentPut("drive_id", userInfo.getString("default_drive_id")).fluentPut("file_id", fileid);
 		return JSONObject.parseObject(conn.url(downloadUrl).requestBody(data.toString()).post().text()).getString("url");
