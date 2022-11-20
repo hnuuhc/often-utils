@@ -4,7 +4,6 @@ import org.haic.often.net.Method;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 
 import java.net.Proxy;
 import java.util.List;
@@ -100,12 +99,6 @@ public abstract class HtmlConnection {
 	public abstract HtmlConnection timeout(int millis);
 
 	/**
-	 * 连接解析器（ Parser parser） 在解析对文档的响应时提供备用解析器。如果未设置，则默认使用 HTML 解析器，除非响应内容类型是 XML，在这种情况下使用 XML 解析器。 参数： parser - 备用解析器 回报： 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract HtmlConnection parser(@NotNull Parser parser);
-
-	/**
 	 * 设置连接请求类型参数,用于服务器识别内容类型
 	 *
 	 * @param type 请求类型
@@ -145,6 +138,15 @@ public abstract class HtmlConnection {
 	public abstract HtmlConnection setHeaders(@NotNull Map<String, String> headers);
 
 	/**
+	 * 删除在此请求/响应中设置 header。
+	 *
+	 * @param key header的键
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public abstract HtmlConnection removeHeader(@NotNull String key);
+
+	/**
 	 * 设置要在请求中发送的 cookie
 	 *
 	 * @param name  cookie 的名称
@@ -173,6 +175,15 @@ public abstract class HtmlConnection {
 	 */
 	@Contract(pure = true)
 	public abstract HtmlConnection setCookies(@NotNull Map<String, String> cookies);
+
+	/**
+	 * 删除在此请求/响应中设置 cookie。
+	 *
+	 * @param name cookie的名称
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public abstract HtmlConnection removeCookie(@NotNull String name);
 
 	/**
 	 * 连接数据（ 字符串 键、 字符串 值）<br/> 添加请求数据参数。请求参数在 GET 的请求查询字符串中发送，在 POST 的请求正文中发送。一个请求可能有多个同名的值。

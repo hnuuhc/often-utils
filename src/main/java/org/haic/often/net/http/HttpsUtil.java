@@ -89,7 +89,6 @@ public class HttpsUtil {
 		private boolean followRedirects = true; // 重定向
 		private Proxy proxy = Proxy.NO_PROXY; // 代理
 		private Method method = Method.GET;
-		private Parser parser = Parser.htmlParser();
 		private Map<String, String> headers = new HashMap<>(); // 请求头
 		private Map<String, String> cookies = new HashMap<>(); // cookies
 		private List<Integer> retryStatusCodes = new ArrayList<>();
@@ -180,12 +179,6 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
-		public Connection parser(@NotNull Parser parser) {
-			this.parser = parser;
-			return this;
-		}
-
-		@Contract(pure = true)
 		public Connection contentType(@NotNull String type) {
 			return header("content-type", type);
 		}
@@ -209,6 +202,12 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
+		public Connection removeHeader(@NotNull String key) {
+			this.headers.remove(key);
+			return this;
+		}
+
+		@Contract(pure = true)
 		public Connection cookie(@NotNull String name, @NotNull String value) {
 			cookies.put(name, value);
 			return this;
@@ -225,6 +224,12 @@ public class HttpsUtil {
 		public Connection setCookies(@NotNull Map<String, String> cookies) {
 			this.cookies = new HashMap<>();
 			return cookies(cookies);
+		}
+
+		@Contract(pure = true)
+		public Connection removeCookie(@NotNull String name) {
+			this.cookies.remove(name);
+			return this;
 		}
 
 		@Contract(pure = true)
@@ -382,7 +387,6 @@ public class HttpsUtil {
 		@NotNull
 		@Contract(pure = true)
 		private Response executeProgram(@NotNull String requestUrl, @NotNull String params) {
-			Response res = new HttpResponse(this, null, cookies);
 			try {
 				HttpURLConnection conn;
 				switch (method) {
@@ -408,7 +412,7 @@ public class HttpsUtil {
 							output.flush(); // flush输出流的缓冲
 						} catch (IOException e) {
 							conn.disconnect();
-							return new HttpResponse(this, conn, cookies);
+							return new HttpResponse(conn, cookies);
 						}
 					}
 					case OPTIONS, DELETE, HEAD, TRACE -> {
@@ -422,16 +426,16 @@ public class HttpsUtil {
 				Map<String, List<String>> headerFields = conn.getHeaderFields();
 				List<String> cookies = headerFields.getOrDefault("Set-Cookie", headerFields.get("set-cookie"));
 				cookies(cookies == null ? new HashMap<>() : cookies.stream().filter(l -> !l.equals("-")).collect(Collectors.toMap(l -> l.substring(0, l.indexOf(Symbol.EQUALS)), l -> l.substring(l.indexOf(Symbol.EQUALS) + 1, l.indexOf(Symbol.SEMICOLON)), (e1, e2) -> e2)));
-				res = new HttpResponse(this, conn, this.cookies);
+				Response res = new HttpResponse(conn, this.cookies);
 
 				String redirectUrl; // 修复重定向
 				if (followRedirects && URIUtil.statusIsNormal(res.statusCode()) && !Judge.isEmpty(redirectUrl = res.header("location"))) {
-					res = executeProgram(URIUtil.getRedirectUrl(requestUrl, redirectUrl), "");
+					return executeProgram(URIUtil.getRedirectUrl(requestUrl, redirectUrl), "");
 				}
+				return res;
 			} catch (IOException e) {
-				// e.printStackTrace();
+				return new HttpResponse(null, cookies);
 			}
-			return res;
 		}
 
 		/**
@@ -473,15 +477,14 @@ public class HttpsUtil {
 	 */
 	private static class HttpResponse extends Response {
 
-		private final HttpConnection connection;
 		private final HttpURLConnection conn;
+		private final Map<String, String> cookies;
+		private Map<String, String> headers;
+		private Parser parser = Parser.htmlParser();
 		private Charset charset;
 		private ByteArrayOutputStream body;
-		private Map<String, String> headers;
-		private final Map<String, String> cookies;
 
-		private HttpResponse(HttpConnection connection, HttpURLConnection conn, Map<String, String> cookies) {
-			this.connection = connection;
+		private HttpResponse(HttpURLConnection conn, Map<String, String> cookies) {
 			this.conn = conn;
 			this.cookies = cookies;
 		}
@@ -510,6 +513,11 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
+		public String contentType() {
+			return conn.getContentType();
+		}
+
+		@Contract(pure = true)
 		public String header(@NotNull String name) {
 			return headers().get(name);
 		}
@@ -520,18 +528,6 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
-		public Response header(@NotNull String key, @NotNull String value) {
-			connection.header(key, value);
-			return this;
-		}
-
-		@Contract(pure = true)
-		public Response removeHeader(@NotNull String key) {
-			connection.headers.remove(key);
-			return this;
-		}
-
-		@Contract(pure = true)
 		public String cookie(@NotNull String name) {
 			return cookies().get(name);
 		}
@@ -539,18 +535,6 @@ public class HttpsUtil {
 		@Contract(pure = true)
 		public Map<String, String> cookies() {
 			return cookies;
-		}
-
-		@Contract(pure = true)
-		public Response cookie(@NotNull String name, @NotNull String value) {
-			connection.cookie(name, value);
-			return this;
-		}
-
-		@Contract(pure = true)
-		public Response removeCookie(@NotNull String name) {
-			connection.cookies.remove(name);
-			return this;
 		}
 
 		@Contract(pure = true)
@@ -581,14 +565,15 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
-		public String contentType() {
-			return conn.getContentType();
+		public Response parser(@NotNull Parser parser) {
+			this.parser = parser;
+			return this;
 		}
 
 		@Contract(pure = true)
 		public Document parse() {
 			String body = body();
-			return body == null ? null : Jsoup.parse(body, connection.parser);
+			return body == null ? null : Jsoup.parse(body, parser);
 		}
 
 		@Contract(pure = true)
@@ -616,12 +601,6 @@ public class HttpsUtil {
 				return null;
 			}
 			return this.body;
-		}
-
-		@Contract(pure = true)
-		public Response method(@NotNull Method method) {
-			connection.method(method);
-			return this;
 		}
 
 	}

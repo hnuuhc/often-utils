@@ -1,9 +1,9 @@
 package org.haic.often.net.http;
 
-import org.haic.often.net.Method;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +49,14 @@ public abstract class Response {
 	public abstract String statusMessage();
 
 	/**
+	 * 获取响应内容类型（例如“text/html”）
+	 *
+	 * @return 响应内容类型，如果未设置则为null
+	 */
+	@Contract(pure = true)
+	public abstract String contentType();
+
+	/**
 	 * 获取 请求头的值
 	 *
 	 * @return 请求头的值
@@ -63,25 +71,6 @@ public abstract class Response {
 	 */
 	@Contract(pure = true)
 	public abstract Map<String, String> headers();
-
-	/**
-	 * 在此请求/响应中设置 header。
-	 *
-	 * @param key   header的键
-	 * @param value header的值
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract Response header(@NotNull String key, @NotNull String value);
-
-	/**
-	 * 删除在此请求/响应中设置 header。
-	 *
-	 * @param key header的键
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract Response removeHeader(@NotNull String key);
 
 	/**
 	 * 获取 cookie
@@ -99,23 +88,6 @@ public abstract class Response {
 	 */
 	@Contract(pure = true)
 	public abstract Map<String, String> cookies();
-
-	/**
-	 * @param name  cookie的名称
-	 * @param value cookie的值
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract Response cookie(@NotNull String name, @NotNull String value);
-
-	/**
-	 * 删除在此请求/响应中设置 cookie。
-	 *
-	 * @param name cookie的名称
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract Response removeCookie(@NotNull String name);
 
 	/**
 	 * Response字符集（ 字符串 字符集）<br/>
@@ -146,12 +118,14 @@ public abstract class Response {
 	public abstract Charset charset();
 
 	/**
-	 * 获取响应内容类型（例如“text/html”）
+	 * 连接解析器（ Parser parser）
+	 * 在解析对文档的响应时提供备用解析器。如果未设置，则默认使用 HTML 解析器，除非响应内容类型是 XML，在这种情况下使用 XML 解析器。
 	 *
-	 * @return 响应内容类型，如果未设置则为null
+	 * @param parser 备用解析器
+	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract String contentType();
+	public abstract Response parser(@NotNull Parser parser);
 
 	/**
 	 * 读取响应的正文并将其解析为文档,如果连接超时或IO异常会返回null
@@ -186,15 +160,5 @@ public abstract class Response {
 	 */
 	@Contract(pure = true)
 	public abstract byte[] bodyAsBytes();
-
-	/**
-	 * 设置请求方式
-	 * <p>
-	 * method - 新方法
-	 *
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract Response method(@NotNull Method method);
 
 }

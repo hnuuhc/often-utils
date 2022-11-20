@@ -100,8 +100,6 @@ public class HtmlUnitUtil {
 		private int waitJSTime = 1000; // JS最大运行时间
 		private int retry; // 请求异常重试次数
 		private int MILLISECONDS_SLEEP; // 重试等待时间
-
-		private Parser parser = Parser.htmlParser();
 		private Map<String, String> cookies = new HashMap<>(); // cookes
 		private List<Integer> retryStatusCodes = new ArrayList<>();
 
@@ -169,12 +167,6 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
-		public HtmlConnection parser(@NotNull Parser parser) {
-			this.parser = parser;
-			return this;
-		}
-
-		@Contract(pure = true)
 		public HtmlConnection contentType(@NotNull String type) {
 			return header("content-type", type);
 		}
@@ -198,6 +190,12 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
+		public HtmlConnection removeHeader(@NotNull String key) {
+			request.removeAdditionalHeader(key);
+			return this;
+		}
+
+		@Contract(pure = true)
 		public HtmlConnection cookie(@NotNull String name, @NotNull String value) {
 			return cookies(Map.of(name, value));
 		}
@@ -212,6 +210,12 @@ public class HtmlUnitUtil {
 		public HtmlConnection setCookies(@NotNull Map<String, String> cookies) {
 			this.cookies = new HashMap<>();
 			return cookies(cookies);
+		}
+
+		@Contract(pure = true)
+		public HtmlConnection removeCookie(@NotNull String name) {
+			this.cookies.remove(name);
+			return this;
 		}
 
 		@Contract(pure = true)
@@ -419,9 +423,9 @@ public class HtmlUnitUtil {
 		private HtmlResponse executeProgram(@NotNull WebRequest request) {
 			HtmlResponse response;
 			try { // 获得页面
-				response = new HttpResponse(this, webClient.getPage(request));
+				response = new HttpResponse(webClient.getPage(request));
 			} catch (IOException e) {
-				return new HttpResponse(this, null);
+				return new HttpResponse(null);
 			}
 			webClient.waitForBackgroundJavaScript(waitJSTime); // 阻塞并执行JS
 
@@ -437,15 +441,14 @@ public class HtmlUnitUtil {
 
 	private static class HttpResponse extends HtmlResponse {
 
-		private final HttpConnection conn;
 		private final Page page; // Page对象
-		private Charset charset;
-		private ByteArrayOutputStream body;
 		private Map<String, String> headers;
 		private Map<String, String> cookies;
+		private Parser parser = Parser.htmlParser();
+		private Charset charset;
+		private ByteArrayOutputStream body;
 
-		private HttpResponse(HttpConnection conn, Page page) {
-			this.conn = conn;
+		private HttpResponse(Page page) {
 			this.page = page;
 		}
 
@@ -461,6 +464,11 @@ public class HtmlUnitUtil {
 
 		@Contract(pure = true)
 		public String statusMessage() {
+			return page.getWebResponse().getStatusMessage();
+		}
+
+		@Contract(pure = true)
+		public String contentType() {
 			return page.getWebResponse().getStatusMessage();
 		}
 
@@ -500,18 +508,6 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
-		public HtmlResponse header(@NotNull String key, @NotNull String value) {
-			conn.header(key, value);
-			return this;
-		}
-
-		@Contract(pure = true)
-		public HtmlResponse removeHeader(@NotNull String key) {
-			conn.request.removeAdditionalHeader(key);
-			return this;
-		}
-
-		@Contract(pure = true)
 		public String cookie(@NotNull String name) {
 			return cookies().get(name);
 		}
@@ -522,14 +518,8 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
-		public HtmlResponse cookie(@NotNull String name, @NotNull String value) {
-			conn.cookie(name, value);
-			return this;
-		}
-
-		@Contract(pure = true)
-		public HtmlResponse removeCookie(@NotNull String name) {
-			conn.cookies.remove(name);
+		public HtmlResponse parser(@NotNull Parser parser) {
+			this.parser = parser;
 			return this;
 		}
 
@@ -561,14 +551,9 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
-		public String contentType() {
-			return page.getWebResponse().getStatusMessage();
-		}
-
-		@Contract(pure = true)
 		public Document parse() {
 			String body = body();
-			return body == null ? null : Jsoup.parse(body, conn.parser);
+			return body == null ? null : Jsoup.parse(body, parser);
 		}
 
 		@Contract(pure = true)
@@ -594,12 +579,6 @@ public class HtmlUnitUtil {
 				return null;
 			}
 			return this.body;
-		}
-
-		@Contract(pure = true)
-		public HtmlResponse method(@NotNull Method method) {
-			conn.method(method);
-			return this;
 		}
 
 	}

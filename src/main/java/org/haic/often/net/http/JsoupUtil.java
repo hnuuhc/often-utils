@@ -75,9 +75,7 @@ public class JsoupUtil {
 		private int MILLISECONDS_SLEEP; // 重试等待时间
 		private boolean unlimit;// 请求异常无限重试
 		private boolean failThrow; // 错误异常
-
 		private List<Integer> retryStatusCodes = new ArrayList<>(); // 重试的错误状态码
-		private Parser parser = Parser.htmlParser();
 
 		private org.jsoup.Connection conn;
 
@@ -154,12 +152,6 @@ public class JsoupUtil {
 		}
 
 		@Contract(pure = true)
-		public Connection parser(@NotNull Parser parser) {
-			this.parser = parser;
-			return this;
-		}
-
-		@Contract(pure = true)
 		public Connection contentType(@NotNull String type) {
 			return header("content-type", type);
 		}
@@ -184,6 +176,12 @@ public class JsoupUtil {
 		}
 
 		@Contract(pure = true)
+		public Connection removeHeader(@NotNull String key) {
+			conn.header(key, "");
+			return this;
+		}
+
+		@Contract(pure = true)
 		public Connection cookie(@NotNull String name, @NotNull String value) {
 			conn.cookie(name, value);
 			return this;
@@ -199,6 +197,12 @@ public class JsoupUtil {
 		public Connection setCookies(@NotNull Map<String, String> cookies) {
 			conn.request().cookies().clear();
 			conn.cookies(cookies);
+			return this;
+		}
+
+		@Contract(pure = true)
+		public Connection removeCookie(@NotNull String name) {
+			conn.cookie(name, "");
 			return this;
 		}
 
@@ -368,9 +372,9 @@ public class JsoupUtil {
 			try {
 				res = conn.execute();
 			} catch (IOException e) {
-				return new HttpResponse(this, null);
+				return new HttpResponse(null);
 			}
-			return new HttpResponse(this, res);
+			return new HttpResponse(res);
 		}
 	}
 
@@ -383,15 +387,14 @@ public class JsoupUtil {
 	 */
 	private static class HttpResponse extends Response {
 
-		private final HttpConnection conn;
 		private final org.jsoup.Connection.Response res;
-		private Charset charset;
-		private ByteArrayOutputStream body;
 		private Map<String, String> headers;
 		private Map<String, String> cookies;
+		private Parser parser = Parser.htmlParser();
+		private Charset charset;
+		private ByteArrayOutputStream body;
 
-		private HttpResponse(HttpConnection conn, org.jsoup.Connection.Response res) {
-			this.conn = conn;
+		private HttpResponse(org.jsoup.Connection.Response res) {
 			this.res = res;
 		}
 
@@ -411,6 +414,11 @@ public class JsoupUtil {
 		}
 
 		@Contract(pure = true)
+		public String contentType() {
+			return res.contentType();
+		}
+
+		@Contract(pure = true)
 		public String header(@NotNull String name) {
 			return headers().get(name);
 		}
@@ -425,20 +433,8 @@ public class JsoupUtil {
 		}
 
 		@Contract(pure = true)
-		public Response header(@NotNull String key, @NotNull String value) {
-			res.header(key, value);
-			return this;
-		}
-
-		@Contract(pure = true)
-		public Response removeHeader(@NotNull String key) {
-			res.removeHeader(key);
-			return this;
-		}
-
-		@Contract(pure = true)
 		public String cookie(@NotNull String name) {
-			return res.cookie(name);
+			return cookies().get(name);
 		}
 
 		@Contract(pure = true)
@@ -447,14 +443,8 @@ public class JsoupUtil {
 		}
 
 		@Contract(pure = true)
-		public Response cookie(@NotNull String name, @NotNull String value) {
-			res.cookie(name, value);
-			return this;
-		}
-
-		@Contract(pure = true)
-		public Response removeCookie(@NotNull String name) {
-			res.removeCookie(name);
+		public Response parser(@NotNull Parser parser) {
+			this.parser = parser;
 			return this;
 		}
 
@@ -486,14 +476,9 @@ public class JsoupUtil {
 		}
 
 		@Contract(pure = true)
-		public String contentType() {
-			return res.contentType();
-		}
-
-		@Contract(pure = true)
 		public Document parse() {
 			String body = body();
-			return body == null ? null : Jsoup.parse(body, conn.parser);
+			return body == null ? null : Jsoup.parse(body, parser);
 		}
 
 		@Contract(pure = true)
@@ -521,12 +506,6 @@ public class JsoupUtil {
 				return null;
 			}
 			return this.body;
-		}
-
-		@Contract(pure = true)
-		public Response method(@NotNull Method method) {
-			conn.method(method);
-			return this;
 		}
 
 	}
