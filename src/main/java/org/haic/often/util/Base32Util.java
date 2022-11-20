@@ -43,7 +43,7 @@ public class Base32Util {
 			while (cnt-- > 0 && ~pos != 0) val |= (num >> pos-- & 1) << cnt;
 			ans[in++] = idx.apply(val);
 		}
-		return new String(ans);
+		return new String(ans, 0, in);
 	}
 
 	/**
