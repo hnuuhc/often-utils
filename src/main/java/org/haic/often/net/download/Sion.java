@@ -26,25 +26,26 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class Sion {
 
-	private boolean outPrint;
-	private boolean isOutPrint = true;
-	private boolean DEFAULT_RENAME;
-	private int MAX_THREADS = 10;
-	private int MAX_TASK_THREADS = 2;
-	private int MAX_LISTIN_INTERVAL = 1000;
-	private int retry; // 请求异常重试次数
-	private int unlimit;
-	private File DEFAULT_FOLDER = SystemUtil.DEFAULT_DOWNLOAD_FOLDER;
-	private Proxy proxy = Proxy.NO_PROXY;
-	private ExecutorService pool = Executors.newFixedThreadPool(MAX_TASK_THREADS); // 任务线程池
+	private static boolean outPrint;
+	private static boolean isOutPrint = true;
+	private static boolean DEFAULT_RENAME;
+	private static int MAX_THREADS = 10;
+	private static int MAX_TASK_THREADS = 2;
+	private static int MAX_LISTIN_INTERVAL = 1000;
+	private static int retry; // 请求异常重试次数
+	private static boolean unlimit;
+	private static File DEFAULT_FOLDER = SystemUtil.DEFAULT_DOWNLOAD_FOLDER;
+	private static Proxy proxy = Proxy.NO_PROXY;
+	private static ExecutorService pool = Executors.newFixedThreadPool(MAX_TASK_THREADS); // 任务线程池
 
-	private final StringBuffer print = new StringBuffer(); // 控制台输出
-	private final SionListener listenerSion = (fileName, rate, schedule, fileSize) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(String.format("%.2f", (float) schedule * 100 / fileSize)).append("% 下载速率: ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n"));
-	private final HLSListener listenerHLS = (fileName, rate, written, total) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(written).append("/").append(total).append(" ")).append("下载速率:" + " ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n");
-	private final Set<String> listTask = new CopyOnWriteArraySet<>(); // 任务列表
-	private final SafetyLinkedHashMap<String, SionResponse> result = new SafetyLinkedHashMap<>(1000); // 存储下载结果
-	private final Timer timer = new Timer();
-	private final TimerTask task = new TimerTask() {
+	private static final StringBuffer print = new StringBuffer(); // 控制台输出
+	private static final SionListener listenerSion = (fileName, rate, schedule, fileSize) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(String.format("%.2f", (float) schedule * 100 / fileSize)).append("% 下载速率: ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n"));
+	private static final HLSListener listenerHLS = (fileName, rate, written, total) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(written).append("/").append(total).append(" ")).append("下载速率:" + " ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n");
+	private static final Set<String> listTask = new CopyOnWriteArraySet<>(); // 任务列表
+	private static final SafetyLinkedHashMap<String, SionResponse> result = new SafetyLinkedHashMap<>(1000); // 存储下载结果
+	private static final Timer timer = new Timer();
+
+	private static final TimerTask task = new TimerTask() {
 		@Override
 		public void run() {
 			Terminal.cls();  // 清空控制台
@@ -57,17 +58,14 @@ public class Sion {
 		}
 	};
 
-	public Sion() {}
-
 	/**
 	 * 添加下载链接
 	 *
 	 * @param url 下载链接
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion download(@NotNull String url) {
-		return download(url, new HashMap<>());
+	public static void download(@NotNull String url) {
+		download(url, new HashMap<>());
 	}
 
 	/**
@@ -75,10 +73,9 @@ public class Sion {
 	 *
 	 * @param url     下载链接
 	 * @param headers 请求头参数
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion download(@NotNull String url, @NotNull Map<String, String> headers) {
+	public static void download(@NotNull String url, @NotNull Map<String, String> headers) {
 		if (url.startsWith("http") && !listTask.contains(url)) {
 			listTask.add(url);
 			if ((url.contains(Symbol.QUESTION) ? url.substring(0, url.indexOf(Symbol.QUESTION)) : url).endsWith(".m3u8")) {
@@ -92,85 +89,73 @@ public class Sion {
 					listTask.remove(url);
 				});
 			}
+			outPrint();
 		}
-		return outPrint();
 	}
 
 	/**
 	 * 在请求超时或者指定状态码发生时，进行重试
 	 *
 	 * @param retry 重试次数
-	 * @return this
 	 */
 	@Contract(pure = true)
-	public Sion retry(int retry) {
-		this.retry = retry;
-		return this;
+	public static void retry(int retry) {
+		Sion.retry = retry;
 	}
 
 	/**
 	 * 在请求超时或者指定状态码发生时，无限进行重试，直至状态码正常返回
 	 *
 	 * @param unlimit 启用无限重试, 默认false
-	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public Sion retry(boolean unlimit) {
-		this.unlimit = retry;
-		return this;
+	public static void retry(boolean unlimit) {
+		Sion.unlimit = unlimit;
 	}
 
 	/**
 	 * 设置运行文件存在时重命名,默认为false
 	 *
 	 * @param rename 布尔值
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion rename(boolean rename) {
+	public static void rename(boolean rename) {
 		DEFAULT_RENAME = rename;
-		return this;
 	}
 
 	/**
 	 * 设置监听器最大监听间隔,默认为 1000 毫秒
 	 *
 	 * @param millis 最大监听间隔(毫秒)
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion listen(int millis) {
+	public static void listen(int millis) {
 		MAX_LISTIN_INTERVAL = millis;
-		return this;
 	}
 
 	/**
 	 * 修改最大存储结果数量,默认默认值为1000
 	 *
 	 * @param max 最大存储结果数量
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion maxResult(int max) {
+	public static void maxResult(int max) {
 		result.maxCapacity(max);
-		return this;
 	}
 
 	/**
 	 * 设置下载任务使用的代理
 	 *
 	 * @param ipAddr 代理
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion proxy(@NotNull String ipAddr) {
+	public static void proxy(@NotNull String ipAddr) {
 		if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
 			proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
 		} else {
 			int index = ipAddr.lastIndexOf(Symbol.COLON);
 			proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 		}
-		return this;
 	}
 
 	/**
@@ -178,35 +163,30 @@ public class Sion {
 	 *
 	 * @param host 代理地址
 	 * @param port 代理端口
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion proxy(@NotNull String host, int port) {
+	public static void proxy(@NotNull String host, int port) {
 		proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
-		return this;
 	}
 
 	/**
 	 * 设置文件存放目录
 	 *
 	 * @param folder 存放目录
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion folder(@NotNull String folder) {
-		return folder(new File(folder));
+	public static void folder(@NotNull String folder) {
+		folder(new File(folder));
 	}
 
 	/**
 	 * 设置文件存放目录
 	 *
 	 * @param folder 存放目录
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion folder(@NotNull File folder) {
+	public static void folder(@NotNull File folder) {
 		DEFAULT_FOLDER = folder;
-		return this;
 	}
 
 	/**
@@ -232,18 +212,15 @@ public class Sion {
 
 	/**
 	 * 控制台输出
-	 *
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	private Sion outPrint() {
+	private static void outPrint() {
 		if (isOutPrint) {
 			isOutPrint = false;
 			if (outPrint) {
 				timer.schedule(task, MAX_LISTIN_INTERVAL, MAX_LISTIN_INTERVAL);
 			}
 		}
-		return this;
 	}
 
 	/**
@@ -252,12 +229,10 @@ public class Sion {
 	 * 必须在添加下载任务之前设置,否则仅之后添加的任务生效
 	 *
 	 * @param nThread 线程数量
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion thread(int nThread) {
+	public static void thread(int nThread) {
 		MAX_THREADS = nThread;
-		return this;
 	}
 
 	/**
@@ -268,37 +243,32 @@ public class Sion {
 	 * 如果更大，则将在需要时启动新线程以执行任何排队的任务
 	 *
 	 * @param nThread 线程数量
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion taskThread(int nThread) {
+	public static void taskThread(int nThread) {
 		((ThreadPoolExecutor) pool).setCorePoolSize(MAX_TASK_THREADS = nThread);
-		return this;
 	}
 
 	/**
 	 * 启用控制台的下载状态输出
 	 *
 	 * @param outPrint 是否启用,默认关闭
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion outPrint(boolean outPrint) {
-		this.outPrint = outPrint;
-		return outPrint();
+	public static void outPrint(boolean outPrint) {
+		Sion.outPrint = outPrint;
+		outPrint();
 	}
 
 	/**
 	 * 如果线程是关闭的,将重启线程池
-	 *
-	 * @return 此连接, 用于链接
 	 */
 	@Contract(pure = true)
-	public Sion reboot() {
+	public static void reboot() {
 		if (pool.isShutdown()) {
 			pool = Executors.newFixedThreadPool(MAX_TASK_THREADS);
 		}
-		return outPrint();
+		outPrint();
 	}
 
 	/**
@@ -307,9 +277,8 @@ public class Sion {
 	 * 该方法会关闭线程池,如果之后还要添加任务,必须使用 {@link #reboot} 方法重建线程池
 	 */
 	@Contract(pure = true)
-	public Sion waitEnd() {
+	public static void waitEnd() {
 		ThreadUtil.waitEnd(pool);
-		return this;
 	}
 
 }
