@@ -137,7 +137,6 @@ public class LocalStorage {
 		@Contract(pure = true)
 		private Set<Storage> processLevelDB(String domainFilter) {
 			FileUtil.copyDirectory(storage, storageCopy);
-			// Map<String, Map<String, String>> result = new HashMap<>();
 			Set<Storage> result = new HashSet<>();
 			try (LevelDB levelDB = new LevelDB(storageCopy.getPath(), new LevelDBOptions()); LevelDBKeyValueIterator iterator = new LevelDBKeyValueIterator(levelDB, new LevelDBReadOptions() {{
 				setFillCache(false);// 遍历中swap出来的数据，不应该保存在memtable中

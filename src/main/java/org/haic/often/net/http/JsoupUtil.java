@@ -231,20 +231,24 @@ public class JsoupUtil {
 		}
 
 		@Contract(pure = true)
-		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream) {
-			conn.data(key, fileName, inputStream);
-			return this;
+		public Connection data(@NotNull InputStream in) {
+			return data(in, "multipart/form-data");
 		}
 
 		@Contract(pure = true)
-		public Connection data(String key, String fileName, InputStream inputStream, String contentType) {
-			conn.data(key, fileName, inputStream, contentType);
-			return this;
+		public Connection data(@NotNull InputStream in, @NotNull String mimiType) {
+			return data("", "", in, mimiType);
 		}
 
 		@Contract(pure = true)
-		public Connection file(@NotNull String fileName, @NotNull InputStream inputStream) {
-			return data("file", fileName, inputStream);
+		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in) {
+			return data(key, fileName, in, "multipart/form-data");
+		}
+
+		@Contract(pure = true)
+		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream, @NotNull String mimiType) {
+			conn.data(key, fileName, inputStream, "application/octet-stream");
+			return contentType(mimiType);
 		}
 
 		@Contract(pure = true)

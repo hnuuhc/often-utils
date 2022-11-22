@@ -254,15 +254,26 @@ public class HttpClientUtil {
 		}
 
 		@Contract(pure = true)
-		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream) {
-			String boundary = UUID.randomUUID().toString();
-			entity = MultipartEntityBuilder.create().addBinaryBody(key, inputStream, ContentType.MULTIPART_FORM_DATA, fileName).setBoundary(boundary).build();
-			return contentType("multipart/form-data; boundary=" + boundary);
+		public Connection data(@NotNull InputStream in) {
+			return data(in, "multipart/form-data");
 		}
 
 		@Contract(pure = true)
-		public Connection file(@NotNull String fileName, @NotNull InputStream inputStream) {
-			return data("file", fileName, inputStream);
+		public Connection data(@NotNull InputStream in, @NotNull String mimiType) {
+			entity = MultipartEntityBuilder.create().addBinaryBody("", in).build();
+			return contentType(mimiType);
+		}
+
+		@Contract(pure = true)
+		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in) {
+			return data(key, fileName, in, "multipart/form-data");
+		}
+
+		@Contract(pure = true)
+		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in, @NotNull String mimiType) {
+			String boundary = UUID.randomUUID().toString();
+			entity = MultipartEntityBuilder.create().addBinaryBody(key, in, ContentType.APPLICATION_OCTET_STREAM, fileName).setBoundary(boundary).build();
+			return contentType(mimiType);
 		}
 
 		@Contract(pure = true)

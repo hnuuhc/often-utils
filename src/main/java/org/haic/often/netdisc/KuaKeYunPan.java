@@ -301,7 +301,7 @@ public class KuaKeYunPan {
 	}
 
 	/**
-	 * 上传文件(大文件可能不会成功)
+	 * 上传文件,方法暂时无效等待修复,请勿使用
 	 *
 	 * @param file 待上传的文件
 	 * @param fid  存放目录ID
@@ -310,6 +310,7 @@ public class KuaKeYunPan {
 	@Contract(pure = true)
 	public boolean upload(@NotNull File file, @NotNull String fid) {
 		try (FileInputStream in = new FileInputStream(file)) {
+			String mimiType = URLConnection.guessContentTypeFromName(file.getName());
 			SimpleDateFormat format = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z", Locale.US);
 			format.setTimeZone(TimeZone.getTimeZone("GMT"));
 			String date = format.format(new Date());
@@ -320,24 +321,26 @@ public class KuaKeYunPan {
 			preData.put("dir_name", "");
 			preData.put("size", file.length());
 			preData.put("file_name", file.getName());
-			preData.put("format_type", URLConnection.guessContentTypeFromName(file.getName()));
+			preData.put("format_type", mimiType);
 			JSONObject preInfo = JSONObject.parseObject(conn.url(preUrl).requestBody(preData.toString()).post().text()).getJSONObject("data");
 			String authInfo = preInfo.getString("auth_info");
 			String taskId = preInfo.getString("task_id");
 			String bucket = preInfo.getString("bucket");
 			String key = preInfo.getString("obj_key");
 			String uploadId = preInfo.getString("upload_id");
-			String userAgent = "aliyun-sdk-js/1.0.0 Chrome 102.0.5139.184 on Linux i686";
+			String userAgent = "aliyun-sdk-js/1.0.0 Microsoft Edge 107.0.1418.52 on Windows 10 64-bit";
 			JSONObject authData = new JSONObject();
 			authData.put("auth_info", authInfo);
 			authData.put("task_id", taskId);
-			authData.put("auth_meta", "PUT\n\nimage/jpeg\n" + date + "\nx-oss-date:" + date + "\nx-oss-user-agent:" + userAgent + "\n" + bucket + Symbol.SLASH + key + "?partNumber=1&uploadId=" + uploadId);
+			authData.put("auth_meta", "PUT\n\n" + mimiType + "\n" + date + "\nx-oss-date:" + date + "\nx-oss-user-agent:" + userAgent + "\n" + bucket + Symbol.SLASH + key + "?partNumber=1&uploadId=" + uploadId);
 			String auth = JSONObject.parseObject(conn.url(authUrl).requestBody(authData.toString()).post().text()).getJSONObject("data").getString("auth_key");
 			String uploadUrl = "https://" + bucket + ".oss-cn-zhangjiakou.aliyuncs.com/" + key + "?uploadId=" + uploadId + "&partNumber=1";
+			// 上传文件
 			Map<String, String> headers = new HashMap<>();
 			headers.put("x-oss-date", date);
 			headers.put("x-oss-user-agent", userAgent);
-			conn.url(uploadUrl).file(file.getName(), in).headers(headers).auth(auth).method(Method.PUT).execute();
+			conn.url(uploadUrl).data(in, mimiType).headers(headers).auth(auth).method(Method.PUT).execute();
+			// 获取上传结果
 			JSONObject hashData = new JSONObject();
 			hashData.put("md5", FileUtil.getMD5(file));
 			hashData.put("sha1", FileUtil.getSHA1(file));

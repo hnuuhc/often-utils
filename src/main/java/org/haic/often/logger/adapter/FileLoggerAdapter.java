@@ -55,10 +55,8 @@ public final class FileLoggerAdapter extends LoggerAdapter {
 	 * @return 文件输出流
 	 */
 	private PrintStream buildOutput() {
-		final int fileBuffer = LoggerConfig.getFileBuffer();
-		final File file = this.buildFile();
 		try {
-			return new PrintStream(new BufferedOutputStream(new FileOutputStream(file, true), fileBuffer));
+			return new PrintStream(new BufferedOutputStream(new FileOutputStream(buildFile(), true), LoggerConfig.getFileBuffer()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

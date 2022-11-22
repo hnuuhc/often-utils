@@ -240,23 +240,64 @@ public abstract class Connection {
 	/**
 	 * 添加输入流作为请求数据参数，对于 GET 没有效果，但对于 POST 这将上传输入流
 	 *
-	 * @param key         数据键（表单项名称）
-	 * @param fileName    要呈现给删除服务器的文件的名称。通常只是名称，而不是路径，组件
-	 * @param inputStream 要上传的输入流，您可能从FileInputStream获得。您必须在finally块中关闭 InputStream
+	 * @param in 要上传的输入流，您可能从FileInputStream获得。您必须在finally块中关闭 InputStream
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream);
+	public abstract Connection data(@NotNull InputStream in);
 
 	/**
-	 * 设置 文件，GET方法无效，一般用于上传，因为正常情况下使用并不会多，而判断控制流关闭会消耗资源,所以交由外部处理
+	 * 添加输入流作为请求数据参数，对于 GET 没有效果，但对于 POST 这将上传输入流
 	 *
-	 * @param fileName    文件名
-	 * @param inputStream 流
+	 * @param in       要上传的输入流，您可能从FileInputStream获得。您必须在finally块中关闭 InputStream
+	 * @param mimiType 文件对应的mimiType,将用于设置content-type,可用 {@link  java.net.URLConnection#guessContentTypeFromName(String)} 方法获取
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract Connection file(@NotNull String fileName, @NotNull InputStream inputStream);
+	public abstract Connection data(@NotNull InputStream in, @NotNull String mimiType);
+
+	/**
+	 * 添加输入流作为请求数据参数，对于 GET 没有效果，但对于 POST 这将上传输入流
+	 * <p>
+	 * 该方法将默认的文本格式上传:
+	 * <blockquote>
+	 * <pre>	--UUID--</pre>
+	 * <pre>	content-disposition: form-data; name="key"; filename="name"</pre>
+	 * <pre>	content-type: application/octet-stream; charset=utf-8</pre>
+	 * <pre>	</pre>
+	 * <pre>	文件流</pre>
+	 * <pre>	--UUID--</pre>
+	 * </blockquote>
+	 *
+	 * @param key      数据键（表单项名称）
+	 * @param fileName 要呈现给删除服务器的文件的名称。通常只是名称，而不是路径，组件
+	 * @param in       要上传的输入流，您可能从FileInputStream获得。您必须在finally块中关闭 InputStream
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public abstract Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in);
+
+	/**
+	 * 添加输入流作为请求数据参数，对于 GET 没有效果，但对于 POST 这将上传输入流
+	 * <p>
+	 * 该方法将默认的文本格式上传:
+	 * <blockquote>
+	 * <pre>	--UUID--</pre>
+	 * <pre>	content-disposition: form-data; name="key"; filename="name"</pre>
+	 * <pre>	content-type: application/octet-stream; charset=utf-8</pre>
+	 * <pre>	</pre>
+	 * <pre>	文件流</pre>
+	 * <pre>	--UUID--</pre>
+	 * </blockquote>
+	 *
+	 * @param key      数据键（表单项名称）
+	 * @param fileName 要呈现给删除服务器的文件的名称。通常只是名称，而不是路径，组件
+	 * @param in       要上传的输入流，您可能从FileInputStream获得。您必须在finally块中关闭 InputStream
+	 * @param mimiType 文件对应的mimiType,将用于设置content-type,可用 {@link  java.net.URLConnection#guessContentTypeFromName(String)} 方法获取
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public abstract Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in, @NotNull String mimiType);
 
 	/**
 	 * 设置 POST（或 PUT）请求正文<br/>

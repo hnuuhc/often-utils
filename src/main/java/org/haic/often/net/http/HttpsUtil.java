@@ -126,7 +126,6 @@ public class HttpsUtil {
 			}
 			this.url = url;
 			params = "";
-			file = null;
 			return this;
 		}
 
@@ -250,15 +249,27 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
-		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream) {
-			String boundary = UUID.randomUUID().toString();
-			file = Tuple.of("\r\n--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + fileName + "\"\r\ncontent-type: application/octet-stream; charset=utf-8\r\n\r\n", inputStream, "\r\n--" + boundary + "--\r\n");
-			return contentType("multipart/form-data; boundary=" + boundary);
+		public Connection data(@NotNull InputStream in) {
+			file = Tuple.of("", in, "");
+			return this;
 		}
 
 		@Contract(pure = true)
-		public Connection file(@NotNull String fileName, @NotNull InputStream inputStream) {
-			return data("file", fileName, inputStream);
+		public Connection data(@NotNull InputStream in, @NotNull String mimiType) {
+			file = Tuple.of("", in, "");
+			return contentType(mimiType);
+		}
+
+		@Contract(pure = true)
+		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in) {
+			return data(key, key, in, "multipart/form-data");
+		}
+
+		@Contract(pure = true)
+		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream, @NotNull String mimiType) {
+			String boundary = UUID.randomUUID().toString();
+			file = Tuple.of("\r\n--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + fileName + "\"\r\ncontent-type: application/octet-stream; charset=utf-8\r\n\r\n", inputStream, "\r\n--" + boundary + "--\r\n");
+			return contentType(mimiType);
 		}
 
 		@Contract(pure = true)
@@ -408,6 +419,8 @@ public class HttpsUtil {
 								output.writeBytes(file.first);
 								file.second.transferTo(output);
 								output.writeBytes(file.third);
+								file = null; // 删除流,防止复用
+								removeHeader("content-type");
 							}
 							output.flush(); // flush输出流的缓冲
 						} catch (IOException e) {
