@@ -2,23 +2,18 @@ package org.haic.often.netdisc;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
-import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
-import org.haic.often.util.FileUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URLConnection;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 夸克云盘API
@@ -41,9 +36,6 @@ public class KuaKeYunPan {
 	private static final String passwordUrl = "https://drive.quark.cn/1/clouddrive/share/password?pr=ucpro&fr=pc";
 	private static final String detailUrl = "https://drive.quark.cn/1/clouddrive/share/mypage/detail?pr=ucpro&fr=pc&_size=2147483647";
 	private static final String categoryUrl = "https://drive.quark.cn/1/clouddrive/file/category?pr=ucpro&fr=pc&_size=10240&cat=";
-	private static final String preUrl = "https://drive.quark.cn/1/clouddrive/file/upload/pre?pr=ucpro&fr=pc";
-	private static final String authUrl = "https://drive.quark.cn/1/clouddrive/file/upload/auth?pr=ucpro&fr=pc";
-	private static final String hashUrl = "https://drive.quark.cn/1/clouddrive/file/update/hash?pr=ucpro&fr=pc";
 
 	private final Connection conn = HttpsUtil.newSession();
 
@@ -286,69 +278,6 @@ public class KuaKeYunPan {
 	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
 		return JSONArray.parseArray(JSONObject.parseObject(conn.url(sortUrl + folderId).get().text()).getJSONObject("data").getString("list")).toList(JSONObject.class);
-	}
-
-	/**
-	 * 上传文件(大文件可能不会成功)
-	 *
-	 * @param src 待上传的文件路径
-	 * @param fid 存放目录ID
-	 * @return 上传状态
-	 */
-	@Contract(pure = true)
-	public boolean upload(@NotNull String src, @NotNull String fid) {
-		return upload(new File(src), fid);
-	}
-
-	/**
-	 * 上传文件,方法暂时无效等待修复,请勿使用
-	 *
-	 * @param file 待上传的文件
-	 * @param fid  存放目录ID
-	 * @return 上传状态
-	 */
-	@Contract(pure = true)
-	public boolean upload(@NotNull File file, @NotNull String fid) {
-		try (FileInputStream in = new FileInputStream(file)) {
-			String mimiType = URLConnection.guessContentTypeFromName(file.getName());
-			SimpleDateFormat format = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z", Locale.US);
-			format.setTimeZone(TimeZone.getTimeZone("GMT"));
-			String date = format.format(new Date());
-			JSONObject preData = new JSONObject();
-			preData.put("ccp_hash_update", true);
-			preData.put("parallel_upload", true);
-			preData.put("pdir_fid", fid);
-			preData.put("dir_name", "");
-			preData.put("size", file.length());
-			preData.put("file_name", file.getName());
-			preData.put("format_type", mimiType);
-			JSONObject preInfo = JSONObject.parseObject(conn.url(preUrl).requestBody(preData.toString()).post().text()).getJSONObject("data");
-			String authInfo = preInfo.getString("auth_info");
-			String taskId = preInfo.getString("task_id");
-			String bucket = preInfo.getString("bucket");
-			String key = preInfo.getString("obj_key");
-			String uploadId = preInfo.getString("upload_id");
-			String userAgent = "aliyun-sdk-js/1.0.0 Microsoft Edge 107.0.1418.52 on Windows 10 64-bit";
-			JSONObject authData = new JSONObject();
-			authData.put("auth_info", authInfo);
-			authData.put("task_id", taskId);
-			authData.put("auth_meta", "PUT\n\n" + mimiType + "\n" + date + "\nx-oss-date:" + date + "\nx-oss-user-agent:" + userAgent + "\n" + bucket + Symbol.SLASH + key + "?partNumber=1&uploadId=" + uploadId);
-			String auth = JSONObject.parseObject(conn.url(authUrl).requestBody(authData.toString()).post().text()).getJSONObject("data").getString("auth_key");
-			String uploadUrl = "https://" + bucket + ".oss-cn-zhangjiakou.aliyuncs.com/" + key + "?uploadId=" + uploadId + "&partNumber=1";
-			// 上传文件
-			Map<String, String> headers = new HashMap<>();
-			headers.put("x-oss-date", date);
-			headers.put("x-oss-user-agent", userAgent);
-			conn.url(uploadUrl).data(in, mimiType).headers(headers).auth(auth).method(Method.PUT).execute();
-			// 获取上传结果
-			JSONObject hashData = new JSONObject();
-			hashData.put("md5", FileUtil.getMD5(file));
-			hashData.put("sha1", FileUtil.getSHA1(file));
-			hashData.put("task_id", taskId);
-			return JSONObject.parseObject(conn.newRequest().url(hashUrl).requestBody(hashData.toString()).post().text()).getJSONObject("data").getBoolean("finish");
-		} catch (IOException e) {
-			return false;
-		}
 	}
 
 }
