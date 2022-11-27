@@ -3,7 +3,6 @@ package org.haic.often.net;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -247,42 +246,42 @@ public class UserAgent {
 
 	@Contract(pure = true)
 	private static String versionTail() {
-		return " Version/" + RandomUtils.nextInt(5, 20) + Symbol.DOT + RandomUtils.nextInt(0, 10);
+		return " Version/" + RandomUtils.nextInt(5, 20) + "." + RandomUtils.nextInt(0, 10);
 	}
 
 	@Contract(pure = true)
 	private static String safariTail() {
-		return " Safari/" + RandomUtils.nextInt(500, 600) + Symbol.DOT + RandomUtils.nextInt(10, 100);
+		return " Safari/" + RandomUtils.nextInt(500, 600) + "." + RandomUtils.nextInt(10, 100);
 	}
 
 	@Contract(pure = true)
 	private static String appleWebKitTail() {
-		return " AppleWebKit/" + RandomUtils.nextInt(500, 800) + Symbol.DOT + RandomUtils.nextInt(10, 100) + " (KHTML, like Gecko)";
+		return " AppleWebKit/" + RandomUtils.nextInt(500, 800) + "." + RandomUtils.nextInt(10, 100) + " (KHTML, like Gecko)";
 	}
 
 	@Contract(pure = true)
 	private static String chromiumTail() {
-		return " Chrome/" + RandomUtils.nextInt(60, 100) + ".0." + RandomUtils.nextInt(1000, 10000) + Symbol.DOT + RandomUtils.nextInt(100, 1000);
+		return " Chrome/" + RandomUtils.nextInt(60, 100) + ".0." + RandomUtils.nextInt(1000, 10000) + "." + RandomUtils.nextInt(100, 1000);
 	}
 
 	@Contract(pure = true)
 	private static String oprTail() {
-		return " OPR/" + RandomUtils.nextInt(60, 100) + ".0." + RandomUtils.nextInt(1000, 10000) + Symbol.DOT + RandomUtils.nextInt(100, 1000);
+		return " OPR/" + RandomUtils.nextInt(60, 100) + ".0." + RandomUtils.nextInt(1000, 10000) + "." + RandomUtils.nextInt(100, 1000);
 	}
 
 	@Contract(pure = true)
 	private static String edgTail() {
-		return " Edg/" + RandomUtils.nextInt(60, 100) + ".0." + RandomUtils.nextInt(1000, 10000) + Symbol.DOT + RandomUtils.nextInt(100, 1000);
+		return " Edg/" + RandomUtils.nextInt(60, 100) + ".0." + RandomUtils.nextInt(1000, 10000) + "." + RandomUtils.nextInt(100, 1000);
 	}
 
 	@Contract(pure = true)
 	private static String ucTail() {
-		return " UBrowser/" + RandomUtils.nextInt(5, 10) + ".0." + RandomUtils.nextInt(1000, 10000) + Symbol.DOT + RandomUtils.nextInt(0, 1000);
+		return " UBrowser/" + RandomUtils.nextInt(5, 10) + ".0." + RandomUtils.nextInt(1000, 10000) + "." + RandomUtils.nextInt(0, 1000);
 	}
 
 	@Contract(pure = true)
 	private static String prestoTail() {
-		return " Presto/" + RandomUtils.nextInt(2, 10) + Symbol.DOT + RandomUtils.nextInt(0, 10) + Symbol.DOT + RandomUtils.nextInt(100, 1000);
+		return " Presto/" + RandomUtils.nextInt(2, 10) + "." + RandomUtils.nextInt(0, 10) + "." + RandomUtils.nextInt(100, 1000);
 	}
 
 	/**

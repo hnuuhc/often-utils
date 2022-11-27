@@ -1,6 +1,5 @@
 package org.haic.often.logger;
 
-import org.haic.often.Symbol;
 import org.haic.often.logger.adapter.ConsoleLoggerAdapter;
 import org.haic.often.logger.adapter.FileLoggerAdapter;
 
@@ -38,7 +37,7 @@ public final class LoggerFactory {
 		final String adapter = LoggerConfig.getAdapter();
 		final List<LoggerAdapter> list = new ArrayList<>();
 		if (adapter != null && !adapter.isEmpty()) {
-			final String[] adapters = adapter.split(Symbol.COMMA);
+			final String[] adapters = adapter.split(",");
 			for (String value : adapters) {
 				value = value.strip();
 				if (FileLoggerAdapter.ADAPTER.equalsIgnoreCase(value)) {

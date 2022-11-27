@@ -1,7 +1,6 @@
 package org.haic.often.ffmpeg;
 
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.Terminal;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
@@ -107,7 +106,7 @@ public class FFmpegUtil {
 		@Contract(pure = true)
 		public boolean extractAudio(@NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-f", out.substring(out.lastIndexOf(Symbol.DOT) + 1), Terminal.doubleQuote(out)).execute());
+			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-f", out.substring(out.lastIndexOf(".") + 1), Terminal.doubleQuote(out)).execute());
 		}
 
 		@Contract(pure = true)
@@ -138,7 +137,7 @@ public class FFmpegUtil {
 		@Contract(pure = true)
 		public boolean merge(@NotNull String audio, @NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", this.audio, "-i", audio, "-f", out.substring(out.lastIndexOf(Symbol.DOT) + 1), Terminal.doubleQuote(out)).execute());
+			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", this.audio, "-i", audio, "-f", out.substring(out.lastIndexOf(".") + 1), Terminal.doubleQuote(out)).execute());
 		}
 
 		@Contract(pure = true)

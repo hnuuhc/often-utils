@@ -77,7 +77,7 @@ public class Terminal {
 	 */
 	@Contract(pure = true)
 	public static String quote(@NotNull String dos) {
-		return Symbol.SINGLE_QUOTE + dos + Symbol.SINGLE_QUOTE;
+		return "'" + dos + "'";
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class Terminal {
 	 */
 	@Contract(pure = true)
 	public static String doubleQuote(@NotNull String dos) {
-		return Symbol.DOUBLE_QUOTE + dos + Symbol.DOUBLE_QUOTE;
+		return "\"" + dos + "\"";
 	}
 
 	/**

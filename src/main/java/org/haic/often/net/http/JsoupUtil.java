@@ -142,7 +142,7 @@ public class JsoupUtil {
 
 		@Contract(pure = true)
 		public Connection auth(@NotNull String auth) {
-			return header("authorization", (this.auth = auth.contains(Symbol.SPACE) ? auth : "Bearer " + auth));
+			return header("authorization", (this.auth = auth.contains(" ") ? auth : "Bearer " + auth));
 		}
 
 		@Contract(pure = true)
@@ -431,7 +431,7 @@ public class JsoupUtil {
 		public Map<String, String> headers() {
 			if (headers == null) {
 				headers = res.headers().entrySet().stream().collect(Collectors.toMap(l -> l.getKey().toLowerCase(), Map.Entry::getValue));
-				headers.put("set-cookie", cookies().entrySet().stream().map(l -> l.getKey() + Symbol.EQUALS + l.getValue()).collect(Collectors.joining("; ")));
+				headers.put("set-cookie", cookies().entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
 			}
 			return headers;
 		}
@@ -468,8 +468,8 @@ public class JsoupUtil {
 			if (charset == null) {
 				if (headers().containsKey("content-type")) {
 					String type = headers().get("content-type");
-					if (type.contains(Symbol.SEMICOLON)) {
-						return charset = Charset.forName(type.substring(type.lastIndexOf(Symbol.EQUALS) + 1));
+					if (type.contains(";")) {
+						return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
 					} else if (!type.contains("html")) {
 						return charset = StandardCharsets.UTF_8;
 					}

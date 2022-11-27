@@ -5,7 +5,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
-import org.haic.often.Symbol;
 import org.haic.often.exception.ZipException;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
@@ -345,7 +344,7 @@ public class ZipUtil {
 		if (!origin.exists()) {
 			throw new ZipException("Not found " + origin);
 		}
-		return origin.isFile() ? Map.of(includeRoot ? origin.getParentFile().getName() + Symbol.SLASH : "" + origin.getName(), ReadWriteUtil.orgin(origin).readBytes()) : FileUtil.iterateFiles(origin).parallelStream().collect(Collectors.toMap(file -> includeRoot ? origin.getName() + Symbol.SLASH : "" + file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", Symbol.SLASH), file -> ReadWriteUtil.orgin(file).readBytes()));
+		return origin.isFile() ? Map.of(includeRoot ? origin.getParentFile().getName() + "/" : "" + origin.getName(), ReadWriteUtil.orgin(origin).readBytes()) : FileUtil.iterateFiles(origin).parallelStream().collect(Collectors.toMap(file -> includeRoot ? origin.getName() + "/" : "" + file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", "/"), file -> ReadWriteUtil.orgin(file).readBytes()));
 	}
 
 }

@@ -46,7 +46,7 @@ public class URIUtil {
 	 */
 	@Contract(pure = true)
 	public static String getRedirectUrl(@NotNull String url, @NotNull String redirect) {
-		return redirect.startsWith("http") ? redirect : redirect.startsWith(Symbol.SLASH) ? getDomain(url) + redirect : url.substring(0, url.lastIndexOf(Symbol.SLASH) + 1) + redirect;
+		return redirect.startsWith("http") ? redirect : redirect.startsWith("/") ? getDomain(url) + redirect : url.substring(0, url.lastIndexOf("/") + 1) + redirect;
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class URIUtil {
 			}
 		}
 		String ipAddr;
-		return inetAddress == null ? null : (ipAddr = inetAddress.getHostAddress()).contains(Symbol.PERCENT) ? ipAddr.substring(0, ipAddr.indexOf('%')) : ipAddr;
+		return inetAddress == null ? null : (ipAddr = inetAddress.getHostAddress()).contains("%") ? ipAddr.substring(0, ipAddr.indexOf('%')) : ipAddr;
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class URIUtil {
 			}
 		}
 		String ipAddr;
-		return inetAddress == null ? null : (ipAddr = inetAddress.getHostAddress()).contains(Symbol.PERCENT) ? ipAddr.substring(0, ipAddr.indexOf('%')) : ipAddr;
+		return inetAddress == null ? null : (ipAddr = inetAddress.getHostAddress()).contains("%") ? ipAddr.substring(0, ipAddr.indexOf('%')) : ipAddr;
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class URIUtil {
 	 */
 	@Contract(pure = true)
 	public static String getDomain(@NotNull String url) {
-		String[] info = url.split(Symbol.SLASH);
+		String[] info = url.split("/");
 		return info[0] + "//" + info[2];
 	}
 
@@ -431,8 +431,8 @@ public class URIUtil {
 	@Contract(pure = true)
 	public static String getFileNameForDisposition(@NotNull String disposition) {
 		String fileName = disposition.substring(disposition.lastIndexOf("filename"));
-		fileName = fileName.substring(fileName.indexOf(Symbol.EQUALS) + 1).replaceAll(Symbol.DOUBLE_QUOTE, "");
-		return decode(fileName.contains(Symbol.SINGLE_QUOTE) ? fileName.substring(fileName.lastIndexOf(Symbol.SINGLE_QUOTE) + 1) : fileName);
+		fileName = fileName.substring(fileName.indexOf("=") + 1).replaceAll("\"", "");
+		return decode(fileName.contains("'") ? fileName.substring(fileName.lastIndexOf("'") + 1) : fileName);
 	}
 
 	/**
@@ -456,7 +456,7 @@ public class URIUtil {
 	@NotNull
 	@Contract(pure = true)
 	public static String thunderToURL(@NotNull String thunder) {
-		String thunderUrl = Base64Util.decode(StringUtil.stripEnd(thunder, Symbol.EQUALS).replaceFirst("thunder://", ""), "GBK");
+		String thunderUrl = Base64Util.decode(StringUtil.stripEnd(thunder, "=").replaceFirst("thunder://", ""), "GBK");
 		return thunderUrl.substring(2, thunderUrl.length() - 2);
 	}
 
@@ -555,7 +555,7 @@ public class URIUtil {
 			} else if (safetyChar.test(c) || specialSafetyChar.test(c)) {
 				sb.append(s.charAt(i));
 			} else {
-				sb.append(Symbol.PERCENT).append(Integer.toHexString(c).toUpperCase());
+				sb.append("%").append(Integer.toHexString(c).toUpperCase());
 			}
 		}
 		return sb.toString();
@@ -583,7 +583,7 @@ public class URIUtil {
 			} else if (safetyChar.test(c)) {
 				sb.append(s.charAt(i));
 			} else {
-				sb.append(Symbol.PERCENT).append(Integer.toHexString(c).toUpperCase());
+				sb.append("%").append(Integer.toHexString(c).toUpperCase());
 			}
 		}
 		return sb.toString();

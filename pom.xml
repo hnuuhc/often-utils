@@ -6,7 +6,7 @@
 
     <groupId>org.haic.often</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <name>often-utils</name>
 
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.66.0</version>
+            <version>2.67.0</version>
         </dependency>
         <!-- JSOUP -->
         <dependency>
@@ -104,7 +104,7 @@
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-            <version>3.39.3.0</version>
+            <version>3.39.4.1</version>
         </dependency>
         <!-- Image增强 -->
         <dependency>

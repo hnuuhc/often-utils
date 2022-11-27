@@ -1,7 +1,6 @@
 package org.haic.often.image;
 
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -87,7 +86,7 @@ public class ImageUtil {
 	public static boolean write(@NotNull BufferedImage image, @NotNull File out) {
 		try {
 			String fileName = out.getName();
-			ImageIO.write(image, fileName.substring(fileName.lastIndexOf(Symbol.DOT) + 1), out);
+			ImageIO.write(image, fileName.substring(fileName.lastIndexOf(".") + 1), out);
 		} catch (IOException e) {
 			return false;
 		}

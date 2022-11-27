@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
@@ -102,7 +101,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	private static JSONObject getshareUrlInfo(@NotNull String shareUrl) {
-		return JSONObject.parseObject(HttpsUtil.connect(shareInfoByCodeUrl).data("shareCode", shareUrl.contains("code") ? StringUtil.extract(shareUrl, "code=.*").substring(5) : shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1)).header("accept", "application/json;charset=UTF-8").get().text());
+		return JSONObject.parseObject(HttpsUtil.connect(shareInfoByCodeUrl).data("shareCode", shareUrl.contains("code") ? StringUtil.extract(shareUrl, "code=.*").substring(5) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1)).header("accept", "application/json;charset=UTF-8").get().text());
 	}
 
 	/**
@@ -212,7 +211,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public int unShare(@NotNull List<String> shareIdList) {
-		return JSONObject.parseObject(conn.url(cancelShareUrl).requestBody("shareIdList=" + String.join(Symbol.COMMA, shareIdList) + "&cancelType=" + 1).execute().body()).getInteger("res_code");
+		return JSONObject.parseObject(conn.url(cancelShareUrl).requestBody("shareIdList=" + String.join(",", shareIdList) + "&cancelType=" + 1).execute().body()).getInteger("res_code");
 	}
 
 	/**
@@ -621,23 +620,23 @@ public class TianYiYunPan {
 			String loginUrlText = doc.select("script[type='text/javascript']").toString();
 			String captcha_token = doc.select("input[name='captchaToken']").attr("value");
 			String appKey = StringUtil.extract(loginUrlText, "appKey =.*,");
-			appKey = appKey.substring(appKey.indexOf(Symbol.SINGLE_QUOTE) + 1, appKey.lastIndexOf(Symbol.SINGLE_QUOTE));
+			appKey = appKey.substring(appKey.indexOf("'") + 1, appKey.lastIndexOf("'"));
 			String accountType = StringUtil.extract(loginUrlText, "accountType =.*,");
-			accountType = accountType.substring(accountType.indexOf(Symbol.SINGLE_QUOTE) + 1, accountType.lastIndexOf(Symbol.SINGLE_QUOTE));
+			accountType = accountType.substring(accountType.indexOf("'") + 1, accountType.lastIndexOf("'"));
 			String clientType = StringUtil.extract(loginUrlText, "clientType =.*,");
-			clientType = clientType.substring(clientType.indexOf(Symbol.SINGLE_QUOTE) + 1, clientType.lastIndexOf(Symbol.SINGLE_QUOTE));
+			clientType = clientType.substring(clientType.indexOf("'") + 1, clientType.lastIndexOf("'"));
 			String returnUrl = StringUtil.extract(loginUrlText, "returnUrl =.*,");
-			returnUrl = returnUrl.substring(returnUrl.indexOf(Symbol.SINGLE_QUOTE) + 1, returnUrl.lastIndexOf(Symbol.SINGLE_QUOTE));
+			returnUrl = returnUrl.substring(returnUrl.indexOf("'") + 1, returnUrl.lastIndexOf("'"));
 			String mailSuffix = StringUtil.extract(loginUrlText, "mailSuffix =.*;");
-			mailSuffix = mailSuffix.substring(mailSuffix.indexOf(Symbol.SINGLE_QUOTE) + 1, mailSuffix.lastIndexOf(Symbol.SINGLE_QUOTE));
+			mailSuffix = mailSuffix.substring(mailSuffix.indexOf("'") + 1, mailSuffix.lastIndexOf("'"));
 			String isOauth2 = StringUtil.extract(loginUrlText, "isOauth2 =.*;");
-			isOauth2 = isOauth2.substring(isOauth2.indexOf(Symbol.DOUBLE_QUOTE) + 1, isOauth2.lastIndexOf(Symbol.DOUBLE_QUOTE));
+			isOauth2 = isOauth2.substring(isOauth2.indexOf("\"") + 1, isOauth2.lastIndexOf("\""));
 			String lt = StringUtil.extract(loginUrlText, "lt =.*;");
-			lt = lt.substring(lt.indexOf(Symbol.DOUBLE_QUOTE) + 1, lt.lastIndexOf(Symbol.DOUBLE_QUOTE));
+			lt = lt.substring(lt.indexOf("\"") + 1, lt.lastIndexOf("\""));
 			String reqId = StringUtil.extract(loginUrlText, "reqId =.*;");
-			reqId = reqId.substring(reqId.indexOf(Symbol.DOUBLE_QUOTE) + 1, reqId.lastIndexOf(Symbol.DOUBLE_QUOTE));
+			reqId = reqId.substring(reqId.indexOf("\"") + 1, reqId.lastIndexOf("\""));
 			String paramId = StringUtil.extract(loginUrlText, "paramId =.*;");
-			paramId = paramId.substring(paramId.indexOf(Symbol.DOUBLE_QUOTE) + 1, paramId.lastIndexOf(Symbol.DOUBLE_QUOTE));
+			paramId = paramId.substring(paramId.indexOf("\"") + 1, paramId.lastIndexOf("\""));
 
 			Map<String, String> data = new HashMap<>();
 			data.put("appKey", appKey);

@@ -3,7 +3,6 @@ package org.haic.often.netdisc;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
@@ -72,7 +71,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
-		return getInfosAsPage(shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1), sharePwd, "0", 1, Symbol.SLASH);
+		return getInfosAsPage(shareUrl.substring(shareUrl.lastIndexOf("/") + 1), sharePwd, "0", 1, "/");
 	}
 
 	@Contract(pure = true)
@@ -92,7 +91,7 @@ public class YunPan123 {
 			String fileId = info.getString("FileId");
 			int type = info.getInteger("Type");
 			if (type == 1) {
-				filesInfo.addAll(getInfosAsPage(key, sharePwd, fileId, 1, path + info.getString("FileName") + Symbol.SLASH));
+				filesInfo.addAll(getInfosAsPage(key, sharePwd, fileId, 1, path + info.getString("FileName") + "/"));
 			} else {
 				filesInfo.add(info.fluentPut("Path", path));
 			}
@@ -113,7 +112,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public static String getStraightsAsPageOfBatch(@NotNull String shareUrl, @NotNull String sharePwd) {
-		JSONObject data = new JSONObject().fluentPut("ShareKey", shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1)).fluentPut("fileIdList", getInfosAsPage(shareUrl, sharePwd).stream().map(l -> new JSONObject().fluentPut("fileId", l.getString("FileId"))).toList());
+		JSONObject data = new JSONObject().fluentPut("ShareKey", shareUrl.substring(shareUrl.lastIndexOf("/") + 1)).fluentPut("fileIdList", getInfosAsPage(shareUrl, sharePwd).stream().map(l -> new JSONObject().fluentPut("fileId", l.getString("FileId"))).toList());
 		String url = JSONObject.parseObject(HttpsUtil.connect(batchDownloadUrl).requestBody(data.toString()).method(Method.POST).execute().body()).getJSONObject("data").getString("DownloadUrl");
 		return Base64Util.decode(url.substring(url.indexOf("=") + 1));
 	}
@@ -129,7 +128,7 @@ public class YunPan123 {
 	public static Map<String, String> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		Map<String, String> result = new HashMap<>();
 		Connection conn = HttpsUtil.newSession().method(Method.POST);
-		String shareKey = shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1);
+		String shareKey = shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
 		for (JSONObject info : getInfosAsPage(shareUrl, sharePwd)) {
 			Map<String, String> data = new HashMap<>();
 			data.put("Etag", info.getString("Etag"));

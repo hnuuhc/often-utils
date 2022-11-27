@@ -174,7 +174,7 @@ public class HttpClientUtil {
 
 		@Contract(pure = true)
 		public Connection auth(@NotNull String auth) {
-			return header("authorization", (this.auth = auth.contains(Symbol.SPACE) ? auth : "Bearer " + auth));
+			return header("authorization", (this.auth = auth.contains(" ") ? auth : "Bearer " + auth));
 		}
 
 		@Contract(pure = true)
@@ -326,7 +326,7 @@ public class HttpClientUtil {
 			if (proxyText.equals("DIRECT")) {
 				return this;
 			}
-			String[] proxyStr = proxyText.substring(proxyText.indexOf(Symbol.SLASH) + 1).split(Symbol.COLON);
+			String[] proxyStr = proxyText.substring(proxyText.indexOf("/") + 1).split(Symbol.COLON);
 			if (proxyText.startsWith("SOCKS")) {
 				return socks(proxyStr[0], Integer.parseInt(proxyStr[1]));
 			} else {
@@ -442,7 +442,7 @@ public class HttpClientUtil {
 			}
 
 			// 设置cookies
-			request.setHeader("cookie", cookies.entrySet().stream().map(l -> l.getKey() + Symbol.EQUALS + l.getValue()).collect(Collectors.joining("; ")));
+			request.setHeader("cookie", cookies.entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
 
 			httpclient = httpclient == null ? httpClientBuilder.build() : httpclient;
 
@@ -581,7 +581,7 @@ public class HttpClientUtil {
 					String value = header.getValue();
 					if (name.equals("set-cookie") && !value.equals("-")) {
 						String cookie = headers.get(name);
-						value = value.substring(0, value.indexOf(Symbol.SEMICOLON));
+						value = value.substring(0, value.indexOf(";"));
 						headers.put(name, cookie == null ? value : cookie + "; " + value);
 					} else {
 						headers.put(name, value);
@@ -599,7 +599,7 @@ public class HttpClientUtil {
 
 		@Contract(pure = true)
 		public Map<String, String> cookies() {
-			return cookies == null ? cookies = res.containsHeader("Set-Cookie") ? Arrays.stream(res.getHeaders("Set-Cookie")).filter(l -> !l.getValue().equals("-")).map(l -> l.getValue().substring(0, l.getValue().indexOf(Symbol.SEMICOLON))).collect(Collectors.toMap(l -> l.substring(0, l.indexOf(Symbol.EQUALS)), l -> l.substring(l.indexOf(Symbol.EQUALS) + 1), (e1, e2) -> e2)) : new HashMap<>() : cookies;
+			return cookies == null ? cookies = res.containsHeader("Set-Cookie") ? Arrays.stream(res.getHeaders("Set-Cookie")).filter(l -> !l.getValue().equals("-")).map(l -> l.getValue().substring(0, l.getValue().indexOf(";"))).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1), (e1, e2) -> e2)) : new HashMap<>() : cookies;
 		}
 
 		@Contract(pure = true)
@@ -618,8 +618,8 @@ public class HttpClientUtil {
 			if (charset == null) {
 				if (headers().containsKey("content-type")) {
 					String type = headers().get("content-type");
-					if (type.contains(Symbol.SEMICOLON)) {
-						return charset = Charset.forName(type.substring(type.lastIndexOf(Symbol.EQUALS) + 1));
+					if (type.contains(";")) {
+						return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
 					} else if (!type.contains("html")) {
 						return charset = StandardCharsets.UTF_8;
 					}

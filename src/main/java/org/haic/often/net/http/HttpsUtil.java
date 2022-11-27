@@ -113,15 +113,15 @@ public class HttpsUtil {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
 				throw new HttpException("Only http & https protocols supported : " + url);
 			}
-			if (url.contains(Symbol.QUESTION)) {
-				if (url.endsWith(Symbol.QUESTION)) {
+			if (url.contains("?")) {
+				if (url.endsWith("?")) {
 					url = url.substring(0, url.length() - 1);
 				} else {
-					int index = url.indexOf(Symbol.QUESTION);
-					url = url.substring(0, index + 1) + StringUtil.lines(url.substring(index + 1), Symbol.AND).map(key -> {
-						int keyIndex = key.indexOf(Symbol.EQUALS);
+					int index = url.indexOf("?");
+					url = url.substring(0, index + 1) + StringUtil.lines(url.substring(index + 1), "&").map(key -> {
+						int keyIndex = key.indexOf("=");
 						return key.substring(0, keyIndex + 1) + URIUtil.encodeValue(key.substring(keyIndex + 1));
-					}).collect(Collectors.joining(Symbol.AND));
+					}).collect(Collectors.joining("&"));
 				}
 			}
 			this.url = url;
@@ -168,7 +168,7 @@ public class HttpsUtil {
 
 		@Contract(pure = true)
 		public Connection auth(@NotNull String auth) {
-			return header("authorization", (this.auth = auth.contains(Symbol.SPACE) ? auth : "Bearer " + auth));
+			return header("authorization", (this.auth = auth.contains(" ") ? auth : "Bearer " + auth));
 		}
 
 		@Contract(pure = true)
@@ -238,13 +238,13 @@ public class HttpsUtil {
 
 		@Contract(pure = true)
 		public Connection data(@NotNull String key, @NotNull String value) {
-			params += (Judge.isEmpty(params) ? "" : Symbol.AND) + key + Symbol.EQUALS + URIUtil.encodeValue(value);
+			params += (Judge.isEmpty(params) ? "" : "&") + key + "=" + URIUtil.encodeValue(value);
 			return this;
 		}
 
 		@Contract(pure = true)
 		public Connection data(@NotNull Map<String, String> params) {
-			this.params = params.entrySet().stream().filter(l -> l.getValue() != null).map(l -> l.getKey() + Symbol.EQUALS + URIUtil.encodeValue(l.getValue())).collect(Collectors.joining(Symbol.AND));
+			this.params = params.entrySet().stream().filter(l -> l.getValue() != null).map(l -> l.getKey() + "=" + URIUtil.encodeValue(l.getValue())).collect(Collectors.joining("&"));
 			return this;
 		}
 
@@ -402,7 +402,7 @@ public class HttpsUtil {
 				HttpURLConnection conn;
 				switch (method) {
 					case GET -> {
-						conn = connection(Judge.isEmpty(params) ? requestUrl : requestUrl + (requestUrl.contains(Symbol.QUESTION) ? Symbol.AND : Symbol.QUESTION) + params);
+						conn = connection(Judge.isEmpty(params) ? requestUrl : requestUrl + (requestUrl.contains("?") ? "&" : "?") + params);
 						conn.connect();
 					}
 					case POST, PUT, PATCH -> {
@@ -438,7 +438,7 @@ public class HttpsUtil {
 				// 维护cookies
 				Map<String, List<String>> headerFields = conn.getHeaderFields();
 				List<String> cookies = headerFields.getOrDefault("Set-Cookie", headerFields.get("set-cookie"));
-				cookies(cookies == null ? new HashMap<>() : cookies.stream().filter(l -> !l.equals("-")).collect(Collectors.toMap(l -> l.substring(0, l.indexOf(Symbol.EQUALS)), l -> l.substring(l.indexOf(Symbol.EQUALS) + 1, l.indexOf(Symbol.SEMICOLON)), (e1, e2) -> e2)));
+				cookies(cookies == null ? new HashMap<>() : cookies.stream().filter(l -> !l.equals("-")).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1, l.indexOf(";")), (e1, e2) -> e2)));
 				Response res = new HttpResponse(conn, this.cookies);
 
 				String redirectUrl; // 修复重定向
@@ -475,7 +475,7 @@ public class HttpsUtil {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());
 			}
 			// 设置cookies
-			conn.setRequestProperty("cookie", cookies.entrySet().stream().map(l -> l.getKey() + Symbol.EQUALS + l.getValue()).collect(Collectors.joining("; ")));
+			conn.setRequestProperty("cookie", cookies.entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
 			return conn;
 		}
 
@@ -537,7 +537,7 @@ public class HttpsUtil {
 
 		@Contract(pure = true)
 		public Map<String, String> headers() {
-			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-")).map(v -> v.substring(0, v.indexOf(Symbol.SEMICOLON))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue()), (e1, e2) -> e2)) : headers;
+			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-")).map(v -> v.substring(0, v.indexOf(";"))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue()), (e1, e2) -> e2)) : headers;
 		}
 
 		@Contract(pure = true)
@@ -566,8 +566,8 @@ public class HttpsUtil {
 			if (charset == null) {
 				if (headers().containsKey("content-type")) {
 					String type = headers().get("content-type");
-					if (type.contains(Symbol.SEMICOLON)) {
-						return charset = Charset.forName(type.substring(type.lastIndexOf(Symbol.EQUALS) + 1));
+					if (type.contains(";")) {
+						return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
 					} else if (!type.contains("html")) {
 						return charset = StandardCharsets.UTF_8;
 					}

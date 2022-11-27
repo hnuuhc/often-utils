@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.Symbol;
 import org.haic.often.Terminal;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -162,7 +161,7 @@ public class SystemUtil {
 	 */
 	@Contract(pure = true)
 	private static String getDefaultDirectory(String id) {
-		String[] value = Terminal.command("REG", "QUERY", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v", id).read().split(Symbol.SPACE);
+		String[] value = Terminal.command("REG", "QUERY", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v", id).read().split(" ");
 		String src = value[value.length - 1];
 		return src.startsWith("%USERPROFILE%") ? System.getenv("USERPROFILE") + src.substring(13) : src;
 	}

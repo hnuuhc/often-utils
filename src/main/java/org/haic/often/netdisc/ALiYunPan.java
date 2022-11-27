@@ -3,7 +3,6 @@ package org.haic.often.netdisc;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalStorage;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
@@ -61,7 +60,7 @@ public class ALiYunPan {
 	 */
 	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(String shareUrl) {
-		return shareUrl.contains(Symbol.POUND) ? getInfosAsPage(shareUrl.substring(0, shareUrl.indexOf(Symbol.POUND)), shareUrl.substring(shareUrl.indexOf('#') + 1)) : getInfosAsPage(shareUrl, "");
+		return shareUrl.contains("#") ? getInfosAsPage(shareUrl.substring(0, shareUrl.indexOf("#")), shareUrl.substring(shareUrl.indexOf('#') + 1)) : getInfosAsPage(shareUrl, "");
 	}
 
 	/**
@@ -73,8 +72,8 @@ public class ALiYunPan {
 	 */
 	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
-		String shareId = shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1);
-		return getInfosAsPage(shareId, getShareToken(shareId, sharePwd), "root", Symbol.SLASH);
+		String shareId = shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
+		return getInfosAsPage(shareId, getShareToken(shareId, sharePwd), "root", "/");
 	}
 
 	@Contract(pure = true)
@@ -89,7 +88,7 @@ public class ALiYunPan {
 		Response fileList = HttpsUtil.connect(fileListUrl).requestBody(data.toString()).header("x-share-token", shareToken).method(Method.POST).execute();
 		for (JSONObject fileInfo : JSONObject.parseObject(fileList.body()).getJSONArray("items").toList(JSONObject.class)) {
 			if (fileInfo.getString("type").equals("folder")) {
-				filesInfo.addAll(getInfosAsPage(shareId, shareToken, fileInfo.getString("file_id"), path + fileInfo.getString("name") + Symbol.SLASH));
+				filesInfo.addAll(getInfosAsPage(shareId, shareToken, fileInfo.getString("file_id"), path + fileInfo.getString("name") + "/"));
 			} else {
 				filesInfo.add(fileInfo.fluentPut("path", path));
 			}
@@ -407,7 +406,7 @@ public class ALiYunPan {
 		data.put("drive_id", userInfo.getString("default_drive_id"));
 		data.put("limit", 100);
 		data.put("order_by", "updated_at DESC");
-		data.put("query", "name match \"" + search + Symbol.DOUBLE_QUOTE);
+		data.put("query", "name match \"" + search + "\"");
 		return inquire(fileSearchUrl, data);
 	}
 
@@ -483,7 +482,7 @@ public class ALiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getStraightsAsPage(@NotNull String shareUrl) {
-		return shareUrl.contains(Symbol.POUND) ? getStraightsAsPage(shareUrl.substring(0, shareUrl.indexOf(Symbol.POUND)), shareUrl.substring(shareUrl.indexOf('#') + 1)) : getStraightsAsPage(shareUrl, "");
+		return shareUrl.contains("#") ? getStraightsAsPage(shareUrl.substring(0, shareUrl.indexOf("#")), shareUrl.substring(shareUrl.indexOf('#') + 1)) : getStraightsAsPage(shareUrl, "");
 	}
 
 	/**
@@ -497,7 +496,7 @@ public class ALiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
-		String shareId = shareUrl.substring(shareUrl.lastIndexOf(Symbol.SLASH) + 1);
+		String shareId = shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
 		String shareToken = getShareToken(shareId, sharePwd);
 		List<JSONObject> filesInfo = getInfosAsPage(shareId, sharePwd);
 		for (JSONObject fileInfo : filesInfo) {

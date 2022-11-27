@@ -191,9 +191,9 @@ public class FTPUtil {
 			if (status != 200) {
 				return status;
 			}
-			remote = remote.startsWith(Symbol.SLASH) ? remote : Symbol.SLASH + remote;
-			String fileName = remote.substring(remote.lastIndexOf(Symbol.SLASH) + 1);
-			String folder = remote.substring(0, remote.lastIndexOf(Symbol.SLASH) + 1);
+			remote = remote.startsWith("/") ? remote : "/" + remote;
+			String fileName = remote.substring(remote.lastIndexOf("/") + 1);
+			String folder = remote.substring(0, remote.lastIndexOf("/") + 1);
 			try {
 				ftpClient.changeWorkingDirectory(folder);
 				ftpClient.deleteFile(fileName);
@@ -220,13 +220,13 @@ public class FTPUtil {
 			if (status != 200) {
 				return status;
 			}
-			remote = remote.startsWith(Symbol.SLASH) ? remote : Symbol.SLASH + remote;
-			String fileName = remote.substring(remote.lastIndexOf(Symbol.SLASH) + 1);
+			remote = remote.startsWith("/") ? remote : "/" + remote;
+			String fileName = remote.substring(remote.lastIndexOf("/") + 1);
 			if (fileName.isEmpty()) {
 				throw new DownloadException("not has fileName");
 			}
 			File localFile = new File(local);
-			String folder = remote.substring(0, remote.lastIndexOf(Symbol.SLASH) + 1);
+			String folder = remote.substring(0, remote.lastIndexOf("/") + 1);
 			try (InputStream in = new FileInputStream(localFile)) {
 				if (!ftpClient.changeWorkingDirectory(folder) && !ftpClient.makeDirectory(folder)) {
 					return ftpClient.getReplyCode();
@@ -252,9 +252,9 @@ public class FTPUtil {
 		}
 
 		public int download(@NotNull String remote, @NotNull String local) {
-			remote = remote.startsWith(Symbol.SLASH) ? remote : Symbol.SLASH + remote;
-			String folder = remote.substring(0, remote.lastIndexOf(Symbol.SLASH) + 1);
-			String fileName = remote.substring(remote.lastIndexOf(Symbol.SLASH) + 1);
+			remote = remote.startsWith("/") ? remote : "/" + remote;
+			String folder = remote.substring(0, remote.lastIndexOf("/") + 1);
+			String fileName = remote.substring(remote.lastIndexOf("/") + 1);
 			if (fileName.isEmpty()) {
 				throw new DownloadException("not has fileName");
 			}

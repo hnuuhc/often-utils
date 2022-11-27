@@ -78,7 +78,7 @@ public class Sion {
 	public static void download(@NotNull String url, @NotNull Map<String, String> headers) {
 		if (url.startsWith("http") && !listTask.contains(url)) {
 			listTask.add(url);
-			if ((url.contains(Symbol.QUESTION) ? url.substring(0, url.indexOf(Symbol.QUESTION)) : url).endsWith(".m3u8")) {
+			if ((url.contains("?") ? url.substring(0, url.indexOf("?")) : url).endsWith(".m3u8")) {
 				pool.execute(() -> {
 					result.put(url, HLSDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerHLS, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(proxy).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
 					listTask.remove(url);

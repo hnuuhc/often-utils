@@ -1,7 +1,5 @@
 package org.haic.often.net;
 
-import org.haic.often.Symbol;
-
 /**
  * 常用网络MIME类型
  *
@@ -3484,7 +3482,7 @@ public enum MimeType {
 	 * @return 对应的MIME类型
 	 */
 	public static MimeType getMimeType(String mimeType) {
-		return MimeType.valueOf((mimeType.contains(Symbol.SEMICOLON) ? mimeType.substring(0, mimeType.indexOf(Symbol.SEMICOLON)) : mimeType).replaceAll("[-/+.]", "_"));
+		return MimeType.valueOf((mimeType.contains(";") ? mimeType.substring(0, mimeType.indexOf(";")) : mimeType).replaceAll("[-/+.]", "_"));
 	}
 
 	/**

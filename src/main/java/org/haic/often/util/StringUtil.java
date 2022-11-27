@@ -178,7 +178,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static Map<String, String> toMap(@NotNull String str, @NotNull String split) {
-		return lines(str, split).collect(Collectors.toMap(l -> l.substring(0, l.indexOf(Symbol.EQUALS)), l -> l.substring(l.indexOf(Symbol.EQUALS) + 1), (e1, e2) -> e2));
+		return lines(str, split).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1), (e1, e2) -> e2));
 	}
 
 	@Contract(pure = true)
@@ -216,10 +216,10 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static String jsonpToJson(@NotNull String str) {
-		if ((str = stripEnd(str.strip(), Symbol.SEMICOLON)).endsWith(")")) {
+		if ((str = stripEnd(str.strip(), ";")).endsWith(")")) {
 			return str.substring(str.indexOf('(') + 1, str.length() - 1);
-		} else if (str.endsWith(Symbol.CLOSE_BRACE)) {
-			return str.substring(str.indexOf(Symbol.OPEN_BRACE));
+		} else if (str.endsWith("}")) {
+			return str.substring(str.indexOf("{"));
 		} else if (str.endsWith(Symbol.CLOSE_BRACKET)) {
 			return str.substring(str.indexOf(Symbol.OPEN_BRACKET));
 		} else {
@@ -271,7 +271,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static boolean isJson(@NotNull String str) {
-		return !str.isEmpty() && (((str = str.strip()).startsWith(Symbol.OPEN_BRACE) && str.endsWith(Symbol.CLOSE_BRACE) || str.startsWith(Symbol.OPEN_BRACKET) && str.endsWith(Symbol.CLOSE_BRACKET)));
+		return !str.isEmpty() && (((str = str.strip()).startsWith("{") && str.endsWith("}") || str.startsWith(Symbol.OPEN_BRACKET) && str.endsWith(Symbol.CLOSE_BRACKET)));
 	}
 
 	/**

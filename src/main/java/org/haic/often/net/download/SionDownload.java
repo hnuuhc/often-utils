@@ -180,7 +180,7 @@ public class SionDownload {
 		private long fileSize; // 文件大小
 		private int DEFAULT_BUFFER_SIZE = 8192;
 		private int MILLISECONDS_SLEEP; // 重试等待时间
-		private int retry; // 请求异常重试次数
+		private int MAX_RETRY; // 请求异常重试次数
 		private int MAX_THREADS = 10; // 默认10线程下载
 		private long PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 		private boolean valid = true; // MD5效验
@@ -210,7 +210,8 @@ public class SionDownload {
 		@Contract(pure = true)
 		public SionConnection url(@NotNull String url) {
 			request.setHash(this.hash = null);
-			this.fileName = null;
+			fileName = null;
+			fileSize = 0;
 			method = method == SionMethod.FILE ? SionMethod.MULTITHREAD : method;
 			return alterUrl(url);
 		}
@@ -234,9 +235,9 @@ public class SionDownload {
 			} else if (session.isFile()) { // 如果设置配置文件下载，并且配置文件存在，获取信息
 				fileInfo = JSONObject.parseObject(ReadWriteUtil.orgin(session).read());
 				request.setUrl(url = fileInfo.getString("url"));
-				fileName = fileInfo.getString("fileName");
-				request.setHash(hash = fileInfo.getString("hash"));
 				request.setFileSize(fileSize = fileInfo.getLong("fileSize"));
+				request.setHash(hash = fileInfo.getString("hash"));
+				fileName = fileInfo.getString("fileName");
 				headers = StringUtil.jsonToMap(fileInfo.getString("header"));
 				cookies = StringUtil.jsonToMap(fileInfo.getString("cookie"));
 			} else { // 配置文件不存在，抛出异常
@@ -364,14 +365,14 @@ public class SionDownload {
 
 		@Contract(pure = true)
 		public SionConnection retry(int retry) {
-			this.retry = retry;
+			MAX_RETRY = retry;
 			return this;
 		}
 
 		@Contract(pure = true)
 		public SionConnection retry(int retry, int millis) {
-			this.retry = retry;
-			this.MILLISECONDS_SLEEP = millis;
+			MAX_RETRY = retry;
+			MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
@@ -384,13 +385,13 @@ public class SionDownload {
 		@Contract(pure = true)
 		public SionConnection retry(boolean unlimit, int millis) {
 			this.unlimit = unlimit;
-			this.MILLISECONDS_SLEEP = millis;
+			MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
 		@Contract(pure = true)
 		public SionConnection retryStatusCodes(int... statusCode) {
-			this.retryStatusCodes = Arrays.stream(statusCode).boxed().toList();
+			retryStatusCodes = Arrays.stream(statusCode).boxed().toList();
 			return this;
 		}
 
@@ -402,7 +403,7 @@ public class SionDownload {
 
 		@Contract(pure = true)
 		public SionConnection bufferSize(int bufferSize) {
-			this.DEFAULT_BUFFER_SIZE = bufferSize;
+			DEFAULT_BUFFER_SIZE = bufferSize;
 			return this;
 		}
 
@@ -430,7 +431,7 @@ public class SionDownload {
 
 		@Contract(pure = true)
 		public SionConnection folder(@NotNull File folder) {
-			this.DEFAULT_FOLDER = folder;
+			DEFAULT_FOLDER = folder;
 			return this;
 		}
 
@@ -474,10 +475,10 @@ public class SionDownload {
 						schedule.addAndGet(status.entrySet().stream().mapToLong(l -> l.getValue() - l.getKey()).sum());
 					}
 					fileInfo.remove("renew");
-					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 配置文件可能占用过多内存,重置配置文件
+					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 重置配置文件
 				}
 				case FULL, PIECE, MULTITHREAD, MANDATORY -> {    // 获取文件信息
-					Response res = HttpsUtil.connect(url).proxy(proxy).headers(headers).cookies(cookies).retry(retry, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
+					Response res = HttpsUtil.connect(url).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
 					// 获取URL连接状态
 					int statusCode = res.statusCode();
 					if (!URIUtil.statusIsOK(statusCode)) {
@@ -489,9 +490,9 @@ public class SionDownload {
 						String disposition = res.header("content-disposition");
 						if (disposition == null || !disposition.contains("filename")) {
 							String url = res.url(); // 可能为跳转链接,使用最终URL
-							fileName = url.substring(url.lastIndexOf(Symbol.SLASH) + 1);
-							fileName = URIUtil.decode(fileName.contains(Symbol.QUESTION) ? fileName.substring(0, fileName.indexOf(Symbol.QUESTION)) : fileName);
-							fileName = fileName.contains(Symbol.DOT) ? fileName : fileName + MimeType.getMimeSuffix(res.header("content-type")); // 尝试修复后缀
+							fileName = url.substring(url.lastIndexOf("/") + 1);
+							fileName = URIUtil.decode(fileName.contains("?") ? fileName.substring(0, fileName.indexOf("?")) : fileName);
+							fileName = fileName.contains(".") ? fileName : fileName + MimeType.getMimeSuffix(res.header("content-type")); // 尝试修复后缀
 						} else {
 							fileName = URIUtil.getFileNameForDisposition(disposition);
 						}
@@ -507,7 +508,7 @@ public class SionDownload {
 						return execute(SionMethod.FILE);
 					} else if (storage.exists()) { // 文件已存在
 						if (rename) { // 重命名
-							int count = 1, index = fileName.lastIndexOf(Symbol.DOT);
+							int count = 1, index = fileName.lastIndexOf(".");
 							String suffix = index > 0 ? fileName.substring(index) : "";
 							do {
 								fileName = fileName.substring(0, index) + " - " + count++ + suffix;
@@ -547,7 +548,7 @@ public class SionDownload {
 			Thread listenTask = ThreadUtil.start(listener);
 			int statusCode;
 			switch (method) {  // 开始下载
-				case FULL -> statusCode = FULL(retry);
+				case FULL -> statusCode = FULL(MAX_RETRY);
 				case PIECE -> statusCode = MULTITHREAD((int) Math.ceil((double) fileSize / PIECE_MAX_SIZE), PIECE_MAX_SIZE, MAX_THREADS);
 				case MULTITHREAD -> {
 					int PIECE_COUNT = Math.min((int) Math.ceil((double) fileSize / PIECE_MAX_SIZE), MAX_THREADS);
@@ -556,8 +557,8 @@ public class SionDownload {
 				case MANDATORY -> statusCode = MULTITHREAD(MAX_THREADS, (long) Math.ceil((double) fileSize / MAX_THREADS), MAX_THREADS);
 				default -> throw new DownloadException("Unknown mode");
 			}
-			Runtime.getRuntime().removeShutdownHook(abnormal);
 			ThreadUtil.interrupt(listenTask);
+			Runtime.getRuntime().removeShutdownHook(abnormal);
 			if (!URIUtil.statusIsOK(statusCode)) { // 验证下载状态
 				breakPoint.run(); // 下载失败写入断点
 				if (failThrow) {
@@ -592,9 +593,6 @@ public class SionDownload {
 			return new HttpResponse(this, request.statusCode(HttpStatus.SC_OK));
 		}
 
-		/**
-		 * 初始化下载进度
-		 */
 		@Contract(pure = true)
 		private void initializationStatus() {
 			schedule.set(0);
@@ -618,19 +616,19 @@ public class SionDownload {
 		/**
 		 * 全量下载，下载获取文件信息并写入文件
 		 *
-		 * @param response 网页Response对象
-		 * @param retry    重试次数
+		 * @param res   网页Response对象
+		 * @param retry 重试次数
 		 * @return 下载并写入是否成功(状态码)
 		 */
 		@Contract(pure = true)
-		private int FULL(Response response, int retry) {
-			try (InputStream in = response.bodyStream(); RandomAccessFile out = new RandomAccessFile(storage, "rw")) {
+		private int FULL(Response res, int retry) {
+			try (InputStream in = res.bodyStream(); RandomAccessFile out = new RandomAccessFile(storage, "rw")) {
 				out.seek(MAX_COMPLETED);
 				byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-				for (int len; (len = in.read(buffer, 0, DEFAULT_BUFFER_SIZE)) > -1; MAX_COMPLETED = schedule.addAndGet(len)) {
+				for (int len; (len = in.read(buffer, 0, DEFAULT_BUFFER_SIZE)) != -1; MAX_COMPLETED = schedule.addAndGet(len)) {
 					out.write(buffer, 0, len);
 				}
-				if (fileSize == 0 || fileSize == MAX_COMPLETED) {
+				if (fileSize == 0 || MAX_COMPLETED >= fileSize) {
 					return HttpStatus.SC_OK;
 				}
 			} catch (IOException e) {
@@ -653,7 +651,7 @@ public class SionDownload {
 					long start = index * PIECE_SIZE;
 					long end = (index + 1 == PIECE_COUNT ? fileSize : (index + 1) * PIECE_SIZE) - 1;
 					long flip = status.getOrDefault(start, start);
-					int statusCode = flip >= end ? HttpStatus.SC_PARTIAL_CONTENT : writePiece(start, flip, end, retry);
+					int statusCode = flip >= end ? HttpStatus.SC_PARTIAL_CONTENT : writePiece(start, flip, end, MAX_RETRY);
 					if (addCompleted.get() && end > MAX_COMPLETED) {
 						addCompleted.set(false);
 						long completed;

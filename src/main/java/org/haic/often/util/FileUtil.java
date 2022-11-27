@@ -2,7 +2,6 @@ package org.haic.often.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.exception.StringException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -118,7 +117,7 @@ public class FileUtil {
 	@Contract(pure = true)
 	public static void fileNameValidity(@NotNull String fileName) {
 		if (FileUtil.nameLength(fileName) > 240) {
-			throw new StringException("Error: File name length is greater than 240 FileName: " + fileName);
+			throw new StringException("File name length is greater than 240 : " + fileName);
 		}
 	}
 
@@ -281,7 +280,7 @@ public class FileUtil {
 	 */
 	@Contract(pure = true)
 	public static String getFileSuffix(@NotNull String fileName) {
-		return fileName.contains(Symbol.DOT) ? fileName.substring(fileName.lastIndexOf(46) + 1) : null;
+		return fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(46) + 1) : null;
 	}
 
 	/**
@@ -306,7 +305,7 @@ public class FileUtil {
 	public static boolean afterFileSuffix(@NotNull File file, @NotNull String suffix) {
 		String fileName = file.getName();
 		File newfile;
-		if (fileName.contains(Symbol.DOT)) {
+		if (fileName.contains(".")) {
 			newfile = new File(file.getParent(), fileName.substring(0, fileName.lastIndexOf(46) + 1) + suffix);
 		} else {
 			newfile = new File(file.getParent(), fileName + (char) 46 + suffix);
@@ -540,7 +539,7 @@ public class FileUtil {
 	 */
 	@Contract(pure = true)
 	public static boolean isAbsolutePath(@NotNull String src) {
-		return src.startsWith(Symbol.SLASH) || src.charAt(1) == 58;
+		return src.startsWith("/") || src.charAt(1) == 58;
 	}
 
 	/**

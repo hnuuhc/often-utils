@@ -5,7 +5,6 @@ import net.lingala.zip4j.model.AbstractFileHeader;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.*;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.exception.ZipException;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ListUtil;
@@ -285,7 +284,7 @@ public class Zip4jUtil {
 			if (origin.isFile()) {
 				remove(origin.getName());
 			} else {
-				remove(FileUtil.iterateFiles(origin).parallelStream().map(file -> file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", Symbol.SLASH)).collect(Collectors.toList()));
+				remove(FileUtil.iterateFiles(origin).parallelStream().map(file -> file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", "/")).collect(Collectors.toList()));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -325,7 +324,7 @@ public class Zip4jUtil {
 	}
 
 	/**
-	 * 删除压缩包中的文件,注意路径以Symbol.SLASH分割
+	 * 删除压缩包中的文件,注意路径以 "/"分割
 	 *
 	 * @param origin 压缩包中的文件路径
 	 * @return 删除是否成功
@@ -344,7 +343,7 @@ public class Zip4jUtil {
 	}
 
 	/**
-	 * 批量删除压缩包中的文件,注意路径以Symbol.SLASH分割
+	 * 批量删除压缩包中的文件,注意路径以 "/"分割
 	 *
 	 * @param origin 压缩包中的文件路径列表
 	 * @return 删除是否成功

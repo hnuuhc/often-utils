@@ -56,18 +56,18 @@ public class LanZouYunPan {
 
 		// 获取post参数
 		Map<String, String> params = new HashMap<>();
-		for (String data : StringUtil.extract(infos.replaceAll("\n", ""), "data.*").substring(6).split(Symbol.COMMA)) {
+		for (String data : StringUtil.extract(infos.replaceAll("\n", ""), "data.*").substring(6).split(",")) {
 			String[] entry = data.split(Symbol.COLON);
 			params.put(entry[0], entry[1]);
 		}
 
 		// 获取修正后的参数
 		String pgs = StringUtil.extract(infos, "pgs=.*");
-		pgs = pgs.substring(pgs.indexOf(Symbol.EQUALS) + 1);
+		pgs = pgs.substring(pgs.indexOf("=") + 1);
 		String t = StringUtil.extract(infos, params.get("t") + "=.*");
-		t = t.substring(t.indexOf(Symbol.EQUALS) + 1);
+		t = t.substring(t.indexOf("=") + 1);
 		String k = StringUtil.extract(infos, params.get("k") + "=.*");
-		k = k.substring(k.indexOf(Symbol.EQUALS) + 1);
+		k = k.substring(k.indexOf("=") + 1);
 
 		// 修正post参数
 		params.put("pg", pgs);
@@ -155,18 +155,18 @@ public class LanZouYunPan {
 		// 获取post参数
 		String dataInfo = infos.lines().filter(l -> l.startsWith("data")).findFirst().orElse("");
 		Map<String, String> params = new HashMap<>();
-		for (String data : dataInfo.substring(6, dataInfo.length() - 1).split(Symbol.COMMA)) {
+		for (String data : dataInfo.substring(6, dataInfo.length() - 1).split(",")) {
 			String[] entry = data.split(Symbol.COLON);
 			params.put(entry[0], entry[1]);
 		}
 
 		// 获取修正后的参数
 		String signs = StringUtil.extract(infos, params.get("signs") + "=.*");
-		signs = signs.substring(signs.indexOf(Symbol.EQUALS) + 1);
+		signs = signs.substring(signs.indexOf("=") + 1);
 		String websign = StringUtil.extract(infos, params.get("websign") + "=.*");
-		websign = websign.substring(websign.indexOf(Symbol.EQUALS) + 1);
+		websign = websign.substring(websign.indexOf("=") + 1);
 		String websignkey = StringUtil.extract(infos, params.get("websignkey") + "=.*");
-		websignkey = websignkey.substring(websignkey.indexOf(Symbol.EQUALS) + 1);
+		websignkey = websignkey.substring(websignkey.indexOf("=") + 1);
 
 		// 修正post参数
 		params.put("signs", signs);
@@ -263,7 +263,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public int restore(@NotNull List<JSONObject> fileInfoList) {
-		return conn.url(mydiskUrl).requestBody("item=recycle&task=restore_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + Symbol.EQUALS + l.getString("inputValue")).collect(Collectors.joining(Symbol.AND))).method(Method.POST).execute().statusCode();
+		return conn.url(mydiskUrl).requestBody("item=recycle&task=restore_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + "=" + l.getString("inputValue")).collect(Collectors.joining("&"))).method(Method.POST).execute().statusCode();
 	}
 
 	/**
@@ -305,7 +305,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public int clearRecycle(@NotNull List<JSONObject> fileInfoList) {
-		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_complete_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + Symbol.EQUALS + l.getString("inputValue")).collect(Collectors.joining(Symbol.AND))).method(Method.POST).execute().statusCode();
+		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_complete_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + "=" + l.getString("inputValue")).collect(Collectors.joining("&"))).method(Method.POST).execute().statusCode();
 	}
 
 	/**

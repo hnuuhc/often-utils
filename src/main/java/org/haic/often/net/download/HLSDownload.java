@@ -2,7 +2,6 @@ package org.haic.often.net.download;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.TypeReference;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
@@ -14,21 +13,18 @@ import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpStatus;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
+import org.haic.often.thread.ConsumerThread;
 import org.haic.often.util.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
@@ -192,13 +188,12 @@ public class HLSDownload {
 		private String key = "";
 		private String iv = "";
 		private int MILLISECONDS_SLEEP; // 重试等待时间
-		private int retry; // 请求异常重试次数
+		private int MAX_RETRY; // 请求异常重试次数
 		private int MAX_THREADS = 10; // 默认10线程下载
 		private boolean unlimit;// 请求异常无限重试
 		private boolean failThrow; // 错误异常
 		private boolean rename; // 重命名
 		private Proxy proxy = Proxy.NO_PROXY; // 代理
-		private File storage; // 本地存储文件
 		private File session; // 配置信息文件
 		private File DEFAULT_FOLDER = SystemUtil.DEFAULT_DOWNLOAD_FOLDER; // 存储目录
 		private List<Integer> retryStatusCodes = new ArrayList<>();
@@ -212,12 +207,9 @@ public class HLSDownload {
 		private final SionRequest request = new SionRequest();
 		private JSONObject fileInfo = new JSONObject();
 		private Runnable listener;
-		private int pieceTotal;
 		private int site;
 		private final AtomicLong schedule = new AtomicLong();
-		private long fileSize;
-		private final AtomicBoolean writeStatus = new AtomicBoolean(true);
-		private final Map<String, byte[]> writeData = new ConcurrentHashMap<>();
+		private final Map<File, Long> status = new ConcurrentHashMap<>();
 		private List<String> links;
 
 		private HttpConnection() {
@@ -227,7 +219,7 @@ public class HLSDownload {
 		public HLSConnection url(@NotNull String url) {
 			request.setUrl(this.url = url);
 			fileInfo.put("url", url);
-			this.fileName = null;
+			fileName = null;
 			key = "";
 			iv = "";
 			method = "FULL";
@@ -252,18 +244,6 @@ public class HLSDownload {
 		}
 
 		@Contract(pure = true)
-		public HLSConnection key(@NotNull String key) {
-			return key(key, "");
-		}
-
-		@Contract(pure = true)
-		public HLSConnection key(@NotNull String key, @NotNull String iv) {
-			this.key = key;
-			this.iv = iv;
-			return this;
-		}
-
-		@Contract(pure = true)
 		public HLSConnection keyDecrypt(@NotNull StringFunction<String> keyDecrypt) {
 			this.keyDecrypt = keyDecrypt;
 			return this;
@@ -272,6 +252,15 @@ public class HLSDownload {
 		@Contract(pure = true)
 		public HLSConnection body(@NotNull String body) {
 			this.body = body;
+			this.method = "BODY";
+			return body(body, "", "");
+		}
+
+		@Contract(pure = true)
+		public HLSConnection body(@NotNull String body, @NotNull String key, @NotNull String iv) {
+			this.body = body;
+			this.key = key;
+			this.iv = iv;
 			this.method = "BODY";
 			return this;
 		}
@@ -332,6 +321,9 @@ public class HLSDownload {
 
 		@Contract(pure = true)
 		public HLSConnection fileName(@NotNull String fileName) {
+			if (!fileName.contains(".")) {
+				throw new HLSDownloadException("文件名必须存在后缀 :" + fileName);
+			}
 			this.fileName = FileUtil.illegalFileName(URIUtil.decode(fileName));
 			FileUtil.fileNameValidity(fileName);
 			return this;
@@ -387,13 +379,13 @@ public class HLSDownload {
 
 		@Contract(pure = true)
 		public HLSConnection retry(int retry) {
-			this.retry = retry;
+			this.MAX_RETRY = retry;
 			return this;
 		}
 
 		@Contract(pure = true)
 		public HLSConnection retry(int retry, int millis) {
-			this.retry = retry;
+			this.MAX_RETRY = retry;
 			this.MILLISECONDS_SLEEP = millis;
 			return this;
 		}
@@ -446,7 +438,7 @@ public class HLSDownload {
 				do {
 					ThreadUtil.waitThread(millis);
 					schedule = this.schedule.get();
-					listener.bytesTransferred(fileName, schedule - rate, pieceTotal - links.size() + site, pieceTotal);
+					listener.bytesTransferred(fileName, schedule - rate, site, links.size());
 					rate = schedule;
 				} while (!Thread.currentThread().isInterrupted());
 			};
@@ -461,8 +453,8 @@ public class HLSDownload {
 		@Contract(pure = true)
 		private SionResponse execute(@NotNull String method) {
 			initializationStatus(); // 初始化进度
-			Connection conn = HttpsUtil.newSession().proxy(proxy).headers(headers).cookies(cookies).retry(retry, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
-			List<String> renewLink = new ArrayList<>();
+			Connection conn = HttpsUtil.newSession().proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
+			File storage;
 			switch (method) {
 				case "BODY" -> {
 					List<String> info = body.lines().toList();
@@ -487,14 +479,18 @@ public class HLSDownload {
 					if (Judge.isEmpty(fileName)) { // 随机命名
 						fileName = RandomStringUtils.randomAlphanumeric(32) + ".mp4";
 					}
+					storage = new File(DEFAULT_FOLDER, fileName);
+					if (storage.exists()) {
+						throw new HLSDownloadException("存储文件已经存在: " + storage);
+					}
 					String keyInfo = info.stream().filter(l -> l.startsWith("#EXT-X-KEY")).findFirst().orElse(null);
 					if (keyInfo != null) {
-						String[] extKey = keyInfo.substring(11).split(Symbol.COMMA);
+						String[] extKey = keyInfo.substring(11).split(",");
 						String encryptMethod = extKey[0].substring(7);
 						if (!encryptMethod.contains("AES")) {
-							throw new HLSDownloadException("unknown encryption method " + encryptMethod);
+							throw new HLSDownloadException("未知的解密方法: " + encryptMethod);
 						}
-						String keyUrl = URIUtil.getRedirectUrl(url, StringUtil.strip(extKey[1].substring(4), Symbol.DOUBLE_QUOTE));
+						String keyUrl = URIUtil.getRedirectUrl(url, StringUtil.strip(extKey[1].substring(4), "\""));
 						Response res = conn.url(keyUrl).execute();
 						int statusCode = res.statusCode();
 						if (!URIUtil.statusIsOK(statusCode)) {
@@ -512,7 +508,7 @@ public class HLSDownload {
 							iv = extKey[2].substring(3);
 						}
 					}
-					links = info.stream().filter(l -> !l.startsWith(Symbol.POUND)).map(l -> URIUtil.getRedirectUrl(url, l)).toList();
+					links = info.stream().filter(l -> !l.startsWith("#")).map(l -> URIUtil.getRedirectUrl(url, l)).toList();
 					// 创建并写入文件配置信息
 					fileInfo.put("fileName", fileName);
 					fileInfo.put("fileSize", 0);
@@ -521,30 +517,32 @@ public class HLSDownload {
 					fileInfo.put("key", key);
 					fileInfo.put("iv", iv);
 					fileInfo.put("data", links);
-					fileInfo.put("pieceTotal", pieceTotal = links.size());
+					fileInfo.put("pieceTotal", links.size());
 					ReadWriteUtil.orgin(session).write(fileInfo.toString());
 				}
 				case "FULL" -> {
 					if (Judge.isEmpty(fileName)) {
-						fileName = url.substring(url.lastIndexOf(Symbol.SLASH) + 1);
-						fileName = URIUtil.decode(fileName.contains(Symbol.QUESTION) ? fileName.substring(0, fileName.indexOf(Symbol.QUESTION)) : fileName);
-						fileName = fileName.substring(0, fileName.lastIndexOf(Symbol.DOT) + 1) + "mp4";
+						fileName = url.substring(url.lastIndexOf("/") + 1);
+						fileName = URIUtil.decode(fileName.contains("?") ? fileName.substring(0, fileName.indexOf("?")) : fileName);
+						fileName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "mp4";
 						fileName = FileUtil.illegalFileName(fileName); // 文件名排除非法字符
 						FileUtil.fileNameValidity(fileName);
 					}
 					// 获取待下载文件和配置文件对象
 					request.setStorage(storage = new File(DEFAULT_FOLDER, fileName)); // 获取其file对象
-					session = new File(storage + SESSION_SUFFIX); // 配置信息文件后缀
+					File folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
+					session = new File(folder, "n" + SESSION_SUFFIX); // 配置信息文件后缀
 					if (session.exists()) { // 转为会话配置
 						return execute("FILE");
 					} else if (storage.exists()) { // 文件已存在
 						if (rename) { // 重命名
-							int count = 1, index = fileName.lastIndexOf(Symbol.DOT);
+							int count = 1, index = fileName.lastIndexOf(".");
 							String suffix = index > 0 ? fileName.substring(index) : "";
 							do {
 								fileName = fileName.substring(0, index) + " - " + count++ + suffix;
 								storage = new File(DEFAULT_FOLDER, fileName);
-								session = new File(storage + SESSION_SUFFIX);
+								folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
+								session = new File(folder, "n" + SESSION_SUFFIX); // 配置信息文件后缀
 								if (session.exists()) { // 转为会话配置
 									return execute("FILE");
 								}
@@ -568,47 +566,67 @@ public class HLSDownload {
 					fileInfo = JSON.parseObject(ReadWriteUtil.orgin(session).readBytes());
 					request.setUrl(url = fileInfo.getString("url"));
 					fileName = fileInfo.getString("fileName");
-					fileSize = fileInfo.getLong("fileSize");
 					headers = StringUtil.jsonToMap(fileInfo.getString("header"));
 					cookies = StringUtil.jsonToMap(fileInfo.getString("cookie"));
 					key = fileInfo.getString("key");
 					iv = fileInfo.getString("iv");
 					links = fileInfo.getList("data", String.class);
-					pieceTotal = links.size();
-					JSONObject renew = fileInfo.getJSONObject("renew");
-					if (storage.exists() && renew != null) {
-						links.subList(0, pieceTotal - renew.getInteger("status")).clear();
-						writeData.putAll(JSON.parseObject(renew.getJSONObject("data").toString(JSONWriter.Feature.LargeObject), new TypeReference<HashMap<String, byte[]>>() {}));
-						renewLink.addAll(writeData.keySet().stream().toList());
+					storage = new File(DEFAULT_FOLDER, fileName);
+					String renew = fileInfo.getString("renew");
+					if (renew != null) {
+						status.putAll(JSON.parseObject(renew, new TypeReference<HashMap<File, Long>>() {}));
+						fileInfo.remove("renew");
 					}
-					fileInfo.remove("renew");
-					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 配置文件可能占用过多内存,重置配置文件
+					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 重置配置文件
 				}
 				default -> throw new HLSDownloadException("Unknown mode");
 			}
 
-			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
-			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("fileSize", fileSize).fluentPut("renew", new JSONObject().fluentPut("status", links.size() - site).fluentPut("data", new JSONObject(writeData))));
+			File folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
+			FileUtil.createFolder(folder); // 创建文件夹
+			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", status).toString());
 			Thread abnormal;
 			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
 			Thread listenTask = ThreadUtil.start(listener);
 			AtomicInteger statusCodes = new AtomicInteger(HttpStatus.SC_OK);
 			ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
-			for (String link : links) {
-				if (!renewLink.remove(link)) {
-					executor.execute(() -> {
-						int statusCode = FULL(link, retry);
-						if (!URIUtil.statusIsOK(statusCode)) {
+			for (int i = 0; i < links.size(); i++) {
+				File file = new File(folder, i + ".ts");
+				if (file.exists() && !status.containsKey(file)) {
+					site++;
+				} else {
+					executor.execute(new ConsumerThread<>(i, (index) -> {
+						int statusCode = FULL(links.get(index), status.getOrDefault(file, 0L), MAX_RETRY, file);
+						if (URIUtil.statusIsOK(statusCode)) {
+							status.remove(file);
+							site++;
+						} else {
 							statusCodes.set(statusCode);
 							executor.shutdownNow(); // 结束未开始的线程，并关闭线程池
 						}
-					});
+					}));
 				}
 			}
 			ThreadUtil.waitEnd(executor); // 等待线程结束
+			ThreadUtil.interrupt(listenTask); // 结束监听
 			Runtime.getRuntime().removeShutdownHook(abnormal);
-			ThreadUtil.interrupt(listenTask);
-			if (!URIUtil.statusIsOK(statusCodes.get())) { // 验证下载状态
+
+			long fileSize = 0;
+			if (URIUtil.statusIsOK(statusCodes.get())) { // 验证下载状态
+				try (FileOutputStream out = new FileOutputStream(storage)) {
+					for (int i = 0; i < links.size(); i++) {
+						File file = new File(folder, i + ".ts");
+						byte[] bytes = Judge.isEmpty(key) ? ReadWriteUtil.orgin(file).readBytes() : AESUtil.decode(ReadWriteUtil.orgin(file).readBytes(), key, iv);
+						out.write(bytes, 0, bytes.length);
+						fileSize += bytes.length;
+						file.delete();
+					}
+					session.delete(); // 删除会话信息文件
+					folder.delete(); // 删除文件夹
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
 				breakPoint.run();
 				if (failThrow) {
 					throw new HLSDownloadException("M3U8文件下载失败，状态码: " + statusCodes + " URL: " + url);
@@ -616,38 +634,34 @@ public class HLSDownload {
 				return new HttpResponse(this, request.statusCode(statusCodes.get()));
 			}
 
-			session.delete(); // 删除会话信息文件
 			return new HttpResponse(this, request.setFileSize(fileSize).statusCode(HttpStatus.SC_OK));
 		}
 
-		/**
-		 * 初始化下载进度
-		 */
 		@Contract(pure = true)
 		private void initializationStatus() {
 			schedule.set(0);
-			writeData.clear();
+			site = 0;
+			status.clear();
 		}
 
 		@Contract(pure = true)
-		private int FULL(@NotNull String link, int retry) {
-			Response piece = HttpsUtil.connect(link).timeout(0).proxy(proxy).headers(headers).cookies(cookies).failThrow(failThrow).execute();
+		private int FULL(String url, long complete, int retry, File storage) {
+			Response piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + complete + "-").cookies(cookies).failThrow(failThrow).execute();
 			int statusCode = piece.statusCode();
-			return URIUtil.statusIsOK(statusCode) ? FULL(piece, link, retry) : unlimit || retry > 0 ? FULL(link, retry - 1) : statusCode;
+			return URIUtil.statusIsOK(statusCode) ? FULL(url, piece, complete, retry, storage) : unlimit || retry > 0 ? FULL(url, complete, retry - 1, storage) : statusCode;
 		}
 
 		@Contract(pure = true)
-		private int FULL(Response piece, @NotNull String link, int retry) {
-			try (InputStream inputStream = piece.bodyStream()) {
-				byte[] data = IOUtil.stream(inputStream).toByteArray();
-				if (Integer.parseInt(piece.header("content-length")) == data.length) {
-					writeData.put(link, data);
-					schedule.addAndGet(data.length);
-					if (writeStatus.get()) {
-						writeStatus.set(false);
-						writePiece();
-						writeStatus.set(true);
-					}
+		private int FULL(String url, Response res, long complete, int retry, File storage) {
+			String length = res.header("content-length"); // 获取文件大小
+			long fileSize = length == null ? 0 : Long.parseLong(length);
+			try (InputStream in = res.bodyStream(); RandomAccessFile out = new RandomAccessFile(storage, "rw")) {
+				out.seek(complete);
+				byte[] buffer = new byte[8192];
+				for (int len; (len = in.read(buffer, 0, 8192)) != -1; schedule.addAndGet(len), complete += len, status.put(storage, complete)) {
+					out.write(buffer, 0, len);
+				}
+				if (fileSize == 0 || complete >= fileSize) {
 					return HttpStatus.SC_OK;
 				}
 			} catch (IOException e) {
@@ -655,28 +669,9 @@ public class HLSDownload {
 			}
 			if (unlimit || retry > 0) {
 				ThreadUtil.waitThread(MILLISECONDS_SLEEP);
-				return FULL(link, retry - 1);
+				return FULL(url, complete, retry - 1, storage);
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
-		}
-
-		@Contract(pure = true)
-		private void writePiece() {
-			try (FileOutputStream out = new FileOutputStream(storage, true)) {
-				while (site < links.size()) {
-					String link = links.get(site);
-					if (!writeData.containsKey(link)) {
-						break;
-					}
-					byte[] bytes = Judge.isEmpty(key) ? writeData.get(link) : AESUtil.decode(writeData.get(link), key, iv);
-					out.write(bytes, 0, bytes.length);
-					fileSize += bytes.length;
-					writeData.remove(link);
-					site++;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 
 	}

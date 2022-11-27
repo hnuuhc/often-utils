@@ -51,30 +51,7 @@ public abstract class HLSConnection {
 	public abstract HLSConnection session(@NotNull File file);
 
 	/**
-	 * 设置解密密钥
-	 * <p>
-	 * 如果m3u8文本中存在key值,将会被覆盖
-	 *
-	 * @param key 解密key
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract HLSConnection key(@NotNull String key);
-
-	/**
-	 * 设置解密密钥
-	 * <p>
-	 * 如果m3u8文本中存在key或iv值,将会被覆盖
-	 *
-	 * @param key 解密key
-	 * @param iv  补码
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract HLSConnection key(@NotNull String key, @NotNull String iv);
-
-	/**
-	 * 获取KEY时采用解密方法
+	 * 获取m3u8文本中KEY时采用的解密方法
 	 *
 	 * @param keyDecrypt KEY解密函数
 	 * @return 此连接，用于链接
@@ -90,6 +67,17 @@ public abstract class HLSConnection {
 	 */
 	@Contract(pure = true)
 	public abstract HLSConnection body(@NotNull String body);
+
+	/**
+	 * 获取新的Download对象并设置m3u8内容<br/> 配置文件 -> 包含待下载文件的下载信息的文件
+	 *
+	 * @param body m3u8文本
+	 * @param key  解密KEY
+	 * @param iv   补码
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public abstract HLSConnection body(@NotNull String body, @NotNull String key, @NotNull String iv);
 
 	/**
 	 * M3U8参数中可能存在多个来源,通过截取段设置筛选条件,默认为选择第一个
