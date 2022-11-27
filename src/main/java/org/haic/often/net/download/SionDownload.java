@@ -509,9 +509,10 @@ public class SionDownload {
 					} else if (storage.exists()) { // 文件已存在
 						if (rename) { // 重命名
 							int count = 1, index = fileName.lastIndexOf(".");
+							String head = index > 0 ? fileName.substring(0, index) : fileName;
 							String suffix = index > 0 ? fileName.substring(index) : "";
 							do {
-								fileName = fileName.substring(0, index) + " - " + count++ + suffix;
+								fileName = head + " - " + count++ + suffix;
 								storage = new File(DEFAULT_FOLDER, fileName);
 								session = new File(storage + SESSION_SUFFIX);
 								if (session.exists()) { // 转为会话配置

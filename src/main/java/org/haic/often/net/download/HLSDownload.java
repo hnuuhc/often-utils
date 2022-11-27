@@ -531,18 +531,19 @@ public class HLSDownload {
 					// 获取待下载文件和配置文件对象
 					request.setStorage(storage = new File(DEFAULT_FOLDER, fileName)); // 获取其file对象
 					File folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
-					session = new File(folder, "n" + SESSION_SUFFIX); // 配置信息文件后缀
+					session = new File(folder, SESSION_SUFFIX); // 配置信息文件后缀
 					if (session.exists()) { // 转为会话配置
 						return execute("FILE");
 					} else if (storage.exists()) { // 文件已存在
 						if (rename) { // 重命名
 							int count = 1, index = fileName.lastIndexOf(".");
-							String suffix = index > 0 ? fileName.substring(index) : "";
+							String head = fileName.substring(0, index);
+							String suffix = fileName.substring(index);
 							do {
-								fileName = fileName.substring(0, index) + " - " + count++ + suffix;
+								String newPath = head + " - " + count++;
+								fileName = newPath + suffix;
 								storage = new File(DEFAULT_FOLDER, fileName);
-								folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
-								session = new File(folder, "n" + SESSION_SUFFIX); // 配置信息文件后缀
+								session = new File(new File(DEFAULT_FOLDER, newPath), SESSION_SUFFIX); // 配置信息文件后缀
 								if (session.exists()) { // 转为会话配置
 									return execute("FILE");
 								}
@@ -583,6 +584,7 @@ public class HLSDownload {
 			}
 
 			File folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
+			session = new File(folder, SESSION_SUFFIX); // 配置信息文件后缀
 			FileUtil.createFolder(folder); // 创建文件夹
 			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", status).toString());
 			Thread abnormal;
