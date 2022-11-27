@@ -184,6 +184,7 @@ public class HLSDownload {
 		private String url; // 请求URL
 		private String fileName; // 文件名
 		private final String SESSION_SUFFIX = ".hlsion";
+		private int DEFAULT_BUFFER_SIZE = 8192;
 		private String body;
 		private String key = "";
 		private String iv = "";
@@ -412,6 +413,12 @@ public class HLSDownload {
 		@Contract(pure = true)
 		public HLSConnection retryStatusCodes(List<Integer> retryStatusCodes) {
 			this.retryStatusCodes = retryStatusCodes;
+			return this;
+		}
+
+		@Contract(pure = true)
+		public HLSConnection bufferSize(int bufferSize) {
+			DEFAULT_BUFFER_SIZE = bufferSize;
 			return this;
 		}
 
@@ -659,8 +666,8 @@ public class HLSDownload {
 			long fileSize = length == null ? 0 : Long.parseLong(length);
 			try (InputStream in = res.bodyStream(); RandomAccessFile out = new RandomAccessFile(storage, "rw")) {
 				out.seek(complete);
-				byte[] buffer = new byte[8192];
-				for (int len; (len = in.read(buffer, 0, 8192)) != -1; schedule.addAndGet(len), complete += len, status.put(storage, complete)) {
+				byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+				for (int len; (len = in.read(buffer, 0, DEFAULT_BUFFER_SIZE)) != -1; schedule.addAndGet(len), complete += len, status.put(storage, complete)) {
 					out.write(buffer, 0, len);
 				}
 				if (fileSize == 0 || complete >= fileSize) {

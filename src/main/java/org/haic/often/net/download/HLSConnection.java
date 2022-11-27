@@ -302,6 +302,15 @@ public abstract class HLSConnection {
 	public abstract HLSConnection retryStatusCodes(List<Integer> retryStatusCodes);
 
 	/**
+	 * 设置写入文件时缓冲区大小,默认大小为8192字节
+	 *
+	 * @param bufferSize 缓冲区大小
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public abstract HLSConnection bufferSize(int bufferSize);
+
+	/**
 	 * 设置下载文件的存储文件夹
 	 *
 	 * @param folder 存储路径
