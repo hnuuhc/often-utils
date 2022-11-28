@@ -16,7 +16,7 @@ Maven依赖添加:
 <dependency>
     <groupId>org.haic.often</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
@@ -170,7 +170,7 @@ for (int i = 0; i < 10; i++) {
 		// TODO
 	}));
 			
-	Future<Integer> future = executorService.submit(new FutureTaskThread(i, (index) -> { // 传参执行多线程带返回值
+	Future<Integer> future = executorService.submit(new FutureTaskThread<>(i, (index) -> { // 传参执行多线程带返回值
 		return index + 1;
 	}));
 }
