@@ -1,12 +1,10 @@
 package org.haic.often.net;
 
-import com.alibaba.fastjson2.JSONObject;
 import org.apache.http.HttpStatus;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.Terminal;
 import org.haic.often.net.http.HttpsUtil;
-import org.haic.often.net.http.Response;
 import org.haic.often.util.Base64Util;
 import org.haic.often.util.ListUtil;
 import org.haic.often.util.StringUtil;
@@ -22,7 +20,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * URI工具类
@@ -587,37 +584,6 @@ public class URIUtil {
 			}
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * 获取 新浪微博临时访客Cookies
-	 *
-	 * @return 新浪微博Cookies
-	 */
-	@NotNull
-	@Contract(pure = true)
-	public static Map<String, String> getWeiBoCookies() {
-		String genvisitorUrl = "https://passport.weibo.com/visitor/genvisitor";
-		String visitorUrl = "https://passport.weibo.com/visitor/visitor?a=incarnate&cb=cross_domain&from=weibo&t=";
-		Response genvisitor = HttpsUtil.connect(genvisitorUrl).data("cb", "gen_callback").method(Method.POST).execute();
-		String tid = StringUtil.jsonpToJSONObject(genvisitor.body()).getJSONObject("data").getString("tid");
-		return HttpsUtil.connect(visitorUrl + tid).execute().cookies();
-	}
-
-	/**
-	 * 获取Github发布的文件下载链接
-	 *
-	 * @param warehouse 仓库路径或仓库首页URL地址
-	 * @return Map列表 文件名 - 下载链接
-	 */
-	@NotNull
-	@Contract(pure = true)
-	public static Map<String, String> getGithubReleases(@NotNull String warehouse) {
-		warehouse = warehouse.startsWith("https://") ? warehouse.substring(warehouse.indexOf("com") + 4) : warehouse;
-		String latestUrl = "https://api.github.com/repos/" + warehouse + "/releases/latest";
-		Response latest = HttpsUtil.connect(latestUrl).execute();
-		List<JSONObject> assets = JSONObject.parseObject(latest.body()).getJSONArray("assets").toList(JSONObject.class);
-		return assets.stream().collect(Collectors.toMap(l -> l.getString("name"), l -> l.getString("browser_download_url")));
 	}
 
 }
