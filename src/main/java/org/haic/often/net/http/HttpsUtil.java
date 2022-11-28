@@ -416,7 +416,7 @@ public class HttpsUtil {
 								output.writeBytes(params); // 发送请求参数
 							}
 							if (file != null) { // 发送文件
-								output.writeBytes(file.frist());
+								output.writeBytes(file.first());
 								file.second().transferTo(output);
 								output.writeBytes(file.third());
 								file = null; // 删除流,防止复用
