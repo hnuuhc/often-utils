@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class Youtube {
 
 	/**
-	 * signatureCipher解密
+	 * signatureCipher解密,由于会下载js代码,注意需要提前设置代理
 	 *
 	 * @param signatureCipher signatureCipher
 	 * @return 已解密的signatureCipher

@@ -1,7 +1,7 @@
 package org.haic.often.website;
 
 import com.alibaba.fastjson2.JSONObject;
-import org.haic.often.function.StringFunction;
+import org.haic.often.Symbol;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.HttpsUtil;
@@ -12,8 +12,10 @@ import org.haic.often.website.api.Youtube;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +27,7 @@ import java.util.stream.Collectors;
  */
 public class Website {
 
-	private Website() {}
+	private static Proxy foreignProxy = Proxy.NO_PROXY; // 代理
 
 	/**
 	 * 获取微博实现类
@@ -54,6 +56,45 @@ public class Website {
 		return new YoutubeBuilder();
 	}
 
+	/**
+	 * 连接代理（ @NotNull  Proxy 代理）<br/>
+	 * 设置用于请求的代理,仅需要代理的网站才会使用
+	 *
+	 * @param ipAddr 代理地址 格式 - host:port
+	 */
+	@Contract(pure = true)
+	public static void proxy(@NotNull String ipAddr) {
+		if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
+			proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+		} else {
+			int index = ipAddr.lastIndexOf(Symbol.COLON);
+			proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
+		}
+	}
+
+	/**
+	 * 连接代理（ @NotNull  Proxy 代理）<br/>
+	 * 设置用于请求的代理,仅需要代理的网站才会使用
+	 *
+	 * @param host 代理地址
+	 * @param port 代理端口
+	 */
+	@Contract(pure = true)
+	public static void proxy(@NotNull String host, int port) {
+		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
+	}
+
+	/**
+	 * 连接代理（ @NotNull  Proxy 代理）<br/>
+	 * 设置用于请求的代理,仅需要代理的网站才会使用
+	 *
+	 * @param proxy 要使用的代理
+	 */
+	@Contract(pure = true)
+	public static void proxy(@NotNull Proxy proxy) {
+		foreignProxy = proxy;
+	}
+
 	private static class WeiboBuilder extends Weibo {
 
 		private static final String genvisitorUrl = "https://passport.weibo.com/visitor/genvisitor";
@@ -80,21 +121,54 @@ public class Website {
 
 	private static class YoutubeBuilder extends Youtube {
 
+		private static final String playerBaseUrl = "https://www.youtube.com/s/player/4eb6b35d/player_ias.vflset/zh_CN/base.js";
+
 		@Contract(pure = true)
 		public String signatureCipherDecrypt(@NotNull String signatureCipher) {
-			BiConsumer<StringBuilder, Integer> xG = (a, b) -> a.delete(0, b);
-			BiConsumer<StringBuilder, Integer> vd = (a, b) -> a.reverse();
-			StringFunction<String> Dxa = s -> {
-				StringBuilder a = new StringBuilder(s);
-				xG.accept(a, 2);
-				vd.accept(a, 3);
-				xG.accept(a, 3);
-				vd.accept(a, 61);
-				xG.accept(a, 1);
-				return a.toString();
-			};
 			Map<String, String> signatureCipherSplit = StringUtil.toMap(signatureCipher, "&");
-			return URIUtil.decode(signatureCipherSplit.get("url")) + "&" + signatureCipherSplit.get("sp") + "=" + Dxa.apply(URIUtil.decode(signatureCipherSplit.get("s")));
+			StringBuilder sb = new StringBuilder(URIUtil.decode(signatureCipherSplit.get("s")));
+
+			String body = HttpsUtil.connect(playerBaseUrl).proxy(foreignProxy).execute().body();
+			// 截取解密代码段
+			String methodCode = body.substring(body.indexOf("a=a.split(\"\")"));
+			methodCode = methodCode.substring(0, methodCode.indexOf("}"));
+			// 分割代码段
+			List<String> methodCodeList = methodCode.replaceAll(";", "\n").lines().toList();
+			// 截取解密代码段调用函数
+			String command = methodCodeList.get(1);
+			String functionName = command.substring(0, command.indexOf("."));
+			String function = body.substring(body.indexOf("var " + functionName + "={"));
+			function = function.substring(0, function.indexOf("};") + 1);
+			// 去除已提取的函数名
+			methodCodeList = methodCodeList.stream().map(l -> l.replaceAll(functionName + ".", "")).toList();
+			// 开始解密
+			for (int i = 1; i < methodCodeList.size() - 1; i++) {
+				command = methodCodeList.get(i);
+				String f = command.substring(0, command.indexOf("("));
+				if (function.contains(f + ":function(a){a.reverse()}")) {
+					sb.reverse();
+				} else if (function.contains(f + ":function(a,b){a.splice(0,b)}")) {
+					//noinspection DuplicateExpressions
+					sb.delete(0, Integer.parseInt(command.substring(command.indexOf(",") + 1, command.length() - 1)));
+				} else if (function.contains(f + "function(a,b){var c=a[0];")) {
+					//noinspection DuplicateExpressions
+					int index = Integer.parseInt(command.substring(command.indexOf(",") + 1, command.length() - 1)) % sb.length();
+					char c = sb.charAt(0);
+					sb.setCharAt(0, sb.charAt(index));
+					sb.setCharAt(index, c);
+				} else {
+					// 格式化内容,用于抛出异常
+					function = function.replaceAll(";", ";\n    ");
+					function = function.replaceAll("=\\{", "={\n");
+					function = function.replaceAll("\\)\\{", "){\n    ");
+					function = function.replaceAll("},", "}");
+					function = function.replaceAll("\\)}", ")\n}");
+					function = function.replaceAll("}}", "}\n}");
+					function = function.replaceAll("=", " = ");
+					throw new RuntimeException("\n" + methodCode + "\n----------\n" + function);
+				}
+			}
+			return URIUtil.decode(signatureCipherSplit.get("url")) + "&" + signatureCipherSplit.get("sp") + "=" + sb;
 		}
 
 	}
