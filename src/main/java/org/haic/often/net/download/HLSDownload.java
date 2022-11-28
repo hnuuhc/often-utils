@@ -604,7 +604,7 @@ public class HLSDownload {
 				if (file.exists() && !status.containsKey(file)) {
 					site++;
 				} else {
-					executor.execute(new ConsumerThread<>(i, (index) -> {
+					executor.execute(new ConsumerThread(i, (index) -> {
 						int statusCode = FULL(links.get(index), status.getOrDefault(file, 0L), MAX_RETRY, file);
 						if (URIUtil.statusIsOK(statusCode)) {
 							status.remove(file);

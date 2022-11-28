@@ -166,11 +166,11 @@ for (int i = 0; i < 10; i++) {
 		// TODO
 	}));
 			
-	executorService.execute(new ConsumerThread<>(i, (index) -> { // 传参执行多线程
+	executorService.execute(new ConsumerThread(i, (index) -> { // 传参执行多线程
 		// TODO
 	}));
 			
-	Future<Integer> future = executorService.submit(new FutureTaskThread<>(i, (index) -> { // 传参执行多线程带返回值
+	Future<Integer> future = executorService.submit(new FutureTaskThread(i, (index) -> { // 传参执行多线程带返回值
 		return index + 1;
 	}));
 }

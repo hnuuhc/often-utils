@@ -648,7 +648,7 @@ public class SionDownload {
 			AtomicBoolean addCompleted = new AtomicBoolean(true);
 			ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS); // 下载线程池
 			for (long i = MAX_COMPLETED / PIECE_SIZE; i < PIECE_COUNT; i++) {
-				executor.execute(new ConsumerThread<>(i, (index) -> { // 执行多线程程
+				executor.execute(new ConsumerThread(i, (index) -> { // 执行多线程程
 					long start = index * PIECE_SIZE;
 					long end = (index + 1 == PIECE_COUNT ? fileSize : (index + 1) * PIECE_SIZE) - 1;
 					long flip = status.getOrDefault(start, start);

@@ -8,8 +8,8 @@ import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
-import org.haic.often.tuple.ThreeTuple;
 import org.haic.often.tuple.Tuple;
+import org.haic.often.tuple.record.ThreeTuple;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
@@ -416,9 +416,9 @@ public class HttpsUtil {
 								output.writeBytes(params); // 发送请求参数
 							}
 							if (file != null) { // 发送文件
-								output.writeBytes(file.first);
-								file.second.transferTo(output);
-								output.writeBytes(file.third);
+								output.writeBytes(file.frist());
+								file.second().transferTo(output);
+								output.writeBytes(file.third());
 								file = null; // 删除流,防止复用
 								removeHeader("content-type");
 							}
