@@ -1,9 +1,11 @@
 package org.haic.often.tuple;
 
-public class Tuple {
+import org.haic.often.tuple.record.*;
 
-	protected Tuple() {
-	}
+/**
+ * 用于记录多个参数
+ */
+public class Tuple {
 
 	public static <A, B> TwoTuple<A, B> of(A A, B b) {
 		return new TwoTuple<>(A, b);
