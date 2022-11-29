@@ -2,7 +2,6 @@ package org.haic.often.netdisc;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
@@ -57,7 +56,7 @@ public class LanZouYunPan {
 		// 获取post参数
 		Map<String, String> params = new HashMap<>();
 		for (String data : StringUtil.extract(infos.replaceAll("\n", ""), "data.*").substring(6).split(",")) {
-			String[] entry = data.split(Symbol.COLON);
+			String[] entry = data.split(":");
 			params.put(entry[0], entry[1]);
 		}
 
@@ -156,7 +155,7 @@ public class LanZouYunPan {
 		String dataInfo = infos.lines().filter(l -> l.startsWith("data")).findFirst().orElse("");
 		Map<String, String> params = new HashMap<>();
 		for (String data : dataInfo.substring(6, dataInfo.length() - 1).split(",")) {
-			String[] entry = data.split(Symbol.COLON);
+			String[] entry = data.split(":");
 			params.put(entry[0], entry[1]);
 		}
 

@@ -349,9 +349,9 @@ public class HLSDownload {
 		@Contract(pure = true)
 		public HLSConnection socks(@NotNull String ipAddr) {
 			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
-				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
-				int index = ipAddr.lastIndexOf(Symbol.COLON);
+				int index = ipAddr.lastIndexOf(":");
 				return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 			}
 		}
@@ -364,9 +364,9 @@ public class HLSDownload {
 		@Contract(pure = true)
 		public HLSConnection proxy(@NotNull String ipAddr) {
 			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
-				int index = ipAddr.lastIndexOf(Symbol.COLON);
+				int index = ipAddr.lastIndexOf(":");
 				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 			}
 		}

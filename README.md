@@ -16,7 +16,7 @@ Maven依赖添加:
 <dependency>
     <groupId>org.haic.often</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.7</version>
 </dependency>
 ```
 
@@ -64,7 +64,7 @@ Aria2Util.connect("127.0.0.1", 6800)  //地址以及端口
 // .unpause(gid) // 继续指定下载
 // .tellStatus(gid) //获取指定下载进度状态等信息
 // .session(Aria2Method,gid) // 其它API接口
-.post(); // get() send()
+.post(); // get()
 ```
 
 网络访问工具类
@@ -161,11 +161,7 @@ Map<String, String> storages = LocalStorage.home().getForDomain("pixiv.net");
 
 ```
 ExecutorService executorService = Executors.newFixedThreadPool(10);
-for (int i = 0; i < 10; i++) {
-	executorService.execute(new Thread(() -> { // 执行多线程
-		// TODO
-	}));
-			
+for (int i = 0; i < 10; i++) {	
 	executorService.execute(new ConsumerThread(i, (index) -> { // 传参执行多线程
 		// TODO
 	}));

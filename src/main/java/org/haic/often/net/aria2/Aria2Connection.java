@@ -318,14 +318,6 @@ public abstract class Aria2Connection {
 	public abstract Aria2Connection changeOption(@NotNull String gid, @NotNull Map<String, String> option);
 
 	/**
-	 * Socket推送 JSON数据,仅ws,wss协议有效,http和https协议会抛出异常
-	 *
-	 * @return 返回的json信息
-	 */
-	@Contract(pure = true)
-	public abstract String send();
-
-	/**
 	 * GET请求 JSON数据
 	 *
 	 * @return result or webstatus

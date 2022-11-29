@@ -151,9 +151,9 @@ public class Sion {
 	@Contract(pure = true)
 	public static void proxy(@NotNull String ipAddr) {
 		if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
-			proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+			proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 		} else {
-			int index = ipAddr.lastIndexOf(Symbol.COLON);
+			int index = ipAddr.lastIndexOf(":");
 			proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 		}
 	}

@@ -4,16 +4,9 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Symbol;
-import org.haic.often.exception.Aria2Exception;
 import org.haic.often.net.Method;
-import org.haic.often.net.URIMethod;
-import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.util.Base64Util;
-import org.haic.often.util.ThreadUtil;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.enums.ReadyState;
-import org.java_websocket.handshake.ServerHandshake;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,39 +42,16 @@ public class Aria2Util {
 	}
 
 	/**
-	 * 设置 aria2RpcUrl: localhost:6800
-	 *
-	 * @param method URI类型
-	 * @return this
-	 */
-	@Contract(pure = true)
-	public static Aria2Connection connect(@NotNull URIMethod method) {
-		return connect(method, "localhost", 6800);
-	}
-
-	/**
 	 * 设置 aria2RpcUrl
 	 *
-	 * @param host URL
+	 * @param host 域名
 	 * @param port 端口
 	 * @return this
 	 */
 	@Contract(pure = true)
+	@SuppressWarnings("HttpUrlsUsage")
 	public static Aria2Connection connect(@NotNull String host, int port) {
-		return connect(URIMethod.HTTP, host, port);
-	}
-
-	/**
-	 * 设置 aria2RpcUrl
-	 *
-	 * @param method URI类型
-	 * @param host   URL
-	 * @param port   端口
-	 * @return this
-	 */
-	@Contract(pure = true)
-	public static Aria2Connection connect(@NotNull URIMethod method, @NotNull String host, int port) {
-		return new AriaConnection(method.getValue() + "://" + host + Symbol.COLON + port + "/jsonrpc");
+		return new AriaConnection("http://" + host + ":" + port + "/jsonrpc");
 	}
 
 	private static class AriaConnection extends Aria2Connection {
@@ -108,9 +78,9 @@ public class Aria2Util {
 		@Contract(pure = true)
 		public Aria2Connection socks(@NotNull String ipAddr) {
 			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
-				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
-				int index = ipAddr.lastIndexOf(Symbol.COLON);
+				int index = ipAddr.lastIndexOf(":");
 				return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 			}
 		}
@@ -123,9 +93,9 @@ public class Aria2Util {
 		@Contract(pure = true)
 		public Aria2Connection proxy(@NotNull String ipAddr) {
 			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
-				int index = ipAddr.lastIndexOf(Symbol.COLON);
+				int index = ipAddr.lastIndexOf(":");
 				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 			}
 		}
@@ -176,7 +146,7 @@ public class Aria2Util {
 
 		@Contract(pure = true)
 		public Aria2Connection rpcProxy(@NotNull String host, int post) {
-			return rpcProxy(host + Symbol.COLON + post);
+			return rpcProxy(host + ":" + post);
 		}
 
 		@Contract(pure = true)
@@ -283,44 +253,6 @@ public class Aria2Util {
 		}
 
 		@Contract(pure = true)
-		public String send() {
-			if (!aria2RpcUrl.startsWith("ws")) {
-				throw new Aria2Exception("unknown scheme: " + aria2RpcUrl.substring(0, aria2RpcUrl.indexOf(Symbol.COLON)));
-			}
-			StringBuilder result = new StringBuilder();
-			WebSocketClient socket = new WebSocketClient(URIUtil.getURI(aria2RpcUrl)) {
-				@Override
-				public void onOpen(ServerHandshake handshakedata) {
-					send(rpcSession().toString());
-				}
-
-				@Override
-				public void onMessage(String message) {
-					result.append(message);
-					close();
-				}
-
-				@Override
-				public void onError(Exception e) {
-					close();
-				}
-
-				@Override
-				public void onClose(int code, String reason, boolean remote) {
-
-				}
-			};
-			socket.setConnectionLostTimeout(5000);
-			socket.setProxy(proxy);
-			socket.connect();
-			// 判断连接状态
-			for (int i = 0; socket.getReadyState() == ReadyState.NOT_YET_CONNECTED && i < 50; i++) {
-				ThreadUtil.waitThread(100);
-			}
-			return result.isEmpty() ? null : String.valueOf(result);
-		}
-
-		@Contract(pure = true)
 		public String get() {
 			return HttpsUtil.connect(aria2RpcUrl).data("params", Base64Util.encode(rpcSessionBody())).proxy(proxy).execute().body();
 		}
@@ -349,7 +281,7 @@ public class Aria2Util {
 				Aria2Method method = url.endsWith(".torrent") || Base64Util.isBase64(url) ? Aria2Method.ADDTORRENT : url.endsWith(".xml") ? Aria2Method.ADDMETALINK : Aria2Method.ADDURI;
 				sessionsJson.add(rpcSessionHead(method).fluentPut("params", new JSONArray().fluentAdd("token:" + token).fluentAdd(List.of(url)).fluentAdd(new HashMap<>() {{
 					putAll(rpcParams);
-					put("header", Stream.concat(rpcHeaders.entrySet().stream(), entry.getValue().entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2)).entrySet().stream().map(l -> l.getKey() + Symbol.COLON + l.getValue()).toList());
+					put("header", Stream.concat(rpcHeaders.entrySet().stream(), entry.getValue().entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2)).entrySet().stream().map(l -> l.getKey() + ":" + l.getValue()).toList());
 				}})));
 			}
 			return sessionsJson;

@@ -106,10 +106,10 @@ public class FTPUtil {
 		@Contract(pure = true)
 		public Connection proxy(@NotNull String ipAddr) {
 			if (URIUtil.isIPv4Address(ipAddr)) {
-				int index = ipAddr.lastIndexOf(Symbol.COLON);
+				int index = ipAddr.lastIndexOf(":");
 				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 			} else if (URIUtil.isIPv6Address(ipAddr)) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				throw new RuntimeException("代理格式错误");
 			}

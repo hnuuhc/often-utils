@@ -314,9 +314,9 @@ public class HttpClientUtil {
 		@Contract(pure = true)
 		public Connection socks(@NotNull String ipAddr) {
 			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
-				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
-				int index = ipAddr.lastIndexOf(Symbol.COLON);
+				int index = ipAddr.lastIndexOf(":");
 				return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 			}
 		}
@@ -331,9 +331,9 @@ public class HttpClientUtil {
 		@Contract(pure = true)
 		public Connection proxy(@NotNull String ipAddr) {
 			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(Symbol.COLON) + 1)));
+				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
-				int index = ipAddr.lastIndexOf(Symbol.COLON);
+				int index = ipAddr.lastIndexOf(":");
 				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 			}
 		}
@@ -350,7 +350,7 @@ public class HttpClientUtil {
 			if (proxyText.equals("DIRECT")) {
 				return this;
 			}
-			String[] proxyStr = proxyText.substring(proxyText.indexOf("/") + 1).split(Symbol.COLON);
+			String[] proxyStr = proxyText.substring(proxyText.indexOf("/") + 1).split(":");
 			if (proxyText.startsWith("SOCKS")) {
 				return socks(proxyStr[0], Integer.parseInt(proxyStr[1]));
 			} else {
