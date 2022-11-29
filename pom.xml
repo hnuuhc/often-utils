@@ -78,12 +78,13 @@
             <artifactId>zip4j</artifactId>
             <version>2.11.2</version>
         </dependency>
-        <!-- 读取本地Chrome浏览器数据依赖 -->
+        <!-- AES PKCS7Padding支持 -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.70</version>
         </dependency>
+        <!-- windpapi4j组件,用于浏览器解密 -->
         <dependency>
             <groupId>com.github.peter-gergely-horvath</groupId>
             <artifactId>windpapi4j</artifactId>
@@ -105,12 +106,6 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.39.4.1</version>
-        </dependency>
-        <!-- Image增强 -->
-        <dependency>
-            <groupId>com.twelvemonkeys.imageio</groupId>
-            <artifactId>imageio-jpeg</artifactId>
-            <version>3.9.3</version>
         </dependency>
     </dependencies>
 

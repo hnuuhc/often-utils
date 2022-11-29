@@ -30,6 +30,17 @@ public class Base64Util {
 	}
 
 	/**
+	 * byte数组转Base64编码
+	 *
+	 * @param data byte数组
+	 * @return base64编码格式数组
+	 */
+	@Contract(pure = true)
+	public static byte[] encode(byte[] data) {
+		return Base64.getEncoder().encode(data);
+	}
+
+	/**
 	 * Base64编码的字符串转普通字符串
 	 *
 	 * @param data base64编码格式的字符串
@@ -65,6 +76,17 @@ public class Base64Util {
 	@Contract(pure = true)
 	public static String decode(@NotNull String data, Charset charset) {
 		return new String(Base64.getDecoder().decode(data), charset);
+	}
+
+	/**
+	 * 解码Base64编码格式数组
+	 *
+	 * @param data base64编码格式数组
+	 * @return 解码后的数组
+	 */
+	@Contract(pure = true)
+	public static byte[] decode(byte[] data) {
+		return Base64.getDecoder().decode(data);
 	}
 
 	/**

@@ -3,7 +3,6 @@ package org.haic.often.chrome.browser;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.windpapi4j.WinDPAPI;
 import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.haic.often.Judge;
 import org.haic.often.function.StringFunction;
 import org.haic.often.util.ReadWriteUtil;
@@ -13,7 +12,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
-import java.security.Security;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -48,7 +46,6 @@ public class Decrypt {
 	 */
 	@Contract(pure = true)
 	public static byte[] DPAPIDecode(byte[] encryptedValue, String encryptedKey) {
-		Security.addProvider(new BouncyCastleProvider());
 		int keyLength = 256 / 8;
 		int nonceLength = 96 / 8;
 		String kEncryptionVersionPrefix = "v10";
@@ -65,11 +62,11 @@ public class Decrypt {
 			encryptedValue = Arrays.copyOfRange(encryptedValue, kEncryptionVersionPrefix.length() + nonceLength, encryptedValue.length);
 			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 			SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
-			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, nonce);
-			cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec);
+			GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, nonce);
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, parameterSpec);
 			encryptedValue = cipher.doFinal(encryptedValue);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return encryptedValue;
 	}
