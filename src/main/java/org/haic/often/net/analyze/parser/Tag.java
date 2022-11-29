@@ -240,12 +240,12 @@ public class Tag implements Cloneable {
 	};
 	private static final String[] inlineTags = { "object", "base", "font", "tt", "i", "b", "u", "big", "small", "em", "strong", "dfn", "code", "samp", "kbd", "var", "cite", "abbr", "time", "acronym", "mark", "ruby", "rt", "rp", "a", "img", "br", "wbr", "map", "q", "sub", "sup", "bdo", "iframe", "embed", "span", "input", "select", "textarea", "label", "button", "optgroup", "option", "legend", "datalist", "keygen", "output", "progress", "meter", "area", "param", "source", "track", "summary", "command", "device", "area", "basefont", "bgsound", "menuitem", "param", "source", "track", "data", "bdi", "s", "strike", "nobr" };
 	private static final String[] emptyTags = { "meta", "link", "base", "frame", "img", "br", "wbr", "embed", "hr", "input", "keygen", "col", "command", "device", "area", "basefont", "bgsound", "menuitem", "param", "source", "track" };
-	// todo - rework this to format contents as inline; and update html emitter in Element. Same output, just neater.
+	// rework this to format contents as inline; and update html emitter in Element. Same output, just neater.
 	private static final String[] formatAsInlineTags = { "title", "a", "p", "h1", "h2", "h3", "h4", "h5", "h6", "pre", "address", "li", "th", "td", "script", "style", "ins", "del", "s" };
 	private static final String[] preserveWhitespaceTags = { "pre", "plaintext", "title", "textarea"
 															 // script is not here as it is a data node, which always preserve whitespace
 	};
-	// todo: I think we just need submit tags, and can scrub listed
+	// I think we just need submit tags, and can scrub listed
 	private static final String[] formListedTags = { "button", "fieldset", "input", "keygen", "object", "output", "select", "textarea" };
 	private static final String[] formSubmitTags = { "input", "keygen", "object", "select", "textarea" };
 

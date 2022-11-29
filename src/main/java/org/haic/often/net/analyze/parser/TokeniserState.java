@@ -186,15 +186,7 @@ enum TokeniserState {
 	},
 	RCDATAEndTagOpen {
 		void read(Tokeniser t, CharacterReader r) {
-			if (r.matchesAsciiAlpha()) {
-				t.createTagPending(false);
-				t.tagPending.appendTagName(r.current());
-				t.dataBuffer.append(r.current());
-				t.advanceTransition(RCDATAEndTagName);
-			} else {
-				t.emit("</");
-				t.transition(Rcdata);
-			}
+			ScriptDataEscapedEndTagOpen.read(t, r);
 		}
 	},
 	RCDATAEndTagName {
@@ -837,9 +829,9 @@ enum TokeniserState {
 	},
 	BogusComment {
 		void read(Tokeniser t, CharacterReader r) {
-			// todo: handle bogus comment starting from eof. when does that trigger?
+			// handle bogus comment starting from eof. when does that trigger?
 			t.commentPending.append(r.consumeTo('>'));
-			// todo: replace nullChar with replaceChar
+			// replace nullChar with replaceChar
 			char next = r.current();
 			if (next == '>' || next == eof) {
 				r.consume();
@@ -856,7 +848,7 @@ enum TokeniserState {
 			} else if (r.matchConsumeIgnoreCase("DOCTYPE")) {
 				t.transition(Doctype);
 			} else if (r.matchConsume("[CDATA[")) {
-				// todo: should actually check current namespace, and only non-html allows cdata. until namespace
+				// should actually check current namespace, and only non-html allows cdata. until namespace
 				// is implemented properly, keep handling as cdata
 				//} else if (!t.currentNodeInHtmlNS() && r.matchConsume("[CDATA[")) {
 				t.createTempBuffer();
@@ -1365,39 +1357,7 @@ enum TokeniserState {
 	},
 	BeforeDoctypeSystemIdentifier {
 		void read(Tokeniser t, CharacterReader r) {
-			char c = r.consume();
-			switch (c) {
-				case '\t':
-				case '\n':
-				case '\r':
-				case '\f':
-				case ' ':
-					break;
-				case '"':
-					// set system id to empty string
-					t.transition(DoctypeSystemIdentifier_doubleQuoted);
-					break;
-				case '\'':
-					// set public id to empty string
-					t.transition(DoctypeSystemIdentifier_singleQuoted);
-					break;
-				case '>':
-					t.error(this);
-					t.doctypePending.forceQuirks = true;
-					t.emitDoctypePending();
-					t.transition(Data);
-					break;
-				case eof:
-					t.eofError(this);
-					t.doctypePending.forceQuirks = true;
-					t.emitDoctypePending();
-					t.transition(Data);
-					break;
-				default:
-					t.error(this);
-					t.doctypePending.forceQuirks = true;
-					t.transition(BogusDoctype);
-			}
+			BeforeDoctypePublicIdentifier.read(t, r);
 		}
 	},
 	DoctypeSystemIdentifier_doubleQuoted {

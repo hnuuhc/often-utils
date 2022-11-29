@@ -275,7 +275,7 @@ public class Entities {
 	 * Jsoup: 167, 2
 	 */
 	private static boolean canEncode(final CoreCharset charset, final char c, final CharsetEncoder fallback) {
-		// todo add more charset tests if impacted by Android's bad perf in canEncode
+		//  add more charset tests if impacted by Android's bad perf in canEncode
 		return switch (charset) {
 			case ascii -> c < 0x80;
 			case utf -> true; // real is:!(Character.isLowSurrogate(c) || Character.isHighSurrogate(c)); - but already check above

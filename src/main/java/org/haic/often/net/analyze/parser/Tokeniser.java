@@ -206,8 +206,8 @@ final class Tokeniser {
 					charval = win1252Extensions[charval - win1252ExtensionsStart];
 				}
 
-				// todo: implement number replacement table
-				// todo: check for extra illegal unicode points as parse errors
+				// implement number replacement table
+				// check for extra illegal unicode points as parse errors
 				codeRef[0] = charval;
 			}
 			return codeRef;
@@ -284,8 +284,7 @@ final class Tokeniser {
 		return lastStartTag != null && tagPending.name().equalsIgnoreCase(lastStartTag);
 	}
 
-	@Nullable
-	String appropriateEndTagName() {
+	@Nullable String appropriateEndTagName() {
 		return lastStartTag; // could be null
 	}
 
@@ -319,10 +318,7 @@ final class Tokeniser {
 	}
 
 	boolean currentNodeInHtmlNS() {
-		// todo: implement namespaces correctly
 		return true;
-		// Element currentNode = currentNode();
-		// return currentNode != null && currentNode.namespace().equals("HTML");
 	}
 
 	/**

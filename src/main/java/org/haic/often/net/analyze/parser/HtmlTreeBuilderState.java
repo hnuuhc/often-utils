@@ -19,8 +19,6 @@ enum HtmlTreeBuilderState {
 			} else if (t.isComment()) {
 				tb.insert(t.asComment());
 			} else if (t.isDoctype()) {
-				// todo: parse error check on expected doctypes
-				// todo: quirk state check on doctype ids
 				Token.Doctype d = t.asDoctype();
 				DocumentType doctype = new DocumentType(tb.settings.normalizeTag(d.getName()), d.getPublicIdentifier(), d.getSystemIdentifier());
 				doctype.setPubSysKey(d.getPubSysKey());
@@ -29,7 +27,6 @@ enum HtmlTreeBuilderState {
 				if (d.isForceQuirks()) tb.getDocument().quirksMode(Document.QuirksMode.quirks);
 				tb.transition(BeforeHtml);
 			} else {
-				// todo: check not iframe srcdoc
 				tb.transition(BeforeHtml);
 				return tb.process(t); // re-process token
 			}
@@ -117,7 +114,6 @@ enum HtmlTreeBuilderState {
 						if (name.equals("base") && el.hasAttr("href")) tb.maybeSetBaseUri(el);
 					} else if (name.equals("meta")) {
 						tb.insertEmpty(start);
-						// todo: charset switches
 					} else if (name.equals("title")) {
 						handleRcData(start, tb);
 					} else if (StringUtil.inSorted(name, InHeadRaw)) {
@@ -271,7 +267,6 @@ enum HtmlTreeBuilderState {
 				case Character: {
 					Token.Character c = t.asCharacter();
 					if (c.getData().equals(nullString)) {
-						// todo confirm that check
 						tb.error(this);
 						return false;
 					} else if (tb.framesetOk() && isWhitespace(c)) { // don't check if whitespace if frames already closed
@@ -298,7 +293,6 @@ enum HtmlTreeBuilderState {
 					return inBodyEndTag(t, tb);
 				case EOF:
 					if (tb.templateModeSize() > 0) return tb.process(t, InTemplate);
-					// todo: error if stack contains something not dd, dt, li, p, tbody, td, tfoot, th, thead, tr, body, html
 					// stop parsing
 					break;
 			}
@@ -330,7 +324,6 @@ enum HtmlTreeBuilderState {
 					break;
 				case "span":
 				case "math":
-					// todo: handle A start tag whose tag name is "math" (i.e. foreign, mathml)
 				case "svg":
 					// same as final else, but short circuits lots of checks
 					tb.reconstructFormattingElements();
@@ -531,7 +524,6 @@ enum HtmlTreeBuilderState {
 					if (state.equals(InTable) || state.equals(InCaption) || state.equals(InTableBody) || state.equals(InRow) || state.equals(InCell)) tb.transition(InSelectInTable);
 					else tb.transition(InSelect);
 					break;
-				// todo: handle A start tag whose tag name is "svg" (xlink, svg)
 				// static final String[] Headings = new String[]{"h1", "h2", "h3", "h4", "h5", "h6"};
 				case "h1":
 				case "h2":
@@ -596,7 +588,6 @@ enum HtmlTreeBuilderState {
 						}
 						tb.insert(startTag);
 					}
-					// todo - is this right? drops rp, rt if ruby not in scope?
 					break;
 				// InBodyStartEmptyFormatters:
 				case "area":
@@ -627,7 +618,7 @@ enum HtmlTreeBuilderState {
 					tb.pushActiveFormattingElements(el);
 					break;
 				default:
-					// todo - bring scan groups in if desired
+					// bring scan groups in if desired
 					if (!Tag.isKnownTag(name)) { // no special rules for custom tags
 						tb.insert(startTag);
 					} else if (StringUtil.inSorted(name, Constants.InBodyStartPClosers)) {
@@ -684,7 +675,7 @@ enum HtmlTreeBuilderState {
 						tb.error(this);
 						return false;
 					} else {
-						// todo: error if stack contains something not dd, dt, li, optgroup, option, p, rp, rt, tbody, td, tfoot, th, thead, tr, body, html
+						// error if stack contains something not dd, dt, li, optgroup, option, p, rp, rt, tbody, td, tfoot, th, thead, tr, body, html
 						anyOtherEndTag(t, tb);
 						tb.transition(AfterBody);
 					}
@@ -757,7 +748,6 @@ enum HtmlTreeBuilderState {
 					tb.processStartTag("br");
 					return false;
 				default:
-					// todo - move rest to switch if desired
 					if (StringUtil.inSorted(name, Constants.InBodyEndAdoptionFormatters)) {
 						return inBodyEndTagAdoption(t, tb);
 					} else if (StringUtil.inSorted(name, Constants.InBodyEndClosers)) {
@@ -842,7 +832,6 @@ enum HtmlTreeBuilderState {
 				final int stackSize = stack.size();
 				int bookmark = -1;
 				for (int si = 1; si < stackSize && si < 64; si++) {
-					// TODO: this no longer matches the current spec at https://html.spec.whatwg.org/#adoption-agency-algorithm and should be updated
 					el = stack.get(si);
 					if (el == formatEl) {
 						commonAncestor = stack.get(si - 1);
@@ -995,7 +984,7 @@ enum HtmlTreeBuilderState {
 				} else {
 					return anythingElse(t, tb);
 				}
-				return true; // todo: check if should return processed http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#parsing-main-intable
+				return true;
 			} else if (t.isEndTag()) {
 				Token.EndTag endTag = t.asEndTag();
 				String name = endTag.normalName();
@@ -1016,7 +1005,7 @@ enum HtmlTreeBuilderState {
 				} else {
 					return anythingElse(t, tb);
 				}
-				return true; // todo: as above todo
+				return true;
 			} else if (t.isEOF()) {
 				if (tb.currentElementIs("html")) tb.error(this);
 				return true; // stops parsing
@@ -1042,7 +1031,7 @@ enum HtmlTreeBuilderState {
 				} else {
 					tb.getPendingTableCharacters().add(c.getData());
 				}
-			} else {// todo - don't really like the way these table character data lists are built
+			} else {
 				if (tb.getPendingTableCharacters().size() > 0) {
 					for (String character : tb.getPendingTableCharacters()) {
 						if (!isWhitespace(character)) {
@@ -1640,7 +1629,6 @@ enum HtmlTreeBuilderState {
 	ForeignContent {
 		boolean process(Token t, HtmlTreeBuilder tb) {
 			return true;
-			// todo: implement. Also; how do we get here?
 		}
 	};
 

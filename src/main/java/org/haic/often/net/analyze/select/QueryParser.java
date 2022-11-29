@@ -192,7 +192,7 @@ public class QueryParser {
 	}
 
 	private void byTag() {
-		// todo - these aren't dealing perfectly with case sensitivity. For case sensitive parsers, we should also make
+		// these aren't dealing perfectly with case sensitivity. For case sensitive parsers, we should also make
 		// the tag in the selector case-sensitive (and also attribute names). But for now, normalize (lower-case) for
 		// consistency - both the selector and the element tag
 		String tagName = Normalizer.normalize(tq.consumeElementSelector());

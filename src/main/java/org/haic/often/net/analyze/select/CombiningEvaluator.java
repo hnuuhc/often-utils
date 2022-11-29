@@ -26,8 +26,7 @@ public abstract class CombiningEvaluator extends Evaluator {
 		updateNumEvaluators();
 	}
 
-	@Nullable
-	Evaluator rightMostEvaluator() {
+	@Nullable Evaluator rightMostEvaluator() {
 		return num > 0 ? evaluators.get(num - 1) : null;
 	}
 
@@ -51,7 +50,7 @@ public abstract class CombiningEvaluator extends Evaluator {
 
 		@Override
 		public boolean matches(Element root, Element node) {
-			for (int i = num - 1; i >= 0; i--) { // process backwards so that :matchText is evaled earlier, to catch parent query. todo - should redo matchText to virtually expand during match, not pre-match (see SelectorTest#findBetweenSpan)
+			for (int i = num - 1; i >= 0; i--) { // process backwards so that :matchText is evaled earlier, to catch parent query.
 				Evaluator s = evaluators.get(i);
 				if (!s.matches(root, node)) return false;
 			}

@@ -189,7 +189,7 @@ public class TokenQueue {
 	 * @param seq any number of terminators to consume to. <b>Case insensitive.</b>
 	 * @return consumed string
 	 */
-	// todo: method name. not good that consumeTo cares for case, and consume to any doesn't. And the only use for this
+	// method name. not good that consumeTo cares for case, and consume to any doesn't. And the only use for this
 	// is a case sensitive time...
 	public String consumeToAny(String... seq) {
 		int start = pos;

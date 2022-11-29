@@ -9,14 +9,13 @@ import java.io.IOException;
  * A {@code <!DOCTYPE>} node.
  */
 public class DocumentType extends LeafNode {
-	// todo needs a bit of a chunky cleanup. this level of detail isn't needed
+	//  needs a bit of a chunky cleanup. this level of detail isn't needed
 	public static final String PUBLIC_KEY = "PUBLIC";
 	public static final String SYSTEM_KEY = "SYSTEM";
 	private static final String NAME = "name";
 	private static final String PUB_SYS_KEY = "pubSysKey"; // PUBLIC or SYSTEM
 	private static final String PUBLIC_ID = "publicId";
 	private static final String SYSTEM_ID = "systemId";
-	// todo: quirk mode from publicId and systemId
 
 	/**
 	 * Create a new doctype element.

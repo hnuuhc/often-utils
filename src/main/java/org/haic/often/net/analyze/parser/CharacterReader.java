@@ -510,6 +510,7 @@ public final class CharacterReader {
 		return data;
 	}
 
+	@SuppressWarnings("DuplicatedCode")
 	String consumeLetterSequence() {
 		bufferUp();
 		int start = bufPos;
@@ -522,6 +523,7 @@ public final class CharacterReader {
 		return cacheString(charBuf, stringCache, start, bufPos - start);
 	}
 
+	@SuppressWarnings("DuplicatedCode")
 	String consumeLetterThenDigitSequence() {
 		bufferUp();
 		int start = bufPos;
