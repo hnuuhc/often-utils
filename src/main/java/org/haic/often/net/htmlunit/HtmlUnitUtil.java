@@ -9,15 +9,14 @@ import org.haic.often.exception.HttpException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
+import org.haic.often.net.analyze.nodes.Document;
+import org.haic.often.net.analyze.parser.Parser;
 import org.haic.often.net.http.HttpStatus;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -71,6 +70,31 @@ public class HtmlUnitUtil {
 	@Contract(pure = true)
 	public static HtmlConnection newSession() {
 		return new HttpConnection();
+	}
+
+	/**
+	 * 公共静态文档解析（ 字符串 html）
+	 * 将 HTML 解析为文档。由于未指定基本 URI，如果需要，绝对 URL 解析依赖于包含<base href>标记的 HTML。
+	 *
+	 * @param html 要解析的 HTML
+	 * @return 格式化的HTML
+	 */
+	@Contract(pure = true)
+	public static Document parse(@NotNull String html) {
+		return parse(html, Parser.htmlParser());
+	}
+
+	/**
+	 * 公共静态文档解析（ 字符串 html）
+	 * 将 HTML 解析为文档。由于未指定基本 URI，如果需要，绝对 URL 解析依赖于包含<base href>标记的 HTML。
+	 *
+	 * @param html   要解析的 HTML
+	 * @param parser 解析器
+	 * @return 格式化的HTML
+	 */
+	@Contract(pure = true)
+	public static Document parse(@NotNull String html, @NotNull Parser parser) {
+		return parser.parseInput(html);
 	}
 
 	@Contract(pure = true)
@@ -553,7 +577,7 @@ public class HtmlUnitUtil {
 		@Contract(pure = true)
 		public Document parse() {
 			String body = body();
-			return body == null ? null : Jsoup.parse(body, parser);
+			return body == null ? null : parser.parseInput(body, "");
 		}
 
 		@Contract(pure = true)

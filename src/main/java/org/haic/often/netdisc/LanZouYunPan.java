@@ -6,14 +6,14 @@ import org.haic.often.Symbol;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
+import org.haic.often.net.analyze.nodes.Document;
+import org.haic.often.net.analyze.nodes.Element;
+import org.haic.often.net.analyze.select.Elements;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -142,9 +142,9 @@ public class LanZouYunPan {
 			if (downlink == null) {
 				return "";
 			}
-			downUrl += Objects.requireNonNull(downlink).attr("src");
+			downUrl += downlink.attr("src");
 		} else {
-			downUrl += Objects.requireNonNull(ifr2).attr("src");
+			downUrl += ifr2.attr("src");
 		}
 
 		// 提取POST参数信息段

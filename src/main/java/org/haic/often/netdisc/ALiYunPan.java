@@ -7,12 +7,12 @@ import org.haic.often.chrome.browser.LocalStorage;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
+import org.haic.often.net.analyze.nodes.Document;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.nodes.Document;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

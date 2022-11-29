@@ -1,9 +1,9 @@
 package org.haic.often.net.htmlunit;
 
 import org.haic.often.net.Method;
+import org.haic.often.net.analyze.nodes.Document;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.nodes.Document;
 
 import java.net.Proxy;
 import java.util.List;

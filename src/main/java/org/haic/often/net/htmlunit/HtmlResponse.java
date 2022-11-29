@@ -1,10 +1,10 @@
 package org.haic.often.net.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.haic.often.net.analyze.nodes.Document;
+import org.haic.often.net.analyze.parser.Parser;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 
 import java.io.IOException;
 import java.io.InputStream;

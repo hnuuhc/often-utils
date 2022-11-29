@@ -80,7 +80,7 @@ Aria2Util.connect("127.0.0.1", 6800)  //地址以及端口
 
 ### 网络工具:
 
-#### JsoupUtil HttpsUtil HttpClientUtil HtmlUnitUtil
+#### HttpsUtil HttpClientUtil HtmlUnitUtil
 
 ### 简单示例:
 
