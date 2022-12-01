@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.Locale;
 
 /**
- * CharacterReader consumes tokens off a string. Used internally by jsoup. API subject to changes.
+ * CharacterReader consumes tokens off a string. API subject to changes.
  */
 public final class CharacterReader {
 	static final char EOF = (char) -1;

@@ -1,7 +1,7 @@
 package org.haic.often.net.analyze.nodes;
 
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.parser.ParseSettings;
 import org.haic.often.net.analyze.parser.Parser;
 import org.haic.often.net.analyze.parser.Tag;
@@ -136,7 +136,7 @@ public class Document extends Element {
 	public String title() {
 		// title is a preserve whitespace tag (for document output), but normalised here
 		Element titleEl = head().selectFirst(titleEval);
-		return titleEl != null ? StringUtil.normaliseWhitespace(titleEl.text()).trim() : "";
+		return titleEl != null ? StringSort.normaliseWhitespace(titleEl.text()).trim() : "";
 	}
 
 	private static final Evaluator titleEval = new Evaluator.Tag("title");

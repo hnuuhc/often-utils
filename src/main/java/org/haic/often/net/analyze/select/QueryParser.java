@@ -2,7 +2,7 @@ package org.haic.often.net.analyze.select;
 
 import org.haic.often.net.analyze.helper.Validate;
 import org.haic.often.net.analyze.internal.Normalizer;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.parser.TokenQueue;
 
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public class QueryParser {
 	}
 
 	private String consumeSubQuery() {
-		StringBuilder sq = StringUtil.borrowBuilder();
+		StringBuilder sq = StringSort.borrowBuilder();
 		while (!tq.isEmpty()) {
 			if (tq.matches("(")) sq.append("(").append(tq.chompBalanced('(', ')')).append(")");
 			else if (tq.matches("[")) sq.append("[").append(tq.chompBalanced('[', ']')).append("]");
@@ -138,7 +138,7 @@ public class QueryParser {
 			else tq.consume();
 			else sq.append(tq.consume());
 		}
-		return StringUtil.releaseBuilder(sq);
+		return StringSort.releaseBuilder(sq);
 	}
 
 	private void findElements() {
@@ -286,7 +286,7 @@ public class QueryParser {
 
 	private int consumeIndex() {
 		String indexS = tq.chompTo(")").trim();
-		Validate.isTrue(StringUtil.isNumeric(indexS), "Index must be numeric");
+		Validate.isTrue(StringSort.isNumeric(indexS), "Index must be numeric");
 		return Integer.parseInt(indexS);
 	}
 

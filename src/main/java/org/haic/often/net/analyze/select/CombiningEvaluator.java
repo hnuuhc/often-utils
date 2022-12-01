@@ -1,6 +1,6 @@
 package org.haic.often.net.analyze.select;
 
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.nodes.Element;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,8 @@ public abstract class CombiningEvaluator extends Evaluator {
 		updateNumEvaluators();
 	}
 
-	@Nullable Evaluator rightMostEvaluator() {
+	@Nullable
+	Evaluator rightMostEvaluator() {
 		return num > 0 ? evaluators.get(num - 1) : null;
 	}
 
@@ -59,7 +60,7 @@ public abstract class CombiningEvaluator extends Evaluator {
 
 		@Override
 		public String toString() {
-			return StringUtil.join(evaluators, "");
+			return StringSort.join(evaluators, "");
 		}
 	}
 
@@ -99,7 +100,7 @@ public abstract class CombiningEvaluator extends Evaluator {
 
 		@Override
 		public String toString() {
-			return StringUtil.join(evaluators, ", ");
+			return StringSort.join(evaluators, ", ");
 		}
 	}
 }

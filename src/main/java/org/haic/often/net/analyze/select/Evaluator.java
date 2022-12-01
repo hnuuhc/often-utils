@@ -2,7 +2,7 @@ package org.haic.often.net.analyze.select;
 
 import org.haic.often.net.analyze.helper.Validate;
 import org.haic.often.net.analyze.internal.Normalizer;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.nodes.*;
 
 import java.util.List;
@@ -652,7 +652,7 @@ public abstract class Evaluator {
 		private final String searchText;
 
 		public ContainsText(String searchText) {
-			this.searchText = Normalizer.lowerCase(StringUtil.normaliseWhitespace(searchText));
+			this.searchText = Normalizer.lowerCase(StringSort.normaliseWhitespace(searchText));
 		}
 
 		@Override
@@ -742,7 +742,7 @@ public abstract class Evaluator {
 		private final String searchText;
 
 		public ContainsOwnText(String searchText) {
-			this.searchText = Normalizer.lowerCase(StringUtil.normaliseWhitespace(searchText));
+			this.searchText = Normalizer.lowerCase(StringSort.normaliseWhitespace(searchText));
 		}
 
 		@Override

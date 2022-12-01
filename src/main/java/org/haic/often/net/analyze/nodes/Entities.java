@@ -2,7 +2,7 @@ package org.haic.often.net.analyze.nodes;
 
 import org.haic.often.exception.SerializationException;
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.nodes.Document.OutputSettings;
 import org.haic.often.net.analyze.parser.CharacterReader;
 import org.haic.often.net.analyze.parser.Parser;
@@ -134,13 +134,13 @@ public class Entities {
 	 */
 	public static String escape(String string, OutputSettings out) {
 		if (string == null) return "";
-		StringBuilder accum = StringUtil.borrowBuilder();
+		StringBuilder accum = StringSort.borrowBuilder();
 		try {
 			escape(accum, string, out, false, false, false, false);
 		} catch (IOException e) {
 			throw new SerializationException(e); // doesn't happen
 		}
-		return StringUtil.releaseBuilder(accum);
+		return StringSort.releaseBuilder(accum);
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class Entities {
 			codePoint = string.codePointAt(offset);
 
 			if (normaliseWhite) {
-				if (StringUtil.isWhitespace(codePoint)) {
+				if (StringSort.isWhitespace(codePoint)) {
 					if (stripLeadingWhite && !reachedNonWhite) continue;
 					if (lastWasWhite) continue;
 					if (trimTrailing) {
@@ -261,19 +261,6 @@ public class Entities {
 		return Parser.unescapeEntities(string, strict);
 	}
 
-	/*
-	 * Provides a fast-path for Encoder.canEncode, which drastically improves performance on Android post JellyBean.
-	 * After KitKat, the implementation of canEncode degrades to the point of being useless. For non ASCII or UTF,
-	 * performance may be bad. We can add more encoders for common character sets that are impacted by performance
-	 * issues on Android if required.
-	 *
-	 * Benchmarks:     *
-	 * OLD toHtml() impl v New (fastpath) in millis
-	 * Wiki: 1895, 16
-	 * CNN: 6378, 55
-	 * Alterslash: 3013, 28
-	 * Jsoup: 167, 2
-	 */
 	private static boolean canEncode(final CoreCharset charset, final char c, final CharsetEncoder fallback) {
 		//  add more charset tests if impacted by Android's bad perf in canEncode
 		return switch (charset) {

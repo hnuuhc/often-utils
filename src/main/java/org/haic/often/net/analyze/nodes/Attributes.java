@@ -3,7 +3,7 @@ package org.haic.often.net.analyze.nodes;
 import org.haic.often.exception.SerializationException;
 import org.haic.often.net.analyze.helper.Validate;
 import org.haic.often.net.analyze.internal.Normalizer;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.parser.ParseSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +28,7 @@ public class Attributes implements Iterable<Attribute>, Cloneable {
 	// The Attributes object is only created on the first use of an attribute; the Element will just have a null
 	// Attribute slot otherwise
 	protected static final String dataPrefix = "data-";
-	// Indicates a jsoup internal key. Can't be set via HTML. (It could be set via accessor, but not too worried about
+	// Indicates internal key. Can't be set via HTML. (It could be set via accessor, but not too worried about
 	// that. Suppressed from list, iter.
 	static final char InternalPrefix = '/';
 	private static final int InitialCapacity = 3; // sampling found mean count when attrs present = 1.49; 1.08 overall. 2.6:1 don't have any attrs.
@@ -106,8 +106,7 @@ public class Attributes implements Iterable<Attribute>, Cloneable {
 	 * @param key case sensitive key to the object.
 	 * @return the object associated to this key, or {@code null} if not found.
 	 */
-	@Nullable
-	Object getUserData(String key) {
+	@Nullable Object getUserData(String key) {
 		Validate.notNull(key);
 		if (!isInternalKey(key)) key = internalKey(key);
 		int i = indexOfKeyIgnoreCase(key);
@@ -276,7 +275,7 @@ public class Attributes implements Iterable<Attribute>, Cloneable {
 	}
 
 	/**
-	 * Get the number of attributes in this set, including any jsoup internal-only attributes. Internal attributes are
+	 * Get the number of attributes in this set, including any internal-only attributes. Internal attributes are
 	 * excluded from the {@link #html()}, {@link #asList()}, and {@link #iterator()} methods.
 	 *
 	 * @return size
@@ -369,13 +368,13 @@ public class Attributes implements Iterable<Attribute>, Cloneable {
 	 * @return HTML
 	 */
 	public String html() {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 		try {
 			html(sb, (new Document("")).outputSettings()); // output settings a bit funky, but this html() seldom used
 		} catch (IOException e) { // ought never happen
 			throw new SerializationException(e);
 		}
-		return StringUtil.releaseBuilder(sb);
+		return StringSort.releaseBuilder(sb);
 	}
 
 	final void html(final Appendable accum, final Document.OutputSettings out) throws IOException {

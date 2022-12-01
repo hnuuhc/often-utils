@@ -1,7 +1,7 @@
 package org.haic.often.net.analyze.select;
 
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.nodes.*;
 import org.haic.often.net.analyze.safety.Cleaner;
 import org.jetbrains.annotations.Nullable;
@@ -210,12 +210,12 @@ public class Elements extends ArrayList<Element> {
 	 * @see #eachText()
 	 */
 	public String text() {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 		for (Element element : this) {
 			if (sb.length() != 0) sb.append(" ");
 			sb.append(element.text());
 		}
-		return StringUtil.releaseBuilder(sb);
+		return StringSort.releaseBuilder(sb);
 	}
 
 	/**
@@ -256,12 +256,12 @@ public class Elements extends ArrayList<Element> {
 	 * @see #outerHtml()
 	 */
 	public String html() {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 		for (Element element : this) {
 			if (sb.length() != 0) sb.append("\n");
 			sb.append(element.html());
 		}
-		return StringUtil.releaseBuilder(sb);
+		return StringSort.releaseBuilder(sb);
 	}
 
 	/**
@@ -272,12 +272,12 @@ public class Elements extends ArrayList<Element> {
 	 * @see #html()
 	 */
 	public String outerHtml() {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 		for (Element element : this) {
 			if (sb.length() != 0) sb.append("\n");
 			sb.append(element.outerHtml());
 		}
-		return StringUtil.releaseBuilder(sb);
+		return StringSort.releaseBuilder(sb);
 	}
 
 	/**
@@ -378,12 +378,9 @@ public class Elements extends ArrayList<Element> {
 	}
 
 	/**
-	 * Wrap the supplied HTML around each matched elements. For example, with HTML
-	 * {@code <p><b>This</b> is <b>Jsoup</b></p>},
-	 * <code>doc.select("b").wrap("&lt;i&gt;&lt;/i&gt;");</code>
-	 * becomes {@code <p><i><b>This</b></i> is <i><b>jsoup</b></i></p>}
+	 * Wrap the supplied HTML around each matched elements.
 	 *
-	 * @param html HTML to wrap around each element, e.g. {@code <div class="head"></div>}. Can be arbitrarily deep.
+	 * @param html HTML to wrap around each element
 	 * @return this (for chaining)
 	 * @see Element#wrap
 	 */

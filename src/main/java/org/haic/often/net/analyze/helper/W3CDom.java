@@ -1,6 +1,6 @@
 package org.haic.often.net.analyze.helper;
 
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.nodes.Attribute;
 import org.haic.often.net.analyze.nodes.Attributes;
 import org.haic.often.net.analyze.nodes.DataNode;
@@ -33,7 +33,7 @@ import static org.haic.often.net.analyze.nodes.Document.OutputSettings.Syntax;
  */
 public class W3CDom {
 	/**
-	 * For W3C Documents created by this class, this property is set on each node to link back to the original jsoup node.
+	 * For W3C Documents created by this class, this property is set on each node to link back to the original node.
 	 */
 	public static final String SourceProperty = "jsoupSource";
 	private static final String ContextProperty = "jsoupContextSource"; // tracks the jsoup context element on w3c doc
@@ -64,7 +64,7 @@ public class W3CDom {
 	}
 
 	/**
-	 * Update the namespace aware setting. This impacts the factory that is used to create W3C nodes from jsoup nodes.
+	 * Update the namespace aware setting. This impacts the factory that is used to create W3C nodes from nodes.
 	 *
 	 * @param namespaceAware the updated setting
 	 * @return this W3CDom, for chaining.
@@ -76,9 +76,9 @@ public class W3CDom {
 	}
 
 	/**
-	 * Converts a jsoup DOM to a W3C DOM.
+	 * Converts  DOM to a W3C DOM.
 	 *
-	 * @param in jsoup Document
+	 * @param in Document
 	 * @return W3C Document
 	 */
 	public static Document convert(org.haic.often.net.analyze.nodes.Document in) {
@@ -116,10 +116,10 @@ public class W3CDom {
 
 			if (doc.getDoctype() != null) {
 				DocumentType doctype = doc.getDoctype();
-				if (!StringUtil.isBlank(doctype.getPublicId())) transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doctype.getPublicId());
-				if (!StringUtil.isBlank(doctype.getSystemId())) transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doctype.getSystemId());
+				if (!StringSort.isBlank(doctype.getPublicId())) transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doctype.getPublicId());
+				if (!StringSort.isBlank(doctype.getSystemId())) transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doctype.getSystemId());
 					// handle <!doctype html> for legacy dom.
-				else if (doctype.getName().equalsIgnoreCase("html") && StringUtil.isBlank(doctype.getPublicId()) && StringUtil.isBlank(doctype.getSystemId()))
+				else if (doctype.getName().equalsIgnoreCase("html") && StringSort.isBlank(doctype.getPublicId()) && StringSort.isBlank(doctype.getSystemId()))
 					transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "about:legacy-compat");
 			}
 
@@ -158,12 +158,12 @@ public class W3CDom {
 	}
 
 	/**
-	 * Convert a jsoup Document to a W3C Document. The created nodes will link back to the original
-	 * jsoup nodes in the user property {@link #SourceProperty} (but after conversion, changes on one side will not
+	 * Convert Document to a W3C Document. The created nodes will link back to the original
+	 * nodes in the user property {@link #SourceProperty} (but after conversion, changes on one side will not
 	 * flow to the other).
 	 *
-	 * @param in jsoup doc
-	 * @return a W3C DOM Document representing the jsoup Document or Element contents.
+	 * @param in doc
+	 * @return a W3C DOM Document representing the Document or Element contents.
 	 */
 	public Document fromJsoup(org.haic.often.net.analyze.nodes.Document in) {
 		// just method API backcompat
@@ -171,13 +171,13 @@ public class W3CDom {
 	}
 
 	/**
-	 * Convert a jsoup DOM to a W3C Document. The created nodes will link back to the original
-	 * jsoup nodes in the user property {@link #SourceProperty} (but after conversion, changes on one side will not
-	 * flow to the other). The input Element is used as a context node, but the whole surrounding jsoup Document is
+	 * Convert  DOM to a W3C Document. The created nodes will link back to the original
+	 * nodes in the user property {@link #SourceProperty} (but after conversion, changes on one side will not
+	 * flow to the other). The input Element is used as a context node, but the whole surrounding Document is
 	 * converted. (If you just want a subtree converted, use {@link #convert(org.haic.often.net.analyze.nodes.Element, Document)}.)
 	 *
-	 * @param in jsoup element or doc
-	 * @return a W3C DOM Document representing the jsoup Document or Element contents.
+	 * @param in element or doc
+	 * @return a W3C DOM Document representing the  Document or Element contents.
 	 * @see #sourceNodes(NodeList, Class)
 	 * @see #contextNode(Document)
 	 */
@@ -206,10 +206,10 @@ public class W3CDom {
 	}
 
 	/**
-	 * Converts a jsoup document into the provided W3C Document. If required, you can set options on the output
+	 * Converts  document into the provided W3C Document. If required, you can set options on the output
 	 * document before converting.
 	 *
-	 * @param in  jsoup doc
+	 * @param in  doc
 	 * @param out w3c doc
 	 * @see W3CDom#fromJsoup(org.haic.often.net.analyze.nodes.Element)
 	 */
@@ -219,10 +219,10 @@ public class W3CDom {
 	}
 
 	/**
-	 * Converts a jsoup element into the provided W3C Document. If required, you can set options on the output
+	 * Converts  element into the provided W3C Document. If required, you can set options on the output
 	 * document before converting.
 	 *
-	 * @param in  jsoup element
+	 * @param in  element
 	 * @param out w3c doc
 	 * @see W3CDom#fromJsoup(org.haic.often.net.analyze.nodes.Element)
 	 */
@@ -231,7 +231,7 @@ public class W3CDom {
 		builder.namespaceAware = namespaceAware;
 		org.haic.often.net.analyze.nodes.Document inDoc = in.ownerDocument();
 		if (inDoc != null) {
-			if (!StringUtil.isBlank(inDoc.location())) {
+			if (!StringSort.isBlank(inDoc.location())) {
 				out.setDocumentURI(inDoc.location());
 			}
 			builder.syntax = inDoc.outputSettings().syntax();
@@ -278,10 +278,10 @@ public class W3CDom {
 	}
 
 	/**
-	 * Retrieves the original jsoup DOM nodes from a nodelist created by this convertor.
+	 * Retrieves the original  DOM nodes from a nodelist created by this convertor.
 	 *
-	 * @param nodeList the W3C nodes to get the original jsoup nodes from
-	 * @param nodeType the jsoup node type to retrieve (e.g. Element, DataNode, etc)
+	 * @param nodeList the W3C nodes to get the original  nodes from
+	 * @param nodeType the  node type to retrieve (e.g. Element, DataNode, etc)
 	 * @param <T>      node type
 	 * @return a list of the original nodes
 	 */
@@ -303,7 +303,7 @@ public class W3CDom {
 	 * For a Document created by {@link #fromJsoup(org.haic.often.net.analyze.nodes.Element)}, retrieves the W3C context node.
 	 *
 	 * @param wDoc Document created by this class
-	 * @return the corresponding W3C Node to the jsoup Element that was used as the creating context.
+	 * @return the corresponding W3C Node to the  Element that was used as the creating context.
 	 */
 	public Node contextNode(Document wDoc) {
 		return (Node) wDoc.getUserData(ContextNodeProperty);
@@ -349,10 +349,6 @@ public class W3CDom {
 				String namespace = namespaceAware ? namespacesStack.peek().get(prefix) : null;
 				String tagName = sourceEl.tagName();
 
-                /* Tag names in XML are quite permissive, but less permissive than HTML. Rather than reimplement the validation,
-                we just try to use it as-is. If it fails, insert as a text node instead. We don't try to normalize the
-                tagname to something safe, because that isn't going to be meaningful downstream. This seems(?) to be
-                how browsers handle the situation, also. https://github.com/jhy/jsoup/issues/1093 */
 				try {
 					Element el = namespace == null && tagName.contains(":") ? doc.createElementNS("", tagName) : // doesn't have a real namespace defined
 								 doc.createElementNS(namespace, tagName);
@@ -420,6 +416,6 @@ public class W3CDom {
 			int pos = el.tagName().indexOf(':');
 			return pos > 0 ? el.tagName().substring(0, pos) : "";
 		}
-
 	}
+
 }

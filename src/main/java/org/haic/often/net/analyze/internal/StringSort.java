@@ -12,10 +12,10 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 
 /**
- * A minimal String utility class. Designed for <b>internal</b> jsoup use only - the API and outcome may change without
+ * A minimal String utility class. Designed for <b>internal</b> use only - the API and outcome may change without
  * notice.
  */
-public final class StringUtil {
+public final class StringSort {
 	// memoised padding up to 21 (blocks 0 to 20 spaces)
 	static final String[] padding = { "", " ", "  ", "   ", "    ", "     ", "      ", "       ", "        ", "         ", "          ", "           ", "            ", "             ", "              ", "               ", "                ", "                 ", "                  ", "                   ", "                    " };
 
@@ -153,7 +153,7 @@ public final class StringUtil {
 
 		int l = string.length();
 		for (int i = 0; i < l; i++) {
-			if (!StringUtil.isWhitespace(string.codePointAt(i))) return false;
+			if (!StringSort.isWhitespace(string.codePointAt(i))) return false;
 		}
 		return true;
 	}
@@ -220,9 +220,9 @@ public final class StringUtil {
 	 * @return normalised string
 	 */
 	public static String normaliseWhitespace(String string) {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 		appendNormalisedWhitespace(sb, string, false);
-		return StringUtil.releaseBuilder(sb);
+		return StringSort.releaseBuilder(sb);
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package org.haic.often.net.analyze.parser;
 
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.nodes.Entities;
 import org.jetbrains.annotations.Nullable;
 
@@ -284,7 +284,8 @@ final class Tokeniser {
 		return lastStartTag != null && tagPending.name().equalsIgnoreCase(lastStartTag);
 	}
 
-	@Nullable String appropriateEndTagName() {
+	@Nullable
+	String appropriateEndTagName() {
 		return lastStartTag; // could be null
 	}
 
@@ -328,7 +329,7 @@ final class Tokeniser {
 	 * @return unescaped string from reader
 	 */
 	String unescapeEntities(boolean inAttribute) {
-		StringBuilder builder = StringUtil.borrowBuilder();
+		StringBuilder builder = StringSort.borrowBuilder();
 		while (!reader.isEmpty()) {
 			builder.append(reader.consumeTo('&'));
 			if (reader.matches('&')) {
@@ -342,6 +343,6 @@ final class Tokeniser {
 
 			}
 		}
-		return StringUtil.releaseBuilder(builder);
+		return StringSort.releaseBuilder(builder);
 	}
 }

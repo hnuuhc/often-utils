@@ -2,9 +2,8 @@ package org.haic.often.net.analyze.nodes;
 
 import org.haic.often.net.analyze.helper.ChangeNotifyingArrayList;
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.NonnullByDefault;
 import org.haic.often.net.analyze.internal.Normalizer;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.parser.ParseSettings;
 import org.haic.often.net.analyze.parser.Parser;
 import org.haic.often.net.analyze.parser.Tag;
@@ -26,7 +25,6 @@ import java.util.regex.PatternSyntaxException;
  *
  * @author Jonathan Hedley, jonathan@hedley.net
  */
-@NonnullByDefault
 public class Element extends Node {
 	private static final List<Element> EmptyChildren = Collections.emptyList();
 	private static final Pattern ClassSplit = Pattern.compile("\\s+");
@@ -231,9 +229,6 @@ public class Element extends Node {
 	/**
 	 * Get this element's HTML5 custom data attributes. Each attribute in the element that has a key
 	 * starting with "data-" is included the dataset.
-	 * <p>
-	 * E.g., the element {@code <div data-package="jsoup" data-language="Java" class="group">...} has the dataset
-	 * {@code package=jsoup, language=java}.
 	 * <p>
 	 * This map is a filtered view of the element's attribute map. Changes to one map (add, remove, update) are reflected
 	 * in the other map.
@@ -521,7 +516,7 @@ public class Element extends Node {
 	 * alternate XPathFactory implementation:</p>
 	 * <ol>
 	 * <li>Add the implementation to your classpath. E.g. to use <a href="https://www.saxonica.com/products/products.xml">Saxon-HE</a>, add <a href="https://mvnrepository.com/artifact/net.sf.saxon/Saxon-HE">net.sf.saxon:Saxon-HE</a> to your build.</li>
-	 * <li>Set the system property <code>javax.xml.xpath.XPathFactory:jsoup</code> to the implementing classname. E.g.:<br>
+	 * <li>Set the system property <code>javax.xml.xpath.XPathFactory:</code> to the implementing classname. E.g.:<br>
 	 * <code>System.setProperty(W3CDom.XPathFactoryProperty, "net.sf.saxon.xpath.XPathFactoryImpl");</code>
 	 * </li>
 	 * </ol>
@@ -539,12 +534,12 @@ public class Element extends Node {
 	 * Find Nodes that match the supplied XPath expression.
 	 * <p>For example, to select TextNodes under {@code p} elements: </p>
 	 * <pre>List&lt;TextNode&gt; textNodes = doc.selectXpath("//body//p//text()", TextNode.class);</pre>
-	 * <p>Note that in the jsoup DOM, Attribute objects are not Nodes. To directly select attribute values, do something
+	 * <p>Note that in the  DOM, Attribute objects are not Nodes. To directly select attribute values, do something
 	 * like:</p>
 	 * <pre>List&lt;String&gt; hrefs = doc.selectXpath("//a").eachAttr("href");</pre>
 	 *
 	 * @param xpath    XPath expression
-	 * @param nodeType the jsoup node type to return
+	 * @param nodeType the  node type to return
 	 * @return a list of matching nodes
 	 * @see #selectXpath(String)
 	 * @since 1.14.3
@@ -838,7 +833,7 @@ public class Element extends Node {
 		// Translate HTML namespace ns:tag to CSS namespace syntax ns|tag
 		String tagName = tagName().replace(':', '|');
 		StringBuilder selector = new StringBuilder(tagName);
-		String classes = StringUtil.join(classNames(), ".");
+		String classes = StringSort.join(classNames(), ".");
 		if (classes.length() > 0) selector.append('.').append(classes);
 
 		if (parent() == null || parent() instanceof Document) // don't add Document to selector, as will always have a html node
@@ -1303,7 +1298,7 @@ public class Element extends Node {
 	 * @see #textNodes()
 	 */
 	public String text() {
-		final StringBuilder accum = StringUtil.borrowBuilder();
+		final StringBuilder accum = StringSort.borrowBuilder();
 		NodeTraversor.traverse(new NodeVisitor() {
 			public void head(Node node, int depth) {
 				if (node instanceof TextNode textNode) {
@@ -1322,7 +1317,7 @@ public class Element extends Node {
 			}
 		}, this);
 
-		return StringUtil.releaseBuilder(accum).trim();
+		return StringSort.releaseBuilder(accum).trim();
 	}
 
 	/**
@@ -1333,9 +1328,9 @@ public class Element extends Node {
 	 * @see #text()
 	 */
 	public String wholeText() {
-		final StringBuilder accum = StringUtil.borrowBuilder();
+		final StringBuilder accum = StringSort.borrowBuilder();
 		NodeTraversor.traverse((node, depth) -> appendWholeText(node, accum), this);
-		return StringUtil.releaseBuilder(accum);
+		return StringSort.releaseBuilder(accum);
 	}
 
 	private static void appendWholeText(Node node, StringBuilder accum) {
@@ -1357,14 +1352,14 @@ public class Element extends Node {
 	 * @since 1.15.1
 	 */
 	public String wholeOwnText() {
-		final StringBuilder accum = StringUtil.borrowBuilder();
+		final StringBuilder accum = StringSort.borrowBuilder();
 		final int size = childNodeSize();
 		for (int i = 0; i < size; i++) {
 			Node node = childNodes.get(i);
 			appendWholeText(node, accum);
 		}
 
-		return StringUtil.releaseBuilder(accum);
+		return StringSort.releaseBuilder(accum);
 	}
 
 	/**
@@ -1379,9 +1374,9 @@ public class Element extends Node {
 	 * @see #textNodes()
 	 */
 	public String ownText() {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 		ownText(sb);
-		return StringUtil.releaseBuilder(sb).trim();
+		return StringSort.releaseBuilder(sb).trim();
 	}
 
 	private void ownText(StringBuilder accum) {
@@ -1399,7 +1394,7 @@ public class Element extends Node {
 		String text = textNode.getWholeText();
 
 		if (preserveWhitespace(textNode.parentNode) || textNode instanceof CDataNode) accum.append(text);
-		else StringUtil.appendNormalisedWhitespace(accum, text, TextNode.lastCharIsWhitespace(accum));
+		else StringSort.appendNormalisedWhitespace(accum, text, TextNode.lastCharIsWhitespace(accum));
 	}
 
 	/**
@@ -1474,7 +1469,7 @@ public class Element extends Node {
 	 * @see #dataNodes()
 	 */
 	public String data() {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 
 		for (Node childNode : childNodes) {
 			if (childNode instanceof DataNode data) {
@@ -1490,7 +1485,7 @@ public class Element extends Node {
 				sb.append(cDataNode.getWholeText());
 			}
 		}
-		return StringUtil.releaseBuilder(sb);
+		return StringSort.releaseBuilder(sb);
 	}
 
 	/**
@@ -1529,7 +1524,7 @@ public class Element extends Node {
 		if (classNames.isEmpty()) {
 			attributes().remove("class");
 		} else {
-			attributes().put("class", StringUtil.join(classNames, " "));
+			attributes().put("class", StringSort.join(classNames, " "));
 		}
 		return this;
 	}
@@ -1709,9 +1704,9 @@ public class Element extends Node {
 	 * @see #outerHtml()
 	 */
 	public String html() {
-		StringBuilder accum = StringUtil.borrowBuilder();
+		StringBuilder accum = StringSort.borrowBuilder();
 		html(accum);
-		String html = StringUtil.releaseBuilder(accum);
+		String html = StringSort.releaseBuilder(accum);
 		return NodeUtils.outputSettings(this).prettyPrint() ? html.trim() : html;
 	}
 

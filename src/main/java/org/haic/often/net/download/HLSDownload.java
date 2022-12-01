@@ -482,7 +482,7 @@ public class HLSDownload {
 						String redirectUrl = null;
 						for (int i = 1; i < info.size(); i += 2) {
 							if (select.test(info.get(i))) {
-								redirectUrl = URIUtil.getRedirectUrl(url, info.get(++i));
+								redirectUrl = URIUtil.toAbsoluteUrl(url, info.get(++i));
 								break;
 							}
 						}
@@ -507,7 +507,7 @@ public class HLSDownload {
 						if (!encryptMethod.contains("AES")) {
 							throw new HLSDownloadException("未知的解密方法: " + encryptMethod);
 						}
-						String keyUrl = URIUtil.getRedirectUrl(url, StringUtil.strip(extKey[1].substring(4), "\""));
+						String keyUrl = URIUtil.toAbsoluteUrl(url, StringUtil.strip(extKey[1].substring(4), "\""));
 						Response res = conn.url(keyUrl).execute();
 						int statusCode = res.statusCode();
 						if (!URIUtil.statusIsOK(statusCode)) {
@@ -525,7 +525,7 @@ public class HLSDownload {
 							iv = extKey[2].substring(3);
 						}
 					}
-					links = info.stream().filter(l -> !l.startsWith("#")).map(l -> URIUtil.getRedirectUrl(url, l)).toList();
+					links = info.stream().filter(l -> !l.startsWith("#")).map(l -> URIUtil.toAbsoluteUrl(url, l)).toList();
 					// 创建并写入文件配置信息
 					fileInfo.put("fileName", fileName);
 					fileInfo.put("fileSize", 0);

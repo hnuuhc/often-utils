@@ -1,7 +1,7 @@
 package org.haic.often.net.analyze.parser;
 
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.nodes.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -277,7 +277,7 @@ public class HtmlTreeBuilder extends TreeBuilder {
 	private void insertNode(Node node, @Nullable Token token) {
 		// if the stack hasn't been set up yet, elements (doctype, comments) go into the doc
 		if (stack.isEmpty()) doc.appendChild(node);
-		else if (isFosterInserts() && StringUtil.inSorted(currentElement().normalName(), InTableFoster)) insertInFosterParent(node);
+		else if (isFosterInserts() && StringSort.inSorted(currentElement().normalName(), InTableFoster)) insertInFosterParent(node);
 		else currentElement().appendChild(node);
 
 		// connect form controls to their form element
@@ -322,7 +322,8 @@ public class HtmlTreeBuilder extends TreeBuilder {
 		return false;
 	}
 
-	@Nullable Element getFromStack(String elName) {
+	@Nullable
+	Element getFromStack(String elName) {
 		final int bottom = stack.size() - 1;
 		final int upper = bottom >= maxQueueDepth ? bottom - maxQueueDepth : 0;
 		for (int pos = bottom; pos >= upper; pos--) {
@@ -345,7 +346,8 @@ public class HtmlTreeBuilder extends TreeBuilder {
 		return false;
 	}
 
-	@Nullable Element popStackToClose(String elName) {
+	@Nullable
+	Element popStackToClose(String elName) {
 		for (int pos = stack.size() - 1; pos >= 0; pos--) {
 			Element el = stack.get(pos);
 			stack.remove(pos);
@@ -362,7 +364,7 @@ public class HtmlTreeBuilder extends TreeBuilder {
 		for (int pos = stack.size() - 1; pos >= 0; pos--) {
 			Element next = stack.get(pos);
 			stack.remove(pos);
-			if (StringUtil.inSorted(next.normalName(), elNames)) break;
+			if (StringSort.inSorted(next.normalName(), elNames)) break;
 		}
 	}
 
@@ -393,12 +395,13 @@ public class HtmlTreeBuilder extends TreeBuilder {
 	private void clearStackToContext(String... nodeNames) {
 		for (int pos = stack.size() - 1; pos >= 0; pos--) {
 			Element next = stack.get(pos);
-			if (StringUtil.in(next.normalName(), nodeNames) || next.normalName().equals("html")) break;
+			if (StringSort.in(next.normalName(), nodeNames) || next.normalName().equals("html")) break;
 			else stack.remove(pos);
 		}
 	}
 
-	@Nullable Element aboveOnStack(Element el) {
+	@Nullable
+	Element aboveOnStack(Element el) {
 		assert onStack(el);
 		for (int pos = stack.size() - 1; pos >= 0; pos--) {
 			Element next = stack.get(pos);
@@ -533,9 +536,9 @@ public class HtmlTreeBuilder extends TreeBuilder {
 
 		for (int pos = bottom; pos >= top; pos--) {
 			final String elName = stack.get(pos).normalName();
-			if (StringUtil.inSorted(elName, targetNames)) return true;
-			if (StringUtil.inSorted(elName, baseTypes)) return false;
-			if (extraTypes != null && StringUtil.inSorted(elName, extraTypes)) return false;
+			if (StringSort.inSorted(elName, targetNames)) return true;
+			if (StringSort.inSorted(elName, baseTypes)) return false;
+			if (extraTypes != null && StringSort.inSorted(elName, extraTypes)) return false;
 		}
 		//Validate.fail("Should not be reachable"); // would end up false because hitting 'html' at root (basetypes)
 		return false;
@@ -571,7 +574,7 @@ public class HtmlTreeBuilder extends TreeBuilder {
 			Element el = stack.get(pos);
 			String elName = el.normalName();
 			if (elName.equals(targetName)) return true;
-			if (!StringUtil.inSorted(elName, TagSearchSelectScope)) // all elements except
+			if (!StringSort.inSorted(elName, TagSearchSelectScope)) // all elements except
 				return false;
 		}
 		Validate.fail("Should not be reachable");
@@ -582,7 +585,8 @@ public class HtmlTreeBuilder extends TreeBuilder {
 		this.headElement = headElement;
 	}
 
-	@Nullable Element getHeadElement() {
+	@Nullable
+	Element getHeadElement() {
 		return headElement;
 	}
 
@@ -594,7 +598,8 @@ public class HtmlTreeBuilder extends TreeBuilder {
 		this.fosterInserts = fosterInserts;
 	}
 
-	@Nullable FormElement getFormElement() {
+	@Nullable
+	FormElement getFormElement() {
 		return formElement;
 	}
 
@@ -625,7 +630,7 @@ public class HtmlTreeBuilder extends TreeBuilder {
 	 *                   process, then the UA must perform the above steps as if that element was not in the above list.
 	 */
 	void generateImpliedEndTags(String excludeTag) {
-		while (StringUtil.inSorted(currentElement().normalName(), TagSearchEndTags)) {
+		while (StringSort.inSorted(currentElement().normalName(), TagSearchEndTags)) {
 			if (excludeTag != null && currentElementIs(excludeTag)) break;
 			pop();
 		}
@@ -642,7 +647,7 @@ public class HtmlTreeBuilder extends TreeBuilder {
 	 */
 	void generateImpliedEndTags(boolean thorough) {
 		final String[] search = thorough ? TagThoroughSearchEndTags : TagSearchEndTags;
-		while (StringUtil.inSorted(currentElement().normalName(), search)) {
+		while (StringSort.inSorted(currentElement().normalName(), search)) {
 			pop();
 		}
 	}
@@ -656,7 +661,7 @@ public class HtmlTreeBuilder extends TreeBuilder {
 
 	boolean isSpecial(Element el) {
 		String name = el.normalName();
-		return StringUtil.inSorted(name, TagSearchSpecial);
+		return StringSort.inSorted(name, TagSearchSpecial);
 	}
 
 	Element lastFormattingElement() {
@@ -822,7 +827,8 @@ public class HtmlTreeBuilder extends TreeBuilder {
 		tmplInsertMode.add(state);
 	}
 
-	@Nullable HtmlTreeBuilderState popTemplateMode() {
+	@Nullable
+	HtmlTreeBuilderState popTemplateMode() {
 		if (tmplInsertMode.size() > 0) {
 			return tmplInsertMode.remove(tmplInsertMode.size() - 1);
 		} else {
@@ -834,7 +840,8 @@ public class HtmlTreeBuilder extends TreeBuilder {
 		return tmplInsertMode.size();
 	}
 
-	@Nullable HtmlTreeBuilderState currentTemplateMode() {
+	@Nullable
+	HtmlTreeBuilderState currentTemplateMode() {
 		return (tmplInsertMode.size() > 0) ? tmplInsertMode.get(tmplInsertMode.size() - 1) : null;
 	}
 

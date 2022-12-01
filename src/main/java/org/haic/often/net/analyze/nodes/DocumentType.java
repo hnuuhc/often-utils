@@ -1,7 +1,7 @@
 package org.haic.often.net.analyze.nodes;
 
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 
 import java.io.IOException;
 
@@ -99,6 +99,6 @@ public class DocumentType extends LeafNode {
 	}
 
 	private boolean has(final String attribute) {
-		return !StringUtil.isBlank(attr(attribute));
+		return !StringSort.isBlank(attr(attribute));
 	}
 }

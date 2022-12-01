@@ -3,7 +3,7 @@ package org.haic.often.net.analyze.nodes;
 import org.haic.often.exception.SerializationException;
 import org.haic.often.net.analyze.helper.Validate;
 import org.haic.often.net.analyze.internal.Normalizer;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.nodes.Document.OutputSettings.Syntax;
 import org.jetbrains.annotations.Nullable;
 
@@ -121,14 +121,14 @@ public class Attribute implements Map.Entry<String, String>, Cloneable {
 	 * @return HTML
 	 */
 	public String html() {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 
 		try {
 			html(sb, (new Document("")).outputSettings());
 		} catch (IOException exception) {
 			throw new SerializationException(exception);
 		}
-		return StringUtil.releaseBuilder(sb);
+		return StringSort.releaseBuilder(sb);
 	}
 
 	protected void html(Appendable accum, Document.OutputSettings out) throws IOException {

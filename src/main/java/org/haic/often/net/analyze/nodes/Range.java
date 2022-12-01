@@ -69,7 +69,7 @@ public record Range(Position start, Position end) {
 	}
 
 	/**
-	 * Internal jsoup method, called by the TreeBuilder. Tracks a Range for a Node.
+	 * Internal method, called by the TreeBuilder. Tracks a Range for a Node.
 	 *
 	 * @param node  the node to associate this position to
 	 * @param start if this is the starting range. {@code false} for Element end tags.

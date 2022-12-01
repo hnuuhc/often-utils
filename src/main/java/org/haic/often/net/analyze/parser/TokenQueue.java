@@ -1,7 +1,7 @@
 package org.haic.often.net.analyze.parser;
 
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 
 /**
  * A character queue with parsing helpers.
@@ -102,7 +102,7 @@ public class TokenQueue {
 	 * @return if starts with whitespace
 	 */
 	public boolean matchesWhitespace() {
-		return !isEmpty() && StringUtil.isWhitespace(queue.charAt(pos));
+		return !isEmpty() && StringSort.isWhitespace(queue.charAt(pos));
 	}
 
 	/**
@@ -278,7 +278,7 @@ public class TokenQueue {
 	 * @return unescaped string
 	 */
 	public static String unescape(String in) {
-		StringBuilder out = StringUtil.borrowBuilder();
+		StringBuilder out = StringSort.borrowBuilder();
 		char last = 0;
 		for (char c : in.toCharArray()) {
 			if (c == ESC) {
@@ -286,7 +286,7 @@ public class TokenQueue {
 			} else out.append(c);
 			last = c;
 		}
-		return StringUtil.releaseBuilder(out);
+		return StringSort.releaseBuilder(out);
 	}
 
 	/**

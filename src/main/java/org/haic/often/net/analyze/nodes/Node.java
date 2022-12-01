@@ -2,7 +2,7 @@ package org.haic.often.net.analyze.nodes;
 
 import org.haic.often.exception.SerializationException;
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 import org.haic.often.net.analyze.parser.Parser;
 import org.haic.often.net.analyze.select.NodeFilter;
 import org.haic.often.net.analyze.select.NodeTraversor;
@@ -208,7 +208,7 @@ public abstract class Node implements Cloneable {
 		if (!(hasAttributes() && attributes().hasKeyIgnoreCase(attributeKey))) // not using hasAttr, so that we don't recurse down hasAttr->absUrl
 			return "";
 
-		return StringUtil.resolve(baseUri(), attributes().getIgnoreCase(attributeKey));
+		return StringSort.resolve(baseUri(), attributes().getIgnoreCase(attributeKey));
 	}
 
 	protected abstract List<Node> ensureChildNodes();
@@ -687,9 +687,9 @@ public abstract class Node implements Cloneable {
 	 * @see Element#text()
 	 */
 	public String outerHtml() {
-		StringBuilder accum = StringUtil.borrowBuilder();
+		StringBuilder accum = StringSort.borrowBuilder();
 		outerHtml(accum);
-		return StringUtil.releaseBuilder(accum);
+		return StringSort.releaseBuilder(accum);
 	}
 
 	protected void outerHtml(Appendable accum) {
@@ -741,7 +741,7 @@ public abstract class Node implements Cloneable {
 	}
 
 	protected void indent(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
-		accum.append('\n').append(StringUtil.padding(depth * out.indentAmount(), out.maxPaddingWidth()));
+		accum.append('\n').append(StringSort.padding(depth * out.indentAmount(), out.maxPaddingWidth()));
 	}
 
 	/**

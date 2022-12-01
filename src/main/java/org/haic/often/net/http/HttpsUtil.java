@@ -468,7 +468,7 @@ public class HttpsUtil {
 
 				String redirectUrl; // 修复重定向
 				if (followRedirects && URIUtil.statusIsNormal(res.statusCode()) && !Judge.isEmpty(redirectUrl = res.header("location"))) {
-					return executeProgram(URIUtil.getRedirectUrl(requestUrl, redirectUrl), "");
+					return executeProgram(URIUtil.toAbsoluteUrl(requestUrl, redirectUrl), "");
 				}
 				return res;
 			} catch (IOException e) {

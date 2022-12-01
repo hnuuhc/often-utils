@@ -2,7 +2,7 @@ package org.haic.often.net.analyze.nodes;
 
 import org.haic.often.exception.SerializationException;
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 
 import java.io.IOException;
 
@@ -44,13 +44,13 @@ public class XmlDeclaration extends LeafNode {
 	 * @return XML declaration
 	 */
 	public String getWholeDeclaration() {
-		StringBuilder sb = StringUtil.borrowBuilder();
+		StringBuilder sb = StringSort.borrowBuilder();
 		try {
 			getWholeDeclaration(sb, new Document.OutputSettings());
 		} catch (IOException e) {
 			throw new SerializationException(e);
 		}
-		return StringUtil.releaseBuilder(sb).trim();
+		return StringSort.releaseBuilder(sb).trim();
 	}
 
 	private void getWholeDeclaration(Appendable accum, Document.OutputSettings out) throws IOException {

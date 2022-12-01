@@ -57,7 +57,7 @@ import java.util.Set;
  * If you are going to extend a safelist, please be very careful. Make sure you understand what attributes may lead to
  * XSS attack vectors. URL attributes are particularly vulnerable and require careful validation. See
  * the <a href="https://owasp.org/www-community/xss-filter-evasion-cheatsheet">XSS Filter Evasion Cheat Sheet</a> for some
- * XSS attack examples (that jsoup will safegaurd against the default Cleaner and Safelist configuration).
+ * XSS attack examples (that will safegaurd against the default Cleaner and Safelist configuration).
  * </p>
  */
 public class Safelist {

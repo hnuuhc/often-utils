@@ -35,15 +35,15 @@ public class URIUtil {
 	private static final Predicate<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
 
 	/**
-	 * 自动拼接跳转链接
+	 * 获取相对网址的绝对网址链接
 	 *
-	 * @param url      网址(例: <a herf="">https://xxx.xxx.com/</a>)
-	 * @param redirect 跳转链接
-	 * @return 跳转链接
+	 * @param url      源网址(绝对地址)
+	 * @param relative 相对网址
+	 * @return 绝对网址
 	 */
 	@Contract(pure = true)
-	public static String getRedirectUrl(@NotNull String url, @NotNull String redirect) {
-		return redirect.startsWith("http") ? redirect : redirect.startsWith("/") ? getDomain(url) + redirect : url.substring(0, url.lastIndexOf("/") + 1) + redirect;
+	public static String toAbsoluteUrl(@NotNull String url, @NotNull String relative) {
+		return relative.startsWith("http") ? relative : relative.startsWith("/") ? getDomain(url) + relative : url.substring(0, url.lastIndexOf("/") + 1) + relative;
 	}
 
 	/**

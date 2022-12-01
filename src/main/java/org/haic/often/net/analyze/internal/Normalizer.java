@@ -3,7 +3,7 @@ package org.haic.often.net.analyze.internal;
 import java.util.Locale;
 
 /**
- * Util methods for normalizing strings. Jsoup internal use only, please don't depend on this API.
+ * Util methods for normalizing strings. internal use only, please don't depend on this API.
  */
 public final class Normalizer {
 

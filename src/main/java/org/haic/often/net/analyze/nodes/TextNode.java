@@ -1,7 +1,7 @@
 package org.haic.often.net.analyze.nodes;
 
 import org.haic.often.net.analyze.helper.Validate;
-import org.haic.often.net.analyze.internal.StringUtil;
+import org.haic.often.net.analyze.internal.StringSort;
 
 import java.io.IOException;
 
@@ -32,7 +32,7 @@ public class TextNode extends LeafNode {
 	 * @see TextNode#getWholeText()
 	 */
 	public String text() {
-		return StringUtil.normaliseWhitespace(getWholeText());
+		return StringSort.normaliseWhitespace(getWholeText());
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class TextNode extends LeafNode {
 	 * @return true if this document is empty or only whitespace, false if it contains any text content.
 	 */
 	public boolean isBlank() {
-		return StringUtil.isBlank(coreValue());
+		return StringSort.isBlank(coreValue());
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class TextNode extends LeafNode {
 	}
 
 	static String normaliseWhitespace(String text) {
-		text = StringUtil.normaliseWhitespace(text);
+		text = StringSort.normaliseWhitespace(text);
 		return text;
 	}
 
