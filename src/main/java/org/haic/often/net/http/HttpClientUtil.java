@@ -31,7 +31,7 @@ import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
-import org.haic.often.net.parser.xml.Document;
+import org.haic.often.parser.xml.Document;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;

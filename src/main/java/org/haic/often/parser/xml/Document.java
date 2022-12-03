@@ -1,4 +1,4 @@
-package org.haic.often.net.parser.xml;
+package org.haic.often.parser.xml;
 
 /**
  * @author haicdust

@@ -1,7 +1,7 @@
 package org.haic.often.net.htmlunit;
 
 import org.haic.often.net.Method;
-import org.haic.often.net.parser.xml.Document;
+import org.haic.often.parser.xml.Document;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

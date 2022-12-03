@@ -11,7 +11,7 @@ import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
-import org.haic.often.net.parser.xml.Document;
+import org.haic.often.parser.xml.Document;
 import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

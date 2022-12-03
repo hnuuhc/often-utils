@@ -1,7 +1,7 @@
 package org.haic.often.net.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import org.haic.often.net.parser.xml.Document;
+import org.haic.often.parser.xml.Document;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -104,7 +104,7 @@ public abstract class HtmlResponse {
 	 */
 	@Contract(pure = true)
 	public abstract Map<String, String> cookies();
-	
+
 	/**
 	 * Response字符集（ 字符串 字符集）<br/> 设置/覆盖响应字符集。解析文档正文时，它将使用此字符集。
 	 *

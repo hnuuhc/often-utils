@@ -1,6 +1,6 @@
 package org.haic.often.net.http;
 
-import org.haic.often.net.parser.xml.Document;
+import org.haic.often.parser.xml.Document;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -115,7 +115,7 @@ public abstract class Response {
 	 */
 	@Contract(pure = true)
 	public abstract Charset charset();
-	
+
 	/**
 	 * 读取响应的正文并将其解析为文档,如果连接超时或IO异常会返回null
 	 *
