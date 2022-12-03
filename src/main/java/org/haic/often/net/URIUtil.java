@@ -43,7 +43,7 @@ public class URIUtil {
 	 */
 	@Contract(pure = true)
 	public static String toAbsoluteUrl(@NotNull String url, @NotNull String relative) {
-		return relative.startsWith("http") ? relative : relative.startsWith("/") ? getDomain(url) + relative : url.substring(0, url.lastIndexOf("/") + 1) + relative;
+		return relative.isEmpty() ? "" : (relative.startsWith("http") ? relative : relative.startsWith("/") ? relative.charAt(1) == '/' ? getProtocol(url) + relative : getDomain(url) + relative : url.substring(0, url.lastIndexOf("/") + 1) + relative).replaceAll("&amp;", "&");
 	}
 
 	/**
@@ -154,6 +154,17 @@ public class URIUtil {
 	@Contract(pure = true)
 	public static boolean isURL(@NotNull String url) {
 		return url.matches("(ftp|https?)://.*\\..*") && url.lastIndexOf("://") < 6;
+	}
+
+	/**
+	 * 获取URL的网络协议
+	 *
+	 * @param url URL
+	 * @return 网络协议名称 例: http
+	 */
+	@Contract(pure = true)
+	public static String getProtocol(@NotNull String url) {
+		return url.split("/")[0];
 	}
 
 	/**

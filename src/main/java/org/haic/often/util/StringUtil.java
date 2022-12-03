@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.TypeReference;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.exception.StringException;
@@ -31,6 +32,60 @@ import java.util.stream.Stream;
  * @since 2021/3/27 15:12
  */
 public class StringUtil extends StringUtils {
+
+	/**
+	 * 提取html标签内属性值
+	 *
+	 * @param tag html标签
+	 * @return 列表: 属性名称 - 属性值
+	 */
+	@Contract(pure = true)
+	public static Map<String, String> htmlAttributes(@NotNull String tag) {
+		Map<String, String> attrs = new HashMap<>();
+		char[] tagChars = tag.toCharArray(); // 存在标签属性i
+		for (int i = 2; i < tagChars.length; i++) {
+			if (tagChars[i] == ' ' && tagChars[i + 1] != ' ' && tagChars[++i] != '/' && tagChars[i] != '>') {
+				StringBuilder key = new StringBuilder();
+				do {
+					key.append(tagChars[i++]);
+					if (tagChars[i] == ' ') {
+						attrs.put(key.toString(), "");
+						break;
+					} else if (tagChars[i] == '/' || tagChars[i] == '>') {
+						attrs.put(key.toString(), "");
+						return attrs;
+					}
+				} while (tagChars[i] != '=');
+				StringBuilder value = new StringBuilder();
+				if (tagChars[++i] == '"') {
+					while (tagChars[++i] != '"') {
+						value.append(tagChars[i]);
+					}
+					if (Character.isLetter(tagChars[i + 1])) {
+						tagChars[i] = ' ';
+						i--;
+					}
+				} else if (tagChars[i] == '\'') {
+					while (tagChars[++i] != '\'') {
+						value.append(tagChars[i]);
+					}
+				} else if (tagChars[i] == '&' && tagChars[i + 1] == 'q' && tagChars[i + 2] == 'u' && tagChars[i + 3] == 'o' && tagChars[i + 4] == 't' && tagChars[i + 5] == ';') {
+					i = i + 6;
+					do {
+						value.append(tagChars[i++]);
+					} while (tagChars[i] == '&' && tagChars[i + 1] == 'q' && tagChars[i + 2] == 'u' && tagChars[i + 3] == 'o' && tagChars[i + 4] == 't' && tagChars[i + 5] == ';');
+					i += 5;
+				} else {
+					do {
+						value.append(tagChars[i++]);
+					} while (tagChars[i] != ' ' && tagChars[i] != '/' && tagChars[i] != '>');
+					if (tagChars[i] == ' ') i--;
+				}
+				attrs.put(key.toString(), StringEscapeUtils.unescapeHtml4(value.toString()));
+			}
+		}
+		return attrs;
+	}
 
 	/**
 	 * 字符串转输入流

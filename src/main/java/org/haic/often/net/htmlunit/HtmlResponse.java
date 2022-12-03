@@ -1,8 +1,7 @@
 package org.haic.often.net.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import org.haic.often.net.analyze.nodes.Document;
-import org.haic.often.net.analyze.parser.Parser;
+import org.haic.often.net.parser.xml.Document;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -105,17 +104,7 @@ public abstract class HtmlResponse {
 	 */
 	@Contract(pure = true)
 	public abstract Map<String, String> cookies();
-
-	/**
-	 * 连接解析器（ Parser parser）
-	 * 在解析对文档的响应时提供备用解析器。如果未设置，则默认使用 HTML 解析器，除非响应内容类型是 XML，在这种情况下使用 XML 解析器。
-	 *
-	 * @param parser 备用解析器
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract HtmlResponse parser(@NotNull Parser parser);
-
+	
 	/**
 	 * Response字符集（ 字符串 字符集）<br/> 设置/覆盖响应字符集。解析文档正文时，它将使用此字符集。
 	 *

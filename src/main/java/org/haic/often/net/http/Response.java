@@ -1,7 +1,6 @@
 package org.haic.often.net.http;
 
-import org.haic.often.net.analyze.nodes.Document;
-import org.haic.often.net.analyze.parser.Parser;
+import org.haic.often.net.parser.xml.Document;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -116,17 +115,7 @@ public abstract class Response {
 	 */
 	@Contract(pure = true)
 	public abstract Charset charset();
-
-	/**
-	 * 连接解析器（ Parser parser）
-	 * 在解析对文档的响应时提供备用解析器。如果未设置，则默认使用 HTML 解析器，除非响应内容类型是 XML，在这种情况下使用 XML 解析器。
-	 *
-	 * @param parser 备用解析器
-	 * @return 此连接，用于链接
-	 */
-	@Contract(pure = true)
-	public abstract Response parser(@NotNull Parser parser);
-
+	
 	/**
 	 * 读取响应的正文并将其解析为文档,如果连接超时或IO异常会返回null
 	 *

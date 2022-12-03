@@ -9,9 +9,8 @@ import org.haic.often.exception.HttpException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
-import org.haic.often.net.analyze.nodes.Document;
-import org.haic.often.net.analyze.parser.Parser;
 import org.haic.often.net.http.HttpStatus;
+import org.haic.often.net.parser.xml.Document;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
@@ -70,31 +69,6 @@ public class HtmlUnitUtil {
 	@Contract(pure = true)
 	public static HtmlConnection newSession() {
 		return new HttpConnection();
-	}
-
-	/**
-	 * 公共静态文档解析（ 字符串 html）
-	 * 将 HTML 解析为文档。由于未指定基本 URI，如果需要，绝对 URL 解析依赖于包含<base href>标记的 HTML。
-	 *
-	 * @param html 要解析的 HTML
-	 * @return 格式化的HTML
-	 */
-	@Contract(pure = true)
-	public static Document parse(@NotNull String html) {
-		return parse(html, Parser.htmlParser());
-	}
-
-	/**
-	 * 公共静态文档解析（ 字符串 html）
-	 * 将 HTML 解析为文档。由于未指定基本 URI，如果需要，绝对 URL 解析依赖于包含<base href>标记的 HTML。
-	 *
-	 * @param html   要解析的 HTML
-	 * @param parser 解析器
-	 * @return 格式化的HTML
-	 */
-	@Contract(pure = true)
-	public static Document parse(@NotNull String html, @NotNull Parser parser) {
-		return parser.parseInput(html);
 	}
 
 	@Contract(pure = true)
@@ -468,7 +442,6 @@ public class HtmlUnitUtil {
 		private final Page page; // Page对象
 		private Map<String, String> headers;
 		private Map<String, String> cookies;
-		private Parser parser = Parser.htmlParser();
 		private Charset charset;
 		private ByteArrayOutputStream body;
 
@@ -542,12 +515,6 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
-		public HtmlResponse parser(@NotNull Parser parser) {
-			this.parser = parser;
-			return this;
-		}
-
-		@Contract(pure = true)
 		public HtmlResponse charset(@NotNull String charsetName) {
 			return charset(Charset.forName(charsetName));
 		}
@@ -577,7 +544,7 @@ public class HtmlUnitUtil {
 		@Contract(pure = true)
 		public Document parse() {
 			String body = body();
-			return body == null ? null : parser.parseInput(body, "");
+			return body == null ? null : new Document(body);
 		}
 
 		@Contract(pure = true)

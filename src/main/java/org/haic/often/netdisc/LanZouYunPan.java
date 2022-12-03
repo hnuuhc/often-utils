@@ -5,11 +5,11 @@ import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
-import org.haic.often.net.analyze.nodes.Document;
-import org.haic.often.net.analyze.nodes.Element;
-import org.haic.often.net.analyze.select.Elements;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
+import org.haic.often.net.parser.xml.Document;
+import org.haic.often.net.parser.xml.Element;
+import org.haic.often.net.parser.xml.Elements;
 import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public static Map<String, String> getInfosAsPage(@NotNull String lanzouUrl, @NotNull String passwd) {
-		String infos = Objects.requireNonNull(HttpsUtil.connect(lanzouUrl).get().selectFirst("body script")).toString();
+		String infos = HttpsUtil.connect(lanzouUrl).get().selectFirst("body script").toString();
 		infos = infos.substring(32, infos.indexOf("json") - 20).replaceAll("\t*　* *'*;*", "");
 
 		// 获取post参数
@@ -231,12 +231,12 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listRecycleBin() {
-		Elements lists = conn.url(mydiskUrl).requestBody("item=recycle&action=files").get().select("tbody tr[class]");
+		Elements lists = conn.url(mydiskUrl).requestBody("item=recycle&action=files").get().select("table tr[class]");
 		return lists.size() == 1 && lists.text().contains("回收站为空") ? new ArrayList<>() : lists.stream().map(l -> {
 			Element input = l.selectFirst("input");
 			assert input != null;
 			JSONObject info = new JSONObject();
-			info.put("fileName", Objects.requireNonNull(l.selectFirst("a")).text());
+			info.put("fileName", l.selectFirst("a").text());
 			info.put("inputName", input.attr("name"));
 			info.put("inputValue", input.attr("value"));
 			return info;
