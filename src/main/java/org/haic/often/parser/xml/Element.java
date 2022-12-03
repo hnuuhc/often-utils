@@ -89,9 +89,7 @@ public class Element {
 					childs.add(new Element(node, childTag, childTagName, false, isHtml));
 				}
 			} else { // 直接更新文本,可能有不规范内容存在多个位置,以后考虑更改为拼接
-				int index = node.indexOf("<");
-				if (index == -1) return; // 尾部不规范的错误
-				String text = node.substring(0, index);
+				String text = node.substring(0, node.indexOf("<"));
 				node.delete(0, text.length());
 				this.text = StringEscapeUtils.unescapeHtml4(text).strip(); // 反转义特殊字符,耗时较长等待修复
 			}

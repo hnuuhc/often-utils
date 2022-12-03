@@ -32,7 +32,7 @@ import java.util.stream.Stream;
  * @since 2021/3/27 15:12
  */
 public class StringUtil extends StringUtils {
-
+	
 	/**
 	 * 提取html标签内属性值
 	 *

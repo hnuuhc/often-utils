@@ -7,23 +7,68 @@ package org.haic.often.parser.xml;
  */
 public class Document extends Element {
 
-	private String doctype;
+	private final String doctype;
 
 	public Document(String body) {
-		this(body = body.strip(), body.startsWith("<!") && body.charAt(2) != '-');
+		this(new HtmlCleaner(body));
 	}
 
-	private Document(String body, boolean isHtml) {
-		this(body, body.startsWith("<!") && body.charAt(2) != '-' ? "html" : body.substring(body.lastIndexOf("</") + 2, body.length() - 1), isHtml);
+	private Document(HtmlCleaner htmlClear) {
+		super(htmlClear.body(), htmlClear.head(), htmlClear.isHtml());
+		this.doctype = htmlClear.doctype();
 	}
 
-	private Document(String body, String name, boolean isHtml) {
-		super(body.substring(body.indexOf("<" + name)), name, isHtml);
-		if (body.startsWith("<!") && body.charAt(2) != '-') {
-			doctype = body.substring(0, body.indexOf(">") + 1);
-		} else if (body.startsWith("<?")) {
-			doctype = body.substring(0, body.indexOf(">") + 1);
+	private static class HtmlCleaner {
+
+		private String doctype;
+		private final String body;
+		private boolean isHtml;
+		private final String head;
+
+		public HtmlCleaner(String body) {
+			body = body.strip();
+			if (body.startsWith("<!") && body.charAt(2) != '-') {
+				doctype = body.substring(0, body.indexOf(">") + 1);
+				isHtml = true;
+				body = body.substring(body.indexOf("<html"));
+				if (!body.endsWith("</html>")) {
+					body = body.substring(0, body.lastIndexOf("</html>") + 7);
+				}
+				head = "html";
+			} else if (body.startsWith("<html")) {
+				isHtml = true;
+				if (!body.endsWith("</html>")) {
+					body = body.substring(0, body.lastIndexOf("</html>") + 7);
+				}
+				head = "html";
+			} else if (body.startsWith("<?")) {
+				doctype = body.substring(0, body.indexOf(">") + 1);
+				body = body.substring(doctype.length());
+				body = body.substring(body.indexOf("<"));
+				head = body.substring(body.lastIndexOf("</") + 2, body.length() - 1);
+			} else {
+				body = "<html><head></head><body>" + body + "</body></html>";
+				head = "html";
+			}
+			this.body = body;
 		}
+
+		public String head() {
+			return head;
+		}
+
+		public String doctype() {
+			return doctype;
+		}
+
+		public boolean isHtml() {
+			return isHtml;
+		}
+
+		public String body() {
+			return body;
+		}
+
 	}
 
 	@Override
