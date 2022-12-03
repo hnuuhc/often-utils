@@ -44,7 +44,7 @@ public class Element {
 
 		if (isHtml) {
 			switch (name) { // 特殊文本类标签处理后返回
-				case "input", "meta", "link" -> { // 自闭合标签
+				case "input", "meta", "link", "img" -> { // 自闭合标签
 					return;
 				}
 				case "textarea", "script", "style" -> {
