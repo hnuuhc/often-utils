@@ -64,7 +64,7 @@ public class Website {
 	 */
 	@Contract(pure = true)
 	public static void proxy(@NotNull String ipAddr) {
-		if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
+		if (ipAddr.startsWith("[")) {
 			proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 		} else {
 			int index = ipAddr.lastIndexOf(":");

@@ -237,7 +237,7 @@ public class HtmlUnitUtil {
 
 		@Contract(pure = true)
 		public HtmlConnection socks(@NotNull String ipAddr) {
-			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
+			if (ipAddr.startsWith("[")) {
 				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				int index = ipAddr.lastIndexOf(":");
@@ -264,7 +264,7 @@ public class HtmlUnitUtil {
 
 		@Contract(pure = true)
 		public HtmlConnection proxy(@NotNull String ipAddr) {
-			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
+			if (ipAddr.startsWith("[")) {
 				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				int index = ipAddr.lastIndexOf(":");

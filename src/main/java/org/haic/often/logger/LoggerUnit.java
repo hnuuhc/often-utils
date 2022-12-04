@@ -1,7 +1,5 @@
 package org.haic.often.logger;
 
-import org.haic.often.Symbol;
-
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -134,7 +132,7 @@ public final class LoggerUnit {
 	 * @return 字符输出
 	 */
 	private String array(Object object) {
-		final StringJoiner joiner = new StringJoiner(", ", Symbol.OPEN_BRACKET, Symbol.CLOSE_BRACKET);
+		final StringJoiner joiner = new StringJoiner(", ", "[", "]");
 		if (object instanceof boolean[] array) {
 			for (boolean value : array) {
 				joiner.add(Boolean.toString(value));

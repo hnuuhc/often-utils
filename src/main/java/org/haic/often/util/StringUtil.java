@@ -8,7 +8,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.exception.StringException;
 import org.haic.often.function.ByteFunction;
 import org.jetbrains.annotations.Contract;
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
  * @since 2021/3/27 15:12
  */
 public class StringUtil extends StringUtils {
-	
+
 	/**
 	 * 提取html标签内属性值
 	 *
@@ -275,8 +274,8 @@ public class StringUtil extends StringUtils {
 			return str.substring(str.indexOf('(') + 1, str.length() - 1);
 		} else if (str.endsWith("}")) {
 			return str.substring(str.indexOf("{"));
-		} else if (str.endsWith(Symbol.CLOSE_BRACKET)) {
-			return str.substring(str.indexOf(Symbol.OPEN_BRACKET));
+		} else if (str.endsWith("]")) {
+			return str.substring(str.indexOf("["));
 		} else {
 			throw new StringException("非JSONP格式");
 		}
@@ -326,7 +325,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static boolean isJson(@NotNull String str) {
-		return !str.isEmpty() && (((str = str.strip()).startsWith("{") && str.endsWith("}") || str.startsWith(Symbol.OPEN_BRACKET) && str.endsWith(Symbol.CLOSE_BRACKET)));
+		return !str.isEmpty() && (((str = str.strip()).startsWith("{") && str.endsWith("}") || str.startsWith("[") && str.endsWith("]")));
 	}
 
 	/**

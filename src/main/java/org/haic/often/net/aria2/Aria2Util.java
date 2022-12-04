@@ -77,7 +77,7 @@ public class Aria2Util {
 
 		@Contract(pure = true)
 		public Aria2Connection socks(@NotNull String ipAddr) {
-			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
+			if (ipAddr.startsWith("[")) {
 				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				int index = ipAddr.lastIndexOf(":");
@@ -92,7 +92,7 @@ public class Aria2Util {
 
 		@Contract(pure = true)
 		public Aria2Connection proxy(@NotNull String ipAddr) {
-			if (ipAddr.startsWith(Symbol.OPEN_BRACKET)) {
+			if (ipAddr.startsWith("[")) {
 				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				int index = ipAddr.lastIndexOf(":");

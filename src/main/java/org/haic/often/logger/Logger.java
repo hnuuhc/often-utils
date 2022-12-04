@@ -1,7 +1,5 @@
 package org.haic.often.logger;
 
-import org.haic.often.Symbol;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
@@ -61,7 +59,7 @@ public final class Logger {
 	 */
 	private String format(Level level, String format, Object... args) {
 		LoggerUnit loggerUnit = this.tupleMap.computeIfAbsent(format, LoggerUnit::new);
-		StringBuilder builder = new StringBuilder(DEFAULT_CAPACITY).append(Symbol.OPEN_BRACKET).append(level).append("] ").append(DATE_TIME_FORMATTER.format(LocalDateTime.now())).append(" [").append(Thread.currentThread().getName()).append("] ");
+		StringBuilder builder = new StringBuilder(DEFAULT_CAPACITY).append("[").append(level).append("] ").append(DATE_TIME_FORMATTER.format(LocalDateTime.now())).append(" [").append(Thread.currentThread().getName()).append("] ");
 		loggerUnit.format(builder, args);
 		Throwable throwable = loggerUnit.throwable(args);
 		if (throwable != null) {
