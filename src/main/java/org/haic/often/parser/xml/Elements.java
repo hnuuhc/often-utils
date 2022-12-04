@@ -1,10 +1,13 @@
 package org.haic.often.parser.xml;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 /**
+ * Element数组,用于存储多个标签节点
+ *
  * @author haicdust
  * @version 1.0
  * @since 2022/11/30 9:36
@@ -20,12 +23,13 @@ public class Elements extends ArrayList<Element> {
 	}
 
 	/**
-	 * 获取第一个标签
+	 * 获取第一个标签节点
 	 *
-	 * @return 第一个标签
+	 * @return 第一个标签节点
 	 */
+	@Contract(pure = true)
 	public Element first() {
-		return super.get(0);
+		return this.isEmpty() ? null : super.get(0);
 	}
 
 	/**
@@ -35,6 +39,8 @@ public class Elements extends ArrayList<Element> {
 	 *
 	 * @return 所有文本内容
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public String text() {
 		StringBuilder text = new StringBuilder();
 		for (var child : this) {
@@ -52,22 +58,32 @@ public class Elements extends ArrayList<Element> {
 	}
 
 	/**
-	 * 按照指定规则查询标签第一个
+	 * 按照指定规则查询标签第一个,查询规则参照{@link #select(String)}
 	 *
 	 * @param cssQuery 查询规则
 	 * @return 查询结果
 	 */
+	@Contract(pure = true)
 	public Element selectFirst(String cssQuery) {
 		Elements result = select(cssQuery);
 		return result.isEmpty() ? null : result.get(0);
 	}
 
 	/**
-	 * 按照指定规则查询标签
+	 * 按照指定规则查询标签,支持使用空格分割,以确保更精确的查询
+	 * <p>
+	 * 例:
+	 * <blockquote>
+	 * <pre>    #stop - 查询属性名id值为stop的标签节点</pre>
+	 * <pre>    .stop - 查询属性名class值为stop的标签节点</pre>
+	 * <pre>    a[class=stop] - 查询标签名为a属性名class值为stop的标签节点</pre>
+	 * </blockquote>
 	 *
 	 * @param cssQuery 查询规则
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements select(String cssQuery) {
 		var result = new Elements(this);
 		var querys = cssQuery.split(" ");
@@ -113,6 +129,8 @@ public class Elements extends ArrayList<Element> {
 	 * @param id id值
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectById(@NotNull String id) {
 		Elements result = new Elements();
 		this.forEach(child -> result.addAll(child.selectById(id)));
@@ -125,6 +143,8 @@ public class Elements extends ArrayList<Element> {
 	 * @param name 标签名称
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByName(@NotNull String name) {
 		Elements result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByName(name)));
@@ -138,6 +158,8 @@ public class Elements extends ArrayList<Element> {
 	 * @param key  属性名
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByNameAndAttrKey(@NotNull String name, @NotNull String key) {
 		Elements result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByNameAndAttrKey(name, key)));
@@ -152,6 +174,8 @@ public class Elements extends ArrayList<Element> {
 	 * @param value 属性值
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
 		Elements result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByNameAndAttr(name, key, value)));
@@ -164,6 +188,8 @@ public class Elements extends ArrayList<Element> {
 	 * @param key 属性名称
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key) {
 		Elements result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByAttr(key)));
@@ -177,6 +203,8 @@ public class Elements extends ArrayList<Element> {
 	 * @param value 属性值
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key, @NotNull String value) {
 		Elements result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByAttr(key, value)));

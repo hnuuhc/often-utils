@@ -1,6 +1,10 @@
 package org.haic.often.parser.xml;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
+ * 这是一个html和xml解析器,使用方法为 Document doc =  new Document(String)
+ *
  * @author haicdust
  * @version 1.0
  * @since 2022/11/30 9:36
@@ -9,11 +13,16 @@ public class Document extends Element {
 
 	private final String doctype;
 
-	public Document(String body) {
+	/**
+	 * 将会根据文本内容构造一个解析器
+	 *
+	 * @param body 文本
+	 */
+	public Document(@NotNull String body) {
 		this(new HtmlCleaner(body));
 	}
 
-	private Document(HtmlCleaner htmlClear) {
+	private Document(@NotNull HtmlCleaner htmlClear) {
 		super(htmlClear.body(), htmlClear.head(), htmlClear.isHtml());
 		this.doctype = htmlClear.doctype();
 	}
@@ -25,7 +34,7 @@ public class Document extends Element {
 		private boolean isHtml;
 		private final String head;
 
-		public HtmlCleaner(String body) {
+		public HtmlCleaner(@NotNull String body) {
 			body = body.strip();
 			if (body.startsWith("<!") && body.charAt(2) != '-') {
 				doctype = body.substring(0, body.indexOf(">") + 1);

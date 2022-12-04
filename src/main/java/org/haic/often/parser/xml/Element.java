@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 /**
+ * xml解析器父类,仅能解析子节点
+ *
  * @author haicdust
  * @version 1.0
  * @since 2022/11/30 9:37
@@ -108,6 +110,13 @@ public class Element {
 		return name;
 	}
 
+	/**
+	 * 判断当前标签是否包含某个属性
+	 *
+	 * @param key 属性名
+	 * @return 判断结果
+	 */
+	@Contract(pure = true)
 	public boolean containsAttr(@NotNull String key) {
 		return attrs.containsKey(key);
 	}
@@ -139,6 +148,7 @@ public class Element {
 	 *
 	 * @return 所有下级子标签
 	 */
+	@NotNull
 	@Contract(pure = true)
 	public Elements childs() {
 		return childs;
@@ -151,6 +161,8 @@ public class Element {
 	 *
 	 * @return 所有文本内容
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public String text() {
 		StringBuilder text = new StringBuilder(this.text);
 		for (var child : childs) {
@@ -168,23 +180,33 @@ public class Element {
 	}
 
 	/**
-	 * 按照指定规则查询标签第一个
+	 * 按照指定规则查询标签第一个,查询规则参照{@link #select(String)}
 	 *
 	 * @param cssQuery 查询规则
 	 * @return 查询结果
 	 */
-	public Element selectFirst(String cssQuery) {
+	@Contract(pure = true)
+	public Element selectFirst(@NotNull String cssQuery) {
 		Elements result = select(cssQuery);
 		return result.isEmpty() ? null : result.get(0);
 	}
 
 	/**
-	 * 按照指定规则查询标签
+	 * 按照指定规则查询标签,支持使用空格分割,以确保更精确的查询
+	 * <p>
+	 * 例:
+	 * <blockquote>
+	 * <pre>    #stop - 查询属性名id值为stop的标签节点</pre>
+	 * <pre>    .stop - 查询属性名class值为stop的标签节点</pre>
+	 * <pre>    a[class=stop] - 查询标签名为a属性名class值为stop的标签节点</pre>
+	 * </blockquote>
 	 *
 	 * @param cssQuery 查询规则
 	 * @return 查询结果
 	 */
-	public Elements select(String cssQuery) {
+	@NotNull
+	@Contract(pure = true)
+	public Elements select(@NotNull String cssQuery) {
 		return new Elements(childs).select(cssQuery);
 	}
 
@@ -194,6 +216,8 @@ public class Element {
 	 * @param id id值
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectById(@NotNull String id) {
 		Elements result = new Elements();
 		if (id.equals(attr("id"))) {
@@ -212,6 +236,8 @@ public class Element {
 	 * @param name 标签名称
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByName(@NotNull String name) {
 		Elements result = new Elements();
 		if (name().equals(name)) {
@@ -231,6 +257,8 @@ public class Element {
 	 * @param key  属性名
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByNameAndAttrKey(@NotNull String name, @NotNull String key) {
 		Elements result = new Elements();
 		if (name().equals(name) && containsAttr(key)) {
@@ -251,6 +279,8 @@ public class Element {
 	 * @param value 属性值
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
 		Elements result = new Elements();
 		if (name().equals(name) && containsAttr(key) && value.equals(attr(key))) {
@@ -269,6 +299,8 @@ public class Element {
 	 * @param key 属性名称
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key) {
 		Elements result = new Elements();
 		if (containsAttr(key)) {
@@ -288,6 +320,8 @@ public class Element {
 	 * @param value 属性值
 	 * @return 查询结果
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key, @NotNull String value) {
 		Elements result = new Elements();
 		if (containsAttr(key) && value.equals(attr(key))) {
@@ -311,6 +345,8 @@ public class Element {
 	 * @param depth 深度
 	 * @return 格式化的标签
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public String toString(int depth) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("    ".repeat(depth)).append(tag);
