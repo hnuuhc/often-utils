@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * xml解析器父类,仅能解析子节点
@@ -16,12 +17,12 @@ import java.util.Map;
  */
 public class Element {
 
-	private final String tag;
 	private final String name; // 标签名
 	private final Map<String, String> attrs;
 	private final Elements childs = new Elements();
 	private String text = "";
 	private String tail = ""; // 标签结束符
+	private final boolean close;
 
 	public Element(@NotNull String node, @NotNull String name, boolean isHtml) {
 		this(new StringBuilder(node), node.substring(0, node.indexOf(">") + 1), name, false, isHtml);
@@ -37,9 +38,9 @@ public class Element {
 	 * @param isHtml 是否为html格式
 	 */
 	private Element(@NotNull StringBuilder node, @NotNull String tag, @NotNull String name, boolean close, boolean isHtml) {
-		this.tag = tag;
 		this.name = name; // 标签名称
 		this.attrs = StringUtil.htmlAttributes(tag); // 获取标签属性
+		this.close = close;
 
 		node.delete(0, tag.length());  // 更新进度
 		if (close) return; // 自闭合标签直接返回
@@ -349,7 +350,7 @@ public class Element {
 	@Contract(pure = true)
 	public String toString(int depth) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("    ".repeat(depth)).append(tag);
+		sb.append("    ".repeat(depth)).append("<").append(name).append(attrs.entrySet().stream().map(attr -> " " + attr.getKey() + "=\"" + attr.getValue() + "\"").collect(Collectors.joining())).append(close ? "/>" : ">");
 		if (childs.isEmpty()) {
 			if (!text.isEmpty()) {
 				switch (name) {
