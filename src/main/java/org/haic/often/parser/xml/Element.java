@@ -5,6 +5,7 @@ import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,19 @@ public class Element {
 	private final Elements childs = new Elements();
 	private String text = "";
 	private String tail = ""; // 标签结束符
-	private final boolean close;
+	private boolean close;
+
+	/**
+	 * 构造器,用于创建一个新的节点,如果未增加子节点,则默认为当前节点状态为非自闭合(即拥有闭合标签)
+	 *
+	 * @param name 标签名称
+	 */
+	public Element(@NotNull String name) {
+		this.name = name;
+		this.attrs = new HashMap<>();
+		this.close = false;
+		this.tail = "</" + name + ">";
+	}
 
 	public Element(@NotNull String node, @NotNull String name, boolean isHtml) {
 		this(new StringBuilder(node), node.substring(0, node.indexOf(">") + 1), name, false, isHtml);
@@ -98,7 +111,95 @@ public class Element {
 				this.text += StringEscapeUtils.unescapeHtml4(text).strip(); // 反转义特殊字符,耗时较长等待修复
 			}
 		}
+	}
 
+	/**
+	 * 设置当前节点是否为自闭合(警告: 如果设置为自闭合,在格式化时将不会输出子节点以及文本,查询不受影响)
+	 *
+	 * @param close true为是自闭合标签,反之同理
+	 * @return 当前节点
+	 */
+	public Element close(boolean close) {
+		this.close = close;
+		return this;
+	}
+
+	/**
+	 * 为当前节点标签增加属性
+	 *
+	 * @param key   属性名
+	 * @param value 属性值
+	 * @return 当前节点
+	 */
+	public Element attr(@NotNull String key, @NotNull String value) {
+		this.attrs.put(key, value);
+		return this;
+	}
+
+	/**
+	 * 为当前节点标签增加属性
+	 *
+	 * @param attrs 属性参数数组
+	 * @return 当前节点
+	 */
+	public Element attrs(@NotNull Map<String, String> attrs) {
+		this.attrs.putAll(attrs);
+		return this;
+	}
+
+	/**
+	 * 删除当前节点的一个属性
+	 *
+	 * @param key 属性名
+	 * @return 当前节点
+	 */
+	public Element removeAttr(@NotNull String key) {
+		this.attrs.remove(key);
+		return this;
+	}
+
+	/**
+	 * 为当前节点增加子节点
+	 *
+	 * @param child 子节点
+	 * @return 当前节点
+	 */
+	public Element child(@NotNull Element child) {
+		this.childs.add(child);
+		return this;
+	}
+
+	/**
+	 * 为当前节点增加子节点
+	 *
+	 * @param childs 子节点数组
+	 * @return 当前节点
+	 */
+	public Element childs(@NotNull Elements childs) {
+		this.childs.addAll(childs);
+		return this;
+	}
+
+	/**
+	 * 删除一个子节点
+	 *
+	 * @param index 子节点位置
+	 * @return 当前节点
+	 */
+	public Element removeChild(int index) {
+		this.childs.remove(index);
+		return this;
+	}
+
+	/**
+	 * 设置当前节点文本
+	 *
+	 * @param text 文本
+	 * @return 当前节点
+	 */
+	public Element text(@NotNull String text) {
+		this.text = text;
+		return this;
 	}
 
 	/**
@@ -351,7 +452,12 @@ public class Element {
 	@Contract(pure = true)
 	public String toString(int depth) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("    ".repeat(depth)).append("<").append(name).append(attrs.entrySet().stream().map(attr -> " " + attr.getKey() + "=\"" + attr.getValue() + "\"").collect(Collectors.joining())).append(close ? "/>" : ">");
+		sb.append("    ".repeat(depth)).append("<").append(name).append(attrs.entrySet().stream().map(attr -> " " + attr.getKey() + "=\"" + attr.getValue() + "\"").collect(Collectors.joining()));
+		if (close) {
+			return sb.append("/>").toString();
+		} else {
+			sb.append(">");
+		}
 		if (childs.isEmpty()) {
 			if (!text.isEmpty()) {
 				switch (name) {
