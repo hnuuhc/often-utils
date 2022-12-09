@@ -634,16 +634,26 @@ public class HLSDownload {
 			if (URIUtil.statusIsOK(statusCodes.get())) { // 验证下载状态
 				try (FileOutputStream out = new FileOutputStream(storage)) {
 					try {
-						Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
-						SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
-						IvParameterSpec ivSpec = new IvParameterSpec(iv.isEmpty() ? new byte[16] : iv.substring(0, 16).getBytes());
-						cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
-						for (int i = 0; i < links.size(); i++) {
-							File file = new File(folder, i + ".ts");
-							byte[] bytes = Judge.isEmpty(key) ? ReadWriteUtil.orgin(file).readBytes() : cipher.doFinal(ReadWriteUtil.orgin(file).readBytes());
-							out.write(bytes, 0, bytes.length);
-							fileSize += bytes.length;
-							file.delete();
+						if (key.isEmpty()) {
+							for (int i = 0; i < links.size(); i++) {
+								File file = new File(folder, i + ".ts");
+								byte[] bytes = ReadWriteUtil.orgin(file).readBytes();
+								out.write(bytes, 0, bytes.length);
+								fileSize += bytes.length;
+								file.delete();
+							}
+						} else {
+							Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+							SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
+							IvParameterSpec ivSpec = new IvParameterSpec(iv.isEmpty() ? new byte[16] : iv.substring(0, 16).getBytes());
+							cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+							for (int i = 0; i < links.size(); i++) {
+								File file = new File(folder, i + ".ts");
+								byte[] bytes = cipher.doFinal(ReadWriteUtil.orgin(file).readBytes());
+								out.write(bytes, 0, bytes.length);
+								fileSize += bytes.length;
+								file.delete();
+							}
 						}
 						session.delete(); // 删除会话信息文件
 						folder.delete(); // 删除文件夹

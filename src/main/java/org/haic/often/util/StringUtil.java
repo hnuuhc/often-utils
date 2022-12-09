@@ -8,6 +8,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.haic.often.Judge;
+import org.haic.often.exception.JSONException;
 import org.haic.often.exception.StringException;
 import org.haic.often.function.ByteFunction;
 import org.jetbrains.annotations.Contract;
@@ -31,6 +32,35 @@ import java.util.stream.Stream;
  * @since 2021/3/27 15:12
  */
 public class StringUtil extends StringUtils {
+
+	/**
+	 * 由JSON解析器使用,截取字符串
+	 *
+	 * @param body  待截取的字符串
+	 * @param sb    截取后存放
+	 * @param index 当前位置下标
+	 * @return 当前位置下标
+	 */
+	public static int interceptString(@NotNull StringBuilder body, @NotNull StringBuilder sb, int index) {
+		while (body.charAt(++index) != '"') {
+			if (body.charAt(index) == '\\') { // 转义字符,不考虑'/'
+				switch (body.charAt(++index)) {
+					case 'u' -> sb.append(Integer.parseInt(body.substring(++index, index += 4), 16));
+					case '\\' -> sb.append('\\');
+					case '\'' -> sb.append('\'');
+					case '"' -> sb.append('"');
+					case 'r' -> sb.append("\\r");
+					case 'n' -> sb.append("\\n");
+					case '\r' -> throw new JSONException("在下标 " + index + " 处非法的转义字符: \\r");
+					case '\n' -> throw new JSONException("在下标 " + index + " 处非法的转义字符: \\n");
+					default -> throw new JSONException("在下标 " + index + " 处非法的转义字符: \\" + body.charAt(index));
+				}
+			} else {
+				sb.append(body.charAt(index));
+			}
+		}
+		return index;
+	}
 
 	/**
 	 * 提取html标签内属性值
