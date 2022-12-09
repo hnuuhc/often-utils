@@ -60,7 +60,8 @@ public class Element {
 
 		if (isHtml) {
 			switch (name) { // 特殊文本类标签处理后返回
-				case "input", "meta", "link", "img" -> { // 自闭合标签
+				// 自闭合标签
+				case "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr" -> {
 					return;
 				}
 				case "textarea", "script", "style" -> {
@@ -69,15 +70,6 @@ public class Element {
 					node.delete(0, text.length() + name.length() + 3);
 					text = text.strip();
 					return;
-				}
-				case "a", "b", "h1", "h2", "h3" -> { // 特殊标签,下级为div则返回上级
-					int index = node.indexOf("<");
-					text = node.substring(0, index);
-					node.delete(0, index);
-					text = text.strip();
-					if (node.charAt(1) == 'd' && node.charAt(2) == 'i' && node.charAt(3) == 'v') {
-						return;
-					}
 				}
 			}
 		}
@@ -91,13 +83,19 @@ public class Element {
 					continue;
 				}
 				if (node.charAt(1) == '/') { // 遇到结束标签返回上级
-					node.delete(0, node.indexOf(">") + 1);
-					return;
+					int index = node.indexOf(">");
+					if (node.substring(2, index).equals(name)) {
+						node.delete(0, index + 1);
+						return;
+					} else {
+						node.delete(0, index + 1);
+						continue;
+					}
 				}
 
 				String childTag = node.substring(0, node.indexOf(">") + 1); // 获取当前子标签
 				String childTagName = childTag.contains(" ") ? childTag.substring(1, childTag.indexOf(" ")) : node.charAt(childTag.length() - 2) == '/' ? childTag.substring(1, childTag.length() - 2) : childTag.substring(1, childTag.length() - 1);
-				childTagName = childTagName.toLowerCase(); // 由于html不区分大小写,统一以小写处理
+				childTagName = childTagName.strip().toLowerCase(); // 由于html不区分大小写,统一以小写处理
 
 				if (node.charAt(childTag.length() - 2) == '/') {
 					childs.add(new Element(node, childTag, childTagName, true, isHtml));
