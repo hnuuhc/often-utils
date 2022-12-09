@@ -437,7 +437,7 @@ public class HttpsUtil {
 				// 维护cookies
 				Map<String, List<String>> headerFields = conn.getHeaderFields();
 				List<String> cookies = headerFields.getOrDefault("Set-Cookie", headerFields.get("set-cookie"));
-				cookies(cookies == null ? new HashMap<>() : cookies.stream().filter(l -> !l.equals("-")).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1, l.indexOf(";")), (e1, e2) -> e2)));
+				cookies(cookies == null ? new HashMap<>() : cookies.stream().filter(l -> !l.equals("-") && !l.isBlank()).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1, l.indexOf(";")), (e1, e2) -> e2)));
 				Response res = new HttpResponse(conn, this.cookies);
 
 				String redirectUrl; // 修复重定向
@@ -535,7 +535,7 @@ public class HttpsUtil {
 
 		@Contract(pure = true)
 		public Map<String, String> headers() {
-			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-")).map(v -> v.substring(0, v.indexOf(";"))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue()), (e1, e2) -> e2)) : headers;
+			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-") && !v.isBlank()).map(v -> v.substring(0, v.indexOf(";"))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue()), (e1, e2) -> e2)) : headers;
 		}
 
 		@Contract(pure = true)
