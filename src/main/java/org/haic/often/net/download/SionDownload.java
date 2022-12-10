@@ -1,8 +1,5 @@
 package org.haic.often.net.download;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.TypeReference;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.exception.DownloadException;
@@ -11,6 +8,7 @@ import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.HttpStatus;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.thread.ConsumerThread;
 import org.haic.often.util.*;
 import org.jetbrains.annotations.Contract;
@@ -471,7 +469,7 @@ public class SionDownload {
 					JSONObject renew = fileInfo.getJSONObject("renew");
 					if (storage.exists() && renew != null) {
 						schedule.set(MAX_COMPLETED = renew.getLong("completed"));
-						status.putAll(JSON.parseObject(renew.getString("status"), new TypeReference<HashMap<Long, Long>>() {}));
+						status.putAll(renew.getJSONObject("status").toMap(Long.class, Long.class));
 						schedule.addAndGet(status.entrySet().stream().mapToLong(l -> l.getValue() - l.getKey()).sum());
 					}
 					fileInfo.remove("renew");
@@ -535,15 +533,15 @@ public class SionDownload {
 					fileInfo.put("hash", hash);
 					fileInfo.put("threads", MAX_THREADS);
 					fileInfo.put("method", method.name());
-					fileInfo.put("header", JSONObject.toJSONString(headers));
-					fileInfo.put("cookie", JSONObject.toJSONString(cookies));
+					fileInfo.put("header", JSONObject.parseObject(headers));
+					fileInfo.put("cookie", JSONObject.parseObject(cookies));
 					ReadWriteUtil.orgin(session).write(fileInfo.toString());
 				}
 				default -> throw new DownloadException("Unknown mode");
 			}
 
 			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
-			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", new JSONObject().fluentPut("completed", MAX_COMPLETED).fluentPut("status", status)).toString());
+			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", new JSONObject().fluentPut("completed", MAX_COMPLETED).fluentPut("status", JSONObject.parseObject(status))).toString());
 			Thread abnormal;
 			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
 			Thread listenTask = ThreadUtil.start(listener);

@@ -1,9 +1,9 @@
 package org.haic.often.chrome.browser;
 
-import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
 import org.haic.often.util.SystemUtil;

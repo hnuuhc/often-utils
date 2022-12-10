@@ -1,6 +1,5 @@
 package org.haic.often.netdisc;
 
-import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
@@ -11,6 +10,7 @@ import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.Base64Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

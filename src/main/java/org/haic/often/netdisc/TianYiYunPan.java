@@ -1,7 +1,5 @@
 package org.haic.often.netdisc;
 
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.haic.often.Judge;
 import org.haic.often.chrome.browser.LocalCookie;
@@ -11,6 +9,8 @@ import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
+import org.haic.often.parser.json.JSONArray;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.Contract;

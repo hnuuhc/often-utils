@@ -1,8 +1,5 @@
 package org.haic.often.net.download;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.TypeReference;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.haic.often.Judge;
@@ -15,6 +12,7 @@ import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpStatus;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.thread.ConsumerThread;
 import org.haic.often.util.*;
 import org.jetbrains.annotations.Contract;
@@ -529,8 +527,8 @@ public class HLSDownload {
 					// 创建并写入文件配置信息
 					fileInfo.put("fileName", fileName);
 					fileInfo.put("fileSize", 0);
-					fileInfo.put("header", JSONObject.toJSONString(headers));
-					fileInfo.put("cookie", JSONObject.toJSONString(cookies));
+					fileInfo.put("header", JSONObject.parseObject(headers));
+					fileInfo.put("cookie", JSONObject.parseObject(cookies));
 					fileInfo.put("key", key);
 					fileInfo.put("iv", iv);
 					fileInfo.put("data", links);
@@ -581,18 +579,18 @@ public class HLSDownload {
 					return execute("BODY");
 				}
 				case "FILE" -> {
-					fileInfo = JSON.parseObject(ReadWriteUtil.orgin(session).readBytes());
+					fileInfo = JSONObject.parseObject(ReadWriteUtil.orgin(session).read());
 					request.setUrl(url = fileInfo.getString("url"));
 					fileName = fileInfo.getString("fileName");
 					headers = StringUtil.jsonToMap(fileInfo.getString("header"));
 					cookies = StringUtil.jsonToMap(fileInfo.getString("cookie"));
 					key = fileInfo.getString("key");
 					iv = fileInfo.getString("iv");
-					links = fileInfo.getList("data", String.class);
+					links = fileInfo.getJSONArray("data").toList(String.class);
 					storage = new File(DEFAULT_FOLDER, fileName);
-					String renew = fileInfo.getString("renew");
+					JSONObject renew = fileInfo.getJSONObject("renew");
 					if (renew != null) {
-						status.putAll(JSON.parseObject(renew, new TypeReference<HashMap<File, Long>>() {}));
+						status.putAll(renew.toMap(File.class, Long.class));
 						fileInfo.remove("renew");
 					}
 					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 重置配置文件
@@ -603,7 +601,7 @@ public class HLSDownload {
 			File folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
 			session = new File(folder, SESSION_SUFFIX); // 配置信息文件后缀
 			FileUtil.createFolder(folder); // 创建文件夹
-			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", status).toString());
+			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", JSONObject.parseObject(status)).toString());
 			Thread abnormal;
 			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
 			Thread listenTask = ThreadUtil.start(listener);

@@ -1,9 +1,5 @@
 package org.haic.often.util;
 
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.JSONReader;
-import com.alibaba.fastjson2.TypeReference;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -11,6 +7,8 @@ import org.haic.often.Judge;
 import org.haic.often.exception.JSONException;
 import org.haic.often.exception.StringException;
 import org.haic.often.function.ByteFunction;
+import org.haic.often.parser.json.JSONArray;
+import org.haic.often.parser.json.JSONObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +30,19 @@ import java.util.stream.Stream;
  * @since 2021/3/27 15:12
  */
 public class StringUtil extends StringUtils {
+
+	public static String toEscapeString(@NotNull String body) {
+		StringBuilder sb = new StringBuilder();
+		char[] chars = body.toCharArray();
+		for (char c : chars) {
+			switch (c) {
+				case '\\' -> sb.append("\\\\");
+				case '"' -> sb.append("\\\"");
+				default -> sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
 
 	/**
 	 * 由JSON解析器使用,截取字符串
@@ -242,17 +253,6 @@ public class StringUtil extends StringUtils {
 	}
 
 	/**
-	 * JSON格式字符串转换Map类
-	 *
-	 * @param str 源字符串
-	 * @return Map - String String
-	 */
-	@Contract(pure = true)
-	public static <K, V> Map<K, V> jsonToMap(@NotNull String str) {
-		return JSONObject.parseObject(str, new TypeReference<HashMap<K, V>>() {});
-	}
-
-	/**
 	 * Map格式字符串转换Map类<br/>
 	 * 字符串应不包含指定的分隔符,否则键或值内存在会导致严重错误
 	 *
@@ -271,25 +271,14 @@ public class StringUtil extends StringUtils {
 	}
 
 	/**
-	 * JSON格式字符串转换为JSONObject
+	 * JSON格式字符串转换Map类
 	 *
-	 * @param str JSON格式字符串
-	 * @return JSONObject对象
+	 * @param str 源字符串
+	 * @return Map - String String
 	 */
 	@Contract(pure = true)
-	public static JSONObject toJSONObject(@NotNull String str) {
-		return JSONObject.parseObject(str, JSONObject.class, JSONReader.Feature.AllowUnQuotedFieldNames);
-	}
-
-	/**
-	 * JSON格式字符串转换为JSONArray
-	 *
-	 * @param str JSON格式字符串
-	 * @return JSONArray对象
-	 */
-	@Contract(pure = true)
-	public static JSONArray toJSONArray(@NotNull String str) {
-		return JSONArray.parseArray(str, JSONReader.Feature.AllowUnQuotedFieldNames);
+	public static Map<String, String> jsonToMap(@NotNull String str) {
+		return JSONObject.parseObject(str).toMap(String.class, String.class);
 	}
 
 	/**
@@ -319,7 +308,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static JSONObject jsonpToJSONObject(@NotNull String str) {
-		return toJSONObject(jsonpToJson(str));
+		return JSONObject.parseObject(jsonpToJson(str));
 	}
 
 	/**
@@ -330,7 +319,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static JSONArray jsonpToJSONArray(@NotNull String str) {
-		return toJSONArray(jsonpToJson(str));
+		return JSONArray.parseArray(jsonpToJson(str));
 	}
 
 	/**
@@ -342,7 +331,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static String mapToJson(@NotNull String str, @NotNull String split) {
-		return JSONObject.toJSONString(toMap(str, split));
+		return JSONObject.parseObject(toMap(str, split)).toString();
 	}
 
 	/**

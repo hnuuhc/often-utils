@@ -1,8 +1,5 @@
 package org.haic.often.util;
 
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.JSONWriter;
 import org.haic.often.Judge;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -127,32 +124,6 @@ public class ReadWriteUtil {
 	}
 
 	// ================================================== WriteUtils ==================================================
-
-	/**
-	 * 将 JSON 写入文件
-	 * <p>
-	 * 默认启用 Feature.LargeObject, 在JSON数据过大时使用该方法写入
-	 *
-	 * @param object JSON
-	 * @return 写入是否成功
-	 */
-	@Contract(pure = true)
-	public boolean write(@NotNull JSONObject object) {
-		return write(object.toString(JSONWriter.Feature.LargeObject));
-	}
-
-	/**
-	 * 将 JSON 写入文件
-	 * <p>
-	 * 默认启用 Feature.LargeObject, 在JSON数据过大时使用该方法写入
-	 *
-	 * @param object JSON
-	 * @return 写入是否成功
-	 */
-	@Contract(pure = true)
-	public boolean write(@NotNull JSONArray object) {
-		return write(object.toString(JSONWriter.Feature.LargeObject));
-	}
 
 	/**
 	 * 将数组合按行行写入文件,以"\n"结尾
@@ -455,27 +426,7 @@ public class ReadWriteUtil {
 		return false;
 	}
 	// ================================================== ReadUtils ==================================================
-
-	/**
-	 * 读取JSON数据
-	 *
-	 * @return JSONObject对象
-	 */
-	@Contract(pure = true)
-	public JSONObject readJSONObject() {
-		return StringUtil.toJSONObject(read());
-	}
-
-	/**
-	 * 读取JSON数据
-	 *
-	 * @return JSONArray对象
-	 */
-	@Contract(pure = true)
-	public JSONArray readJSONArray() {
-		return StringUtil.toJSONArray(read());
-	}
-
+	
 	/**
 	 * 遍历文件或文件夹,按行读取内容
 	 *

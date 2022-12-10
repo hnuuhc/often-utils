@@ -1,11 +1,10 @@
 package org.haic.often.net.aria2;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Symbol;
 import org.haic.often.net.Method;
 import org.haic.often.net.http.HttpsUtil;
+import org.haic.often.parser.json.JSONArray;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.Base64Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -264,13 +263,13 @@ public class Aria2Util {
 
 		@Contract(pure = true)
 		private String rpcSessionBody() {
-			JSONArray sessionsJson = JSON.parseArray(JSON.toJSONString(Stream.concat(rpcUrlSession().stream(), rpcSession().stream()).toList()));
+			JSONArray sessionsJson = JSONArray.parseArray(Stream.concat(rpcUrlSession().stream(), rpcSession().stream()).toList());
 			return sessionsJson.size() == 1 ? sessionsJson.getJSONObject(0).toString() : sessionsJson.toString();
 		}
 
 		@Contract(pure = true)
 		private JSONArray rpcSession() {
-			return JSONArray.parseArray(JSON.toJSONString(sessions.entrySet().stream().map(l -> rpcSessionHead(l.getKey()).fluentPut("params", l.getValue().fluentAdd("token:" + token))).toList()));
+			return JSONArray.parseArray(sessions.entrySet().stream().map(l -> rpcSessionHead(l.getKey()).fluentPut("params", l.getValue().fluentAdd("token:" + token))).toList());
 		}
 
 		@Contract(pure = true)

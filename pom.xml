@@ -6,7 +6,7 @@
 
     <groupId>org.haic.often</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
 
     <name>often-utils</name>
 
@@ -48,12 +48,6 @@
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
             <version>2.67.0</version>
-        </dependency>
-        <!-- JSON -->
-        <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>2.0.20</version>
         </dependency>
         <!-- 压缩文件项目 -->
         <dependency>

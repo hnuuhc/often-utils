@@ -1,7 +1,5 @@
 package org.haic.often.netdisc;
 
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Judge;
 import org.haic.often.chrome.browser.LocalStorage;
 import org.haic.often.exception.YunPanException;
@@ -10,6 +8,8 @@ import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
+import org.haic.often.parser.json.JSONArray;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

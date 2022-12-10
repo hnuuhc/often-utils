@@ -1,6 +1,6 @@
 package org.haic.often.net.aria2;
 
-import com.alibaba.fastjson2.JSONArray;
+import org.haic.often.parser.json.JSONArray;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

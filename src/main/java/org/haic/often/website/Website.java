@@ -1,10 +1,10 @@
 package org.haic.often.website;
 
-import com.alibaba.fastjson2.JSONObject;
 import org.haic.often.Symbol;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.HttpsUtil;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.StringUtil;
 import org.haic.often.website.api.Github;
 import org.haic.often.website.api.Weibo;
