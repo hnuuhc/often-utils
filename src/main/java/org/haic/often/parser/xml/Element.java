@@ -308,7 +308,9 @@ public class Element {
 	@NotNull
 	@Contract(pure = true)
 	public Elements select(@NotNull String cssQuery) {
-		return new Elements(childs).select(cssQuery);
+		Elements result = new Elements();
+		result.add(this);
+		return result.select(cssQuery);
 	}
 
 	/**

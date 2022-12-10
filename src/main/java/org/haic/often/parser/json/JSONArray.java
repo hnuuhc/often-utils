@@ -88,7 +88,17 @@ public class JSONArray extends ArrayList<Object> {
 						StringBuilder value = new StringBuilder();
 						do {
 							value.append(body.charAt(i++));
-						} while (Character.isDigit(body.charAt(i)));
+						} while (Character.isDigit(body.charAt(i)) || body.charAt(i) == '.');
+						if (body.charAt(i) == 'e') {
+							if (body.charAt(++i) == '+') {
+								value.append("e");
+								do {
+									value.append(body.charAt(i++));
+								} while (Character.isDigit(body.charAt(i)));
+							} else {
+								throw new JSONException("在下标 " + i + " 处期待值不为'+'");
+							}
+						}
 						this.add(value);
 					}
 					case '\'' -> {
