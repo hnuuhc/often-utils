@@ -31,6 +31,12 @@ import java.util.stream.Stream;
  */
 public class StringUtil extends StringUtils {
 
+	/**
+	 * 将字符串的转义字符以文本方式显示
+	 *
+	 * @param body 待处理字符串
+	 * @return 处理后的字符串
+	 */
 	public static String toEscapeString(@NotNull String body) {
 		StringBuilder sb = new StringBuilder();
 		char[] chars = body.toCharArray();

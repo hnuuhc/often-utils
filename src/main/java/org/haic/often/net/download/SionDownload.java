@@ -533,15 +533,15 @@ public class SionDownload {
 					fileInfo.put("hash", hash);
 					fileInfo.put("threads", MAX_THREADS);
 					fileInfo.put("method", method.name());
-					fileInfo.put("header", JSONObject.parseObject(headers));
-					fileInfo.put("cookie", JSONObject.parseObject(cookies));
+					fileInfo.put("header", headers);
+					fileInfo.put("cookie", cookies);
 					ReadWriteUtil.orgin(session).write(fileInfo.toString());
 				}
 				default -> throw new DownloadException("Unknown mode");
 			}
 
 			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
-			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", new JSONObject().fluentPut("completed", MAX_COMPLETED).fluentPut("status", JSONObject.parseObject(status))).toString());
+			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", new JSONObject().fluentPut("completed", MAX_COMPLETED).fluentPut("status", status)).toString());
 			Thread abnormal;
 			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
 			Thread listenTask = ThreadUtil.start(listener);

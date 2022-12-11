@@ -5,9 +5,12 @@ import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author haicdust
@@ -132,10 +135,6 @@ public class JSONArray extends ArrayList<Object> {
 		return Byte.parseByte(String.valueOf(super.get(i)));
 	}
 
-	public char getChar(int i) {
-		return (char) super.get(i);
-	}
-
 	public short getShort(int i) {
 		return Short.parseShort(String.valueOf(super.get(i)));
 	}
@@ -168,32 +167,31 @@ public class JSONArray extends ArrayList<Object> {
 	public <T> List<T> toList(Class<T> itemClass) {
 		List<T> list = new ArrayList<>();
 
-		if (itemClass == Short.class) {
-			for (var obj : this) list.add((T) Short.valueOf(String.valueOf(obj)));
-		} else if (itemClass == Integer.class) {
-			for (var obj : this) list.add((T) Integer.valueOf(String.valueOf(obj)));
-		} else if (itemClass == Long.class) {
-			for (var obj : this) list.add((T) Long.valueOf(String.valueOf(obj)));
-		} else if (itemClass == Float.class) {
-			for (var obj : this) list.add((T) Float.valueOf(String.valueOf(obj)));
-		} else if (itemClass == Double.class) {
-			for (var obj : this) list.add((T) Double.valueOf(String.valueOf(obj)));
-		} else if (itemClass == Byte.class) {
-			for (var obj : this) list.add((T) Byte.valueOf(String.valueOf(obj)));
-		} else if (itemClass == Character.class) {
+		if (itemClass == Character.class) {
 			for (var obj : this) list.add((T) Character.valueOf((char) obj));
-		} else if (itemClass == String.class) {
-			for (var obj : this) list.add((T) String.valueOf(obj));
 		} else if (itemClass == Boolean.class) {
-			for (var obj : this) list.add((T) Boolean.valueOf(String.valueOf(obj)));
+			for (var obj : this) list.add((T) obj);
 		} else if (itemClass == JSONObject.class) {
 			for (var obj : this) list.add((T) (obj instanceof JSONObject ? obj : JSONObject.parseObject(String.valueOf(obj))));
 		} else if (itemClass == JSONArray.class) {
 			for (var obj : this) list.add((T) (obj instanceof JSONArray ? obj : JSONArray.parseArray(String.valueOf(obj))));
 		} else {
-			throw new JSONException("不支持的类型转换");
+			Constructor<?> type = null;
+			for (var con : itemClass.getConstructors()) {
+				Class<?>[] parameterTypes = con.getParameterTypes();
+				if (parameterTypes.length == 1 && parameterTypes[0].getName().equals("java.lang.String")) {
+					type = con;
+				}
+			}
+			if (type == null) {
+				throw new JSONException("不支持的类型转换");
+			}
+			try {
+				for (var obj : this) list.add((T) type.newInstance(obj));
+			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+				throw new JSONException("转换类型不匹配");
+			}
 		}
-
 		return list;
 	}
 
@@ -212,10 +210,19 @@ public class JSONArray extends ArrayList<Object> {
 		StringBuilder sb = new StringBuilder().append('[');
 		for (Object token : this) {
 			if (token instanceof String) {
-				sb.append('"').append(token).append('"').append(',');
+				sb.append('"').append(StringUtil.toEscapeString((String) token)).append('"');
+			} else if (token instanceof JSONArray) {
+				sb.append(token);
+			} else if (token instanceof List) {
+				//noinspection unchecked
+				sb.append(JSONArray.parseArray((List<Object>) token));
+			} else if (token instanceof Map) {
+				//noinspection unchecked
+				sb.append(JSONObject.parseObject((Map<String, Object>) token));
 			} else {
-				sb.append(token).append(',');
+				sb.append(token);
 			}
+			sb.append(',');
 		}
 		if (sb.charAt(sb.length() - 1) == ',') sb.deleteCharAt(sb.length() - 1);
 		return sb.append(']').toString();
@@ -234,10 +241,19 @@ public class JSONArray extends ArrayList<Object> {
 		for (Object token : this) {
 			sb.append('\n').append("    ".repeat(depth + 1));
 			if (token instanceof String) {
-				sb.append('"').append(token).append('"').append(',');
+				sb.append('"').append(StringUtil.toEscapeString((String) token)).append('"');
+			} else if (token instanceof JSONArray) {
+				sb.append(((JSONArray) token).toString(depth + 1));
+			} else if (token instanceof List) {
+				//noinspection unchecked
+				sb.append(JSONArray.parseArray((List<Object>) token).toString(depth + 1));
+			} else if (token instanceof Map) {
+				//noinspection unchecked
+				sb.append(JSONObject.parseObject((Map<String, Object>) token).toString(depth + 1));
 			} else {
-				sb.append(token).append(',');
+				sb.append(token);
 			}
+			sb.append(',');
 		}
 		if (sb.charAt(sb.length() - 1) == ',') sb.deleteCharAt(sb.length() - 1);
 		return sb.append('\n').append("    ".repeat(depth)).append(']').toString();

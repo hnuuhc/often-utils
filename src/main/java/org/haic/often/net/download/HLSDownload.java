@@ -527,8 +527,8 @@ public class HLSDownload {
 					// 创建并写入文件配置信息
 					fileInfo.put("fileName", fileName);
 					fileInfo.put("fileSize", 0);
-					fileInfo.put("header", JSONObject.parseObject(headers));
-					fileInfo.put("cookie", JSONObject.parseObject(cookies));
+					fileInfo.put("header", headers);
+					fileInfo.put("cookie", cookies);
 					fileInfo.put("key", key);
 					fileInfo.put("iv", iv);
 					fileInfo.put("data", links);
@@ -601,7 +601,7 @@ public class HLSDownload {
 			File folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
 			session = new File(folder, SESSION_SUFFIX); // 配置信息文件后缀
 			FileUtil.createFolder(folder); // 创建文件夹
-			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", JSONObject.parseObject(status)).toString());
+			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", status).toString());
 			Thread abnormal;
 			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
 			Thread listenTask = ThreadUtil.start(listener);
