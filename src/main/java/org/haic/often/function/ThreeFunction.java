@@ -1,6 +1,6 @@
 package org.haic.often.function;
 
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.NotNull;
 
 import java.util.function.Function;
 

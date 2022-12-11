@@ -1,7 +1,7 @@
 package org.haic.often.image;
 
 import org.haic.often.Judge;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

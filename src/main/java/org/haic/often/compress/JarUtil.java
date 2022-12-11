@@ -6,8 +6,8 @@ import org.apache.commons.compress.archivers.jar.JarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.haic.often.exception.ZipException;
 import org.haic.often.util.FileUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.io.BufferedInputStream;
 import java.io.File;

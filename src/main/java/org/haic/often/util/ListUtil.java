@@ -1,7 +1,7 @@
 package org.haic.often.util;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;

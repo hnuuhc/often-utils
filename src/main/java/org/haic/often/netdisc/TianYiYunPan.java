@@ -2,6 +2,8 @@ package org.haic.often.netdisc;
 
 import org.apache.commons.codec.binary.Base64;
 import org.haic.often.Judge;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
@@ -13,8 +15,6 @@ import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.util.StringUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;

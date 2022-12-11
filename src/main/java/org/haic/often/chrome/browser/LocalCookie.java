@@ -7,8 +7,8 @@ import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
 import org.haic.often.util.SystemUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.io.File;
 import java.sql.Connection;

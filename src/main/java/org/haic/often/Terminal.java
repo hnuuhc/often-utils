@@ -1,9 +1,9 @@
 package org.haic.often;
 
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.SystemUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;

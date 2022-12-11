@@ -4,6 +4,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.AESException;
 import org.haic.often.exception.HLSDownloadException;
 import org.haic.often.function.StringFunction;
@@ -15,8 +17,6 @@ import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.thread.ConsumerThread;
 import org.haic.often.util.*;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;

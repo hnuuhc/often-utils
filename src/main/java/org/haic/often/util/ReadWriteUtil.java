@@ -1,8 +1,8 @@
 package org.haic.often.util;
 
 import org.haic.often.Judge;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -426,7 +426,7 @@ public class ReadWriteUtil {
 		return false;
 	}
 	// ================================================== ReadUtils ==================================================
-	
+
 	/**
 	 * 遍历文件或文件夹,按行读取内容
 	 *

@@ -1,6 +1,6 @@
 package org.haic.often.net;
 
-import org.jetbrains.annotations.Contract;
+import org.haic.often.annotations.Contract;
 
 /**
  * URI协议常量

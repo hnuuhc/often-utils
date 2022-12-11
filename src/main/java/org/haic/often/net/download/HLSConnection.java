@@ -1,8 +1,8 @@
 package org.haic.often.net.download;
 
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.function.StringFunction;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.net.Proxy;

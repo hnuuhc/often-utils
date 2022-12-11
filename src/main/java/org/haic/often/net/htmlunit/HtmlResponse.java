@@ -2,8 +2,8 @@ package org.haic.often.net.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.haic.often.parser.xml.Document;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;

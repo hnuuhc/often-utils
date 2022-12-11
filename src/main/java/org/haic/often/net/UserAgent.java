@@ -3,7 +3,7 @@ package org.haic.often.net;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.haic.often.Judge;
-import org.jetbrains.annotations.Contract;
+import org.haic.often.annotations.Contract;
 
 /**
  * UserAgent工具类

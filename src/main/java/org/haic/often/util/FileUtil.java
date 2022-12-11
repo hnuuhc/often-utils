@@ -3,8 +3,8 @@ package org.haic.often.util;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.haic.often.Judge;
 import org.haic.often.exception.StringException;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.BufferedInputStream;

@@ -1,6 +1,6 @@
 package org.haic.often.net.aria2;
 
-import org.jetbrains.annotations.Contract;
+import org.haic.often.annotations.Contract;
 
 /**
  * Aria2方法名常量

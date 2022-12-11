@@ -6,7 +6,7 @@
 
     <groupId>org.haic.often</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.0.10</version>
+    <version>1.1.0</version>
 
     <name>often-utils</name>
 
@@ -36,12 +36,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
-        </dependency>
-        <!-- 注解 -->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>23.0.0</version>
         </dependency>
         <!-- htmlunit -->
         <dependency>

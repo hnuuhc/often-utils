@@ -2,6 +2,8 @@ package org.haic.often.net.download;
 
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.DownloadException;
 import org.haic.often.net.MimeType;
 import org.haic.often.net.URIUtil;
@@ -11,8 +13,6 @@ import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.thread.ConsumerThread;
 import org.haic.often.util.*;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;

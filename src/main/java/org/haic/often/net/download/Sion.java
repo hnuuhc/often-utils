@@ -2,11 +2,11 @@ package org.haic.often.net.download;
 
 import org.haic.often.Symbol;
 import org.haic.often.Terminal;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.list.SafetyLinkedHashMap;
 import org.haic.often.util.SystemUtil;
 import org.haic.often.util.ThreadUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.net.InetSocketAddress;

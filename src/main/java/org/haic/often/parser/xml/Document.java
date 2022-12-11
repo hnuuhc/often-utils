@@ -1,6 +1,6 @@
 package org.haic.often.parser.xml;
 
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.NotNull;
 
 /**
  * 这是一个html和xml解析器,使用方法为 Document doc = Document.parse(String)

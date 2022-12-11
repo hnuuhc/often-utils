@@ -1,7 +1,7 @@
 package org.haic.often.website.api;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 /**
  * Youtube接口

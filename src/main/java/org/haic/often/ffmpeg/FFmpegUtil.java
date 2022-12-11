@@ -4,8 +4,8 @@ import org.haic.often.Judge;
 import org.haic.often.Terminal;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;

@@ -3,14 +3,14 @@ package org.haic.often.chrome.browser;
 import com.protonail.leveldb.jna.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.net.URIUtil;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.SystemUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;

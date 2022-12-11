@@ -1,9 +1,9 @@
 package org.haic.often.parser.xml;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.util.StringUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;

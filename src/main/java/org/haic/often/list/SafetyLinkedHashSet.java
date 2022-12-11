@@ -1,6 +1,6 @@
 package org.haic.often.list;
 
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.NotNull;
 
 import java.io.Serial;
 import java.util.Collection;

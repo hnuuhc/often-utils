@@ -1,6 +1,6 @@
 package org.haic.often;
 
-import org.jetbrains.annotations.Contract;
+import org.haic.often.annotations.Contract;
 
 /**
  * 判断是否为空

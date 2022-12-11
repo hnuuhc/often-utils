@@ -11,8 +11,8 @@ import org.haic.often.parser.xml.Document;
 import org.haic.often.parser.xml.Element;
 import org.haic.often.parser.xml.Elements;
 import org.haic.often.util.StringUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;

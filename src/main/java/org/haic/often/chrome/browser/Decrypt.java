@@ -3,10 +3,10 @@ package org.haic.often.chrome.browser;
 import com.github.windpapi4j.WinDPAPI;
 import org.apache.commons.codec.binary.Base64;
 import org.haic.often.Judge;
+import org.haic.often.annotations.Contract;
 import org.haic.often.function.StringFunction;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.ReadWriteUtil;
-import org.jetbrains.annotations.Contract;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;

@@ -3,8 +3,8 @@ package org.haic.often.parser.json;
 import org.haic.often.exception.JSONException;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;

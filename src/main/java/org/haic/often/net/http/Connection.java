@@ -1,9 +1,9 @@
 package org.haic.often.net.http;
 
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
 import org.haic.often.parser.xml.Document;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLContext;
 import java.io.InputStream;

@@ -3,8 +3,8 @@ package org.haic.often.util;
 import org.haic.often.exception.TypeException;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

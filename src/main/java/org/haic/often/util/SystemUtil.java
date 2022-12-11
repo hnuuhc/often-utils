@@ -1,8 +1,8 @@
 package org.haic.often.util;
 
 import org.haic.often.Terminal;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.awt.*;
 import java.io.File;

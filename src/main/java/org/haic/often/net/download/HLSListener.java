@@ -1,6 +1,6 @@
 package org.haic.often.net.download;
 
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.NotNull;
 
 /**
  * HLS下载类监听器接口

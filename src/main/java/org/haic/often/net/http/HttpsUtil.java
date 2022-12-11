@@ -14,8 +14,8 @@ import org.haic.often.tuple.record.ThreeTuple;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;

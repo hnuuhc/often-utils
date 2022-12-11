@@ -9,8 +9,8 @@ import org.haic.often.util.StringUtil;
 import org.haic.often.website.api.Github;
 import org.haic.often.website.api.Weibo;
 import org.haic.often.website.api.Youtube;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;

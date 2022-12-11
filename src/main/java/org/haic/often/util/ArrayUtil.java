@@ -1,6 +1,6 @@
 package org.haic.often.util;
 
-import org.jetbrains.annotations.Contract;
+import org.haic.often.annotations.Contract;
 
 import java.util.Arrays;
 import java.util.List;

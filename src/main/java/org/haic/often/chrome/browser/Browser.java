@@ -1,13 +1,13 @@
 package org.haic.often.chrome.browser;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 
 import java.io.File;
 import java.util.Map;
 
 public abstract class Browser {
-	
+
 	protected File home;
 	protected File storage;
 

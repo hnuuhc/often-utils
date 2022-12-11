@@ -4,12 +4,12 @@ import org.apache.http.HttpStatus;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.Terminal;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.util.Base64Util;
 import org.haic.often.util.ListUtil;
 import org.haic.often.util.StringUtil;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
