@@ -578,7 +578,7 @@ public class HttpsUtil {
 		@Contract(pure = true)
 		public Document parse() {
 			String body = body();
-			return body == null ? null : new Document(body);
+			return body == null ? null : Document.parse(body);
 		}
 
 		@Contract(pure = true)
