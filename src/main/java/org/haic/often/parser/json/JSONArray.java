@@ -2,6 +2,7 @@ package org.haic.often.parser.json;
 
 import org.haic.often.exception.JSONException;
 import org.haic.often.util.StringUtil;
+import org.haic.often.util.TypeUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -124,43 +125,43 @@ public class JSONArray extends ArrayList<Object> {
 	}
 
 	public String getString(int i) {
-		return String.valueOf(super.get(i));
+		return TypeUtil.convert(super.get(i), String.class);
 	}
 
 	public boolean getBoolean(int i) {
-		return Boolean.parseBoolean(String.valueOf(super.get(i)));
+		return TypeUtil.convert(super.get(i), Boolean.class);
 	}
 
 	public byte getByte(int i) {
-		return Byte.parseByte(String.valueOf(super.get(i)));
+		return TypeUtil.convert(super.get(i), Byte.class);
 	}
 
 	public short getShort(int i) {
-		return Short.parseShort(String.valueOf(super.get(i)));
+		return TypeUtil.convert(super.get(i), Short.class);
 	}
 
 	public int getInteger(int i) {
-		return Integer.parseInt(String.valueOf(super.get(i)));
+		return TypeUtil.convert(super.get(i), Integer.class);
 	}
 
 	public long getLong(int i) {
-		return Long.parseLong(String.valueOf(super.get(i)));
+		return TypeUtil.convert(super.get(i), Long.class);
 	}
 
 	public float getFloat(int i) {
-		return Float.parseFloat(String.valueOf(super.get(i)));
+		return TypeUtil.convert(super.get(i), Float.class);
 	}
 
 	public double getDouble(int i) {
-		return Double.parseDouble(String.valueOf(super.get(i)));
+		return TypeUtil.convert(super.get(i), Double.class);
 	}
 
 	public JSONObject getJSONObject(int i) {
-		return (JSONObject) this.get(i);
+		return TypeUtil.convert(super.get(i), JSONObject.class);
 	}
 
 	public JSONArray getJSONArray(int i) {
-		return (JSONArray) this.get(i);
+		return TypeUtil.convert(super.get(i), JSONArray.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -216,6 +217,8 @@ public class JSONArray extends ArrayList<Object> {
 			} else if (token instanceof List) {
 				//noinspection unchecked
 				sb.append(JSONArray.parseArray((List<Object>) token));
+			} else if (token instanceof JSONObject) {
+				sb.append(token);
 			} else if (token instanceof Map) {
 				//noinspection unchecked
 				sb.append(JSONObject.parseObject((Map<String, Object>) token));
@@ -247,6 +250,8 @@ public class JSONArray extends ArrayList<Object> {
 			} else if (token instanceof List) {
 				//noinspection unchecked
 				sb.append(JSONArray.parseArray((List<Object>) token).toString(depth + 1));
+			} else if (token instanceof JSONObject) {
+				sb.append(((JSONObject) token).toString(depth + 1));
 			} else if (token instanceof Map) {
 				//noinspection unchecked
 				sb.append(JSONObject.parseObject((Map<String, Object>) token).toString(depth + 1));

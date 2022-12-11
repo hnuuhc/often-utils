@@ -136,102 +136,96 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 		return object;
 	}
 
+	public <T> T get(@NotNull String key, @NotNull Class<T> itemClass) {
+		return TypeUtil.convert(this.get(key), itemClass);
+	}
+
 	public Object get(@NotNull String key) {
 		return super.get(key);
 	}
-
+	
 	public Object getOrDefault(@NotNull String key, @NotNull Object value) {
 		return super.getOrDefault(key, value);
 	}
 
 	public String getString(@NotNull String key) {
-		return String.valueOf(super.get(key));
+		return TypeUtil.convert(this.get(key), String.class);
 	}
 
 	public String getStringValue(@NotNull String key, String value) {
-		return this.containsKey(" ") ? String.valueOf(super.get(key)) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), String.class);
 	}
 
 	public boolean getBoolean(@NotNull String key) {
-		return Boolean.parseBoolean(String.valueOf(super.get(key)));
+		return TypeUtil.convert(this.get(key), Boolean.class);
 	}
 
 	public boolean getBooleanValue(@NotNull String key, boolean value) {
-		return this.containsKey(" ") ? Boolean.parseBoolean(String.valueOf(super.get(key))) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), Boolean.class);
 	}
 
 	public byte getByte(@NotNull String key) {
-		return Byte.parseByte(String.valueOf(super.get(key)));
+		return TypeUtil.convert(this.get(key), Byte.class);
 	}
 
 	public byte getByteValue(@NotNull String key, byte value) {
-		return this.containsKey(" ") ? Byte.parseByte(String.valueOf(super.get(key))) : value;
-	}
-
-	public char getChar(@NotNull String key) {
-		return (char) super.get(key);
-	}
-
-	public char getCharValue(@NotNull String key, char value) {
-		return this.containsKey(" ") ? (char) super.get(key) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), Byte.class);
 	}
 
 	public short getShort(@NotNull String key) {
-		return Short.parseShort(String.valueOf(super.get(key)));
+		return TypeUtil.convert(this.get(key), Short.class);
 	}
 
 	public short getShortValue(@NotNull String key, short value) {
-		return this.containsKey(" ") ? Short.parseShort(String.valueOf(super.get(key))) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), Short.class);
 	}
 
 	public int getInteger(@NotNull String key) {
-		return Integer.parseInt(String.valueOf(super.get(key)));
+		return TypeUtil.convert(this.get(key), Integer.class);
 	}
 
 	public int getIntegerValue(@NotNull String key, int value) {
-		return this.containsKey(" ") ? Integer.parseInt(String.valueOf(super.get(key))) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), Integer.class);
 	}
 
 	public long getLong(@NotNull String key) {
-		return Long.parseLong(String.valueOf(super.get(key)));
+		return TypeUtil.convert(this.get(key), Long.class);
 	}
 
 	public long getLongValue(@NotNull String key, long value) {
-		return this.containsKey(" ") ? Long.parseLong(String.valueOf(super.get(key))) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), Long.class);
 	}
 
 	public float getFloat(@NotNull String key) {
-		return Float.parseFloat(String.valueOf(super.get(key)));
+		return TypeUtil.convert(this.get(key), Float.class);
 	}
 
 	public float getFloatValue(@NotNull String key, float value) {
-		return this.containsKey(" ") ? Float.parseFloat(String.valueOf(super.get(key))) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), Float.class);
 	}
 
 	public double getDouble(@NotNull String key) {
-		return Double.parseDouble(String.valueOf(super.get(key)));
+		return TypeUtil.convert(this.get(key), Double.class);
 	}
 
 	public double getDoubleValue(@NotNull String key, double value) {
-		return this.containsKey(" ") ? Double.parseDouble(String.valueOf(super.get(key))) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), Double.class);
 	}
 
 	public JSONObject getJSONObject(@NotNull String key) {
-		return (JSONObject) this.get(key);
+		return TypeUtil.convert(this.get(key), JSONObject.class);
 	}
 
 	public JSONObject getJSONObjectValue(@NotNull String key, JSONObject value) {
-		return this.containsKey(" ") ? (JSONObject) super.get(key) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), JSONObject.class);
 	}
 
 	public JSONArray getJSONArray(@NotNull String key) {
-		Object value = this.get(key);
-		//noinspection unchecked
-		return value instanceof JSONArray ? (JSONArray) value : JSONArray.parseArray((List<Object>) this.get(key));
+		return TypeUtil.convert(this.get(key), JSONArray.class);
 	}
 
 	public JSONArray getJSONArrayValue(@NotNull String key, JSONArray value) {
-		return this.containsKey(" ") ? getJSONArray(key) : value;
+		return TypeUtil.convert(super.getOrDefault(key, value), JSONArray.class);
 	}
 
 	public <K, V> Map<K, V> toMap(Class<K> keyItemClass, Class<V> valueItemClass) {
@@ -264,6 +258,8 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			} else if (value instanceof List) {
 				//noinspection unchecked
 				sb.append(JSONArray.parseArray((List<Object>) value));
+			} else if (value instanceof JSONObject) {
+				sb.append(value);
 			} else if (value instanceof Map) {
 				//noinspection unchecked
 				sb.append(JSONObject.parseObject((Map<String, Object>) value));
