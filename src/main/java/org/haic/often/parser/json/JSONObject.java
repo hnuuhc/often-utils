@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * JSON对象类
+ *
  * @author haicdust
  * @version 1.0
  * @since 2022/12/4 23:07
@@ -25,10 +27,9 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	/**
 	 * 这是解析用构建,切勿使用
 	 *
-	 * @param body    字符串
-	 * @param isChild 是否是子类
+	 * @param body 字符串
 	 */
-	public JSONObject(@NotNull StringBuilder body, boolean isChild) {
+	public JSONObject(@NotNull StringBuilder body) {
 		if (body.charAt(0) != '{') {
 			throw new JSONException("格式错误: " + body);
 		}
@@ -103,7 +104,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 				}
 				case '{' -> {
 					body.delete(0, i);
-					this.put(key.toString(), new JSONObject(body, true));
+					this.put(key.toString(), new JSONObject(body));
 					i = 0;
 				}
 				case '[' -> {
@@ -115,9 +116,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			}
 			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 			if (body.charAt(i) == '}') { // 分隔符或结束符
-				if (!isChild && i + 1 < body.length()) {
-					throw new JSONException("在结束符后仍有字符存在");
-				}
 				body.delete(0, i + 1);
 				return;
 			} else if (body.charAt(i) != ',') {
@@ -126,119 +124,330 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 		}
 	}
 
+	/**
+	 * 解析并获取JSON对象
+	 *
+	 * @param body JSON字符串
+	 * @return JSON对象
+	 */
+	@Contract(pure = true)
 	public static JSONObject parseObject(@NotNull String body) {
-		return new JSONObject(new StringBuilder(body.strip()), false);
+		return new JSONObject(new StringBuilder(body.strip()));
 	}
 
+	/**
+	 * 解析并获取JSON对象
+	 *
+	 * @param m Map数组
+	 * @return JSON对象
+	 */
+	@Contract(pure = true)
 	public static <K, V> JSONObject parseObject(@NotNull Map<? super K, ? super V> m) {
 		JSONObject object = new JSONObject();
 		m.forEach((key, value) -> object.put(String.valueOf(key), value));
 		return object;
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key       名称
+	 * @param itemClass 指定类型
+	 * @param <T>       返回泛型
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public <T> T get(@NotNull String key, @NotNull Class<T> itemClass) {
 		return TypeUtil.convert(this.get(key), itemClass);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public Object get(@NotNull String key) {
 		return super.get(key);
 	}
-	
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public Object getOrDefault(@NotNull String key, @NotNull Object value) {
 		return super.getOrDefault(key, value);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public String getString(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), String.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public String getStringValue(@NotNull String key, String value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), String.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public boolean getBoolean(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), Boolean.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public boolean getBooleanValue(@NotNull String key, boolean value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), Boolean.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public byte getByte(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), Byte.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public byte getByteValue(@NotNull String key, byte value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), Byte.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public short getShort(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), Short.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public short getShortValue(@NotNull String key, short value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), Short.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public int getInteger(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), Integer.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public int getIntegerValue(@NotNull String key, int value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), Integer.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public long getLong(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), Long.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public long getLongValue(@NotNull String key, long value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), Long.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public float getFloat(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), Float.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public float getFloatValue(@NotNull String key, float value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), Float.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public double getDouble(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), Double.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public double getDoubleValue(@NotNull String key, double value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), Double.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public JSONObject getJSONObject(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), JSONObject.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public JSONObject getJSONObjectValue(@NotNull String key, JSONObject value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), JSONObject.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public JSONArray getJSONArray(@NotNull String key) {
 		return TypeUtil.convert(this.get(key), JSONArray.class);
 	}
 
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
 	public JSONArray getJSONArrayValue(@NotNull String key, JSONArray value) {
 		return TypeUtil.convert(super.getOrDefault(key, value), JSONArray.class);
 	}
 
+	/**
+	 * 转换为指定类型的Map数组
+	 *
+	 * @param keyItemClass   Map键类型
+	 * @param valueItemClass Map值类型
+	 * @param <K>            键泛型
+	 * @param <V>            值泛型
+	 * @return Map数组
+	 */
+	@Contract(pure = true)
 	public <K, V> Map<K, V> toMap(Class<K> keyItemClass, Class<V> valueItemClass) {
 		Map<K, V> map = new HashMap<>();
 		this.forEach((key, value) -> map.put(TypeUtil.convert(key, keyItemClass), TypeUtil.convert(value, valueItemClass)));
 		return map;
 	}
 
+	/**
+	 * 添加元素并返回自身
+	 *
+	 * @param key   键
+	 * @param value 值
+	 * @return 自身
+	 */
 	public JSONObject fluentPut(@NotNull String key, Object value) {
 		super.put(key, value);
 		return this;
 	}
 
+	/**
+	 * 添加所有元素并返回自身
+	 *
+	 * @param m Map数组
+	 * @return 自身
+	 */
 	public JSONObject fluentPutAll(@NotNull Map<String, Object> m) {
 		super.putAll(m);
 		return this;
@@ -287,16 +496,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			sb.append("\n").append("    ".repeat(depth + 1)).append('"').append(token.getKey()).append("\":");
 			Object value = token.getValue();
 			if (value instanceof String) {
-				StringBuilder valueStr = new StringBuilder();
-				char[] chars = ((String) value).toCharArray();
-				for (char c : chars) {
-					switch (c) {
-						case '\\' -> valueStr.append("\\\\");
-						case '"' -> valueStr.append("\\\"");
-						default -> valueStr.append(c);
-					}
-				}
-				sb.append('"').append(valueStr).append('"');
+				sb.append('"').append(StringUtil.toEscapeString((String) value)).append('"');
 			} else if (value instanceof JSONArray) {
 				sb.append(((JSONArray) value).toString(depth + 1));
 			} else if (value instanceof List) {
