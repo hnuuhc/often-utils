@@ -1,10 +1,10 @@
 package org.haic.often.parser.json;
 
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeUtil;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -454,7 +454,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	}
 
 	@Override
-	@SuppressWarnings("DuplicatedCode")
+	@SuppressWarnings("unchecked")
 	public String toString() {
 		StringBuilder sb = new StringBuilder().append('{');
 		for (var token : this.entrySet()) {
@@ -465,12 +465,10 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			} else if (value instanceof JSONArray) {
 				sb.append(value);
 			} else if (value instanceof List) {
-				//noinspection unchecked
 				sb.append(JSONArray.parseArray((List<Object>) value));
 			} else if (value instanceof JSONObject) {
 				sb.append(value);
 			} else if (value instanceof Map) {
-				//noinspection unchecked
 				sb.append(JSONObject.parseObject((Map<String, Object>) value));
 			} else {
 				sb.append(value);
@@ -489,7 +487,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	@SuppressWarnings("DuplicatedCode")
+	@SuppressWarnings("unchecked")
 	public String toString(int depth) {
 		StringBuilder sb = new StringBuilder().append('{');
 		for (var token : this.entrySet()) {
@@ -500,12 +498,10 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			} else if (value instanceof JSONArray) {
 				sb.append(((JSONArray) value).toString(depth + 1));
 			} else if (value instanceof List) {
-				//noinspection unchecked
 				sb.append(JSONArray.parseArray((List<Object>) value).toString(depth + 1));
 			} else if (value instanceof JSONObject) {
 				sb.append(((JSONObject) value).toString(depth + 1));
 			} else if (value instanceof Map) {
-				//noinspection unchecked
 				sb.append(JSONObject.parseObject((Map<String, Object>) value).toString(depth + 1));
 			} else {
 				sb.append(value);

@@ -1,10 +1,10 @@
 package org.haic.often.parser.json;
 
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeUtil;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -290,6 +290,7 @@ public class JSONArray extends ArrayList<Object> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public String toString() {
 		StringBuilder sb = new StringBuilder().append('[');
 		for (Object token : this) {
@@ -298,12 +299,10 @@ public class JSONArray extends ArrayList<Object> {
 			} else if (token instanceof JSONArray) {
 				sb.append(token);
 			} else if (token instanceof List) {
-				//noinspection unchecked
 				sb.append(JSONArray.parseArray((List<Object>) token));
 			} else if (token instanceof JSONObject) {
 				sb.append(token);
 			} else if (token instanceof Map) {
-				//noinspection unchecked
 				sb.append(JSONObject.parseObject((Map<String, Object>) token));
 			} else {
 				sb.append(token);
@@ -322,6 +321,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@NotNull
 	@Contract(pure = true)
+	@SuppressWarnings("unchecked")
 	public String toString(int depth) {
 		StringBuilder sb = new StringBuilder().append('[');
 		for (Object token : this) {
@@ -331,12 +331,10 @@ public class JSONArray extends ArrayList<Object> {
 			} else if (token instanceof JSONArray) {
 				sb.append(((JSONArray) token).toString(depth + 1));
 			} else if (token instanceof List) {
-				//noinspection unchecked
 				sb.append(JSONArray.parseArray((List<Object>) token).toString(depth + 1));
 			} else if (token instanceof JSONObject) {
 				sb.append(((JSONObject) token).toString(depth + 1));
 			} else if (token instanceof Map) {
-				//noinspection unchecked
 				sb.append(JSONObject.parseObject((Map<String, Object>) token).toString(depth + 1));
 			} else {
 				sb.append(token);
