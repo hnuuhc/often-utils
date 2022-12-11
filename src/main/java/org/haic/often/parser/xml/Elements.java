@@ -211,6 +211,28 @@ public class Elements extends ArrayList<Element> {
 		return result;
 	}
 
+	/**
+	 * 添加元素并返回自身
+	 *
+	 * @param e 待添加的元素
+	 * @return 自身
+	 */
+	public Elements fluentAdd(@NotNull Element e) {
+		super.add(e);
+		return this;
+	}
+
+	/**
+	 * 添加数组所有元素并返回自身
+	 *
+	 * @param e 数组
+	 * @return 自身
+	 */
+	public Elements fluentAddAll(@NotNull Elements e) {
+		super.addAll(e);
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
