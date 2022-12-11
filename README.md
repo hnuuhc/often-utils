@@ -47,8 +47,7 @@ HLSDownload.connect(url).execute(); // m3u8下载
 
 ### 说明:
 
-1.支持ws,wss协议,仅send()方法访问  
-2.支持aria2 API交互
+1.支持aria2 API交互
 
 ### 简单示例:
 
@@ -89,6 +88,25 @@ Document doc = HttpsUtil.connect("https://www.baidu.com")
 .proxy(proxyHost, proxyPort) // or socks() 设置代理  
 .retry(MAX_RETRY, MILLISECONDS_SLEEP) // 重试次数，重试等待间隔   
 .get(); // post() execute().body()  
+```
+
+HTML或XML解析器
+---------
+
+### 简单示例:
+
+```
+Document doc = Document.parse(String); // 构建解析对象
+```
+
+JSON解析器
+---------
+
+### 简单示例:
+
+```
+JSONObject json = JSONObject.parseObject(String); // 构建JSON对象
+JSONArray json = JSONArray.parseArray(String); // 构建JSON数组
 ```
 
 文件读写工具类

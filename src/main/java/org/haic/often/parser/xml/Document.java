@@ -15,7 +15,7 @@ public class Document extends Element {
 
 	private Document(@NotNull String doctype, @NotNull String body, @NotNull String name, boolean isHtml) {
 		super(body, name, isHtml);
-		this.doctype = doctype;
+		this.doctype = doctype.isEmpty() ? doctype : doctype + "\n";
 	}
 
 	public static Document parse(@NotNull String body) {
@@ -50,11 +50,7 @@ public class Document extends Element {
 
 	@Override
 	public String toString() {
-		String body = "";
-		if (doctype != null) {
-			body += doctype + "\n";
-		}
-		return body + super.toString();
+		return doctype + super.toString();
 	}
 
 }
