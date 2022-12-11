@@ -33,20 +33,43 @@ public class TypeUtil {
 	@Contract(pure = true)
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(@NotNull Object obj, Class<T> itemClass) {
-		if (obj.getClass() == itemClass) {
-			return (T) obj;
-		}
-		if (itemClass == JSONObject.class) {
-			return (T) (obj instanceof Map ? JSONObject.parseObject((Map<String, Object>) obj) : JSONObject.parseObject(String.valueOf(obj)));
-		} else if (itemClass == JSONArray.class) {
-			return (T) (obj instanceof Collection ? JSONArray.parseArray((List<Object>) obj) : JSONArray.parseArray(String.valueOf(obj)));
+		if (obj.getClass() == itemClass) return (T) obj;
+		String itemClassName = itemClass.getName();
+		if (itemClassName.startsWith("[")) {
+			if (itemClassName.charAt(1) == 'L') {
+				try {
+					Class<?> clazz = Class.forName(itemClassName.substring(2, itemClassName.length() - 1));
+					Constructor<?> type = TypeUtil.getConstructor(clazz, "java.lang.String");
+					if (type == null) throw new TypeException("不支持的转换类型");
+					if (obj instanceof Collection) {
+						List<Object> list = ((List<Object>) obj);
+						Object[] result = new Object[list.size()];
+						for (int i = 0; i < result.length; i++) {
+							result[i] = type.newInstance(String.valueOf(list.get(i)));
+						}
+						return (T) result;
+					} else {
+						throw new TypeException("未找到数组基本类型");
+					}
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				throw new TypeException("不支持一维以上数组转换类型");
+			}
 		} else {
-			Constructor<?> type = getConstructor(itemClass, "java.lang.String");
-			if (type == null) throw new TypeException("不支持的转换类型");
-			try {
-				return (T) type.newInstance(String.valueOf(obj));
-			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-				throw new TypeException("转换类型不匹配");
+			if (itemClass == JSONObject.class) {
+				return (T) (obj instanceof Map ? JSONObject.parseObject((Map<String, Object>) obj) : JSONObject.parseObject(String.valueOf(obj)));
+			} else if (itemClass == JSONArray.class) {
+				return (T) (obj instanceof Collection ? JSONArray.parseArray((List<Object>) obj) : JSONArray.parseArray(String.valueOf(obj)));
+			} else {
+				Constructor<?> type = TypeUtil.getConstructor(itemClass, "java.lang.String");
+				if (type == null) throw new TypeException("不支持的转换类型");
+				try {
+					return (T) type.newInstance(String.valueOf(obj));
+				} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+					throw new TypeException("转换类型不匹配");
+				}
 			}
 		}
 	}
