@@ -62,9 +62,9 @@ public class StringUtil extends StringUtils {
 					case '"' -> sb.append('"');
 					case 'r' -> sb.append("\\r");
 					case 'n' -> sb.append("\\n");
-					case '\r' -> throw new JSONException("在下标 " + index + " 处非法的转义字符: \\r");
-					case '\n' -> throw new JSONException("在下标 " + index + " 处非法的转义字符: \\n");
-					default -> throw new JSONException("在下标 " + index + " 处非法的转义字符: \\" + body.charAt(index));
+					case '\r' -> throw new JSONException("存在非法转义字符: \\r");
+					case '\n' -> throw new JSONException("存在非法转义字符: \\n");
+					default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
 				}
 			} else {
 				sb.append(body.charAt(index));

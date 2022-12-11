@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,16 +20,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 
 	public JSONObject() {
 		super();
-	}
-
-	private <K, V> JSONObject(@NotNull Map<? super K, ? super V> m) {
-		for (var entry : m.entrySet()) {
-			this.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
-		}
-	}
-
-	private JSONObject(@NotNull String body) {
-		this(new StringBuilder(body.strip()), false);
 	}
 
 	/**
@@ -74,7 +65,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					if (body.charAt(++i) == 'u' && body.charAt(++i) == 'l' && body.charAt(++i) == 'l') {
 						this.put(key.toString(), null);
 					} else {
-						throw new JSONException("在下标 " + (i - 3) + " 处期待值不为\"null\"");
+						throw new JSONException("期望值不为'NULL'");
 					}
 					i++;
 				}
@@ -82,7 +73,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					if (body.charAt(++i) == 'r' && body.charAt(++i) == 'u' && body.charAt(++i) == 'e') {
 						this.put(key.toString(), true);
 					} else {
-						throw new JSONException("在下标 " + (i - 3) + " 处期待值不为\"true\"");
+						throw new JSONException("期望值不为'TRUE'");
 					}
 					i++;
 				}
@@ -90,7 +81,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					if (body.charAt(++i) == 'a' && body.charAt(++i) == 'l' && body.charAt(++i) == 's' && body.charAt(++i) == 'e') {
 						this.put(key.toString(), false);
 					} else {
-						throw new JSONException("在下标 " + (i - 4) + " 处期待值不为\"false\"");
+						throw new JSONException("期望值不为'FALSE'");
 					}
 					i++;
 				}
@@ -99,15 +90,15 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					do {
 						value.append(body.charAt(i++));
 					} while (Character.isDigit(body.charAt(i)) || body.charAt(i) == '.');
-					if (body.charAt(i) == 'e') {
-						if (body.charAt(++i) == '+') {
-							value.append("e");
-							do {
-								value.append(body.charAt(i++));
-							} while (Character.isDigit(body.charAt(i)));
-						} else {
-							throw new JSONException("在下标 " + i + " 处期待值不为'+'");
+					if (body.charAt(i) == 'e' || body.charAt(i) == 'E') { // 自然数
+						value.append(body.charAt(i++));
+						if (body.charAt(i) == '+') {
+							value.append('+');
+							i++;
 						}
+						do {
+							value.append(body.charAt(i++));
+						} while (Character.isDigit(body.charAt(i)));
 					}
 					this.put(key.toString(), value);
 				}
@@ -121,7 +112,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					this.put(key.toString(), new JSONArray(body));
 					i = 0;
 				}
-				default -> throw new JSONException("在下标 " + i + " 处未知的类型符号: '" + body.charAt(i) + "'");
+				default -> throw new JSONException("期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 			}
 			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 			if (body.charAt(i) == '}') { // 分隔符或结束符
@@ -131,17 +122,19 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 				body.delete(0, i + 1);
 				return;
 			} else if (body.charAt(i) != ',') {
-				throw new JSONException("在下标 " + i + " 处期待值不为','");
+				throw new JSONException("分隔符期待值不为','");
 			}
 		}
 	}
 
 	public static JSONObject parseObject(@NotNull String body) {
-		return new JSONObject(body);
+		return new JSONObject(new StringBuilder(body.strip()), false);
 	}
 
 	public static <K, V> JSONObject parseObject(@NotNull Map<? super K, ? super V> m) {
-		return new JSONObject(m);
+		JSONObject object = new JSONObject();
+		m.forEach((key, value) -> object.put(String.valueOf(key), value));
+		return object;
 	}
 
 	public Object get(@NotNull String key) {
@@ -267,6 +260,9 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			Object value = token.getValue();
 			if (value instanceof String) {
 				sb.append('"').append(StringUtil.toEscapeString((String) value)).append('"');
+			} else if (value instanceof List) {
+				//noinspection unchecked
+				sb.append(JSONArray.parseArray((List<Object>) value));
 			} else {
 				sb.append(value);
 			}

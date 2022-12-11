@@ -20,14 +20,6 @@ public class JSONArray extends ArrayList<Object> {
 		super();
 	}
 
-	private <T> JSONArray(@NotNull List<? super T> body) {
-		this.addAll(body);
-	}
-
-	private JSONArray(@NotNull String body) {
-		this(new StringBuilder(body.strip()));
-	}
-
 	/**
 	 * 这是解析用构建,切勿使用
 	 *
@@ -45,6 +37,52 @@ public class JSONArray extends ArrayList<Object> {
 			for (int i = 0; i < body.length(); i++) {
 				while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 				switch (body.charAt(i)) {
+					case '"' -> {
+						StringBuilder value = new StringBuilder();
+						i = StringUtil.interceptString(body, value, i) + 1;
+						this.add(value.toString());
+					}
+					case 'n' -> {
+						if (body.charAt(++i) == 'u' && body.charAt(++i) == 'l' && body.charAt(++i) == 'l') {
+							this.add(null);
+						} else {
+							throw new JSONException("期望值不为'NULL'");
+						}
+						i++;
+					}
+					case 't' -> {
+						if (body.charAt(++i) == 'r' && body.charAt(++i) == 'u' && body.charAt(++i) == 'e') {
+							this.add(true);
+						} else {
+							throw new JSONException("期望值不为'TRUE'");
+						}
+						i++;
+					}
+					case 'f' -> {
+						if (body.charAt(++i) == 'a' && body.charAt(++i) == 'l' && body.charAt(++i) == 's' && body.charAt(++i) == 'e') {
+							this.add(false);
+						} else {
+							throw new JSONException("期望值不为'FALSE'");
+						}
+						i++;
+					}
+					case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+						StringBuilder value = new StringBuilder();
+						do {
+							value.append(body.charAt(i++));
+						} while (Character.isDigit(body.charAt(i)) || body.charAt(i) == '.');
+						if (body.charAt(i) == 'e' || body.charAt(i) == 'E') { // 自然数
+							value.append(body.charAt(i++));
+							if (body.charAt(i) == '+') {
+								value.append('+');
+								i++;
+							}
+							do {
+								value.append(body.charAt(i++));
+							} while (Character.isDigit(body.charAt(i)));
+						}
+						this.add(value);
+					}
 					case '{' -> {
 						body.delete(0, i);
 						this.add(new JSONObject(body, true));
@@ -55,73 +93,14 @@ public class JSONArray extends ArrayList<Object> {
 						this.add(new JSONArray(body));
 						i = 0;
 					}
-					case '"' -> {
-						StringBuilder value = new StringBuilder();
-						i = StringUtil.interceptString(body, value, i) + 1;
-						this.add(value.toString());
-					}
-					case 'n' -> {
-						if (body.charAt(++i) == 'u' && body.charAt(++i) == 'l' && body.charAt(++i) == 'l') {
-							this.add(null);
-						} else {
-							throw new JSONException("在下标 " + (i - 3) + " 处期待值不为\"null\"");
-						}
-						i++;
-					}
-					case 't' -> {
-						if (body.charAt(++i) == 'r' && body.charAt(++i) == 'u' && body.charAt(++i) == 'e') {
-							this.add(true);
-						} else {
-							throw new JSONException("在下标 " + (i - 3) + " 处期待值不为\"true\"");
-						}
-						i++;
-					}
-					case 'f' -> {
-						if (body.charAt(++i) == 'a' && body.charAt(++i) == 'l' && body.charAt(++i) == 's' && body.charAt(++i) == 'e') {
-							this.add(false);
-						} else {
-							throw new JSONException("在下标 " + (i - 4) + " 处期待值不为\"false\"");
-						}
-						i++;
-					}
-					case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-						StringBuilder value = new StringBuilder();
-						do {
-							value.append(body.charAt(i++));
-						} while (Character.isDigit(body.charAt(i)) || body.charAt(i) == '.');
-						if (body.charAt(i) == 'e') {
-							if (body.charAt(++i) == '+') {
-								value.append("e");
-								do {
-									value.append(body.charAt(i++));
-								} while (Character.isDigit(body.charAt(i)));
-							} else {
-								throw new JSONException("在下标 " + i + " 处期待值不为'+'");
-							}
-						}
-						this.add(value);
-					}
-					case '\'' -> {
-						this.add(body.charAt(++i));
-						if (body.charAt(++i) != '\'') {
-							throw new JSONException("在下标 " + i + " 处期待值不为\"'\"");
-						}
-						i++;
-					}
-					default -> {
-						StringBuilder value = new StringBuilder();
-						do {
-							value.append(body.charAt(i++));
-						} while (body.charAt(i) != ',' && body.charAt(i) != ' ' && body.charAt(i) != ']');
-						this.add(value.toString());
-					}
+					default -> throw new JSONException("期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 				}
 				while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 				if (body.charAt(i) == ']') {
 					body.delete(0, i + 1);
 					return;
 				} else if (body.charAt(i) != ',') {
-					throw new JSONException("在下标 " + i + " 处期待值不为','");
+					throw new JSONException("分隔符期待值不为','");
 				}
 			}
 		} else {
@@ -130,11 +109,11 @@ public class JSONArray extends ArrayList<Object> {
 	}
 
 	public static JSONArray parseArray(@NotNull String body) {
-		return new JSONArray(body);
+		return new JSONArray(new StringBuilder(body.strip()));
 	}
 
-	public static <T> JSONArray parseArray(@NotNull List<? super T> body) {
-		return new JSONArray(body);
+	public static <T> JSONArray parseArray(@NotNull List<? super T> list) {
+		return new JSONArray().fluentAddAll(list);
 	}
 
 	public Object get(int i) {
@@ -210,7 +189,7 @@ public class JSONArray extends ArrayList<Object> {
 		} else if (itemClass == JSONObject.class) {
 			for (var obj : this) list.add((T) (obj instanceof JSONObject ? obj : JSONObject.parseObject(String.valueOf(obj))));
 		} else if (itemClass == JSONArray.class) {
-			for (var obj : this) list.add((T) (obj instanceof JSONArray ? obj : new JSONArray(String.valueOf(obj))));
+			for (var obj : this) list.add((T) (obj instanceof JSONArray ? obj : JSONArray.parseArray(String.valueOf(obj))));
 		} else {
 			throw new JSONException("不支持的类型转换");
 		}

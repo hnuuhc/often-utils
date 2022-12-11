@@ -16,7 +16,7 @@ Maven依赖添加:
 <dependency>
     <groupId>org.haic.often</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
 </dependency>
 ```
 
