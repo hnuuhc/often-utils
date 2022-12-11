@@ -1,10 +1,10 @@
 package org.haic.often.util;
 
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.TypeException;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -54,8 +54,10 @@ public class TypeUtil {
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
 					throw new RuntimeException(e);
 				}
-			} else {
+			} else if (itemClassName.charAt(1) == '[') {
 				throw new TypeException("不支持一维以上数组转换类型");
+			} else {
+				throw new TypeException("不支持基元类型转换");
 			}
 		} else {
 			if (itemClass == JSONObject.class) {
