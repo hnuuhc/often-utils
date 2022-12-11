@@ -60,12 +60,6 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.70</version>
         </dependency>
-        <!-- windpapi4j组件,用于浏览器解密 -->
-        <dependency>
-            <groupId>com.github.peter-gergely-horvath</groupId>
-            <artifactId>windpapi4j</artifactId>
-            <version>1.0</version>
-        </dependency>
         <!-- LevelDB 数据库 -->
         <dependency>
             <groupId>com.wavesplatform.leveldb-jna</groupId>
