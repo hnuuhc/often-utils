@@ -22,6 +22,14 @@ import java.util.Map;
  */
 public class TypeUtil {
 
+	public static String[][] BasicType = { { "int", "java.lang.Integer" }, //
+										   { "double", "java.lang.Double" }, //
+										   { "float", "java.lang.Float" }, //
+										   { "short", "java.lang.Short" }, //
+										   { "byte", "java.lang.Byte" },//
+										   { "boolean", "java.lang.Boolean" },//
+										   { "char", "java.lang.Character" } };
+
 	/**
 	 * 类型转换
 	 *
@@ -36,16 +44,14 @@ public class TypeUtil {
 		if (obj == null) return null;
 		if (obj.getClass() == itemClass) return (T) obj;
 		if (itemClass.isArray()) {
-			Constructor<?> type = TypeUtil.getConstructor(itemClass.getComponentType(), "java.lang.String");
+			Class<?> itemClazz = itemClass.getComponentType();
+			if (itemClazz.isPrimitive()) throw new TypeException("不支持基本类型数组转换");
+			Constructor<?> type = TypeUtil.getConstructor(itemClazz, "java.lang.String");
 			if (type == null) throw new TypeException("不支持的转换类型");
 			Object[] objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
-			Class<?> clazz = itemClass.getComponentType();
-			Object array = Array.newInstance(clazz, objs.length);
-			Object[] arrays = (Object[]) array;
+			Object[] arrays = (Object[]) Array.newInstance(itemClass.getComponentType(), objs.length);
 			try {
-				for (int i = 0; i < objs.length; i++) {
-					arrays[i] = type.newInstance(String.valueOf(objs[i]));
-				}
+				for (int i = 0; i < objs.length; i++) arrays[i] = type.newInstance(String.valueOf(objs[i]));
 			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
 				throw new TypeException("转换类型不匹配");
 			}
@@ -55,6 +61,8 @@ public class TypeUtil {
 			return (T) (obj instanceof Map ? JSONObject.parseObject((Map<?, ?>) obj) : JSONObject.parseObject(String.valueOf(obj)));
 		} else if (itemClass == JSONArray.class) {
 			return (T) (obj instanceof Collection ? JSONArray.parseArray((Collection<?>) obj) : JSONArray.parseArray(String.valueOf(obj)));
+		} else if (itemClass.isPrimitive()) {
+			return (T) convert(obj, TypeUtil.getBasicPackType(itemClass));
 		} else {
 			Constructor<?> type = TypeUtil.getConstructor(itemClass, "java.lang.String");
 			if (type == null) throw new TypeException("不支持的转换类型");
@@ -93,6 +101,27 @@ public class TypeUtil {
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * 获取基本类型对应的包装类型
+	 *
+	 * @param itemClass 基本类型
+	 * @return 对应的包装类型
+	 */
+	@Contract(pure = true)
+	public static Class<?> getBasicPackType(@NotNull Class<?> itemClass) {
+		String name = itemClass.getTypeName();
+		for (String[] strings : BasicType) {
+			if (strings[0].equals(name)) {
+				try {
+					return Class.forName(strings[1]);
+				} catch (ClassNotFoundException e) {
+					throw new TypeException(e);
+				}
+			}
+		}
+		throw new TypeException("未知的基本类型");
 	}
 
 	/**
