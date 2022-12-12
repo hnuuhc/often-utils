@@ -1,14 +1,13 @@
 package org.haic.often.netdisc;
 
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
-import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,7 +93,7 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getInfosOfExt(@NotNull String ext) {
-		return JSONArray.parseArray(JSONObject.parseObject(conn.url(categoryUrl + ext).get().text()).getJSONObject("data").getString("list")).toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(categoryUrl + ext).get().text()).getJSONObject("data").getList("list", JSONObject.class);
 	}
 
 	/**
@@ -104,7 +103,7 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listShares() {
-		return JSONArray.parseArray(JSONObject.parseObject(conn.url(detailUrl).get().text()).getJSONObject("data").getString("list")).toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(detailUrl).get().text()).getJSONObject("data").getList("list", JSONObject.class);
 	}
 
 	/**
@@ -277,7 +276,7 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
-		return JSONArray.parseArray(JSONObject.parseObject(conn.url(sortUrl + folderId).get().text()).getJSONObject("data").getString("list")).toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(sortUrl + folderId).get().text()).getJSONObject("data").getList("list", JSONObject.class);
 	}
 
 }

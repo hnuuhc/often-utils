@@ -87,7 +87,7 @@ public class YunPan123 {
 		data.put("Page", String.valueOf(page));
 		JSONObject pageInfo = JSONObject.parseObject(HttpsUtil.connect(shareGetUrl).data(data).get().text()).getJSONObject("data");
 		List<JSONObject> filesInfo = new ArrayList<>();
-		for (JSONObject info : pageInfo.getJSONArray("InfoList").toList(JSONObject.class)) {
+		for (JSONObject info : pageInfo.getList("InfoList", JSONObject.class)) {
 			String fileId = info.getString("FileId");
 			int type = info.getInteger("Type");
 			if (type == 1) {
@@ -305,7 +305,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listShares(@NotNull String search) {
-		return JSONObject.parseObject(conn.url(shareListUrl).requestBody("driveId=0&limit=10000&next=0&orderBy=fileId&orderDirection=desc&SearchData=" + search).get().text()).getJSONObject("data").getJSONArray("InfoList").toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(shareListUrl).requestBody("driveId=0&limit=10000&next=0&orderBy=fileId&orderDirection=desc&SearchData=" + search).get().text()).getJSONObject("data").getList("InfoList", JSONObject.class);
 	}
 
 	/**

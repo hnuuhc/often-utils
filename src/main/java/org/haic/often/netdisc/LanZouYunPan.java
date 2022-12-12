@@ -1,5 +1,7 @@
 package org.haic.often.netdisc;
 
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
@@ -11,8 +13,6 @@ import org.haic.often.parser.xml.Document;
 import org.haic.often.parser.xml.Element;
 import org.haic.often.parser.xml.Elements;
 import org.haic.often.util.StringUtil;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -490,7 +490,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getFileInfosAsHomeOfFolder(@NotNull String folderId) {
-		return doupload("task=5&pg=1&folder_id=" + folderId).getJSONArray("text").toList(JSONObject.class);
+		return doupload("task=5&pg=1&folder_id=" + folderId).getList("text", JSONObject.class);
 	}
 
 	/**
@@ -501,7 +501,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getFolderInfosAsHomeOfFolder(@NotNull String folderId) {
-		return doupload("task=47/&folder_id=" + folderId).getJSONArray("text").toList(JSONObject.class);
+		return doupload("task=47/&folder_id=" + folderId).getList("text", JSONObject.class);
 	}
 
 	/**

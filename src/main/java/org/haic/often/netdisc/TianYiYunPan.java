@@ -124,9 +124,9 @@ public class TianYiYunPan {
 		if (infos == null || Judge.isEmpty(infos.getInteger("count"))) {
 			return new ArrayList<>();
 		}
-		List<JSONObject> filesInfo = infos.getJSONArray("fileList").toList(JSONObject.class);
+		List<JSONObject> filesInfo = infos.getList("fileList", JSONObject.class);
 		Map<String, String> thisData = new HashMap<>(data);
-		for (JSONObject folderInfo : infos.getJSONArray("folderList").toList(JSONObject.class)) {
+		for (JSONObject folderInfo : infos.getList("folderList", JSONObject.class)) {
 			thisData.put("fileId", folderInfo.getString("id"));
 			filesInfo.addAll(getInfoAsPage(thisData));
 		}
@@ -189,7 +189,7 @@ public class TianYiYunPan {
 		data.put("pageSize", "1");
 		data.put("shareType", "1");
 		data.put("pageSize", JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getString("recordCount"));
-		return JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getJSONArray("data").toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getList("data", JSONObject.class);
 	}
 
 	/**

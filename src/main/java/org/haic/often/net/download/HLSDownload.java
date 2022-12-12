@@ -586,7 +586,7 @@ public class HLSDownload {
 					cookies = StringUtil.jsonToMap(fileInfo.getString("cookie"));
 					key = fileInfo.getString("key");
 					iv = fileInfo.getString("iv");
-					links = fileInfo.getJSONArray("data").toList(String.class);
+					links = fileInfo.getList("data", String.class);
 					storage = new File(DEFAULT_FOLDER, fileName);
 					JSONObject renew = fileInfo.getJSONObject("renew");
 					if (renew != null) {

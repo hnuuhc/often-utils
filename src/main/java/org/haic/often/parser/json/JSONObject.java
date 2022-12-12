@@ -6,6 +6,7 @@ import org.haic.often.exception.JSONException;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -182,6 +183,19 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	@Contract(pure = true)
 	public <T> T get(@NotNull String key, @NotNull Class<T> itemClass) {
 		return TypeUtil.convert(this.get(key), itemClass);
+	}
+
+	/**
+	 * 获取名称对应键的数组
+	 *
+	 * @param key       名称
+	 * @param itemClass 指定类型
+	 * @param <T>       返回泛型
+	 * @return 数组
+	 */
+	@Contract(pure = true)
+	public <T> ArrayList<T> getList(@NotNull String key, @NotNull Class<T> itemClass) {
+		return TypeUtil.convertList(this.get(key), itemClass);
 	}
 
 	/**
@@ -455,7 +469,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '"' + StringUtil.toEscapeString(token.getKey()) + "\":" + StringUtil.toJSONFormat(token.getValue())).collect(Collectors.joining(","))).append('}').toString();
+		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '"' + StringUtil.toEscapeString(token.getKey()) + "\":" + StringUtil.toJSONFormatOut(token.getValue())).collect(Collectors.joining(","))).append('}').toString();
 	}
 
 	/**
@@ -467,7 +481,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscapeString(token.getKey()) + "\":" + StringUtil.toJSONFormat(token.getValue(), depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append('}').toString();
+		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscapeString(token.getKey()) + "\":" + StringUtil.toJSONFormatOut(token.getValue(), depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append('}').toString();
 	}
 
 }

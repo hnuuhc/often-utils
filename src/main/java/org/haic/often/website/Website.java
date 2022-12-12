@@ -1,6 +1,8 @@
 package org.haic.often.website;
 
 import org.haic.often.Symbol;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.HttpsUtil;
@@ -9,8 +11,6 @@ import org.haic.often.util.StringUtil;
 import org.haic.often.website.api.Github;
 import org.haic.often.website.api.Weibo;
 import org.haic.often.website.api.Youtube;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -114,7 +114,7 @@ public class Website {
 		@Contract(pure = true)
 		public Map<String, String> getLatestReleases(@NotNull String warehouse) {
 			String latestUrl = String.format(latestUrlformat, warehouse.startsWith("https://") ? warehouse.substring(warehouse.indexOf("com") + 4) : warehouse);
-			return JSONObject.parseObject(HttpsUtil.connect(latestUrl).execute().body()).getJSONArray("assets").toList(JSONObject.class).stream().collect(Collectors.toMap(l -> l.getString("name"), l -> l.getString("browser_download_url")));
+			return JSONObject.parseObject(HttpsUtil.connect(latestUrl).execute().body()).getList("assets", JSONObject.class).stream().collect(Collectors.toMap(l -> l.getString("name"), l -> l.getString("browser_download_url")));
 		}
 
 	}

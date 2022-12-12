@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 public class StringUtil extends StringUtils {
 
 	/**
-	 * JSON输出格式化时对未知类型进行处理
+	 * JSON解析器对未知类型进行处理
 	 *
 	 * @param value 值
 	 * @return 处理后的类型
@@ -41,6 +41,34 @@ public class StringUtil extends StringUtils {
 		if (value == null) return null;
 		if (value instanceof String s) {
 			if (s.equals("null")) return null;
+			if (s.equals("true")) return true;
+			if (s.equals("false")) return false;
+			return StringUtil.toEscapeString(s);
+		} else if (value instanceof JSONArray || value instanceof JSONObject || value instanceof Number || value instanceof Boolean || value instanceof StringBuilder) {
+			return value;
+		} else if (value instanceof Collection) {
+			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value));
+		} else if (value instanceof Map) {
+			return JSONObject.parseObject((Map<?, ?>) value);
+		} else if (value.getClass().isArray()) {
+			return JSONArray.parseArray(Arrays.asList((Object[]) value));
+		} else {
+			return StringUtil.toEscapeString(String.valueOf(value));
+		}
+	}
+
+	/**
+	 * JSON解析器对未知类型进行处理,并且字符串类型前后加双引号,用于格式化输出
+	 *
+	 * @param value 值
+	 * @return 处理后的类型
+	 */
+	public static Object toJSONFormatOut(Object value) {
+		if (value == null) return null;
+		if (value instanceof String s) {
+			if (s.equals("null")) return null;
+			if (s.equals("true")) return true;
+			if (s.equals("false")) return false;
 			return '"' + StringUtil.toEscapeString(s) + '"';
 		} else if (value instanceof JSONArray || value instanceof JSONObject || value instanceof Number || value instanceof Boolean || value instanceof StringBuilder) {
 			return value;
@@ -56,17 +84,19 @@ public class StringUtil extends StringUtils {
 	}
 
 	/**
-	 * JSON输出格式化时对未知类型进行处理
+	 * JSON解析器对未知类型进行处理,并且字符串类型前后加双引号,用于格式化输出
 	 *
 	 * @param value 值
 	 * @param depth 指定深度,用于格式化
 	 * @return 处理后的类型
 	 */
-	public static Object toJSONFormat(Object value, int depth) {
+	public static Object toJSONFormatOut(Object value, int depth) {
 		if (value == null) return null;
 		if (value instanceof String s) {
 			if (s.equals("null")) return null;
-			return '"' + StringUtil.toEscapeString(s) + '"';
+			if (s.equals("true")) return true;
+			if (s.equals("false")) return false;
+			return StringUtil.toEscapeString(s);
 		} else if (value instanceof Number || value instanceof Boolean || value instanceof StringBuilder) {
 			return value;
 		} else if (value instanceof JSONArray) {
@@ -80,7 +110,7 @@ public class StringUtil extends StringUtils {
 		} else if (value.getClass().isArray()) {
 			return JSONArray.parseArray(Arrays.asList((Object[]) value)).toString(depth + 1);
 		} else {
-			return '"' + StringUtil.toEscapeString(String.valueOf(value)) + '"';
+			return StringUtil.toEscapeString(String.valueOf(value));
 		}
 	}
 

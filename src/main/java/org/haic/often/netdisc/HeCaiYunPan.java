@@ -102,11 +102,11 @@ public class HeCaiYunPan {
 		JSONObject outlinkInfo = JSONObject.parseObject(HttpsUtil.connect(outlinkInfoUrl).data(data).method(Method.POST).execute().body()).getJSONObject("data");
 		JSONObject caLst = outlinkInfo.getJSONObject("caLst");
 		if (caLst.getJSONObject("$").getInteger("length") > 0) {
-			caLst.getJSONArray("outLinkCaInfo").toList(JSONObject.class).forEach(ca -> result.addAll(getInfosAsPage(shareId, sharePwd, ca.getString("path"), folderPath + "/" + ca.getString("caName"))));
+			caLst.getList("outLinkCaInfo", JSONObject.class).forEach(ca -> result.addAll(getInfosAsPage(shareId, sharePwd, ca.getString("path"), folderPath + "/" + ca.getString("caName"))));
 		}
 		JSONObject coLst = outlinkInfo.getJSONObject("coLst");
 		if (coLst.getJSONObject("$").getInteger("length") > 0) {
-			result.addAll(coLst.getJSONArray("outLinkCoInfo").toList(JSONObject.class).stream().map(l -> l.fluentPut("folderPath", folderPath)).toList());
+			result.addAll(coLst.getList("outLinkCoInfo", JSONObject.class).stream().map(l -> l.fluentPut("folderPath", folderPath)).toList());
 		}
 		return result;
 	}
@@ -226,7 +226,7 @@ public class HeCaiYunPan {
 			put("startRange", 1);
 		}});
 		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(virDirInfoUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getVirDirInfoRes").getJSONArray("virDirInfoList").toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(virDirInfoUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getVirDirInfoRes").getList("virDirInfoList", JSONObject.class);
 	}
 
 	/**
@@ -426,7 +426,7 @@ public class HeCaiYunPan {
 		data.put("conditions", "search_name:\"" + search + "\" and path:\"" + id + "\"");
 		data.put("showInfo", new JSONObject().fluentPut("sortInfos", "[]").fluentPut("startNum", 1).fluentPut("stopNum", 100));
 		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(fileSearchUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONArray("rows").toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(fileSearchUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getList("rows", JSONObject.class);
 	}
 
 	/**
@@ -475,7 +475,7 @@ public class HeCaiYunPan {
 		data.put("sortDirection", 0);
 		data.put("startNumber", 1);
 		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(diskUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getDiskResult").getJSONArray("catalogList").toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(diskUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getDiskResult").getList("catalogList", JSONObject.class);
 	}
 
 	/**
@@ -515,7 +515,7 @@ public class HeCaiYunPan {
 			put("startNumber", 1);
 		}});
 		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(individualContentUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getIndividualContentRsp").getJSONArray("contentList").toList(JSONObject.class);
+		return JSONObject.parseObject(conn.url(individualContentUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getIndividualContentRsp").getList("contentList", JSONObject.class);
 	}
 
 	/**

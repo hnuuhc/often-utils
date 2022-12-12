@@ -276,7 +276,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public <T> ArrayList<T> toList(Class<T> itemClass) {
-		return TypeUtil.convert(this, itemClass);
+		return TypeUtil.convertList(this, itemClass);
 	}
 
 	/**
@@ -303,7 +303,7 @@ public class JSONArray extends ArrayList<Object> {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append('[').append(this.stream().map(token -> StringUtil.toJSONFormat(token).toString()).collect(Collectors.joining(","))).append(']').toString();
+		return new StringBuilder().append('[').append(this.stream().map(token -> StringUtil.toJSONFormatOut(token).toString()).collect(Collectors.joining(","))).append(']').toString();
 	}
 
 	/**
@@ -315,7 +315,7 @@ public class JSONArray extends ArrayList<Object> {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		return new StringBuilder().append('[').append(this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + StringUtil.toJSONFormat(token, depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append(']').toString();
+		return new StringBuilder().append('[').append(this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + StringUtil.toJSONFormatOut(token, depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append(']').toString();
 	}
 
 }

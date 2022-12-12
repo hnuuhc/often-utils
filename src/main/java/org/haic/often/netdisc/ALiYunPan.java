@@ -86,7 +86,7 @@ public class ALiYunPan {
 		data.put("parent_file_id", parentId);
 		data.put("share_id", shareId);
 		Response fileList = HttpsUtil.connect(fileListUrl).requestBody(data.toString()).header("x-share-token", shareToken).method(Method.POST).execute();
-		for (JSONObject fileInfo : JSONObject.parseObject(fileList.body()).getJSONArray("items").toList(JSONObject.class)) {
+		for (JSONObject fileInfo : JSONObject.parseObject(fileList.body()).getList("items", JSONObject.class)) {
 			if (fileInfo.getString("type").equals("folder")) {
 				filesInfo.addAll(getInfosAsPage(shareId, shareToken, fileInfo.getString("file_id"), path + fileInfo.getString("name") + "/"));
 			} else {
