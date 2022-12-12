@@ -151,6 +151,29 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	/**
 	 * 获取名称对应键的值
 	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	@Contract(pure = true)
+	public Object get(@NotNull String key) {
+		return StringUtil.toJSONFormat(super.get(key));
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	@Contract(pure = true)
+	public Object getOrDefault(@NotNull String key, @NotNull Object value) {
+		return StringUtil.toJSONFormat(super.getOrDefault(key, value));
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
 	 * @param key       名称
 	 * @param itemClass 指定类型
 	 * @param <T>       返回泛型
@@ -168,31 +191,8 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @return 值
 	 */
 	@Contract(pure = true)
-	public Object get(@NotNull String key) {
-		return super.get(key);
-	}
-
-	/**
-	 * 获取名称对应键的值
-	 *
-	 * @param key   名称
-	 * @param value 不存在对应键时返回该值
-	 * @return 值
-	 */
-	@Contract(pure = true)
-	public Object getOrDefault(@NotNull String key, @NotNull Object value) {
-		return super.getOrDefault(key, value);
-	}
-
-	/**
-	 * 获取名称对应键的值
-	 *
-	 * @param key 名称
-	 * @return 值
-	 */
-	@Contract(pure = true)
 	public String getString(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), String.class);
+		return this.get(key, String.class);
 	}
 
 	/**
@@ -204,7 +204,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public String getStringValue(@NotNull String key, String value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), String.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), String.class);
 	}
 
 	/**
@@ -215,7 +215,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public boolean getBoolean(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), Boolean.class);
+		return this.get(key, Boolean.class);
 	}
 
 	/**
@@ -227,7 +227,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public boolean getBooleanValue(@NotNull String key, boolean value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), Boolean.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), Boolean.class);
 	}
 
 	/**
@@ -238,7 +238,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public byte getByte(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), Byte.class);
+		return this.get(key, Byte.class);
 	}
 
 	/**
@@ -250,7 +250,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public byte getByteValue(@NotNull String key, byte value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), Byte.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), Byte.class);
 	}
 
 	/**
@@ -261,7 +261,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public short getShort(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), Short.class);
+		return this.get(key, Short.class);
 	}
 
 	/**
@@ -273,7 +273,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public short getShortValue(@NotNull String key, short value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), Short.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), Short.class);
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public int getInteger(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), Integer.class);
+		return this.get(key, Integer.class);
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public int getIntegerValue(@NotNull String key, int value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), Integer.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), Integer.class);
 	}
 
 	/**
@@ -307,7 +307,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public long getLong(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), Long.class);
+		return this.get(key, Long.class);
 	}
 
 	/**
@@ -319,7 +319,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public long getLongValue(@NotNull String key, long value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), Long.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), Long.class);
 	}
 
 	/**
@@ -330,7 +330,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public float getFloat(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), Float.class);
+		return this.get(key, Float.class);
 	}
 
 	/**
@@ -342,7 +342,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public float getFloatValue(@NotNull String key, float value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), Float.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), Float.class);
 	}
 
 	/**
@@ -353,7 +353,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public double getDouble(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), Double.class);
+		return this.get(key, Double.class);
 	}
 
 	/**
@@ -365,7 +365,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public double getDoubleValue(@NotNull String key, double value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), Double.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), Double.class);
 	}
 
 	/**
@@ -376,7 +376,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public JSONObject getJSONObject(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), JSONObject.class);
+		return this.get(key, JSONObject.class);
 	}
 
 	/**
@@ -388,7 +388,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public JSONObject getJSONObjectValue(@NotNull String key, JSONObject value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), JSONObject.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), JSONObject.class);
 	}
 
 	/**
@@ -399,7 +399,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public JSONArray getJSONArray(@NotNull String key) {
-		return TypeUtil.convert(this.get(key), JSONArray.class);
+		return this.get(key, JSONArray.class);
 	}
 
 	/**
@@ -411,7 +411,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public JSONArray getJSONArrayValue(@NotNull String key, JSONArray value) {
-		return TypeUtil.convert(super.getOrDefault(key, value), JSONArray.class);
+		return TypeUtil.convert(this.getOrDefault(key, value), JSONArray.class);
 	}
 
 	/**

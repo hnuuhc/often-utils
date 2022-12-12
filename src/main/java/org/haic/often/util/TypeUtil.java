@@ -11,7 +11,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,20 +42,19 @@ public class TypeUtil {
 			Class<?> clazz = itemClass.getComponentType();
 			Object array = Array.newInstance(clazz, objs.length);
 			Object[] arrays = (Object[]) array;
-			for (int i = 0; i < objs.length; i++) {
-				try {
+			try {
+				for (int i = 0; i < objs.length; i++) {
 					arrays[i] = type.newInstance(String.valueOf(objs[i]));
-
-				} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-					throw new TypeException("转换类型不匹配");
 				}
+			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+				throw new TypeException("转换类型不匹配");
 			}
 			return (T) arrays;
 		}
 		if (itemClass == JSONObject.class) {
-			return (T) (obj instanceof Map ? JSONObject.parseObject((Map<String, Object>) obj) : JSONObject.parseObject(String.valueOf(obj)));
+			return (T) (obj instanceof Map ? JSONObject.parseObject((Map<?, ?>) obj) : JSONObject.parseObject(String.valueOf(obj)));
 		} else if (itemClass == JSONArray.class) {
-			return (T) (obj instanceof Collection ? JSONArray.parseArray((List<Object>) obj) : JSONArray.parseArray(String.valueOf(obj)));
+			return (T) (obj instanceof Collection ? JSONArray.parseArray((Collection<?>) obj) : JSONArray.parseArray(String.valueOf(obj)));
 		} else {
 			Constructor<?> type = TypeUtil.getConstructor(itemClass, "java.lang.String");
 			if (type == null) throw new TypeException("不支持的转换类型");
@@ -78,12 +76,13 @@ public class TypeUtil {
 	 */
 	@Contract(pure = true)
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> convert(@NotNull Collection<Object> objs, Class<T> itemClass) {
+	public static <T> ArrayList<T> convert(@NotNull Collection<Object> objs, Class<T> itemClass) {
 		ArrayList<T> list = new ArrayList<>();
 		if (itemClass == JSONObject.class) {
-			for (var obj : objs) list.add((T) (obj instanceof JSONObject ? obj : obj instanceof Map ? JSONObject.parseObject((Map<String, Object>) obj) : JSONObject.parseObject(String.valueOf(obj))));
+			for (var obj : objs) list.add((T) (obj instanceof JSONObject ? obj : obj instanceof Map ? JSONObject.parseObject((Map<?, ?>) obj) : JSONObject.parseObject(String.valueOf(obj))));
 		} else if (itemClass == JSONArray.class) {
-			for (var obj : objs) list.add((T) (obj instanceof JSONArray ? obj : obj instanceof Collection ? JSONArray.parseArray((List<Object>) obj) : JSONObject.parseObject(String.valueOf(obj))));
+			for (var obj : objs)
+				list.add((T) (obj instanceof JSONArray ? obj : obj instanceof Collection ? JSONArray.parseArray((Collection<?>) obj) : JSONObject.parseObject(String.valueOf(obj))));
 		} else {
 			Constructor<?> type = getConstructor(itemClass, "java.lang.String");
 			if (type == null) throw new TypeException("不支持的转换类型");

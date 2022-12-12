@@ -8,7 +8,6 @@ import org.haic.often.util.TypeUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -130,7 +129,7 @@ public class JSONArray extends ArrayList<Object> {
 	 * @return JSON数组
 	 */
 	@Contract(pure = true)
-	public static JSONArray parseArray(@NotNull List<?> list) {
+	public static JSONArray parseArray(@NotNull Collection<?> list) {
 		return new JSONArray().fluentAddAll(list);
 	}
 
@@ -142,7 +141,20 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public Object get(int i) {
-		return super.get(i);
+		return StringUtil.toJSONFormat(super.get(i));
+	}
+
+	/**
+	 * 获取对应索引的值
+	 *
+	 * @param i         index of the element to return
+	 * @param itemClass 指定类型
+	 * @param <T>       返回泛型
+	 * @return 值
+	 */
+	@Contract(pure = true)
+	public <T> T get(int i, @NotNull Class<T> itemClass) {
+		return TypeUtil.convert(this.get(i), itemClass);
 	}
 
 	/**
@@ -153,7 +165,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public String getString(int i) {
-		return TypeUtil.convert(super.get(i), String.class);
+		return this.get(i, String.class);
 	}
 
 	/**
@@ -164,7 +176,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public boolean getBoolean(int i) {
-		return TypeUtil.convert(super.get(i), Boolean.class);
+		return this.get(i, Boolean.class);
 	}
 
 	/**
@@ -175,7 +187,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public byte getByte(int i) {
-		return TypeUtil.convert(super.get(i), Byte.class);
+		return this.get(i, Byte.class);
 	}
 
 	/**
@@ -186,7 +198,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public short getShort(int i) {
-		return TypeUtil.convert(super.get(i), Short.class);
+		return this.get(i, Short.class);
 	}
 
 	/**
@@ -197,7 +209,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public int getInteger(int i) {
-		return TypeUtil.convert(super.get(i), Integer.class);
+		return this.get(i, Integer.class);
 	}
 
 	/**
@@ -208,7 +220,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public long getLong(int i) {
-		return TypeUtil.convert(super.get(i), Long.class);
+		return this.get(i, Long.class);
 	}
 
 	/**
@@ -219,7 +231,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public float getFloat(int i) {
-		return TypeUtil.convert(super.get(i), Float.class);
+		return this.get(i, Float.class);
 	}
 
 	/**
@@ -230,7 +242,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public double getDouble(int i) {
-		return TypeUtil.convert(super.get(i), Double.class);
+		return this.get(i, Double.class);
 	}
 
 	/**
@@ -241,7 +253,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public JSONObject getJSONObject(int i) {
-		return TypeUtil.convert(super.get(i), JSONObject.class);
+		return this.get(i, JSONObject.class);
 	}
 
 	/**
@@ -252,7 +264,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public JSONArray getJSONArray(int i) {
-		return TypeUtil.convert(super.get(i), JSONArray.class);
+		return this.get(i, JSONArray.class);
 	}
 
 	/**
@@ -263,7 +275,7 @@ public class JSONArray extends ArrayList<Object> {
 	 * @return 指定类型的数组
 	 */
 	@Contract(pure = true)
-	public <T> List<T> toList(Class<T> itemClass) {
+	public <T> ArrayList<T> toList(Class<T> itemClass) {
 		return TypeUtil.convert(this, itemClass);
 	}
 
