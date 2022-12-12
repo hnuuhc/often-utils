@@ -9,7 +9,7 @@ import org.haic.often.util.TypeUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * JSON数组类
@@ -290,27 +290,8 @@ public class JSONArray extends ArrayList<Object> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public String toString() {
-		StringBuilder sb = new StringBuilder().append('[');
-		for (Object token : this) {
-			if (token instanceof String) {
-				sb.append('"').append(StringUtil.toEscapeString((String) token)).append('"');
-			} else if (token instanceof JSONArray) {
-				sb.append(token);
-			} else if (token instanceof List) {
-				sb.append(JSONArray.parseArray((List<Object>) token));
-			} else if (token instanceof JSONObject) {
-				sb.append(token);
-			} else if (token instanceof Map) {
-				sb.append(JSONObject.parseObject((Map<String, Object>) token));
-			} else {
-				sb.append(token);
-			}
-			sb.append(',');
-		}
-		if (sb.charAt(sb.length() - 1) == ',') sb.deleteCharAt(sb.length() - 1);
-		return sb.append(']').toString();
+		return new StringBuilder().append('[').append(this.stream().map(token -> StringUtil.toJSONFormat(token).toString()).collect(Collectors.joining(","))).append(']').toString();
 	}
 
 	/**
@@ -321,28 +302,8 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	@SuppressWarnings("unchecked")
 	public String toString(int depth) {
-		StringBuilder sb = new StringBuilder().append('[');
-		for (Object token : this) {
-			sb.append('\n').append("    ".repeat(depth + 1));
-			if (token instanceof String) {
-				sb.append('"').append(StringUtil.toEscapeString((String) token)).append('"');
-			} else if (token instanceof JSONArray) {
-				sb.append(((JSONArray) token).toString(depth + 1));
-			} else if (token instanceof List) {
-				sb.append(JSONArray.parseArray((List<Object>) token).toString(depth + 1));
-			} else if (token instanceof JSONObject) {
-				sb.append(((JSONObject) token).toString(depth + 1));
-			} else if (token instanceof Map) {
-				sb.append(JSONObject.parseObject((Map<String, Object>) token).toString(depth + 1));
-			} else {
-				sb.append(token);
-			}
-			sb.append(',');
-		}
-		if (sb.charAt(sb.length() - 1) == ',') sb.deleteCharAt(sb.length() - 1);
-		return sb.append('\n').append("    ".repeat(depth)).append(']').toString();
+		return new StringBuilder().append('[').append(this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + StringUtil.toJSONFormat(token, depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append(']').toString();
 	}
 
 }

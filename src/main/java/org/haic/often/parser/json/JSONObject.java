@@ -8,8 +8,8 @@ import org.haic.often.util.TypeUtil;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * JSON对象类
@@ -454,29 +454,8 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public String toString() {
-		StringBuilder sb = new StringBuilder().append('{');
-		for (var token : this.entrySet()) {
-			sb.append('"').append(StringUtil.toEscapeString(String.valueOf(token.getKey()))).append("\":");
-			Object value = token.getValue();
-			if (value instanceof String) {
-				sb.append('"').append(StringUtil.toEscapeString((String) value)).append('"');
-			} else if (value instanceof JSONArray) {
-				sb.append(value);
-			} else if (value instanceof List) {
-				sb.append(JSONArray.parseArray((List<Object>) value));
-			} else if (value instanceof JSONObject) {
-				sb.append(value);
-			} else if (value instanceof Map) {
-				sb.append(JSONObject.parseObject((Map<String, Object>) value));
-			} else {
-				sb.append(value);
-			}
-			sb.append(',');
-		}
-		if (sb.charAt(sb.length() - 1) == ',') sb.deleteCharAt(sb.length() - 1);
-		return sb.append('}').toString();
+		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '"' + StringUtil.toEscapeString(token.getKey()) + "\":" + StringUtil.toJSONFormat(token.getValue())).collect(Collectors.joining(","))).append('}').toString();
 	}
 
 	/**
@@ -487,29 +466,8 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	@SuppressWarnings("unchecked")
 	public String toString(int depth) {
-		StringBuilder sb = new StringBuilder().append('{');
-		for (var token : this.entrySet()) {
-			sb.append("\n").append("    ".repeat(depth + 1)).append('"').append(token.getKey()).append("\":");
-			Object value = token.getValue();
-			if (value instanceof String) {
-				sb.append('"').append(StringUtil.toEscapeString((String) value)).append('"');
-			} else if (value instanceof JSONArray) {
-				sb.append(((JSONArray) value).toString(depth + 1));
-			} else if (value instanceof List) {
-				sb.append(JSONArray.parseArray((List<Object>) value).toString(depth + 1));
-			} else if (value instanceof JSONObject) {
-				sb.append(((JSONObject) value).toString(depth + 1));
-			} else if (value instanceof Map) {
-				sb.append(JSONObject.parseObject((Map<String, Object>) value).toString(depth + 1));
-			} else {
-				sb.append(value);
-			}
-			sb.append(",");
-		}
-		if (sb.charAt(sb.length() - 1) == ',') sb.deleteCharAt(sb.length() - 1);
-		return sb.append("\n").append("    ".repeat(depth)).append('}').toString();
+		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscapeString(token.getKey()) + "\":" + StringUtil.toJSONFormat(token.getValue(), depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append('}').toString();
 	}
 
 }

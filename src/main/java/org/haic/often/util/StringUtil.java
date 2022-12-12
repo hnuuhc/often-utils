@@ -32,6 +32,59 @@ import java.util.stream.Stream;
 public class StringUtil extends StringUtils {
 
 	/**
+	 * JSON输出格式化时对未知类型进行处理
+	 *
+	 * @param value 值
+	 * @return 处理后的类型
+	 */
+	public static Object toJSONFormat(Object value) {
+		if (value == null) return null;
+		if (value instanceof String s) {
+			if (s.equals("null")) return null;
+			return '"' + StringUtil.toEscapeString(s) + '"';
+		} else if (value instanceof JSONArray || value instanceof JSONObject || value instanceof Number || value instanceof Boolean || value instanceof StringBuilder) {
+			return value;
+		} else if (value instanceof Collection) {
+			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value));
+		} else if (value instanceof Map) {
+			return JSONObject.parseObject((Map<?, ?>) value);
+		} else if (value.getClass().isArray()) {
+			return JSONArray.parseArray(Arrays.asList((Object[]) value));
+		} else {
+			return '"' + StringUtil.toEscapeString(String.valueOf(value)) + '"';
+		}
+	}
+
+	/**
+	 * JSON输出格式化时对未知类型进行处理
+	 *
+	 * @param value 值
+	 * @param depth 指定深度,用于格式化
+	 * @return 处理后的类型
+	 */
+	public static Object toJSONFormat(Object value, int depth) {
+		if (value == null) return null;
+		if (value instanceof String s) {
+			if (s.equals("null")) return null;
+			return '"' + StringUtil.toEscapeString(s) + '"';
+		} else if (value instanceof Number || value instanceof Boolean || value instanceof StringBuilder) {
+			return value;
+		} else if (value instanceof JSONArray) {
+			return ((JSONArray) value).toString(depth + 1);
+		} else if (value instanceof JSONObject) {
+			return ((JSONObject) value).toString(depth + 1);
+		} else if (value instanceof Collection) {
+			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value)).toString(depth + 1);
+		} else if (value instanceof Map) {
+			return JSONObject.parseObject((Map<?, ?>) value).toString(depth + 1);
+		} else if (value.getClass().isArray()) {
+			return JSONArray.parseArray(Arrays.asList((Object[]) value)).toString(depth + 1);
+		} else {
+			return '"' + StringUtil.toEscapeString(String.valueOf(value)) + '"';
+		}
+	}
+
+	/**
 	 * 将字符串的转义字符以文本方式显示
 	 *
 	 * @param body 待处理字符串
