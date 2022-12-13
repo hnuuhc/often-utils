@@ -145,7 +145,7 @@ public class StringUtil extends StringUtils {
 		while (body.charAt(++index) != '"') {
 			if (body.charAt(index) == '\\') { // 转义字符,不考虑'/'
 				switch (body.charAt(++index)) {
-					case 'u' -> sb.append(Integer.parseInt(body.substring(++index, index += 4), 16));
+					case 'u' -> sb.append((char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16));
 					case '\\' -> sb.append('\\');
 					case '\'' -> sb.append('\'');
 					case '"' -> sb.append('"');
