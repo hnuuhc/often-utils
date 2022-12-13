@@ -31,12 +31,6 @@
     </properties>
 
     <dependencies>
-        <!-- 调试 -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-        </dependency>
         <!-- htmlunit -->
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>

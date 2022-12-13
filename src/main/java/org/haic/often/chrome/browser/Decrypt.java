@@ -14,9 +14,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
  * 谷歌内核本地浏览器解密类
  *
@@ -53,11 +50,10 @@ public class Decrypt {
 		try {
 			byte[] encryptedKeyBytes = Base64.decodeBase64(encryptedKey);
 			assert new String(encryptedKeyBytes).startsWith("DPAPI");
-			assertTrue(new String(encryptedKeyBytes).startsWith("DPAPI")); // 断言条件为真，如果不是，它会抛出没有消息的AssertionError
 			encryptedKeyBytes = Arrays.copyOfRange(encryptedKeyBytes, "DPAPI".length(), encryptedKeyBytes.length);
 			WinDPAPI winDPAPI = WinDPAPI.newInstance(WinDPAPI.CryptProtectFlag.CRYPTPROTECT_UI_FORBIDDEN);
 			byte[] keyBytes = winDPAPI.unprotectData(encryptedKeyBytes);
-			assertEquals(keyLength, keyBytes.length); // 断言两个多头相等。如果不是，则抛出AssertionError
+			assert keyLength == keyBytes.length;
 			byte[] nonce = Arrays.copyOfRange(encryptedValue, kEncryptionVersionPrefix.length(), kEncryptionVersionPrefix.length() + nonceLength);
 			encryptedValue = Arrays.copyOfRange(encryptedValue, kEncryptionVersionPrefix.length() + nonceLength, encryptedValue.length);
 			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
