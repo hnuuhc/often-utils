@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
@@ -24,7 +23,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.security.Security;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -45,11 +43,7 @@ import java.util.function.Predicate;
  * @since 2021/12/24 23:07
  */
 public class HLSDownload {
-
-	static {
-		Security.addProvider(new BouncyCastleProvider());
-	}
-
+	
 	private HLSDownload() {
 	}
 
@@ -635,21 +629,23 @@ public class HLSDownload {
 						if (key.isEmpty()) {
 							for (int i = 0; i < links.size(); i++) {
 								File file = new File(folder, i + ".ts");
-								byte[] bytes = ReadWriteUtil.orgin(file).readBytes();
-								out.write(bytes, 0, bytes.length);
-								fileSize += bytes.length;
+								byte[] data = ReadWriteUtil.orgin(file).readBytes();
+								out.write(data, 0, data.length);
+								fileSize += data.length;
 								file.delete();
 							}
-						} else {
-							Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+						} else { // AES/CBC/PKCS7Padding解密
+							Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
 							SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
-							IvParameterSpec ivSpec = new IvParameterSpec(iv.isEmpty() ? new byte[16] : iv.substring(0, 16).getBytes());
+							IvParameterSpec ivSpec = new IvParameterSpec(iv.substring(0, 16).getBytes());
 							cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
 							for (int i = 0; i < links.size(); i++) {
 								File file = new File(folder, i + ".ts");
-								byte[] bytes = cipher.doFinal(ReadWriteUtil.orgin(file).readBytes());
-								out.write(bytes, 0, bytes.length);
-								fileSize += bytes.length;
+								byte[] data = cipher.doFinal(ReadWriteUtil.orgin(file).readBytes());
+								int replenish = data[data.length - 1]; // 获取填充参数
+								data = replenish > 16 || replenish == 0 ? data : Arrays.copyOf(data, data.length - replenish); // 去除填充参数
+								out.write(data, 0, data.length);
+								fileSize += data.length;
 								file.delete();
 							}
 						}
