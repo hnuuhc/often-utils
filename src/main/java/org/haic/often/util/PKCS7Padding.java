@@ -1,5 +1,6 @@
 package org.haic.often.util;
 
+import org.haic.often.annotations.Contract;
 import org.haic.often.exception.AESException;
 
 import javax.crypto.Cipher;
@@ -24,6 +25,7 @@ public class PKCS7Padding {
 	 * @param iv   偏移量
 	 * @return 加密后的数据
 	 */
+	@Contract(pure = true)
 	public static byte[] encode(byte[] data, byte[] key, byte[] iv) {
 		try {
 			if (iv.length != 16) throw new AESException("偏移量IV长度不为16");
@@ -48,6 +50,7 @@ public class PKCS7Padding {
 	 * @param iv   偏移量
 	 * @return 解密后的数据
 	 */
+	@Contract(pure = true)
 	public static byte[] decode(byte[] data, byte[] key, byte[] iv) {
 		try {
 			if (iv.length != 16) throw new AESException("偏移量IV长度不为16");
@@ -70,6 +73,7 @@ public class PKCS7Padding {
 	 * @param hexString 偏移量字符串
 	 * @return byte数组
 	 */
+	@Contract(pure = true)
 	public static byte[] toIV(String hexString) {
 		byte[] byteArray = new byte[(hexString = hexString.toLowerCase()).length() >> 1];
 		for (int i = 0, index = 0; i < hexString.length(); i++) {

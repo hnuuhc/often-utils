@@ -143,16 +143,17 @@ public class StringUtil extends StringUtils {
 	 */
 	public static int interceptString(@NotNull StringBuilder body, @NotNull StringBuilder sb, int index) {
 		while (body.charAt(++index) != '"') {
-			if (body.charAt(index) == '\\') { // 转义字符,不考虑'/'
+			if (body.charAt(index) == '\\') {
 				switch (body.charAt(++index)) {
 					case 'u' -> sb.append((char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16));
 					case '\\' -> sb.append('\\');
 					case '\'' -> sb.append('\'');
+					case '/' -> sb.append("/");
 					case '"' -> sb.append('"');
 					case 'r' -> sb.append("\\r");
 					case 'n' -> sb.append("\\n");
-					case '\r' -> throw new JSONException("存在非法转义字符: \\r");
-					case '\n' -> throw new JSONException("存在非法转义字符: \\n");
+					case '\r' -> throw new JSONException("存在非法换行符: \\r");
+					case '\n' -> throw new JSONException("存在非法换行符: \\n");
 					default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
 				}
 			} else {
