@@ -134,9 +134,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean writeAsLine(@NotNull List<String> lists) {
 		File parent = source.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), DEFAULT_BUFFER_SIZE)) {
 			outStream.write(String.join(StringUtil.LF, lists) + StringUtil.LF); // 文件输出流用于将数据写入文件
 			outStream.flush();
@@ -156,9 +154,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean write(@NotNull String s) {
 		File parent = source.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), DEFAULT_BUFFER_SIZE)) {
 			output.write(s); // 文件输出流用于将数据写入文件
 			output.flush();
@@ -178,9 +174,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean write(byte[] b) {
 		File parent = source.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (FileOutputStream output = new FileOutputStream(source, append)) {
 			output.write(b); // 文件输出流用于将数据写入文件
 			output.flush();
@@ -211,9 +205,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean write(@NotNull List<String> lists, @NotNull String regex) {
 		File parent = source.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), DEFAULT_BUFFER_SIZE)) {
 			outStream.write(String.join(regex, lists)); // 文件输出流用于将数据写入文件
 			outStream.flush();
@@ -233,9 +225,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean channelWrite(@NotNull String s) {
 		File parent = source.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (FileOutputStream out = new FileOutputStream(source, append); FileChannel channel = out.getChannel()) {
 			channel.write(charset.encode(s));
 			return true;
@@ -254,9 +244,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean randomWrite(@NotNull String s) {
 		File parent = source.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (RandomAccessFile randomAccess = new RandomAccessFile(source, "rw")) {
 			if (append) {
 				randomAccess.seek(source.length());
@@ -278,9 +266,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean mappedWrite(String s) {
 		File parent = source.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		byte[] params = s.getBytes(charset);
 		try (FileChannel fileChannel = append ? FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE) : FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
 			fileChannel.map(FileChannel.MapMode.READ_WRITE, append ? source.length() : 0, params.length).put(params);
@@ -311,9 +297,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean copy(File out) {
 		File parent = out.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (InputStream input = new FileInputStream(source); OutputStream output = new FileOutputStream(out)) {
 			input.transferTo(output);
 			return true;
@@ -343,9 +327,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean randomCopy(@NotNull File out) {
 		File parent = out.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (RandomAccessFile input = new RandomAccessFile(source, "r"); RandomAccessFile output = new RandomAccessFile(out, "rw")) {
 			byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
 			int length;
@@ -379,9 +361,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean channelCopy(File out) {
 		File parent = out.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (FileInputStream inStream = new FileInputStream(source); FileChannel input = inStream.getChannel(); FileOutputStream outStream = new FileOutputStream(out); FileChannel output = outStream.getChannel()) {
 			int count = 0;
 			long size = input.size();
@@ -410,9 +390,7 @@ public class ReadWriteUtil {
 	@Contract(pure = true)
 	public boolean mappedCopy(File out) {
 		File parent = out.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		try (FileInputStream inStream = new FileInputStream(source); FileChannel input = inStream.getChannel(); RandomAccessFile outStream = new RandomAccessFile(out, "rw"); FileChannel output = outStream.getChannel()) {
 			long size = input.size();
 			for (long i = 0; i < size; i += Integer.MAX_VALUE) {
