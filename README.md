@@ -140,11 +140,10 @@ ReadWriteUtil.orgin(file).copy(out); // 文件复制
 ### 简单示例:
 
 ```
-ZipUtil.origin(file).out(qq_tempfile).addFiles(file); // 文件压缩  
+ZipUtil.origin(file).passwd("123456").compress(file); // 文件压缩  
 
 ZipUtil.origin(file).charset("GBK").deCompress(folder); // 文件解压
 
-Zip4jUtil.origin(file).passwd("123456").deCompress(folder) // 带密码解压
 ```
 
 谷歌浏览器工具类
