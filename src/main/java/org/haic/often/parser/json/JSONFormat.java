@@ -49,9 +49,9 @@ public class JSONFormat {
 	 * @return 处理后的类型
 	 */
 	public static Object toOutFormat(Object value) {
-		if (value == null) return null;
+		if (value == null) return "null";
 		if (value instanceof String s) {
-			if (s.equals("null")) return null;
+			if (s.equals("null")) return "null";
 			return '"' + StringUtil.toEscape(s) + '"';
 		} else if (value instanceof StringBuilder || value instanceof StringBuffer) {
 			return toOutFormat(value.toString());
@@ -76,10 +76,10 @@ public class JSONFormat {
 	 * @return 处理后的类型
 	 */
 	public static Object toOutFormat(Object value, int depth) {
-		if (value == null) return null;
+		if (value == null) return "null";
 		if (value instanceof String s) {
-			if (s.equals("null")) return null;
-			return StringUtil.toEscape(s);
+			if (s.equals("null")) return "null";
+			return '"' + StringUtil.toEscape(s) + '"';
 		} else if (value instanceof StringBuilder || value instanceof StringBuffer) {
 			return toOutFormat(value.toString(), depth);
 		} else if (value instanceof Number || value instanceof Boolean) {
@@ -95,7 +95,7 @@ public class JSONFormat {
 		} else if (value.getClass().isArray()) {
 			return JSONArray.parseArray(Arrays.asList((Object[]) value)).toString(depth + 1);
 		} else {
-			return StringUtil.toEscape(String.valueOf(value));
+			return '"' + StringUtil.toEscape(String.valueOf(value)) + '"';
 		}
 	}
 
