@@ -303,7 +303,7 @@ public class JSONArray extends ArrayList<Object> {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append('[').append(this.stream().map(token -> JSONFormat.toOutFormat(token).toString()).collect(Collectors.joining(","))).append(']').toString();
+		return new StringBuilder().append('[').append(this.stream().map(JSONFormat::toOutFormat).collect(Collectors.joining(","))).append(']').toString();
 	}
 
 	/**
