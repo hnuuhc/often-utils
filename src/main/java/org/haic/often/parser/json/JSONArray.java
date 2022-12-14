@@ -42,7 +42,12 @@ public class JSONArray extends ArrayList<Object> {
 				switch (body.charAt(i)) {
 					case '"' -> {
 						StringBuilder value = new StringBuilder();
-						i = StringUtil.interceptString(body, value, i) + 1;
+						i = StringUtil.interceptString(body, value, '"', i) + 1;
+						this.add(value.toString());
+					}
+					case '\'' -> { // 键可能不存在引号
+						StringBuilder value = new StringBuilder();
+						i = StringUtil.interceptString(body, value, '\'', i) + 1;
 						this.add(value.toString());
 					}
 					case 'n' -> {

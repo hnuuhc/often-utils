@@ -43,23 +43,29 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 			if (body.charAt(i) == ':') throw new JSONException("在下标 " + i + " 处不存在键");
 			StringBuilder key = new StringBuilder();
-			if (body.charAt(i) == '"') {
-				i = StringUtil.interceptString(body, key, i);
-			} else {
-				while (Character.isLetterOrDigit(body.charAt(i)) || body.charAt(i) == '_') {
-					key.append(body.charAt(i++));
+			switch (body.charAt(i)) {
+				case '"' -> i = StringUtil.interceptString(body, key, '"', i) + 1;
+				case '\'' -> i = StringUtil.interceptString(body, key, '\'', i) + 1;
+				default -> {
+					while (Character.isLetterOrDigit(body.charAt(i)) || body.charAt(i) == '_') {
+						key.append(body.charAt(i++));
+					}
 				}
 			}
-			do i++; while (Character.isWhitespace(body.charAt(i))); // 跳过空格
-
+			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 			if (body.charAt(i) != ':') {
-				throw new JSONException("解析错误,期望值不为':'");
+				throw new JSONException("解析错误," + key + "之后期望值不为':'");
 			}
 			do i++; while (Character.isWhitespace(body.charAt(i))); // 跳过空格
 			switch (body.charAt(i)) {
 				case '"' -> { // 键可能不存在引号
 					StringBuilder value = new StringBuilder();
-					i = StringUtil.interceptString(body, value, i) + 1;
+					i = StringUtil.interceptString(body, value, '"', i) + 1;
+					this.put(key.toString(), value.toString());
+				}
+				case '\'' -> { // 键可能不存在引号
+					StringBuilder value = new StringBuilder();
+					i = StringUtil.interceptString(body, value, '\'', i) + 1;
 					this.put(key.toString(), value.toString());
 				}
 				case 'n' -> {

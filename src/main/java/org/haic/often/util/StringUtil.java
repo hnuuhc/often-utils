@@ -56,18 +56,19 @@ public class StringUtil extends StringUtils {
 	 * 在StringBuilder中从指定位置开始截取字符串,以符号'"'结束
 	 *
 	 * @param body  待截取的字符串
-	 * @param sb    截取后存放
+	 * @param sb    截取字符存放位置
+	 * @param eof   截取结束符
 	 * @param index 当前位置下标
 	 * @return 字符串结束位置(符号 ' " ')下标
 	 */
-	public static int interceptString(@NotNull StringBuilder body, @NotNull StringBuilder sb, int index) {
-		while (body.charAt(++index) != '"') {
+	public static int interceptString(@NotNull StringBuilder body, @NotNull StringBuilder sb, char eof, int index) {
+		while (body.charAt(++index) != eof) {
 			if (body.charAt(index) == '\\') {
 				switch (body.charAt(++index)) {
 					case 'u' -> sb.append((char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16));
 					case '\\' -> sb.append('\\');
-					case '\'' -> sb.append('\'');
 					case '/' -> sb.append("/");
+					case '\'' -> sb.append('\'');
 					case '"' -> sb.append('"');
 					case 'r' -> sb.append("\\r");
 					case 'n' -> sb.append("\\n");
