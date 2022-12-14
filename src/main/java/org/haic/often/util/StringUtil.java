@@ -32,101 +32,20 @@ import java.util.stream.Stream;
 public class StringUtil extends StringUtils {
 
 	/**
-	 * JSON解析器对未知类型进行处理
-	 *
-	 * @param value 值
-	 * @return 处理后的类型
-	 */
-	public static Object toJSONFormat(Object value) {
-		if (value == null) return null;
-		if (value instanceof String s) {
-			if (s.equals("null")) return null;
-			if (s.equals("true")) return true;
-			if (s.equals("false")) return false;
-			return StringUtil.toEscapeString(s);
-		} else if (value instanceof JSONArray || value instanceof JSONObject || value instanceof Number || value instanceof Boolean || value instanceof StringBuilder) {
-			return value;
-		} else if (value instanceof Collection) {
-			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value));
-		} else if (value instanceof Map) {
-			return JSONObject.parseObject((Map<?, ?>) value);
-		} else if (value.getClass().isArray()) {
-			return JSONArray.parseArray(Arrays.asList((Object[]) value));
-		} else {
-			return StringUtil.toEscapeString(String.valueOf(value));
-		}
-	}
-
-	/**
-	 * JSON解析器对未知类型进行处理,并且字符串类型前后加双引号,用于格式化输出
-	 *
-	 * @param value 值
-	 * @return 处理后的类型
-	 */
-	public static Object toJSONFormatOut(Object value) {
-		if (value == null) return null;
-		if (value instanceof String s) {
-			if (s.equals("null")) return null;
-			if (s.equals("true")) return true;
-			if (s.equals("false")) return false;
-			return '"' + StringUtil.toEscapeString(s) + '"';
-		} else if (value instanceof JSONArray || value instanceof JSONObject || value instanceof Number || value instanceof Boolean || value instanceof StringBuilder) {
-			return value;
-		} else if (value instanceof Collection) {
-			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value));
-		} else if (value instanceof Map) {
-			return JSONObject.parseObject((Map<?, ?>) value);
-		} else if (value.getClass().isArray()) {
-			return JSONArray.parseArray(Arrays.asList((Object[]) value));
-		} else {
-			return '"' + StringUtil.toEscapeString(String.valueOf(value)) + '"';
-		}
-	}
-
-	/**
-	 * JSON解析器对未知类型进行处理,并且字符串类型前后加双引号,用于格式化输出
-	 *
-	 * @param value 值
-	 * @param depth 指定深度,用于格式化
-	 * @return 处理后的类型
-	 */
-	public static Object toJSONFormatOut(Object value, int depth) {
-		if (value == null) return null;
-		if (value instanceof String s) {
-			if (s.equals("null")) return null;
-			if (s.equals("true")) return true;
-			if (s.equals("false")) return false;
-			return StringUtil.toEscapeString(s);
-		} else if (value instanceof Number || value instanceof Boolean || value instanceof StringBuilder) {
-			return value;
-		} else if (value instanceof JSONArray) {
-			return ((JSONArray) value).toString(depth + 1);
-		} else if (value instanceof JSONObject) {
-			return ((JSONObject) value).toString(depth + 1);
-		} else if (value instanceof Collection) {
-			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value)).toString(depth + 1);
-		} else if (value instanceof Map) {
-			return JSONObject.parseObject((Map<?, ?>) value).toString(depth + 1);
-		} else if (value.getClass().isArray()) {
-			return JSONArray.parseArray(Arrays.asList((Object[]) value)).toString(depth + 1);
-		} else {
-			return StringUtil.toEscapeString(String.valueOf(value));
-		}
-	}
-
-	/**
 	 * 将字符串的转义字符以文本方式显示
 	 *
 	 * @param body 待处理字符串
 	 * @return 处理后的字符串
 	 */
-	public static String toEscapeString(@NotNull String body) {
+	public static String toEscape(@NotNull String body) {
 		StringBuilder sb = new StringBuilder();
 		char[] chars = body.toCharArray();
 		for (char c : chars) {
 			switch (c) {
 				case '\\' -> sb.append("\\\\");
 				case '"' -> sb.append("\\\"");
+				case '\r' -> sb.append("\\r");
+				case '\n' -> sb.append("\\n");
 				default -> sb.append(c);
 			}
 		}
@@ -134,12 +53,12 @@ public class StringUtil extends StringUtils {
 	}
 
 	/**
-	 * 由JSON解析器使用,截取字符串
+	 * 在StringBuilder中从指定位置开始截取字符串,以符号'"'结束
 	 *
 	 * @param body  待截取的字符串
 	 * @param sb    截取后存放
 	 * @param index 当前位置下标
-	 * @return 当前位置下标
+	 * @return 字符串结束位置(符号 ' " ')下标
 	 */
 	public static int interceptString(@NotNull StringBuilder body, @NotNull StringBuilder sb, int index) {
 		while (body.charAt(++index) != '"') {
@@ -152,6 +71,7 @@ public class StringUtil extends StringUtils {
 					case '"' -> sb.append('"');
 					case 'r' -> sb.append("\\r");
 					case 'n' -> sb.append("\\n");
+					case '0' -> {}
 					case '\r' -> throw new JSONException("存在非法换行符: \\r");
 					case '\n' -> throw new JSONException("存在非法换行符: \\n");
 					default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));

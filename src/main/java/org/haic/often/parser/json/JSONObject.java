@@ -101,7 +101,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 							value.append(body.charAt(i++));
 						} while (Character.isDigit(body.charAt(i)));
 					}
-					this.put(key.toString(), value);
+					this.put(key.toString(), new JSONNumber(value.toString()));
 				}
 				case '{' -> {
 					body.delete(0, i);
@@ -157,7 +157,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public Object get(@NotNull String key) {
-		return StringUtil.toJSONFormat(super.get(key));
+		return JSONFormat.format(super.get(key));
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public Object getOrDefault(@NotNull String key, @NotNull Object value) {
-		return StringUtil.toJSONFormat(super.getOrDefault(key, value));
+		return JSONFormat.format(super.getOrDefault(key, value));
 	}
 
 	/**
@@ -469,7 +469,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '"' + StringUtil.toEscapeString(token.getKey()) + "\":" + StringUtil.toJSONFormatOut(token.getValue())).collect(Collectors.joining(","))).append('}').toString();
+		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue())).collect(Collectors.joining(","))).append('}').toString();
 	}
 
 	/**
@@ -481,7 +481,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscapeString(token.getKey()) + "\":" + StringUtil.toJSONFormatOut(token.getValue(), depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append('}').toString();
+		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue(), depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append('}').toString();
 	}
 
 }

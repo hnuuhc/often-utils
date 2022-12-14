@@ -84,7 +84,7 @@ public class JSONArray extends ArrayList<Object> {
 								value.append(body.charAt(i++));
 							} while (Character.isDigit(body.charAt(i)));
 						}
-						this.add(value);
+						this.add(new JSONNumber(value.toString()));
 					}
 					case '{' -> {
 						body.delete(0, i);
@@ -141,7 +141,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public Object get(int i) {
-		return StringUtil.toJSONFormat(super.get(i));
+		return JSONFormat.format(super.get(i));
 	}
 
 	/**
@@ -303,7 +303,7 @@ public class JSONArray extends ArrayList<Object> {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append('[').append(this.stream().map(token -> StringUtil.toJSONFormatOut(token).toString()).collect(Collectors.joining(","))).append(']').toString();
+		return new StringBuilder().append('[').append(this.stream().map(token -> JSONFormat.toOutFormat(token).toString()).collect(Collectors.joining(","))).append(']').toString();
 	}
 
 	/**
@@ -315,7 +315,7 @@ public class JSONArray extends ArrayList<Object> {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		return new StringBuilder().append('[').append(this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + StringUtil.toJSONFormatOut(token, depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append(']').toString();
+		return new StringBuilder().append('[').append(this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + JSONFormat.toOutFormat(token, depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append(']').toString();
 	}
 
 }
