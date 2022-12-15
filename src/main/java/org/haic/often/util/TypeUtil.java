@@ -44,15 +44,11 @@ public class TypeUtil {
 		if (obj == null) return null;
 		if (obj.getClass() == itemClass) return (T) obj;
 		if (itemClass.isArray()) {
+			Class<?> clazz = itemClass.getComponentType();
+			if (clazz.isPrimitive()) throw new TypeException("不支持基本数组类型");
 			Object[] objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
-			Constructor<?> type = TypeUtil.getArrayConstructor(itemClass, "java.lang.String");
-			if (type == null) throw new TypeException("不支持的转换类型");
-			Object[] arrays = (Object[]) Array.newInstance(itemClass.getComponentType(), objs.length);
-			try {
-				for (int i = 0; i < objs.length; i++) arrays[i] = type.newInstance(String.valueOf(objs[i]));
-			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-				throw new TypeException("转换类型不匹配");
-			}
+			Object[] arrays = (Object[]) Array.newInstance(clazz, objs.length);
+			for (int i = 0; i < objs.length; i++) arrays[i] = convert(objs[i], clazz);
 			return (T) arrays;
 		}
 		if (itemClass == JSONObject.class) {
@@ -86,18 +82,8 @@ public class TypeUtil {
 		ArrayList<T> list = new ArrayList<>();
 		Object[] objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
 		if (itemClass.isArray()) {
-			Constructor<?> type = TypeUtil.getArrayConstructor(itemClass, "java.lang.String");
-			if (type == null) throw new TypeException("不支持的转换类型");
-			Object[] arrays = (Object[]) Array.newInstance(itemClass.getComponentType(), objs.length);
-			for (var o : objs) {
-				Object[] os = o instanceof Collection ? ((Collection<?>) o).toArray() : (Object[]) o;
-				try {
-					for (int i = 0; i < os.length; i++) arrays[i] = type.newInstance(String.valueOf(os[i]));
-				} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-					throw new TypeException("转换类型不匹配");
-				}
-				list.add((T) arrays);
-			}
+			if (itemClass.isPrimitive()) throw new TypeException("不支持基本数组类型");
+			for (Object o : objs) list.add(TypeUtil.convert(o, itemClass));
 			return list;
 		}
 		if (itemClass == JSONObject.class) {
@@ -134,20 +120,6 @@ public class TypeUtil {
 			throw new TypeException(e);
 		}
 		throw new TypeException("未知的基本类型");
-	}
-
-	/**
-	 * 获取指定数组参数类型的Constructor类型
-	 *
-	 * @param itemClass 类型
-	 * @param item      数组参数类型
-	 * @return Constructor类型
-	 */
-	@Contract(pure = true)
-	public static Constructor<?> getArrayConstructor(@NotNull Class<?> itemClass, @NotNull String item) {
-		Class<?> itemClazz = itemClass.getComponentType();
-		if (itemClazz.isPrimitive()) throw new TypeException("不支持基本数组类型");
-		return TypeUtil.getConstructor(itemClazz, item);
 	}
 
 	/**
