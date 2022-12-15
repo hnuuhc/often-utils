@@ -14,8 +14,10 @@ import org.haic.often.website.api.Youtube;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -123,11 +125,9 @@ public class Website {
 
 		private static final String playerBaseUrl = "https://www.youtube.com/s/player/4eb6b35d/player_ias.vflset/zh_CN/base.js";
 
-		@Contract(pure = true)
-		public String signatureCipherDecrypt(@NotNull String signatureCipher) {
-			Map<String, String> signatureCipherSplit = StringUtil.toMap(signatureCipher, "&");
-			StringBuilder sb = new StringBuilder(URIUtil.decode(signatureCipherSplit.get("s")));
+		private Function<String, String> function;
 
+		public Youtube updateFunction() {
 			String body = HttpsUtil.connect(playerBaseUrl).proxy(foreignProxy).execute().body();
 			// 截取解密代码段
 			String methodCode = body.substring(body.indexOf("a=a.split(\"\")"));
@@ -135,40 +135,48 @@ public class Website {
 			// 分割代码段
 			List<String> methodCodeList = methodCode.replaceAll(";", "\n").lines().toList();
 			// 截取解密代码段调用函数
-			String command = methodCodeList.get(1);
-			String functionName = command.substring(0, command.indexOf("."));
-			String function = body.substring(body.indexOf("var " + functionName + "={"));
-			function = function.substring(0, function.indexOf("};") + 1);
+			String commandString = methodCodeList.get(1);
+			String functionName = commandString.substring(0, commandString.indexOf("."));
+			String functionString = body.substring(body.indexOf("var " + functionName + "={"));
+			functionString = functionString.substring(0, functionString.indexOf("};") + 1);
 			// 去除已提取的函数名
 			methodCodeList = methodCodeList.stream().map(l -> l.replaceAll(functionName + ".", "")).toList();
-			// 开始解密
+			// 开始构建解密函数
+			List<Function<StringBuilder, StringBuilder>> functionList = new ArrayList<>();
 			for (int i = 1; i < methodCodeList.size() - 1; i++) {
-				command = methodCodeList.get(i);
+				String command = methodCodeList.get(i);
 				String f = command.substring(0, command.indexOf("("));
-				if (function.contains(f + ":function(a){a.reverse()}")) {
-					sb.reverse();
-				} else if (function.contains(f + ":function(a,b){a.splice(0,b)}")) {
-					//noinspection DuplicateExpressions
-					sb.delete(0, Integer.parseInt(command.substring(command.indexOf(",") + 1, command.length() - 1)));
-				} else if (function.contains(f + "function(a,b){var c=a[0];")) {
-					//noinspection DuplicateExpressions
-					int index = Integer.parseInt(command.substring(command.indexOf(",") + 1, command.length() - 1)) % sb.length();
-					char c = sb.charAt(0);
-					sb.setCharAt(0, sb.charAt(index));
-					sb.setCharAt(index, c);
+				if (functionString.contains(f + ":function(a){a.reverse()}")) {
+					functionList.add(StringBuilder::reverse);
 				} else {
-					// 格式化内容,用于抛出异常
-					function = function.replaceAll(";", ";\n    ");
-					function = function.replaceAll("=\\{", "={\n");
-					function = function.replaceAll("\\)\\{", "){\n    ");
-					function = function.replaceAll("},", "}");
-					function = function.replaceAll("\\)}", ")\n}");
-					function = function.replaceAll("}}", "}\n}");
-					function = function.replaceAll("=", " = ");
-					throw new RuntimeException("\n" + methodCode + "\n----------\n" + function);
+					int index = Integer.parseInt(command.substring(command.indexOf(",") + 1, command.length() - 1));
+					if (functionString.contains(f + ":function(a,b){a.splice(0,b)}")) {
+						functionList.add(sb -> sb.delete(0, index));
+					} else if (functionString.contains(f + "function(a,b){var c=a[0];")) {
+						functionList.add(sb -> {
+							int sbIndex = index % sb.length();
+							char c = sb.charAt(0);
+							sb.setCharAt(0, sb.charAt(sbIndex));
+							sb.setCharAt(sbIndex, c);
+							return sb;
+						});
+					} else {
+						throw new RuntimeException("构建解密函数失败");
+					}
 				}
 			}
-			return URIUtil.decode(signatureCipherSplit.get("url")) + "&" + signatureCipherSplit.get("sp") + "=" + sb;
+			this.function = signatureCipher -> {
+				Map<String, String> signatureCipherSplit = StringUtil.toMap(signatureCipher, "&");
+				StringBuilder sb = new StringBuilder(URIUtil.decode(signatureCipherSplit.get("s")));
+				for (var list : functionList) sb = list.apply(sb);
+				return URIUtil.decode(signatureCipherSplit.get("url")) + "&" + signatureCipherSplit.get("sp") + "=" + sb;
+			};
+			return this;
+		}
+
+		@Contract(pure = true)
+		public String signatureCipherDecrypt(@NotNull String signatureCipher) {
+			return function == null ? updateFunction().signatureCipherDecrypt(signatureCipher) : function.apply(signatureCipher);
 		}
 
 	}

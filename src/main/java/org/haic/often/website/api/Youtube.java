@@ -13,7 +13,14 @@ import org.haic.often.annotations.NotNull;
 public abstract class Youtube {
 
 	/**
-	 * signatureCipher解密,由于会下载js代码,注意需要提前设置代理
+	 * 构建解密函数,由于会下载js代码,注意需要提前设置代理
+	 *
+	 * @return this
+	 */
+	public abstract Youtube updateFunction();
+
+	/**
+	 * signatureCipher解密,如果未构建解密函数,将会下载js代码,注意需要提前设置代理
 	 *
 	 * @param signatureCipher signatureCipher
 	 * @return 已解密的signatureCipher
