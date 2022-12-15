@@ -30,49 +30,38 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 *
 	 * @param body 字符串
 	 */
-	public JSONObject(@NotNull StringBuilder body) {
-		if (body.charAt(0) != '{') {
-			throw new JSONException("格式错误: " + body);
-		}
-		if (body.charAt(1) == '}') { // 分隔符或结束符
-			body.delete(0, 2);
-			return;
-		}
-		body.deleteCharAt(0);
-		for (int i = 0; i < body.length(); i++) {
+	public JSONObject(@NotNull JSONBuilder body) {
+		if (body.charAt(body.pos()) != '{') throw new JSONException("位置 " + body.pos() + " 处格式错误期望值不为'{'");
+		do body.pos(body.pos() + 1); while (Character.isWhitespace(body.charAt(body.pos()))); // 跳过空格
+		if (body.charAt(body.pos()) == '}') return;
+		for (int i = body.pos(); i < body.length(); i++) {
 			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
-			if (body.charAt(i) == ':') throw new JSONException("在下标 " + i + " 处不存在键");
+			if (body.charAt(i) == ':') throw new JSONException("位置 " + i + " 处不存在键");
 			StringBuilder key = new StringBuilder();
 			switch (body.charAt(i)) {
-				case '"' -> i = StringUtil.interceptString(body, key, '"', i) + 1;
-				case '\'' -> i = StringUtil.interceptString(body, key, '\'', i) + 1;
-				default -> {
-					while (Character.isLetterOrDigit(body.charAt(i)) || body.charAt(i) == '_') {
-						key.append(body.charAt(i++));
-					}
-				}
+				case '"' -> i = StringUtil.interceptString(body.builderString(), key, '"', i) + 1;
+				case '\'' -> i = StringUtil.interceptString(body.builderString(), key, '\'', i) + 1;
+				default -> {while (Character.isLetterOrDigit(body.charAt(i)) || body.charAt(i) == '_') key.append(body.charAt(i++));}
 			}
 			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
-			if (body.charAt(i) != ':') {
-				throw new JSONException("解析错误," + key + "之后期望值不为':'");
-			}
+			if (body.charAt(i) != ':') throw new JSONException("位置 " + i + " 处期望值不为':'");
 			do i++; while (Character.isWhitespace(body.charAt(i))); // 跳过空格
 			switch (body.charAt(i)) {
 				case '"' -> { // 键可能不存在引号
 					StringBuilder value = new StringBuilder();
-					i = StringUtil.interceptString(body, value, '"', i) + 1;
+					i = StringUtil.interceptString(body.builderString(), value, '"', i) + 1;
 					this.put(key.toString(), value.toString());
 				}
 				case '\'' -> { // 键可能不存在引号
 					StringBuilder value = new StringBuilder();
-					i = StringUtil.interceptString(body, value, '\'', i) + 1;
+					i = StringUtil.interceptString(body.builderString(), value, '\'', i) + 1;
 					this.put(key.toString(), value.toString());
 				}
 				case 'n' -> {
 					if (body.charAt(++i) == 'u' && body.charAt(++i) == 'l' && body.charAt(++i) == 'l') {
 						this.put(key.toString(), null);
 					} else {
-						throw new JSONException("期望值不为'NULL'");
+						throw new JSONException("位置 " + i + " 处期望值不为'NULL'");
 					}
 					i++;
 				}
@@ -80,7 +69,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					if (body.charAt(++i) == 'r' && body.charAt(++i) == 'u' && body.charAt(++i) == 'e') {
 						this.put(key.toString(), true);
 					} else {
-						throw new JSONException("期望值不为'TRUE'");
+						throw new JSONException("位置 " + i + " 处期望值不为'TRUE'");
 					}
 					i++;
 				}
@@ -88,7 +77,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					if (body.charAt(++i) == 'a' && body.charAt(++i) == 'l' && body.charAt(++i) == 's' && body.charAt(++i) == 'e') {
 						this.put(key.toString(), false);
 					} else {
-						throw new JSONException("期望值不为'FALSE'");
+						throw new JSONException("位置 " + i + " 处期望值不为'FALSE'");
 					}
 					i++;
 				}
@@ -103,30 +92,26 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 							value.append('+');
 							i++;
 						}
-						do {
-							value.append(body.charAt(i++));
-						} while (Character.isDigit(body.charAt(i)));
+						do value.append(body.charAt(i++)); while (Character.isDigit(body.charAt(i)));
 					}
 					this.put(key.toString(), new JSONNumber(value.toString()));
 				}
 				case '{' -> {
-					body.delete(0, i);
-					this.put(key.toString(), new JSONObject(body));
-					i = 0;
+					this.put(key.toString(), new JSONObject(body.pos(i)));
+					i = body.pos() + 1;
 				}
 				case '[' -> {
-					body.delete(0, i);
-					this.put(key.toString(), new JSONArray(body));
-					i = 0;
+					this.put(key.toString(), new JSONArray(body.pos(i)));
+					i = body.pos() + 1;
 				}
-				default -> throw new JSONException("期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
+				default -> throw new JSONException("位置 " + i + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 			}
 			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 			if (body.charAt(i) == '}') { // 分隔符或结束符
-				body.delete(0, i + 1);
+				body.pos(i);
 				return;
 			} else if (body.charAt(i) != ',') {
-				throw new JSONException("分隔符期待值不为','");
+				throw new JSONException("位置 " + i + " 处期望值不为分隔符','");
 			}
 		}
 	}
@@ -139,7 +124,10 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public static JSONObject parseObject(@NotNull String body) {
-		return new JSONObject(new StringBuilder(body.strip()));
+		JSONBuilder builder = new JSONBuilder(body.strip());
+		JSONObject object = new JSONObject(builder);
+		if (builder.pos() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
+		return object;
 	}
 
 	/**
