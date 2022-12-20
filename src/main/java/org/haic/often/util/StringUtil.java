@@ -129,7 +129,7 @@ public class StringUtil extends StringUtils {
 				} else {
 					do {
 						value.append(tagChars[i++]);
-					} while (tagChars[i] != ' ' && tagChars[i] != '/' && tagChars[i] != '>');
+					} while (tagChars[i] != ' ' && tagChars[i] != '>' && !(tagChars[i] == '/' && tagChars[i + 1] == '>'));
 					if (tagChars[i] == ' ') i--;
 				}
 				attrs.put(key.toString(), StringEscapeUtils.unescapeHtml4(value.toString()));
