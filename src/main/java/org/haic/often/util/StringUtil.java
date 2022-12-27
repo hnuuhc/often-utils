@@ -2,12 +2,10 @@ package org.haic.often.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.haic.often.Judge;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NonNls;
 import org.haic.often.annotations.NotNull;
-import org.haic.often.exception.JSONException;
 import org.haic.often.exception.StringException;
 import org.haic.often.function.ByteFunction;
 import org.haic.often.parser.json.JSONArray;
@@ -16,7 +14,10 @@ import org.haic.often.parser.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -50,92 +51,6 @@ public class StringUtil extends StringUtils {
 			}
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * 在StringBuilder中从指定位置开始截取字符串,以符号'"'结束
-	 *
-	 * @param body  待截取的字符串
-	 * @param sb    截取字符存放位置
-	 * @param eof   截取结束符
-	 * @param index 当前位置下标
-	 * @return 字符串结束位置(符号 ' " ')下标
-	 */
-	public static int interceptString(@NotNull StringBuilder body, @NotNull StringBuilder sb, char eof, int index) {
-		while (body.charAt(++index) != eof) {
-			if (body.charAt(index) == '\\') {
-				switch (body.charAt(++index)) {
-					case 'u' -> sb.append((char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16));
-					case '\\' -> sb.append('\\');
-					case '/' -> sb.append("/");
-					case '\'' -> sb.append('\'');
-					case '"' -> sb.append('"');
-					case 'r' -> sb.append("\\r");
-					case 'n' -> sb.append("\\n");
-					case '0' -> {}
-					case '\r' -> throw new JSONException("存在非法换行符: \\r");
-					case '\n' -> throw new JSONException("存在非法换行符: \\n");
-					default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
-				}
-			} else {
-				sb.append(body.charAt(index));
-			}
-		}
-		return index;
-	}
-
-	/**
-	 * 提取html标签内属性值
-	 *
-	 * @param tag html标签
-	 * @return 列表: 属性名称 - 属性值
-	 */
-	@Contract(pure = true)
-	public static Map<String, String> htmlAttributes(@NotNull String tag) {
-		Map<String, String> attrs = new HashMap<>();
-		char[] tagChars = tag.toCharArray(); // 存在标签属性i
-		for (int i = 2; i < tagChars.length; i++) {
-			if (tagChars[i] == ' ' && tagChars[i + 1] != ' ' && tagChars[++i] != '/' && tagChars[i] != '>') {
-				StringBuilder key = new StringBuilder();
-				do {
-					key.append(tagChars[i++]);
-					if (tagChars[i] == ' ') {
-						attrs.put(key.toString(), "");
-						break;
-					} else if (tagChars[i] == '/' || tagChars[i] == '>') {
-						attrs.put(key.toString(), "");
-						return attrs;
-					}
-				} while (tagChars[i] != '=');
-				StringBuilder value = new StringBuilder();
-				if (tagChars[++i] == '"') {
-					while (tagChars[++i] != '"') {
-						value.append(tagChars[i]);
-					}
-					if (Character.isLetter(tagChars[i + 1])) {
-						tagChars[i] = ' ';
-						i--;
-					}
-				} else if (tagChars[i] == '\'') {
-					while (tagChars[++i] != '\'') {
-						value.append(tagChars[i]);
-					}
-				} else if (tagChars[i] == '&' && tagChars[i + 1] == 'q' && tagChars[i + 2] == 'u' && tagChars[i + 3] == 'o' && tagChars[i + 4] == 't' && tagChars[i + 5] == ';') {
-					i = i + 6;
-					do {
-						value.append(tagChars[i++]);
-					} while (tagChars[i] == '&' && tagChars[i + 1] == 'q' && tagChars[i + 2] == 'u' && tagChars[i + 3] == 'o' && tagChars[i + 4] == 't' && tagChars[i + 5] == ';');
-					i += 5;
-				} else {
-					do {
-						value.append(tagChars[i++]);
-					} while (tagChars[i] != ' ' && tagChars[i] != '>' && !(tagChars[i] == '/' && tagChars[i + 1] == '>'));
-					if (tagChars[i] == ' ') i--;
-				}
-				attrs.put(key.toString(), StringEscapeUtils.unescapeHtml4(value.toString()));
-			}
-		}
-		return attrs;
 	}
 
 	/**

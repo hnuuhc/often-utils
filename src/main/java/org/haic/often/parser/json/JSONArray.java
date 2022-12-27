@@ -3,7 +3,7 @@ package org.haic.often.parser.json;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
-import org.haic.often.util.StringUtil;
+import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeUtil;
 
 import java.util.ArrayList;
@@ -28,22 +28,17 @@ public class JSONArray extends ArrayList<Object> {
 	 *
 	 * @param body 字符串
 	 */
-	public JSONArray(JSONBuilder body) {
+	public JSONArray(@NotNull ParserStringBuilder body) {
 		if (body.charAt(body.pos()) == '[') {
-			do body.pos(body.pos() + 1); while (Character.isWhitespace(body.charAt(body.pos()))); // 跳过空格
+			body.offset(1).skipWhitespace();
 			if (body.charAt(body.pos()) == ']') return;
 			for (int i = body.pos(); i < body.length(); i++) {
 				while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 				switch (body.charAt(i)) {
-					case '"' -> {
-						StringBuilder value = new StringBuilder();
-						i = StringUtil.interceptString(body.builderString(), value, '"', i) + 1;
-						this.add(value.toString());
-					}
-					case '\'' -> { // 键可能不存在引号
-						StringBuilder value = new StringBuilder();
-						i = StringUtil.interceptString(body.builderString(), value, '\'', i) + 1;
-						this.add(value.toString());
+					case '"', '\'' -> {
+						String value = body.pos(i).interceptString();
+						i = body.pos() + 1;
+						this.add(value);
 					}
 					case 'n' -> {
 						if (body.charAt(++i) == 'u' && body.charAt(++i) == 'l' && body.charAt(++i) == 'l') {
@@ -117,7 +112,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public static JSONArray parseArray(@NotNull String body) {
-		JSONBuilder builder = new JSONBuilder(body.strip());
+		ParserStringBuilder builder = new ParserStringBuilder(body.strip());
 		JSONArray object = new JSONArray(builder);
 		if (builder.pos() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
 		return object;
