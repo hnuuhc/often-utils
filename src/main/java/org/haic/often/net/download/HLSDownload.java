@@ -43,7 +43,7 @@ import java.util.function.Predicate;
  * @since 2021/12/24 23:07
  */
 public class HLSDownload {
-	
+
 	private HLSDownload() {
 	}
 
@@ -642,10 +642,9 @@ public class HLSDownload {
 							for (int i = 0; i < links.size(); i++) {
 								File file = new File(folder, i + ".ts");
 								byte[] data = cipher.doFinal(ReadWriteUtil.orgin(file).readBytes());
-								int replenish = data[data.length - 1]; // 获取填充参数
-								data = replenish > 16 || replenish == 0 ? data : Arrays.copyOf(data, data.length - replenish); // 去除填充参数
-								out.write(data, 0, data.length);
-								fileSize += data.length;
+								int replenish = data.length - data[data.length - 1];  // 获取去除填充参数的实际长度
+								out.write(data, 0, replenish);
+								fileSize += replenish;
 								file.delete();
 							}
 						}
