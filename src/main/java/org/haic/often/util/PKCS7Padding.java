@@ -60,7 +60,6 @@ public class PKCS7Padding {
 			cipher.init(Cipher.DECRYPT_MODE, keyspec, ivspec);
 			byte[] original = cipher.doFinal(data);
 			int replenish = original[original.length - 1]; // 获取填充参数
-			if (replenish == 0) return original;
 			return Arrays.copyOf(original, original.length - replenish); // 去除填充参数
 		} catch (Exception e) {
 			throw new AESException(e);
