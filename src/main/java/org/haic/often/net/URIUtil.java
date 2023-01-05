@@ -440,7 +440,8 @@ public class URIUtil {
 	public static String getFileNameForDisposition(@NotNull String disposition) {
 		String fileName = disposition.substring(disposition.lastIndexOf("filename"));
 		fileName = fileName.substring(fileName.indexOf("=") + 1).replaceAll("\"", "");
-		return decode(fileName.contains("'") ? fileName.substring(fileName.lastIndexOf("'") + 1) : fileName);
+		fileName = decode(fileName.contains("'") ? fileName.substring(fileName.lastIndexOf("'") + 1) : fileName);
+		return fileName.replaceAll("\\+", " ");
 	}
 
 	/**

@@ -3,6 +3,8 @@ package org.haic.often.net.http;
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
@@ -14,8 +16,6 @@ import org.haic.often.tuple.record.ThreeTuple;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -535,7 +535,7 @@ public class HttpsUtil {
 
 		@Contract(pure = true)
 		public Map<String, String> headers() {
-			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-") && !v.isBlank()).map(v -> v.substring(0, v.indexOf(";"))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue()), (e1, e2) -> e2)) : headers;
+			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> new String((l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-") && !v.isBlank()).map(v -> v.substring(0, v.indexOf(";"))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue())).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8), (e1, e2) -> e2)) : headers;
 		}
 
 		@Contract(pure = true)
