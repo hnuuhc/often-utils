@@ -71,9 +71,11 @@ public class TypeUtil {
 		} else if (itemClass.isPrimitive()) {
 			return (T) convert(obj, TypeUtil.getBasicPackType(itemClass));
 		} else {
-			Constructor<?> type = TypeUtil.getConstructor(itemClass, objClass.getName());
+			String thisClassName = objClass.getName();
+			Constructor<?> type = TypeUtil.getConstructor(itemClass, thisClassName);
 			try {
 				if (type == null) {
+					if (thisClassName.equals("java.lang.String")) throw new TypeException("不支持的转换类型");
 					type = TypeUtil.getConstructor(itemClass);
 					if (type == null) throw new TypeException("不支持的转换类型");
 					return (T) type.newInstance(String.valueOf(obj));
@@ -137,7 +139,7 @@ public class TypeUtil {
 							if (type == null) throw new TypeException("不支持的转换类型");
 							list.add((T) type.newInstance(String.valueOf(o)));
 						} else {
-							Constructor<?> thisType = TypeUtil.getConstructor(itemClass, o.getClass().getName());
+							Constructor<?> thisType = TypeUtil.getConstructor(itemClass, thisClassName);
 							if (thisType == null) {
 								if (type == null) throw new TypeException("不支持的转换类型");
 								list.add((T) type.newInstance(String.valueOf(o)));
