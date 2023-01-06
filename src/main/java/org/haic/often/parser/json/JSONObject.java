@@ -7,9 +7,9 @@ import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeUtil;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
  */
 public class JSONObject extends LinkedHashMap<String, Object> {
 
-	public JSONObject() {
-		super();
-	}
+	public JSONObject() {super();}
+
+	public JSONObject(Map<? extends String, ?> m) {super(m);}
 
 	/**
 	 * 这是解析用构建,切勿使用
@@ -190,8 +190,20 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @return 数组
 	 */
 	@Contract(pure = true)
-	public <T> ArrayList<T> getList(@NotNull String key, @NotNull Class<T> itemClass) {
+	public <T> List<T> getList(@NotNull String key, @NotNull Class<T> itemClass) {
 		return TypeUtil.convertList(this.get(key), itemClass);
+	}
+
+	/**
+	 * @param key        名称
+	 * @param keyClass   指定键类型
+	 * @param valueClass 指定值类型
+	 * @param <K>        键泛型
+	 * @param <V>        值泛型
+	 * @return Map对象
+	 */
+	public <K, V> Map<K, V> getMap(@NotNull String key, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
+		return TypeUtil.convertMap(this.get(key), keyClass, valueClass);
 	}
 
 	/**
@@ -427,16 +439,16 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	/**
 	 * 转换为指定类型的Map数组
 	 *
-	 * @param keyItemClass   Map键类型
-	 * @param valueItemClass Map值类型
-	 * @param <K>            键泛型
-	 * @param <V>            值泛型
+	 * @param keyClass   Map键类型
+	 * @param valueClass Map值类型
+	 * @param <K>        键泛型
+	 * @param <V>        值泛型
 	 * @return Map数组
 	 */
 	@Contract(pure = true)
-	public <K, V> Map<K, V> toMap(Class<K> keyItemClass, Class<V> valueItemClass) {
+	public <K, V> Map<K, V> toMap(@NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
 		Map<K, V> map = new HashMap<>();
-		this.forEach((key, value) -> map.put(TypeUtil.convert(key, keyItemClass), TypeUtil.convert(value, valueItemClass)));
+		this.forEach((key, value) -> map.put(TypeUtil.convert(key, keyClass), TypeUtil.convert(value, valueClass)));
 		return map;
 	}
 
@@ -447,7 +459,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 值
 	 * @return 自身
 	 */
-	public JSONObject fluentPut(@NotNull String key, Object value) {
+	public JSONObject fluentPut(String key, Object value) {
 		super.put(key, value);
 		return this;
 	}
@@ -458,7 +470,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param m Map数组
 	 * @return 自身
 	 */
-	public JSONObject fluentPutAll(@NotNull Map<String, Object> m) {
+	public JSONObject fluentPutAll(Map<? extends String, ?> m) {
 		super.putAll(m);
 		return this;
 	}

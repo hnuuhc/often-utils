@@ -8,6 +8,8 @@ import org.haic.often.util.TypeUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -19,9 +21,9 @@ import java.util.stream.Collectors;
  */
 public class JSONArray extends ArrayList<Object> {
 
-	public JSONArray() {
-		super();
-	}
+	public JSONArray() {super();}
+
+	public JSONArray(Collection<?> c) {super(c);}
 
 	/**
 	 * 这是解析用构建,切勿使用
@@ -132,7 +134,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -143,7 +145,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i         index of the element to return
+	 * @param i         要返回的元素的索引
 	 * @param itemClass 指定类型
 	 * @param <T>       返回泛型
 	 * @return 值
@@ -154,9 +156,34 @@ public class JSONArray extends ArrayList<Object> {
 	}
 
 	/**
+	 * 获取名称对应键的数组
+	 *
+	 * @param i         要返回的元素的索引
+	 * @param itemClass 指定类型
+	 * @param <T>       返回泛型
+	 * @return 数组
+	 */
+	@Contract(pure = true)
+	public <T> List<T> getList(int i, @NotNull Class<T> itemClass) {
+		return TypeUtil.convertList(this.get(i), itemClass);
+	}
+
+	/**
+	 * @param i          要返回的元素的索引
+	 * @param keyClass   指定键类型
+	 * @param valueClass 指定值类型
+	 * @param <K>        键泛型
+	 * @param <V>        值泛型
+	 * @return Map对象
+	 */
+	public <K, V> Map<K, V> getMap(int i, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
+		return TypeUtil.convertMap(this.get(i), keyClass, valueClass);
+	}
+
+	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -167,7 +194,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -178,7 +205,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -189,7 +216,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -200,7 +227,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -211,7 +238,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -222,7 +249,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -233,7 +260,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -244,7 +271,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -255,7 +282,7 @@ public class JSONArray extends ArrayList<Object> {
 	/**
 	 * 获取对应索引的值
 	 *
-	 * @param i index of the element to return
+	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
 	@Contract(pure = true)
@@ -271,7 +298,7 @@ public class JSONArray extends ArrayList<Object> {
 	 * @return 指定类型的数组
 	 */
 	@Contract(pure = true)
-	public <T> ArrayList<T> toList(Class<T> itemClass) {
+	public <T> List<T> toList(@NotNull Class<T> itemClass) {
 		return TypeUtil.convertList(this, itemClass);
 	}
 
@@ -281,7 +308,7 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param obj 待添加的元素
 	 * @return 自身
 	 */
-	public JSONArray fluentAdd(@NotNull Object obj) {
+	public JSONArray fluentAdd(Object obj) {
 		super.add(obj);
 		return this;
 	}
@@ -292,7 +319,7 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param c 数组
 	 * @return 自身
 	 */
-	public JSONArray fluentAddAll(@NotNull Collection<?> c) {
+	public JSONArray fluentAddAll(Collection<?> c) {
 		super.addAll(c);
 		return this;
 	}

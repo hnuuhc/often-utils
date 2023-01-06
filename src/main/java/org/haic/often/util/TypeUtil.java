@@ -9,9 +9,8 @@ import org.haic.often.parser.json.JSONObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * 泛类型工具类
@@ -33,6 +32,19 @@ public class TypeUtil {
 	/**
 	 * 类型转换
 	 *
+	 * @param obj  Object对象
+	 * @param type 转换类型
+	 * @param <T>  返回类型
+	 * @return 转换后的类型对象
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T convert(Object obj, @NotNull Type type) {
+		return convert(obj, (Class<T>) type);
+	}
+
+	/**
+	 * 类型转换
+	 *
 	 * @param obj       Object对象
 	 * @param itemClass 转换类型
 	 * @param <T>       返回类型
@@ -42,7 +54,8 @@ public class TypeUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(Object obj, @NotNull Class<T> itemClass) {
 		if (obj == null) return null;
-		if (obj.getClass() == itemClass) return (T) obj;
+		Class<?> objClass = obj.getClass();
+		if (objClass == itemClass) return (T) obj;
 		if (itemClass.isArray()) {
 			Class<?> clazz = itemClass.getComponentType();
 			if (clazz.isPrimitive()) throw new TypeException("不支持基本数组类型");
@@ -58,14 +71,33 @@ public class TypeUtil {
 		} else if (itemClass.isPrimitive()) {
 			return (T) convert(obj, TypeUtil.getBasicPackType(itemClass));
 		} else {
-			Constructor<?> type = TypeUtil.getConstructor(itemClass, "java.lang.String");
-			if (type == null) throw new TypeException("不支持的转换类型");
+			Constructor<?> type = TypeUtil.getConstructor(itemClass, objClass.getName());
 			try {
-				return (T) type.newInstance(String.valueOf(obj));
+				if (type == null) {
+					type = TypeUtil.getConstructor(itemClass);
+					if (type == null) throw new TypeException("不支持的转换类型");
+					return (T) type.newInstance(String.valueOf(obj));
+				} else {
+					return (T) type.newInstance(obj);
+				}
 			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
 				throw new TypeException("转换类型不匹配");
 			}
 		}
+	}
+
+	/**
+	 * 类型转换
+	 *
+	 * @param obj  数组
+	 * @param type 转换类型
+	 * @param <T>  返回类型
+	 * @return 转换后的类型对象
+	 */
+	@Contract(pure = true)
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> convertList(@NotNull Object obj, @NotNull Type type) {
+		return convertList(obj, (Class<T>) type);
 	}
 
 	/**
@@ -78,8 +110,9 @@ public class TypeUtil {
 	 */
 	@Contract(pure = true)
 	@SuppressWarnings("unchecked")
-	public static <T> ArrayList<T> convertList(@NotNull Object obj, Class<T> itemClass) {
-		ArrayList<T> list = new ArrayList<>();
+	public static <T> List<T> convertList(@NotNull Object obj, @NotNull Class<T> itemClass) {
+		if (obj == null) return null;
+		List<T> list = new ArrayList<>();
 		Object[] objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
 		if (itemClass.isArray()) {
 			if (itemClass.isPrimitive()) throw new TypeException("不支持基本数组类型");
@@ -94,15 +127,42 @@ public class TypeUtil {
 			Class<?> clazz = TypeUtil.getBasicPackType(itemClass);
 			for (var o : objs) list.add((T) convert(o, clazz));
 		} else {
-			Constructor<?> type = getConstructor(itemClass, "java.lang.String");
-			if (type == null) throw new TypeException("不支持的转换类型");
+			Constructor<?> type = getConstructor(itemClass);
 			try {
-				for (var o : objs) list.add((T) type.newInstance(String.valueOf(o)));
+				for (var o : objs) {
+					if (o == null) list.add(null);
+					else {
+						String thisClassName = o.getClass().getName();
+						if (thisClassName.equals("java.lang.String")) {
+							if (type == null) throw new TypeException("不支持的转换类型");
+							list.add((T) type.newInstance(String.valueOf(o)));
+						} else {
+							Constructor<?> thisType = TypeUtil.getConstructor(itemClass, o.getClass().getName());
+							if (thisType == null) {
+								if (type == null) throw new TypeException("不支持的转换类型");
+								list.add((T) type.newInstance(String.valueOf(o)));
+							} else {
+								list.add((T) thisType.newInstance(o));
+							}
+						}
+					}
+				}
 			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
 				throw new TypeException("转换类型不匹配");
 			}
 		}
 		return list;
+	}
+
+	public static <K, V> Map<K, V> convertMap(@NotNull Object obj, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
+		if (obj == null) return null;
+		Map<K, V> m = new HashMap<>();
+		if (obj instanceof Map<?, ?> map) {
+			for (var entry : map.entrySet()) m.put(TypeUtil.convert(entry.getKey(), keyClass), TypeUtil.convert(entry.getValue(), valueClass));
+		} else {
+			throw new TypeException("不支持的转换类型");
+		}
+		return m;
 	}
 
 	/**
@@ -126,15 +186,32 @@ public class TypeUtil {
 	 * 获取指定参数类型的Constructor类型
 	 *
 	 * @param itemClass 类型
-	 * @param item      参数类型
 	 * @return Constructor类型
 	 */
 	@Contract(pure = true)
-	public static Constructor<?> getConstructor(@NotNull Class<?> itemClass, @NotNull String item) {
+	public static Constructor<?> getConstructor(@NotNull Class<?> itemClass) {
+		return getConstructor(itemClass, "java.lang.String");
+	}
+
+	/**
+	 * 获取指定参数类型的Constructor类型
+	 *
+	 * @param itemClass 类型
+	 * @param items     参数类型
+	 * @return Constructor类型
+	 */
+	@Contract(pure = true)
+	public static Constructor<?> getConstructor(@NotNull Class<?> itemClass, @NotNull String... items) {
 		Constructor<?> type = null;
-		for (var con : itemClass.getConstructors()) {
-			Class<?>[] parameterTypes = con.getParameterTypes();
-			if (parameterTypes.length == 1 && parameterTypes[0].getName().equals(item)) type = con;
+		items:
+		for (var item : items) {
+			for (var con : itemClass.getConstructors()) {
+				Class<?>[] parameterTypes = con.getParameterTypes();
+				if (parameterTypes.length == 1 && parameterTypes[0].getName().equals(item)) {
+					type = con;
+					break items;
+				}
+			}
 		}
 		return type;
 	}
