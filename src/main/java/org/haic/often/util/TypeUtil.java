@@ -6,11 +6,9 @@ import org.haic.often.exception.TypeException;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * 泛类型工具类
@@ -29,13 +27,51 @@ public class TypeUtil {
 										   { "boolean", "java.lang.Boolean" },//
 										   { "char", "java.lang.Character" } };
 
+	@SuppressWarnings("unchecked")
+	public static <T> T convert(Object obj, TypeReference<T> type) {
+		var rawType = type.getRawType();
+		if (!type.isActualType()) return (T) TypeUtil.convert(obj, rawType);
+		Object[] arguments = type.getArguments();
+		Function<Class<?>, Constructor<?>> convert = convertType -> {
+			for (var constructor : convertType.getConstructors()) {
+				if (constructor.getParameterCount() == arguments.length) {
+					var bool = true;
+					var parameterTypes = constructor.getParameterTypes();
+					for (int i = 0; i < arguments.length; i++) {
+						if ((parameterTypes[i].isPrimitive() ? TypeUtil.getBasicPackType(parameterTypes[i]) : parameterTypes[i]) != arguments[i].getClass()) {
+							bool = false;
+							break;
+						}
+					}
+					if (bool) return constructor;
+				}
+			}
+			throw new TypeException("无匹配参数的对应对象");
+		};
+
+		var actualTypeArguments = type.getActualTypeArguments();
+		try {
+			if (Map.class.isAssignableFrom(rawType)) {
+				if (rawType.isInterface()) rawType = Class.forName("java.util.HashMap");
+				return (T) TypeUtil.convertMap(obj, TypeUtil.getRawType(actualTypeArguments[0]), TypeUtil.getRawType(actualTypeArguments[1]), convert.apply(rawType), arguments);
+			} else if (Collection.class.isAssignableFrom(rawType)) {
+				if (rawType.isInterface()) rawType = Class.forName("java.util.ArrayList");
+				return (T) TypeUtil.convertList(obj, TypeUtil.getRawType(actualTypeArguments[0]), convert.apply(rawType), arguments);
+			} else {
+				throw new TypeException("不支持的转换类型");
+			}
+		} catch (ClassNotFoundException e) {
+			throw new TypeException(e);
+		}
+	}
+
 	/**
 	 * 类型转换
 	 *
 	 * @param obj  Object对象
 	 * @param type 转换类型
 	 * @param <T>  返回类型
-	 * @return 转换后的类型对象
+	 * @return 转换后的类型
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(Object obj, @NotNull Type type) {
@@ -48,19 +84,19 @@ public class TypeUtil {
 	 * @param obj       Object对象
 	 * @param itemClass 转换类型
 	 * @param <T>       返回类型
-	 * @return 转换后的类型对象
+	 * @return 转换后的类型
 	 */
 	@Contract(pure = true)
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(Object obj, @NotNull Class<T> itemClass) {
 		if (obj == null) return null;
-		Class<?> objClass = obj.getClass();
+		var objClass = obj.getClass();
 		if (objClass == itemClass) return (T) obj;
 		if (itemClass.isArray()) {
-			Class<?> clazz = itemClass.getComponentType();
+			var clazz = itemClass.getComponentType();
 			if (clazz.isPrimitive()) throw new TypeException("不支持基本数组类型");
-			Object[] objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
-			Object[] arrays = (Object[]) Array.newInstance(clazz, objs.length);
+			var objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
+			var arrays = (Object[]) Array.newInstance(clazz, objs.length);
 			for (int i = 0; i < objs.length; i++) arrays[i] = convert(objs[i], clazz);
 			return (T) arrays;
 		}
@@ -71,8 +107,8 @@ public class TypeUtil {
 		} else if (itemClass.isPrimitive()) {
 			return (T) convert(obj, TypeUtil.getBasicPackType(itemClass));
 		} else {
-			String thisClassName = objClass.getName();
-			Constructor<?> type = TypeUtil.getConstructor(itemClass, thisClassName);
+			var thisClassName = objClass.getName();
+			var type = TypeUtil.getConstructor(itemClass, thisClassName);
 			try {
 				if (type == null) {
 					if (thisClassName.equals("java.lang.String")) throw new TypeException("不支持的转换类型");
@@ -92,9 +128,9 @@ public class TypeUtil {
 	 * 类型转换
 	 *
 	 * @param obj  数组
-	 * @param type 转换类型
+	 * @param type 转换参数类型
 	 * @param <T>  返回类型
-	 * @return 转换后的类型对象
+	 * @return 转换后的类型
 	 */
 	@Contract(pure = true)
 	@SuppressWarnings("unchecked")
@@ -106,16 +142,47 @@ public class TypeUtil {
 	 * 类型转换
 	 *
 	 * @param obj       数组
-	 * @param itemClass 转换类型
-	 * @param <T>       返回类型
-	 * @return 转换后的类型对象
+	 * @param itemClass 转换参数类型
+	 * @param <T>       返回参数类型
+	 * @return 转换后的类型
 	 */
 	@Contract(pure = true)
-	@SuppressWarnings("unchecked")
 	public static <T> List<T> convertList(@NotNull Object obj, @NotNull Class<T> itemClass) {
+		return convertList(obj, new ArrayList<>(), itemClass);
+	}
+
+	/**
+	 * 类型转换
+	 *
+	 * @param obj         数组
+	 * @param itemClass   转换参数类型
+	 * @param constructor Constructor对象,用于构建存储类对象
+	 * @param arguments   Constructor构建参数
+	 * @param <T>         返回参数类型
+	 * @return 转换后的类型
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> convertList(@NotNull Object obj, @NotNull Class<T> itemClass, @NotNull Constructor<?> constructor, @NotNull Object... arguments) {
+		try {
+			return convertList(obj, (List<T>) constructor.newInstance(arguments), itemClass);
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			throw new TypeException(e);
+		}
+	}
+
+	/**
+	 * 类型转换
+	 *
+	 * @param obj       数组
+	 * @param list      数组对象,用于存储转换后数据
+	 * @param itemClass 转换参数类型
+	 * @param <T>       返回参数类型
+	 * @return 转换后的类型
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> convertList(@NotNull Object obj, @NotNull List<T> list, @NotNull Class<T> itemClass) {
 		if (obj == null) return null;
-		List<T> list = new ArrayList<>();
-		Object[] objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
+		var objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
 		if (itemClass.isArray()) {
 			if (itemClass.isPrimitive()) throw new TypeException("不支持基本数组类型");
 			for (Object o : objs) list.add(TypeUtil.convert(o, itemClass));
@@ -126,20 +193,20 @@ public class TypeUtil {
 		} else if (itemClass == JSONArray.class) {
 			for (var o : objs) list.add((T) (o instanceof JSONArray ? o : o instanceof Collection ? JSONArray.parseArray((Collection<?>) o) : JSONObject.parseObject(String.valueOf(o))));
 		} else if (itemClass.isPrimitive()) {
-			Class<?> clazz = TypeUtil.getBasicPackType(itemClass);
-			for (var o : objs) list.add((T) convert(o, clazz));
+			for (var o : objs) list.add((T) convert(o, TypeUtil.getBasicPackType(itemClass)));
 		} else {
 			Constructor<?> type = getConstructor(itemClass);
 			try {
 				for (var o : objs) {
 					if (o == null) list.add(null);
+					else if (o.getClass() == itemClass) list.add((T) o);
 					else {
-						String thisClassName = o.getClass().getName();
+						var thisClassName = o.getClass().getName();
 						if (thisClassName.equals("java.lang.String")) {
 							if (type == null) throw new TypeException("不支持的转换类型");
 							list.add((T) type.newInstance(String.valueOf(o)));
 						} else {
-							Constructor<?> thisType = TypeUtil.getConstructor(itemClass, thisClassName);
+							var thisType = TypeUtil.getConstructor(itemClass, thisClassName);
 							if (thisType == null) {
 								if (type == null) throw new TypeException("不支持的转换类型");
 								list.add((T) type.newInstance(String.valueOf(o)));
@@ -156,9 +223,54 @@ public class TypeUtil {
 		return list;
 	}
 
+	/**
+	 * 类型转换
+	 *
+	 * @param obj        Map对象
+	 * @param keyClass   转换参数类型
+	 * @param valueClass 转换参数类型
+	 * @param <K>        返回参数类型
+	 * @param <V>        返回参数类型
+	 * @return 转换后的类型
+	 */
 	public static <K, V> Map<K, V> convertMap(@NotNull Object obj, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
+		return convertMap(obj, new HashMap<>(), keyClass, valueClass);
+	}
+
+	/**
+	 * 类型转换
+	 *
+	 * @param obj         Map对象
+	 * @param keyClass    转换参数类型
+	 * @param valueClass  转换参数类型
+	 * @param constructor Constructor对象,用于构建存储类对象
+	 * @param arguments   Constructor构建参数
+	 * @param <K>         返回参数类型
+	 * @param <V>         返回参数类型
+	 * @return 转换后的类型
+	 */
+	@SuppressWarnings("unchecked")
+	public static <K, V> Map<K, V> convertMap(@NotNull Object obj, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass, @NotNull Constructor<?> constructor, @NotNull Object... arguments) {
+		try {
+			return convertMap(obj, (Map<K, V>) constructor.newInstance(arguments), keyClass, valueClass);
+		} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+			throw new TypeException(e);
+		}
+	}
+
+	/**
+	 * 类型转换
+	 *
+	 * @param obj        Map对象
+	 * @param m          Map对象,用于存储转换后数据
+	 * @param keyClass   转换参数类型
+	 * @param valueClass 转换参数类型
+	 * @param <K>        返回参数类型
+	 * @param <V>        返回参数类型
+	 * @return 转换后的类型
+	 */
+	public static <K, V> Map<K, V> convertMap(@NotNull Object obj, @NotNull Map<K, V> m, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
 		if (obj == null) return null;
-		Map<K, V> m = new HashMap<>();
 		if (obj instanceof Map<?, ?> map) {
 			for (var entry : map.entrySet()) m.put(TypeUtil.convert(entry.getKey(), keyClass), TypeUtil.convert(entry.getValue(), valueClass));
 		} else {
@@ -175,9 +287,9 @@ public class TypeUtil {
 	 */
 	@Contract(pure = true)
 	public static Class<?> getBasicPackType(@NotNull Class<?> itemClass) {
-		String name = itemClass.getTypeName();
+		var name = itemClass.getTypeName();
 		try {
-			for (String[] strings : BasicType) if (strings[0].equals(name)) return Class.forName(strings[1]);
+			for (var strings : BasicType) if (strings[0].equals(name)) return Class.forName(strings[1]);
 		} catch (ClassNotFoundException e) {
 			throw new TypeException(e);
 		}
@@ -208,7 +320,7 @@ public class TypeUtil {
 		items:
 		for (var item : items) {
 			for (var con : itemClass.getConstructors()) {
-				Class<?>[] parameterTypes = con.getParameterTypes();
+				var parameterTypes = con.getParameterTypes();
 				if (parameterTypes.length == 1 && parameterTypes[0].getName().equals(item)) {
 					type = con;
 					break items;
@@ -216,6 +328,28 @@ public class TypeUtil {
 			}
 		}
 		return type;
+	}
+
+	/**
+	 * 返回表示声明此类型的类或接口对象
+	 *
+	 * @param type 类型对象
+	 * @return 类或接口对象
+	 */
+	public static Class<?> getRawType(Type type) {
+		if (type instanceof Class<?> classType) {
+			return classType;
+		} else if (type instanceof ParameterizedType parameterizedType) {
+			return (Class<?>) parameterizedType.getRawType();
+		} else if (type instanceof GenericArrayType genericArrayType) {
+			return Array.newInstance(getRawType(genericArrayType.getGenericComponentType()), 0).getClass();
+		} else if (type instanceof TypeVariable) {
+			return Object.class;
+		} else if (type instanceof WildcardType wildcardType) {
+			return getRawType(wildcardType.getUpperBounds()[0]);
+		} else {
+			throw new IllegalArgumentException("Expected a Class, ParameterizedType or GenericArrayType, but <" + type + "> is of type " + (type == null ? "null" : type.getClass().getName()));
+		}
 	}
 
 }
