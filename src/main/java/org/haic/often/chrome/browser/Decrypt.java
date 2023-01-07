@@ -1,11 +1,11 @@
 package org.haic.often.chrome.browser;
 
-import org.apache.commons.codec.binary.Base64;
 import org.haic.often.Judge;
 import org.haic.often.annotations.Contract;
 import org.haic.often.dpapi.WinDPAPI;
 import org.haic.often.function.StringFunction;
 import org.haic.often.parser.json.JSONObject;
+import org.haic.often.util.Base64Util;
 import org.haic.often.util.ReadWriteUtil;
 
 import javax.crypto.Cipher;
@@ -30,8 +30,8 @@ public class Decrypt {
 	 * @return encryptedKey
 	 */
 	@Contract(pure = true)
-	public static String getEncryptedKey(File userHome) {
-		return JSONObject.parseObject(ReadWriteUtil.orgin(new File(userHome, "Local State")).read()).getJSONObject("os_crypt").getString("encrypted_key");
+	public static byte[] getEncryptedKey(File userHome) {
+		return JSONObject.parseObject(ReadWriteUtil.orgin(new File(userHome, "Local State")).read()).getJSONObject("os_crypt").getString("encrypted_key").getBytes();
 	}
 
 	/**
@@ -42,13 +42,13 @@ public class Decrypt {
 	 * @return decrypt Value
 	 */
 	@Contract(pure = true)
-	public static byte[] DPAPIDecode(byte[] encryptedValue, String encryptedKey) {
+	public static byte[] DPAPIDecode(byte[] encryptedValue, byte[] encryptedKey) {
 		int keyLength = 256 / 8;
 		int nonceLength = 96 / 8;
 		String kEncryptionVersionPrefix = "v10";
 		int GCM_TAG_LENGTH = 16;
 		try {
-			byte[] encryptedKeyBytes = Base64.decodeBase64(encryptedKey);
+			byte[] encryptedKeyBytes = Base64Util.decode(encryptedKey);
 			assert new String(encryptedKeyBytes).startsWith("DPAPI");
 			encryptedKeyBytes = Arrays.copyOfRange(encryptedKeyBytes, "DPAPI".length(), encryptedKeyBytes.length);
 			WinDPAPI winDPAPI = WinDPAPI.newInstance(WinDPAPI.CryptProtectFlag.CRYPTPROTECT_UI_FORBIDDEN);

@@ -87,6 +87,7 @@ public class Element {
 				if (node.charAt(node.pos() + 1) == '/') { // 遇到结束标签返回上级
 					int index = node.indexOf(">");
 					if (node.substring(node.pos() + 2, index).equals(name)) {
+						text = StringEscapeUtils.unescapeHtml4(text).strip(); // 反转义特殊字符,耗时较长等待修复
 						node.pos(index + 1);
 						return;
 					} else {
@@ -109,7 +110,7 @@ public class Element {
 				String text = node.substring(node.pos(), tail);
 				node.pos(tail);
 				//noinspection StringConcatenationInLoop
-				this.text += StringEscapeUtils.unescapeHtml4(text).strip(); // 反转义特殊字符,耗时较长等待修复
+				this.text += text;
 			}
 		}
 	}

@@ -98,12 +98,11 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
-		private Connection initialization(@NotNull String url) {
+		private void initialization(@NotNull String url) {
 			header("accept", "text/html, application/json, application/xhtml+xml;q=0.9, */*;q=0.8");
 			header("accept-language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6");
 			header("accept-encoding", "gzip, deflate, br"); // 允许压缩gzip,br-Brotli
-			header("user-agent", UserAgent.chrome()); // 设置随机请求头;
-			return url(url);
+			header("user-agent", UserAgent.chrome()).url(url);// 设置随机请求头;
 		}
 
 		@Contract(pure = true)
@@ -111,7 +110,7 @@ public class HttpsUtil {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
 				throw new HttpException("Only http & https protocols supported : " + url);
 			}
-			if (url.contains("?")) {
+			if ((url = url.contains("#") ? url.substring(0, url.indexOf("#")) : url).contains("?")) {
 				if (url.endsWith("?")) {
 					url = url.substring(0, url.length() - 1);
 				} else {

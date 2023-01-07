@@ -3,12 +3,12 @@ package org.haic.often.chrome.browser;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
 import org.haic.often.util.SystemUtil;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.io.File;
 import java.sql.Connection;
@@ -158,7 +158,7 @@ public class LocalCookie {
 
 	private static class ChromeBrowser extends Browser {
 
-		private final String encryptedKey;
+		private final byte[] encryptedKey;
 		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
 
 		private ChromeBrowser(@NotNull File home) {

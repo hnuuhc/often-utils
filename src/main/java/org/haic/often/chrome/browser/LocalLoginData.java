@@ -152,7 +152,7 @@ public class LocalLoginData {
 
 	private static class ChromeBrowser extends Browser {
 
-		private final String encryptedKey;
+		private final byte[] encryptedKey;
 		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".loginData.db");
 
 		private ChromeBrowser(@NotNull File home) {
