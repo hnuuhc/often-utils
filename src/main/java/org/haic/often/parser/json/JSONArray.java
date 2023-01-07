@@ -4,6 +4,7 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.parser.ParserStringBuilder;
+import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 
 import java.util.ArrayList;
@@ -140,6 +141,19 @@ public class JSONArray extends ArrayList<Object> {
 	@Contract(pure = true)
 	public Object get(int i) {
 		return JSONFormat.format(super.get(i));
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param i    要返回的元素的索引
+	 * @param type TypeReference接口类型
+	 * @param <T>  返回泛型
+	 * @return 值
+	 */
+	@Contract(pure = true)
+	public <T> T get(int i, @NotNull TypeReference<T> type) {
+		return TypeUtil.convert(this.get(i), type);
 	}
 
 	/**
@@ -326,7 +340,7 @@ public class JSONArray extends ArrayList<Object> {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append('[').append(this.stream().map(JSONFormat::toOutFormat).collect(Collectors.joining(","))).append(']').toString();
+		return '[' + this.stream().map(JSONFormat::toOutFormat).collect(Collectors.joining(",")) + ']';
 	}
 
 	/**
@@ -338,7 +352,7 @@ public class JSONArray extends ArrayList<Object> {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		return new StringBuilder().append('[').append(this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + JSONFormat.toOutFormat(token, depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append(']').toString();
+		return '[' + this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + JSONFormat.toOutFormat(token, depth)).collect(Collectors.joining(",")) + "\n" + "    ".repeat(depth) + ']';
 	}
 
 }

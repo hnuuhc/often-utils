@@ -5,6 +5,7 @@ import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.StringUtil;
+import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 
 import java.util.HashMap;
@@ -179,6 +180,19 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	@Contract(pure = true)
 	public <T> T get(@NotNull String key, @NotNull Class<T> itemClass) {
 		return TypeUtil.convert(this.get(key), itemClass);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key  名称
+	 * @param type TypeReference接口类型
+	 * @param <T>  返回泛型
+	 * @return 值
+	 */
+	@Contract(pure = true)
+	public <T> T get(@NotNull String key, @NotNull TypeReference<T> type) {
+		return TypeUtil.convert(this.get(key), type);
 	}
 
 	/**
@@ -477,7 +491,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue())).collect(Collectors.joining(","))).append('}').toString();
+		return '{' + this.entrySet().stream().map(token -> '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue())).collect(Collectors.joining(",")) + '}';
 	}
 
 	/**
@@ -489,7 +503,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		return new StringBuilder().append('{').append(this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue(), depth)).collect(Collectors.joining(","))).append("\n").append("    ".repeat(depth)).append('}').toString();
+		return '{' + this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue(), depth)).collect(Collectors.joining(",")) + "\n" + "    ".repeat(depth) + '}';
 	}
 
 }
