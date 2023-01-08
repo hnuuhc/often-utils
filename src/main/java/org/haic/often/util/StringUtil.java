@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.haic.often.Judge;
 import org.haic.often.annotations.Contract;
@@ -31,6 +30,37 @@ import java.util.stream.Stream;
  * @since 2021/3/27 15:12
  */
 public class StringUtil extends StringUtils {
+
+	/**
+	 * <p>Checks if a CharSequence is empty (""), null or whitespace only.</p>
+	 *
+	 * <p>Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
+	 *
+	 * <pre>
+	 * StringUtils.isBlank(null)      = true
+	 * StringUtils.isBlank("")        = true
+	 * StringUtils.isBlank(" ")       = true
+	 * StringUtils.isBlank("bob")     = false
+	 * StringUtils.isBlank("  bob  ") = false
+	 * </pre>
+	 *
+	 * @param cs the CharSequence to check, may be null
+	 * @return {@code true} if the CharSequence is null, empty or whitespace only
+	 * @since 2.0
+	 * @since 3.0 Changed signature from isBlank(String) to isBlank(CharSequence)
+	 */
+	public static boolean isBlank(final CharSequence cs) {
+		final int strLen = length(cs);
+		if (strLen == 0) {
+			return true;
+		}
+		for (int i = 0; i < strLen; i++) {
+			if (!Character.isWhitespace(cs.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * 将字符串的转义字符以文本方式显示
@@ -280,7 +310,7 @@ public class StringUtil extends StringUtils {
 	 */
 	@Contract(pure = true)
 	public static String randomEmail() {
-		return (RandomStringUtils.randomAlphanumeric(8, 16) + (char) 64 + RandomStringUtils.randomAlphabetic(4, 8) + (char) 46 + RandomStringUtils.randomAlphabetic(2, 4)).toLowerCase();
+		return (RandomUtil.randomAlphanumeric(8, 16) + (char) 64 + RandomUtil.randomAlphabetic(4, 8) + (char) 46 + RandomUtil.randomAlphabetic(2, 4)).toLowerCase();
 	}
 
 	/**
@@ -297,7 +327,7 @@ public class StringUtil extends StringUtils {
 			throw new StringException(domain + " not is domain");
 		}
 		String[] subdomain = domain.split("\\.");
-		return (RandomStringUtils.randomAlphanumeric(8, 16) + (char) 64 + subdomain[subdomain.length - 2] + (char) 46 + subdomain[subdomain.length - 1]).toLowerCase();
+		return (RandomUtil.randomAlphanumeric(8, 16) + (char) 64 + subdomain[subdomain.length - 2] + (char) 46 + subdomain[subdomain.length - 1]).toLowerCase();
 	}
 
 	/**
@@ -308,7 +338,7 @@ public class StringUtil extends StringUtils {
 	@Contract(pure = true)
 	public static String randomPhoneNumber() {
 		String[] identifier = { "134", "135", "136", "137", "138", "139", "150", "151", "152", "157", "158", "159", "182", "183", "184", "187", "188", "178", "147", "172", "198", "130", "131", "132", "145", "155", "156", "166", "171", "175", "176", "185", "186", "166", "133", "149", "153", "173", "177", "180", "181", "189", "199" };
-		return identifier[(int) (Math.random() * identifier.length)] + RandomStringUtils.randomNumeric(8);
+		return identifier[(int) (Math.random() * identifier.length)] + RandomUtil.randomNumeric(8);
 	}
 
 	/**

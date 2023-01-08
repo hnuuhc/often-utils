@@ -48,6 +48,43 @@ public class Document extends Element {
 		return new Document(doctype, body, name, isHtml);
 	}
 
+	/**
+	 * 反转义当前字符串,如果存在未知转义符,则不做转义处理
+	 *
+	 * @param s 待反转义字符串
+	 * @return 反转义后的字符串
+	 */
+	public static String unescape(@NotNull String s) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == '&') {
+				int index = s.indexOf(";", i + 1);
+				if (index == -1) return sb.append(s.substring(i + 1)).toString();
+				String escape = s.substring(i, (i = index) + 1);
+				try {
+					sb.append(HtmlEscape.unescape(escape));
+				} catch (IllegalArgumentException e) {
+					sb.append(escape);
+				}
+			} else {
+				sb.append(s.charAt(i));
+			}
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * 转义当前字符串
+	 *
+	 * @param s 待转义的字符串
+	 * @return 转义后的字符串
+	 */
+	public static String escape(@NotNull String s) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) sb.append(Character.isLetterOrDigit(s.charAt(i)) ? s.charAt(i) : HtmlEscape.escape(s.charAt(i)));
+		return sb.toString();
+	}
+
 	@Override
 	public String toString() {
 		return doctype + super.toString();

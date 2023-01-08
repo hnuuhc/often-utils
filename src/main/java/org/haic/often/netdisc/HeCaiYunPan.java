@@ -1,7 +1,6 @@
 package org.haic.often.netdisc;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
@@ -14,6 +13,7 @@ import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.Base64Util;
+import org.haic.often.util.RandomUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -145,7 +145,7 @@ public class HeCaiYunPan {
 
 	@Contract(pure = true)
 	private static String mcloudSign(String body) {
-		String key = RandomStringUtils.randomAlphanumeric(16);
+		String key = RandomUtil.randomAlphanumeric(16);
 		String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 		String temstr = "";
 		if (!Judge.isEmpty(body)) {

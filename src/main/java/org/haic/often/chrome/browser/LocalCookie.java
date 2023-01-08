@@ -1,12 +1,12 @@
 package org.haic.often.chrome.browser;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
+import org.haic.often.util.RandomUtil;
 import org.haic.often.util.ReadWriteUtil;
 import org.haic.often.util.SystemUtil;
 
@@ -159,7 +159,7 @@ public class LocalCookie {
 	private static class ChromeBrowser extends Browser {
 
 		private final byte[] encryptedKey;
-		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
+		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomUtil.randomAlphanumeric(32) + ".cookies.db");
 
 		private ChromeBrowser(@NotNull File home) {
 			encryptedKey = Decrypt.getEncryptedKey(this.home = home);
@@ -179,7 +179,7 @@ public class LocalCookie {
 		@Contract(pure = true)
 		public Browser setTempDir(@NotNull String folder) {
 			FileUtil.createFolder(folder);
-			storageCopy = new File(folder, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
+			storageCopy = new File(folder, RandomUtil.randomAlphanumeric(32) + ".cookies.db");
 			return this;
 		}
 

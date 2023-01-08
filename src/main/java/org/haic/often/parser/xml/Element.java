@@ -1,6 +1,5 @@
 package org.haic.often.parser.xml;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
@@ -77,8 +76,15 @@ public class Element {
 
 		tail = "</" + name + ">";
 
+		StringBuilder text = new StringBuilder();
+
 		while (node.pos() < node.length()) {
 			if (node.charAt(node.pos()) == '<') { // 判断是否为文字
+				if (node.charAt(node.pos() + 1) == '<') {
+					text.append("<");
+					node.offset(1);
+					continue;
+				}
 				if (node.charAt(node.pos() + 1) == '!' && node.charAt(node.pos() + 2) == '-' && node.charAt(node.pos() + 3) == '-') {
 					// 更新进度
 					node.pos(node.indexOf("-->", node.pos() + 4) + 3);
@@ -87,7 +93,7 @@ public class Element {
 				if (node.charAt(node.pos() + 1) == '/') { // 遇到结束标签返回上级
 					int index = node.indexOf(">");
 					if (node.substring(node.pos() + 2, index).equals(name)) {
-						text = StringEscapeUtils.unescapeHtml4(text).strip(); // 反转义特殊字符,耗时较长等待修复
+						this.text = Document.unescape(text.toString()).strip(); // 反转义特殊字符,耗时较长等待修复
 						node.pos(index + 1);
 						return;
 					} else {
@@ -107,10 +113,9 @@ public class Element {
 				}
 			} else { // 例如em标签是格式化,会造成上级标签多个位置存在文字
 				int tail = node.indexOf("<");
-				String text = node.substring(node.pos(), tail);
+				String thisText = node.substring(node.pos(), tail);
 				node.pos(tail);
-				//noinspection StringConcatenationInLoop
-				this.text += text;
+				text.append(thisText);
 			}
 		}
 	}
@@ -163,7 +168,7 @@ public class Element {
 					} while (tagChars[i] != ' ' && tagChars[i] != '>' && !(tagChars[i] == '/' && tagChars[i + 1] == '>'));
 					if (tagChars[i] == ' ') i--;
 				}
-				attrs.put(key.toString(), StringEscapeUtils.unescapeHtml4(value.toString()));
+				attrs.put(key.toString(), Document.unescape(value.toString()));
 			}
 		}
 		return attrs;

@@ -1,6 +1,5 @@
 package org.haic.often.net.download;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
@@ -486,7 +485,7 @@ public class HLSDownload {
 						return execute("FULL");
 					}
 					if (Judge.isEmpty(fileName)) { // 随机命名
-						fileName = RandomStringUtils.randomAlphanumeric(32) + ".mp4";
+						fileName = RandomUtil.randomAlphanumeric(32) + ".mp4";
 					}
 					storage = new File(DEFAULT_FOLDER, fileName);
 					if (storage.exists()) {

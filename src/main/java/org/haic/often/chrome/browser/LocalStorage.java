@@ -1,16 +1,12 @@
 package org.haic.often.chrome.browser;
 
 import com.protonail.leveldb.jna.*;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.haic.often.Judge;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.URIUtil;
 import org.haic.often.parser.json.JSONObject;
-import org.haic.often.util.FileUtil;
-import org.haic.often.util.ReadWriteUtil;
-import org.haic.often.util.StringUtil;
-import org.haic.often.util.SystemUtil;
+import org.haic.often.util.*;
 
 import java.io.File;
 import java.util.*;
@@ -88,7 +84,7 @@ public class LocalStorage {
 
 	private static class ChromeBrowser extends Browser {
 
-		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomStringUtils.randomAlphanumeric(32) + ".leveldb");
+		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomUtil.randomAlphanumeric(32) + ".leveldb");
 
 		private ChromeBrowser(File home) {
 			storage = new File(new File(this.home = home, "Default"), "Local Storage\\leveldb");
@@ -103,7 +99,7 @@ public class LocalStorage {
 		@Contract(pure = true)
 		public Browser setTempDir(@NotNull String folder) {
 			FileUtil.createFolder(folder);
-			storageCopy = new File(folder, RandomStringUtils.randomAlphanumeric(32) + ".cookies.db");
+			storageCopy = new File(folder, RandomUtil.randomAlphanumeric(32) + ".cookies.db");
 			return this;
 		}
 
