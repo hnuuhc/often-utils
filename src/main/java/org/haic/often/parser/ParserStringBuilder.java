@@ -12,11 +12,15 @@ import org.haic.often.exception.JSONException;
  */
 public class ParserStringBuilder {
 
-	private final StringBuilder body;
+	private final String body;
 	private int index;
 
 	public ParserStringBuilder(@NotNull String body) {
-		this.body = new StringBuilder(body);
+		this.body = body;
+	}
+
+	public boolean startsWith(String prefix) {
+		return body.startsWith(prefix);
 	}
 
 	public char charAt(int index) {
@@ -25,10 +29,6 @@ public class ParserStringBuilder {
 
 	public int length() {
 		return body.length();
-	}
-
-	public StringBuilder builderString() {
-		return body;
 	}
 
 	public int pos() {
@@ -51,6 +51,14 @@ public class ParserStringBuilder {
 
 	public int indexOf(@NotNull String str, int fromIndex) {
 		return body.indexOf(str, fromIndex);
+	}
+
+	public int lastIndexOf(@NotNull String str) {
+		return body.lastIndexOf(str);
+	}
+
+	public int lastIndexOf(@NotNull String str, int fromIndex) {
+		return body.lastIndexOf(str, fromIndex);
 	}
 
 	public String substring(int start) {
@@ -99,6 +107,11 @@ public class ParserStringBuilder {
 	public int skipWhitespace() {
 		while (Character.isWhitespace(body.charAt(index))) index++; // 跳过空格
 		return index;
+	}
+
+	@Override
+	public String toString() {
+		return body;
 	}
 
 }

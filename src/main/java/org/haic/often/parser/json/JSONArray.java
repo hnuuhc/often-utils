@@ -33,8 +33,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	public JSONArray(@NotNull ParserStringBuilder body) {
 		if (body.charAt(body.pos()) == '[') {
-			body.offset(1).skipWhitespace();
-			if (body.charAt(body.pos()) == ']') return;
+			if (body.charAt(body.offset(1).skipWhitespace()) == ']') return;
 			for (int i = body.pos(); i < body.length(); i++) {
 				while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 				switch (body.charAt(i)) {

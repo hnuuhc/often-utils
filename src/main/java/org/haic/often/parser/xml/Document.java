@@ -1,6 +1,7 @@
 package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
+import org.haic.often.parser.ParserStringBuilder;
 
 /**
  * 这是一个html和xml解析器,使用方法为 Document doc = Document.parse(String)
@@ -13,39 +14,25 @@ public class Document extends Element {
 
 	private final String doctype;
 
-	private Document(@NotNull String doctype, @NotNull String body, @NotNull String name, boolean isHtml) {
-		super(body, name, isHtml);
-		this.doctype = doctype.isEmpty() ? doctype : doctype + "\n";
+	public static Document parse(@NotNull String body) {
+
+		ParserStringBuilder sb = new ParserStringBuilder(body.strip());
+		if (sb.startsWith("<!") && sb.charAt(2) != '-') {
+			return new Document(sb.pos(sb.indexOf(">") + 1).substring(0, sb.pos()), sb, sb.pos(sb.indexOf("<html", sb.pos())).substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), true);
+		} else if (sb.startsWith("<?")) {
+			return new Document(sb.pos(sb.indexOf(">") + 1).substring(0, sb.pos()), sb, sb.pos(sb.indexOf("<" + sb.substring(sb.lastIndexOf("</") + 2, sb.lastIndexOf(">")), sb.pos())).substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), false);
+		} else if (sb.startsWith("<html")) {
+			return new Document("", sb, sb.substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), true);
+		} else if (sb.startsWith("<body")) {
+			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>"), "<html>", true);
+		} else {
+			return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>"), "<html>", true);
+		}
 	}
 
-	public static Document parse(@NotNull String body) {
-		String doctype = "", name;
-		boolean isHtml = false;
-		body = body.strip();
-		if (body.startsWith("<!") && body.charAt(2) != '-') {
-			doctype = body.substring(0, body.indexOf(">") + 1);
-			isHtml = true;
-			body = body.substring(body.indexOf("<html"));
-			if (!body.endsWith("</html>")) {
-				body = body.substring(0, body.lastIndexOf("</html>") + 7);
-			}
-			name = "html";
-		} else if (body.startsWith("<html")) {
-			isHtml = true;
-			if (!body.endsWith("</html>")) {
-				body = body.substring(0, body.lastIndexOf("</html>") + 7);
-			}
-			name = "html";
-		} else if (body.startsWith("<?")) {
-			doctype = body.substring(0, body.indexOf(">") + 1);
-			body = body.substring(doctype.length());
-			body = body.substring(body.indexOf("<"));
-			name = body.substring(body.lastIndexOf("</") + 2, body.length() - 1);
-		} else {
-			body = "<html><head></head><body>" + body + "</body></html>";
-			name = "html";
-		}
-		return new Document(doctype, body, name, isHtml);
+	private Document(@NotNull String doctype, @NotNull ParserStringBuilder body, @NotNull String tag, boolean isHtml) {
+		super(body, tag, isHtml);
+		this.doctype = doctype.isEmpty() ? doctype : doctype + "\n";
 	}
 
 	/**
