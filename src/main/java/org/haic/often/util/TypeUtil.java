@@ -90,8 +90,7 @@ public class TypeUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(Object obj, @NotNull Class<T> itemClass) {
 		if (obj == null) return null;
-		var objClass = obj.getClass();
-		if (objClass == itemClass) return (T) obj;
+		if (itemClass.isInstance(obj)) return (T) obj;
 		if (itemClass.isArray()) {
 			var clazz = itemClass.getComponentType();
 			if (clazz.isPrimitive()) throw new TypeException("不支持基本数组类型");
@@ -100,27 +99,25 @@ public class TypeUtil {
 			for (int i = 0; i < objs.length; i++) arrays[i] = convert(objs[i], clazz);
 			return (T) arrays;
 		}
-		if (itemClass == JSONObject.class) {
-			return (T) (obj instanceof Map ? JSONObject.parseObject((Map<?, ?>) obj) : JSONObject.parseObject(String.valueOf(obj)));
-		} else if (itemClass == JSONArray.class) {
-			return (T) (obj instanceof Collection ? JSONArray.parseArray((Collection<?>) obj) : JSONArray.parseArray(String.valueOf(obj)));
-		} else if (itemClass.isPrimitive()) {
-			return (T) convert(obj, TypeUtil.getBasicPackType(itemClass));
-		} else {
-			var thisClassName = objClass.getName();
-			var type = TypeUtil.getConstructor(itemClass, thisClassName);
-			try {
-				if (type == null) {
-					if (thisClassName.equals("java.lang.String")) throw new TypeException("不支持的转换类型");
-					type = TypeUtil.getConstructor(itemClass);
-					if (type == null) throw new TypeException("不支持的转换类型");
-					return (T) type.newInstance(String.valueOf(obj));
-				} else {
-					return (T) type.newInstance(obj);
-				}
-			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-				throw new TypeException("转换类型不匹配");
+		if (itemClass == JSONObject.class) return (T) (obj instanceof Map<?, ?> map ? JSONObject.parseObject(map) : JSONObject.parseObject(String.valueOf(obj)));
+		if (itemClass == JSONArray.class) {
+			return (T) (obj instanceof Collection<?> c ? JSONArray.parseArray(c) : obj instanceof Object[] os ? JSONArray.parseArray(Arrays.asList(os)) : JSONArray.parseArray(String.valueOf(obj)));
+		}
+		if (itemClass.isPrimitive()) return (T) convert(obj, TypeUtil.getBasicPackType(itemClass));
+
+		var thisClassName = obj.getClass().getName();
+		var type = TypeUtil.getConstructor(itemClass, thisClassName);
+		try {
+			if (type == null) {
+				if (thisClassName.equals("java.lang.String")) throw new TypeException("不支持的转换类型");
+				type = TypeUtil.getConstructor(itemClass);
+				if (type == null) throw new TypeException("不支持的转换类型");
+				return (T) type.newInstance(String.valueOf(obj));
+			} else {
+				return (T) type.newInstance(obj);
 			}
+		} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+			throw new TypeException("转换类型不匹配");
 		}
 	}
 
@@ -179,47 +176,10 @@ public class TypeUtil {
 	 * @param <T>       返回参数类型
 	 * @return 转换后的类型
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> List<T> convertList(@NotNull Object obj, @NotNull List<T> list, @NotNull Class<T> itemClass) {
 		if (obj == null) return null;
-		var objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
-		if (itemClass.isArray()) {
-			if (itemClass.isPrimitive()) throw new TypeException("不支持基本数组类型");
-			for (Object o : objs) list.add(TypeUtil.convert(o, itemClass));
-			return list;
-		}
-		if (itemClass == JSONObject.class) {
-			for (var o : objs) list.add((T) (o instanceof JSONObject ? o : o instanceof Map ? JSONObject.parseObject((Map<?, ?>) o) : JSONObject.parseObject(String.valueOf(o))));
-		} else if (itemClass == JSONArray.class) {
-			for (var o : objs) list.add((T) (o instanceof JSONArray ? o : o instanceof Collection ? JSONArray.parseArray((Collection<?>) o) : JSONObject.parseObject(String.valueOf(o))));
-		} else if (itemClass.isPrimitive()) {
-			for (var o : objs) list.add((T) convert(o, TypeUtil.getBasicPackType(itemClass)));
-		} else {
-			Constructor<?> type = getConstructor(itemClass);
-			try {
-				for (var o : objs) {
-					if (o == null) list.add(null);
-					else if (o.getClass() == itemClass) list.add((T) o);
-					else {
-						var thisClassName = o.getClass().getName();
-						if (thisClassName.equals("java.lang.String")) {
-							if (type == null) throw new TypeException("不支持的转换类型");
-							list.add((T) type.newInstance(String.valueOf(o)));
-						} else {
-							var thisType = TypeUtil.getConstructor(itemClass, thisClassName);
-							if (thisType == null) {
-								if (type == null) throw new TypeException("不支持的转换类型");
-								list.add((T) type.newInstance(String.valueOf(o)));
-							} else {
-								list.add((T) thisType.newInstance(o));
-							}
-						}
-					}
-				}
-			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-				throw new TypeException("转换类型不匹配");
-			}
-		}
+		var objs = obj instanceof Collection<?> c ? c.toArray() : obj instanceof Object[] os ? os : JSONArray.parseArray(String.valueOf(obj)).toArray();
+		for (Object o : objs) list.add(TypeUtil.convert(o, itemClass));
 		return list;
 	}
 
@@ -271,11 +231,8 @@ public class TypeUtil {
 	 */
 	public static <K, V> Map<K, V> convertMap(@NotNull Object obj, @NotNull Map<K, V> m, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
 		if (obj == null) return null;
-		if (obj instanceof Map<?, ?> map) {
-			for (var entry : map.entrySet()) m.put(TypeUtil.convert(entry.getKey(), keyClass), TypeUtil.convert(entry.getValue(), valueClass));
-		} else {
-			throw new TypeException("不支持的转换类型");
-		}
+		var objs = obj instanceof Map<?, ?> map ? map : JSONObject.parseObject(String.valueOf(obj));
+		for (var entry : objs.entrySet()) m.put(TypeUtil.convert(entry.getKey(), keyClass), TypeUtil.convert(entry.getValue(), valueClass));
 		return m;
 	}
 
