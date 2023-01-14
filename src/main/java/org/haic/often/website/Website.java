@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
  */
 public class Website {
 
-	private static Proxy foreignProxy = Proxy.NO_PROXY; // 代理
-
 	/**
 	 * 获取微博实现类
 	 *
@@ -59,42 +57,13 @@ public class Website {
 	}
 
 	/**
-	 * 连接代理（ @NotNull  Proxy 代理）<br/>
-	 * 设置用于请求的代理,仅需要代理的网站才会使用
+	 * 获取Github实现类
 	 *
-	 * @param ipAddr 代理地址 格式 - host:port
+	 * @param ipAdd 代理
+	 * @return 此实现
 	 */
-	@Contract(pure = true)
-	public static void proxy(@NotNull String ipAddr) {
-		if (ipAddr.startsWith("[")) {
-			proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
-		} else {
-			int index = ipAddr.lastIndexOf(":");
-			proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
-		}
-	}
-
-	/**
-	 * 连接代理（ @NotNull  Proxy 代理）<br/>
-	 * 设置用于请求的代理,仅需要代理的网站才会使用
-	 *
-	 * @param host 代理地址
-	 * @param port 代理端口
-	 */
-	@Contract(pure = true)
-	public static void proxy(@NotNull String host, int port) {
-		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
-	}
-
-	/**
-	 * 连接代理（ @NotNull  Proxy 代理）<br/>
-	 * 设置用于请求的代理,仅需要代理的网站才会使用
-	 *
-	 * @param proxy 要使用的代理
-	 */
-	@Contract(pure = true)
-	public static void proxy(@NotNull Proxy proxy) {
-		foreignProxy = proxy;
+	public static Youtube youtube(@NotNull String ipAdd) {
+		return new YoutubeBuilder(ipAdd);
 	}
 
 	private static class WeiboBuilder extends Weibo {
@@ -127,8 +96,27 @@ public class Website {
 
 		private Function<String, String> function;
 
+		private Proxy proxy = Proxy.NO_PROXY; // 代理
+
+		private YoutubeBuilder() {updateFunction();}
+
+		/**
+		 * 构造链接并设置代理
+		 *
+		 * @param ipAddr 代理地址 格式 - host:port
+		 */
+		private YoutubeBuilder(@NotNull String ipAddr) {
+			this();
+			if (ipAddr.startsWith("[")) {
+				this.proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1))));
+			} else {
+				int index = ipAddr.lastIndexOf(":");
+				this.proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1))));
+			}
+		}
+
 		public Youtube updateFunction() {
-			String body = HttpsUtil.connect(playerBaseUrl).proxy(foreignProxy).execute().body();
+			String body = HttpsUtil.connect(playerBaseUrl).proxy(proxy).execute().body();
 			// 截取解密代码段
 			String methodCode = body.substring(body.indexOf("a=a.split(\"\")"));
 			methodCode = methodCode.substring(0, methodCode.indexOf("}"));
@@ -176,7 +164,7 @@ public class Website {
 
 		@Contract(pure = true)
 		public String signatureCipherDecrypt(@NotNull String signatureCipher) {
-			return function == null ? updateFunction().signatureCipherDecrypt(signatureCipher) : function.apply(signatureCipher);
+			return function.apply(signatureCipher);
 		}
 
 	}
