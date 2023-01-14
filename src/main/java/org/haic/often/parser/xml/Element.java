@@ -43,8 +43,8 @@ public class Element {
 	 * @param tag    标签文本
 	 * @param isHtml 是否为html格式
 	 */
-	protected Element(@NotNull ParserStringBuilder node, @NotNull String tag, boolean isHtml) {
-		this.name = (tag.contains(" ") ? tag.substring(1, tag.indexOf(" ")) : node.charAt(tag.length() - 2) == '/' ? tag.substring(1, tag.length() - 2) : tag.substring(1, tag.length() - 1)).strip().toLowerCase();
+	protected Element(@NotNull ParserStringBuilder node, @NotNull String tag, @NotNull String name, boolean isHtml) {
+		this.name = name;
 		this.attrs = htmlAttributes(tag); // 获取标签属性
 		this.close = tag.charAt(tag.length() - 2) == '/';
 
@@ -70,7 +70,7 @@ public class Element {
 
 		tail = "</" + name + ">";
 
-		StringBuilder text = new StringBuilder();
+		var text = new StringBuilder();
 		while (node.pos() < node.length()) {
 			int tagHeadIndex = node.indexOf("<");
 			if (node.charAt(tagHeadIndex + 1) == '!' && node.charAt(tagHeadIndex + 2) == '-' && node.charAt(tagHeadIndex + 3) == '-') {
@@ -79,7 +79,7 @@ public class Element {
 				continue;
 			}
 			int tagtailIndex = node.indexOf(">", tagHeadIndex + 1);
-			String childTag = node.substring(tagHeadIndex, tagtailIndex + 1); // 获取当前子标签
+			var childTag = node.substring(tagHeadIndex, tagtailIndex + 1); // 获取当前子标签
 			int error = childTag.indexOf("<", 1);
 			if (error != -1) { // 错误标签
 				text.append(node.substring(node.pos(), tagHeadIndex + error)); // 写入文本
@@ -92,7 +92,9 @@ public class Element {
 				node.pos(tagtailIndex + 1);
 				return;
 			}
-			childs.add(new Element(node.pos(tagHeadIndex), childTag, isHtml));
+			var childName = (childTag.contains(" ") ? childTag.substring(1, childTag.indexOf(" ")) : node.charAt(childTag.length() - 2) == '/' ? childTag.substring(1, childTag.length() - 2) : childTag.substring(1, childTag.length() - 1)).strip().toLowerCase();
+			if (name.equals("a") && name.equals(childName)) return; // 可能不规范的链接标签,需要排序处理
+			childs.add(new Element(node.pos(tagHeadIndex), childTag, childName, isHtml));
 		}
 	}
 
@@ -102,47 +104,32 @@ public class Element {
 	 * @param tag html标签
 	 * @return 列表: 属性名称 - 属性值
 	 */
-	@Contract(pure = true)
 	private static Map<String, String> htmlAttributes(@NotNull String tag) {
 		Map<String, String> attrs = new HashMap<>();
-		char[] tagChars = tag.toCharArray(); // 存在标签属性
-		for (int i = 2; i < tagChars.length; i++) {
-			if (tagChars[i] == ' ' && tagChars[i + 1] != ' ' && tagChars[++i] != '/' && tagChars[i] != '>') {
-				StringBuilder key = new StringBuilder();
-				do {
-					key.append(tagChars[i++]);
-					if (tagChars[i] == ' ') {
-						attrs.put(key.toString(), "");
-						break;
-					} else if (tagChars[i] == '/' || tagChars[i] == '>') {
-						attrs.put(key.toString(), "");
-						return attrs;
-					}
-				} while (tagChars[i] != '=');
-				StringBuilder value = new StringBuilder();
-				if (tagChars[++i] == '"') {
-					while (tagChars[++i] != '"') value.append(tagChars[i]);
-					if (Character.isLetter(tagChars[i + 1])) {
-						tagChars[i] = ' ';
-						i--;
-					}
-				} else if (tagChars[i] == '\'') {
-					while (tagChars[++i] != '\'') value.append(tagChars[i]);
-				} else if (tagChars[i] == '&' && tagChars[i + 1] == 'q' && tagChars[i + 2] == 'u' && tagChars[i + 3] == 'o' && tagChars[i + 4] == 't' && tagChars[i + 5] == ';') {
-					i = i + 6;
-					do {
-						value.append(tagChars[i++]);
-					} while (tagChars[i] == '&' && tagChars[i + 1] == 'q' && tagChars[i + 2] == 'u' && tagChars[i + 3] == 'o' && tagChars[i + 4] == 't' && tagChars[i + 5] == ';');
-					i += 5;
-				} else {
-					do {
-						value.append(tagChars[i++]);
-					} while (tagChars[i] != ' ' && tagChars[i] != '>' && !(tagChars[i] == '/' && tagChars[i + 1] == '>'));
-					if (tagChars[i] == ' ') i--;
-				}
-				attrs.put(key.toString(), Document.unescape(value.toString()));
+		var body = new ParserStringBuilder(tag);
+		int index = body.indexOf(" ");
+		if (index == -1) return attrs;
+		do {
+			int end = body.indexOf("=", ++index);
+			if (end == -1) break;
+			var key = body.substring(index, index = end).strip();
+			String value;
+			if (body.charAt(++index) == '"') {
+				value = body.substring(++index, index = body.indexOf("\"", index));
+				attrs.put(key, value);
+			} else if (body.charAt(index) == '\'') {
+				value = body.substring(++index, index = body.indexOf("'", index));
+				attrs.put(key, value);
+			} else if (body.charAt(index) == '&') {
+				value = body.substring(index = body.indexOf(";", index + 1) + 1, index = body.indexOf("&", index + 1));
+				index = body.indexOf(";", index + 1);
+				attrs.put(key, value);
+			} else {
+				int thisEnd = body.indexOf(" ", index + 1);
+				value = body.substring(index, index = thisEnd == -1 ? body.charAt(body.length() - 2) == '/' ? body.length() - 2 : body.length() - 1 : thisEnd).strip();
 			}
-		}
+			attrs.put(key, Document.unescape(value));
+		} while (++index < body.length() && body.charAt(index) != '/' && body.charAt(index) != '>');
 		return attrs;
 	}
 

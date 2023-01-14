@@ -15,23 +15,25 @@ public class Document extends Element {
 	private final String doctype;
 
 	public static Document parse(@NotNull String body) {
-
-		ParserStringBuilder sb = new ParserStringBuilder(body.strip());
+		var sb = new ParserStringBuilder(body.strip());
 		if (sb.startsWith("<!") && sb.charAt(2) != '-') {
-			return new Document(sb.pos(sb.indexOf(">") + 1).substring(0, sb.pos()), sb, sb.pos(sb.indexOf("<html", sb.pos())).substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), true);
+			return new Document(sb.pos(sb.indexOf(">") + 1).substring(0, sb.pos()), sb, sb.pos(sb.indexOf("<html", sb.pos())).substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), "html", true);
 		} else if (sb.startsWith("<?")) {
-			return new Document(sb.pos(sb.indexOf(">") + 1).substring(0, sb.pos()), sb, sb.pos(sb.indexOf("<" + sb.substring(sb.lastIndexOf("</") + 2, sb.lastIndexOf(">")), sb.pos())).substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), false);
+			var doctype = sb.pos(sb.indexOf(">") + 1).substring(0, sb.pos());
+			var name = sb.substring(sb.lastIndexOf("</") + 2, sb.lastIndexOf(">"));
+			var tag = sb.pos(sb.indexOf("<" + name, sb.pos())).substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1);
+			return new Document(doctype, sb, tag, name, false);
 		} else if (sb.startsWith("<html")) {
-			return new Document("", sb, sb.substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), true);
+			return new Document("", sb, sb.substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), "html", true);
 		} else if (sb.startsWith("<body")) {
-			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>"), "<html>", true);
+			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>"), "<html>", "html", true);
 		} else {
-			return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>"), "<html>", true);
+			return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>"), "<html>", "html", true);
 		}
 	}
 
-	private Document(@NotNull String doctype, @NotNull ParserStringBuilder body, @NotNull String tag, boolean isHtml) {
-		super(body, tag, isHtml);
+	private Document(@NotNull String doctype, @NotNull ParserStringBuilder body, @NotNull String tag, @NotNull String name, boolean isHtml) {
+		super(body, tag, name, isHtml);
 		this.doctype = doctype.isEmpty() ? doctype : doctype + "\n";
 	}
 
@@ -42,12 +44,12 @@ public class Document extends Element {
 	 * @return 反转义后的字符串
 	 */
 	public static String unescape(@NotNull String s) {
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			if (s.charAt(i) == '&') {
 				int index = s.indexOf(";", i + 1);
 				if (index == -1) return sb.append(s.substring(i + 1)).toString();
-				String escape = s.substring(i, (i = index) + 1);
+				var escape = s.substring(i, (i = index) + 1);
 				try {
 					sb.append(HtmlEscape.unescape(escape));
 				} catch (IllegalArgumentException e) {
@@ -67,7 +69,7 @@ public class Document extends Element {
 	 * @return 转义后的字符串
 	 */
 	public static String escape(@NotNull String s) {
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) sb.append(Character.isLetterOrDigit(s.charAt(i)) ? s.charAt(i) : HtmlEscape.escape(s.charAt(i)));
 		return sb.toString();
 	}
