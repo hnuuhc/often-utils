@@ -93,7 +93,7 @@ public class Element {
 				return;
 			}
 			var childName = (childTag.contains(" ") ? childTag.substring(1, childTag.indexOf(" ")) : node.charAt(childTag.length() - 2) == '/' ? childTag.substring(1, childTag.length() - 2) : childTag.substring(1, childTag.length() - 1)).strip().toLowerCase();
-			if (name.equals("a") && name.equals(childName)) return; // 可能不规范的链接标签,需要排序处理
+			if (isHtml && name.equals("a") && name.equals(childName)) return; // 可能不规范的链接标签,需要排序处理
 			childs.add(new Element(node.pos(tagHeadIndex), childTag, childName, isHtml));
 		}
 	}
