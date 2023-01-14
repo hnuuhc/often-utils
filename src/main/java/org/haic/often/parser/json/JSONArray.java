@@ -132,6 +132,30 @@ public class JSONArray extends ArrayList<Object> {
 	}
 
 	/**
+	 * 使用规则对JSON进行快捷解析,查询规则键{@link JSONPath#select(String, Class)}
+	 *
+	 * @param regex 查询规则
+	 * @param type  指定返回类型
+	 * @param <T>   返回结果类型
+	 * @return 查询结果
+	 */
+	public <T> T select(@NotNull String regex, TypeReference<T> type) {
+		return new JSONPath(this).select(regex, type);
+	}
+
+	/**
+	 * 使用规则对JSON进行快捷解析,查询规则键{@link JSONPath#select(String, Class)}
+	 *
+	 * @param regex 查询规则
+	 * @param clazz 指定返回类型
+	 * @param <T>   返回结果类型
+	 * @return 查询结果
+	 */
+	public <T> T select(@NotNull String regex, Class<T> clazz) {
+		return new JSONPath(this).select(regex, clazz);
+	}
+
+	/**
 	 * 获取对应索引的值
 	 *
 	 * @param i 要返回的元素的索引

@@ -173,10 +173,23 @@ public class ReadWriteUtil {
 	 */
 	@Contract(pure = true)
 	public boolean write(byte[] b) {
+		return write(b, 0, b.length);
+	}
+
+	/**
+	 * 将byte数组写入文件
+	 *
+	 * @param b   byte数组
+	 * @param off 起始位
+	 * @param len 长度
+	 * @return 写入是否成功
+	 */
+	@Contract(pure = true)
+	public boolean write(byte[] b, int off, int len) {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
 		try (FileOutputStream output = new FileOutputStream(source, append)) {
-			output.write(b); // 文件输出流用于将数据写入文件
+			output.write(b, off, len); // 文件输出流用于将数据写入文件
 			output.flush();
 			return true;
 		} catch (IOException e) {
