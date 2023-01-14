@@ -94,11 +94,13 @@ public class Website {
 
 		private static final String playerBaseUrl = "https://www.youtube.com/s/player/4eb6b35d/player_ias.vflset/zh_CN/base.js";
 
-		private Function<String, String> function;
+		private static Function<String, String> function;
 
 		private Proxy proxy = Proxy.NO_PROXY; // 代理
 
-		private YoutubeBuilder() {updateFunction();}
+		private YoutubeBuilder() {
+			if (function == null) updateFunction();
+		}
 
 		/**
 		 * 构造链接并设置代理
@@ -153,7 +155,7 @@ public class Website {
 					}
 				}
 			}
-			this.function = signatureCipher -> {
+			function = signatureCipher -> {
 				Map<String, String> signatureCipherSplit = StringUtil.toMap(signatureCipher, "&");
 				StringBuilder sb = new StringBuilder(URIUtil.decode(signatureCipherSplit.get("s")));
 				for (var list : functionList) sb = list.apply(sb);
