@@ -19,14 +19,14 @@ import java.util.function.Function;
  */
 public class TypeUtil {
 
-	public static String[][] BasicType = { { "int", "java.lang.Integer" }, //
-										   { "double", "java.lang.Double" }, //
-										   { "float", "java.lang.Float" }, //
-										   { "short", "java.lang.Short" }, //
-										   { "byte", "java.lang.Byte" },//
-										   { "boolean", "java.lang.Boolean" },//
-										   { "char", "java.lang.Character" } };
-
+	/**
+	 * 类型转换
+	 *
+	 * @param obj  待转换的参数
+	 * @param type 参考类型
+	 * @param <T>  返回类型
+	 * @return 转换后的数据
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(Object obj, TypeReference<T> type) {
 		var rawType = type.getRawType();
@@ -68,15 +68,13 @@ public class TypeUtil {
 	/**
 	 * 类型转换
 	 *
-	 * @param obj  Object对象
+	 * @param obj  待转换的参数
 	 * @param type 转换类型
 	 * @param <T>  返回类型
-	 * @return 转换后的类型
+	 * @return 转换后的数据
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T convert(Object obj, @NotNull Type type) {
-		return convert(obj, (Class<T>) type);
-	}
+	public static <T> T convert(Object obj, @NotNull Type type) {return convert(obj, (Class<T>) type);}
 
 	/**
 	 * 类型转换
@@ -84,7 +82,7 @@ public class TypeUtil {
 	 * @param obj       Object对象
 	 * @param itemClass 转换类型
 	 * @param <T>       返回类型
-	 * @return 转换后的类型
+	 * @return 转换后的数据
 	 */
 	@Contract(pure = true)
 	@SuppressWarnings("unchecked")
@@ -93,8 +91,49 @@ public class TypeUtil {
 		if (itemClass.isInstance(obj)) return (T) obj;
 		if (itemClass.isArray()) {
 			var clazz = itemClass.getComponentType();
-			if (clazz.isPrimitive()) throw new TypeException("不支持基本数组类型");
-			var objs = obj instanceof Collection ? ((Collection<?>) obj).toArray() : (Object[]) obj;
+			var objs = obj instanceof Collection<?> c ? c.toArray() : (Object[]) obj;
+			if (clazz.isPrimitive() && !clazz.isArray()) { // 基本类型转换
+				if (clazz == int.class) {
+					var arrays = new int[objs.length];
+					for (int i = 0; i < objs.length; i++) arrays[i] = Integer.parseInt(String.valueOf(objs[i]));
+					return (T) arrays;
+				}
+				if (clazz == long.class) {
+					var arrays = new long[objs.length];
+					for (int i = 0; i < objs.length; i++) arrays[i] = Long.parseLong(String.valueOf(objs[i]));
+					return (T) arrays;
+				}
+				if (clazz == double.class) {
+					var arrays = new double[objs.length];
+					for (int i = 0; i < objs.length; i++) arrays[i] = Double.parseDouble(String.valueOf(objs[i]));
+					return (T) arrays;
+				}
+				if (clazz == float.class) {
+					var arrays = new float[objs.length];
+					for (int i = 0; i < objs.length; i++) arrays[i] = Float.parseFloat(String.valueOf(objs[i]));
+					return (T) arrays;
+				}
+				if (clazz == short.class) {
+					var arrays = new short[objs.length];
+					for (int i = 0; i < objs.length; i++) arrays[i] = Short.parseShort(String.valueOf(objs[i]));
+					return (T) arrays;
+				}
+				if (clazz == byte.class) {
+					var arrays = new byte[objs.length];
+					for (int i = 0; i < objs.length; i++) arrays[i] = Byte.parseByte(String.valueOf(objs[i]));
+					return (T) arrays;
+				}
+				if (clazz == boolean.class) {
+					var arrays = new boolean[objs.length];
+					for (int i = 0; i < objs.length; i++) arrays[i] = Boolean.parseBoolean(String.valueOf(objs[i]));
+					return (T) arrays;
+				}
+				if (itemClass == char.class) {
+					var arrays = new char[objs.length];
+					for (int i = 0; i < objs.length; i++) arrays[i] = (char) objs[i];
+					return (T) arrays;
+				}
+			}
 			var arrays = (Object[]) Array.newInstance(clazz, objs.length);
 			for (int i = 0; i < objs.length; i++) arrays[i] = convert(objs[i], clazz);
 			return (T) arrays;
@@ -103,8 +142,8 @@ public class TypeUtil {
 		if (itemClass == JSONArray.class) {
 			return (T) (obj instanceof Collection<?> c ? JSONArray.parseArray(c) : obj instanceof Object[] os ? JSONArray.parseArray(Arrays.asList(os)) : JSONArray.parseArray(String.valueOf(obj)));
 		}
-		if (itemClass.isPrimitive()) return (T) convert(obj, TypeUtil.getBasicPackType(itemClass));
-
+		if (itemClass.isPrimitive()) return convertBasicType(obj, itemClass);
+		// 上方为处理特殊类型,下方对单对象类型转换
 		var thisClassName = obj.getClass().getName();
 		var type = TypeUtil.getConstructor(itemClass, thisClassName);
 		try {
@@ -117,8 +156,29 @@ public class TypeUtil {
 				return (T) type.newInstance(obj);
 			}
 		} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-			throw new TypeException("转换类型不匹配");
+			throw new TypeException("转换类型匹配");
 		}
+	}
+
+	/**
+	 * 转换为基本类型
+	 *
+	 * @param obj       待转换的参数
+	 * @param itemClass 转换参数类型
+	 * @param <T>       返回类型
+	 * @return 转换后的参数
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T convertBasicType(@NotNull Object obj, @NotNull Class<T> itemClass) {
+		if (itemClass == int.class) return (T) ((Object) Integer.parseInt(String.valueOf(obj)));
+		if (itemClass == long.class) return (T) ((Object) Long.parseLong(String.valueOf(obj)));
+		if (itemClass == double.class) return (T) ((Object) Double.parseDouble(String.valueOf(obj)));
+		if (itemClass == float.class) return (T) ((Object) Float.parseFloat(String.valueOf(obj)));
+		if (itemClass == short.class) return (T) ((Object) Short.parseShort(String.valueOf(obj)));
+		if (itemClass == byte.class) return (T) ((Object) Byte.parseByte(String.valueOf(obj)));
+		if (itemClass == boolean.class) return (T) ((Object) Boolean.parseBoolean(String.valueOf(obj)));
+		if (itemClass == char.class) return (T) ((Object) (char) obj);
+		throw new TypeException("未知的基本类型");
 	}
 
 	/**
@@ -237,6 +297,24 @@ public class TypeUtil {
 	}
 
 	/**
+	 * 获取包装类型对应的基本类型
+	 *
+	 * @param itemClass 包装类型
+	 * @return 对应的基本类型
+	 */
+	public static Class<?> getPackBasicType(@NotNull Class<?> itemClass) {
+		if (itemClass == Integer.class) return int.class;
+		if (itemClass == Long.class) return long.class;
+		if (itemClass == Double.class) return double.class;
+		if (itemClass == Float.class) return float.class;
+		if (itemClass == Short.class) return short.class;
+		if (itemClass == Byte.class) return byte.class;
+		if (itemClass == Boolean.class) return boolean.class;
+		if (itemClass == Character.class) return char.class;
+		throw new TypeException("未知的基本类型");
+	}
+
+	/**
 	 * 获取基本类型对应的包装类型
 	 *
 	 * @param itemClass 基本类型
@@ -244,12 +322,14 @@ public class TypeUtil {
 	 */
 	@Contract(pure = true)
 	public static Class<?> getBasicPackType(@NotNull Class<?> itemClass) {
-		var name = itemClass.getTypeName();
-		try {
-			for (var strings : BasicType) if (strings[0].equals(name)) return Class.forName(strings[1]);
-		} catch (ClassNotFoundException e) {
-			throw new TypeException(e);
-		}
+		if (itemClass == int.class) return Integer.class;
+		if (itemClass == long.class) return Long.class;
+		if (itemClass == double.class) return Double.class;
+		if (itemClass == float.class) return Float.class;
+		if (itemClass == short.class) return Short.class;
+		if (itemClass == byte.class) return Byte.class;
+		if (itemClass == boolean.class) return Boolean.class;
+		if (itemClass == char.class) return Character.class;
 		throw new TypeException("未知的基本类型");
 	}
 
