@@ -26,6 +26,8 @@ import org.apache.http.ssl.SSLContexts;
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
@@ -35,8 +37,6 @@ import org.haic.often.parser.xml.Document;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayOutputStream;
@@ -116,12 +116,11 @@ public class HttpClientUtil {
 		}
 
 		@Contract(pure = true)
-		private Connection initialization(@NotNull String url) {
+		private void initialization(@NotNull String url) {
 			header("accept", "text/html, application/json, application/xhtml+xml;q=0.9, */*;q=0.8");
 			header("accept-language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6");
 			header("accept-encoding", "gzip, deflate, br"); // 允许压缩gzip,br-Brotli
-			header("user-agent", UserAgent.chrome()); // 设置随机请求头;
-			return url(url);
+			header("user-agent", UserAgent.chrome()).url(url); // 设置随机请求头;
 		}
 
 		@Contract(pure = true)
@@ -614,14 +613,16 @@ public class HttpClientUtil {
 		public Charset charset() {
 			if (charset == null) {
 				if (headers().containsKey("content-type")) {
-					String type = headers().get("content-type");
-					if (type.contains(";")) {
-						return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
-					} else if (!type.contains("html")) {
-						return charset = StandardCharsets.UTF_8;
+					var type = headers().get("content-type");
+					if (type.contains(";")) return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
+					else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
+						if (bodyAsByteArray() == null) throw new HttpException("解析字符集编码时出错,未能获取网页数据");
+						var meta = Document.parse(body.toString(StandardCharsets.UTF_8)).selectFirst("meta[charset]");
+						if (meta != null) charset = Charset.forName(meta.attr("charset")); // 从meta中获取
+						return charset == null ? charset = URIUtil.encoding(bodyAsBytes()) : charset; // meta未成功获取,则在本地判断UTF8或GBK
 					}
 				}
-				charset = URIUtil.encoding(bodyAsBytes());
+				charset = StandardCharsets.UTF_8;
 			}
 			return charset;
 		}

@@ -5,6 +5,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
+import org.haic.often.annotations.Contract;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
@@ -14,8 +16,6 @@ import org.haic.often.parser.xml.Document;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -529,14 +529,16 @@ public class HtmlUnitUtil {
 		public Charset charset() {
 			if (charset == null) {
 				if (headers().containsKey("content-type")) {
-					String type = headers().get("content-type");
-					if (type.contains(";")) {
-						return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
-					} else if (!type.contains("html")) {
-						return charset = StandardCharsets.UTF_8;
+					var type = headers().get("content-type");
+					if (type.contains(";")) return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
+					else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
+						if (bodyAsByteArray() == null) throw new HttpException("解析字符集编码时出错,未能获取网页数据");
+						var meta = Document.parse(body.toString(StandardCharsets.UTF_8)).selectFirst("meta[charset]");
+						if (meta != null) charset = Charset.forName(meta.attr("charset")); // 从meta中获取
+						return charset == null ? charset = URIUtil.encoding(bodyAsBytes()) : charset; // meta未成功获取,则在本地判断UTF8或GBK
 					}
 				}
-				charset = URIUtil.encoding(bodyAsBytes());
+				charset = StandardCharsets.UTF_8;
 			}
 			return charset;
 		}

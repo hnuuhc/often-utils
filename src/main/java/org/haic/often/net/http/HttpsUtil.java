@@ -562,21 +562,23 @@ public class HttpsUtil {
 		public Charset charset() {
 			if (charset == null) {
 				if (headers().containsKey("content-type")) {
-					String type = headers().get("content-type");
-					if (type.contains(";")) {
-						return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
-					} else if (!type.contains("html")) {
-						return charset = StandardCharsets.UTF_8;
+					var type = headers().get("content-type");
+					if (type.contains(";")) return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
+					else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
+						if (bodyAsByteArray() == null) throw new HttpException("解析字符集编码时出错,未能获取网页数据");
+						var meta = Document.parse(body.toString(StandardCharsets.UTF_8)).selectFirst("meta[charset]");
+						if (meta != null) charset = Charset.forName(meta.attr("charset")); // 从meta中获取
+						return charset == null ? charset = URIUtil.encoding(bodyAsBytes()) : charset; // meta未成功获取,则在本地判断UTF8或GBK
 					}
 				}
-				charset = URIUtil.encoding(bodyAsBytes());
+				charset = StandardCharsets.UTF_8;
 			}
 			return charset;
 		}
 
 		@Contract(pure = true)
 		public Document parse() {
-			String body = body();
+			var body = body();
 			return body == null ? null : Document.parse(body);
 		}
 
@@ -598,7 +600,7 @@ public class HttpsUtil {
 		@Contract(pure = true)
 		public ByteArrayOutputStream bodyAsByteArray() {
 			try (InputStream in = bodyStream()) {
-				String encoding = header("content-encoding");
+				var encoding = header("content-encoding");
 				InputStream body = "gzip".equals(encoding) ? new GZIPInputStream(in) : "deflate".equals(encoding) ? new InflaterInputStream(in, new Inflater(true)) : "br".equals(encoding) ? new BrotliInputStream(in) : in;
 				this.body = IOUtil.stream(body).toByteArrayOutputStream();
 			} catch (Exception e) {
