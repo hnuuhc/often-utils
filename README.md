@@ -10,11 +10,11 @@ Java 网络常用工具类
 mvn clean install
 ```
 
-Maven依赖添加:
+已上传中央仓库,在Maven依赖中添加:
 
 ```
 <dependency>
-    <groupId>org.haic.often</groupId>
+    <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
     <version>1.1.0</version>
 </dependency>
