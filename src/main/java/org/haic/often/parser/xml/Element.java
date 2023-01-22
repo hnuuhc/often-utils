@@ -4,7 +4,6 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -17,12 +16,8 @@ import java.util.stream.Collectors;
  */
 public class Element {
 
-	private final String name; // 标签名
-	private final Map<String, String> attrs;
-	private final Elements childs = new Elements();
-	private String text = "";
-	private String tail = ""; // 标签结束符
-	private boolean close;
+	private final Tag tag;
+	private final XmlChilds childs = new XmlChilds();
 
 	/**
 	 * 构造器,用于创建一个新的节点,如果未增加子节点,则默认为当前节点状态为非自闭合(即拥有闭合标签)
@@ -30,10 +25,7 @@ public class Element {
 	 * @param name 标签名称
 	 */
 	public Element(@NotNull String name) {
-		this.name = name;
-		this.attrs = new HashMap<>();
-		this.close = false;
-		this.tail = "</" + name + ">";
+		this.tag = new Tag(name, new TagAttrs(), false);
 	}
 
 	/**
@@ -43,94 +35,60 @@ public class Element {
 	 * @param tag    标签文本
 	 * @param isHtml 是否为html格式
 	 */
-	protected Element(@NotNull ParserStringBuilder node, @NotNull String tag, @NotNull String name, boolean isHtml) {
-		this.name = name;
-		this.attrs = htmlAttributes(tag); // 获取标签属性
-		this.close = tag.charAt(tag.length() - 2) == '/';
+	protected Element(@NotNull ParserStringBuilder node, @NotNull Tag tag, boolean isHtml) {
+		this.tag = tag;
+		if (tag.isClose()) return;
 
-		node.offset(tag.length()); // 更新进度
-		if (close) return; // 自闭合标签直接返回
+		var name = tag.name();
 
 		if (isHtml) { // html特殊标签处理后返回
 			switch (name) {
 				// 自闭合标签
-				case "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr" -> {
+				case "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "feflood", "feblend", "feoffset", "fegaussianblur", "fecomposite", "fecolormatrix", "lineargradient", "radialgradient" -> {
 					return;
 				}
 				// 文本标签
 				case "textarea", "script", "style" -> {
 					int index = node.indexOf("</" + name + ">");
-					text = node.substring(node.pos(), index);
+					var text = node.substring(node.pos(), index).strip();
+					if (!text.isEmpty()) childs.add(text);
 					node.pos(index + name.length() + 3);
-					text = Document.unescape(text.strip());
 					return;
 				}
 			}
 		}
 
-		tail = "</" + name + ">";
-
-		var text = new StringBuilder();
 		while (node.pos() < node.length()) {
-			int tagHeadIndex = node.indexOf("<");
-			if (node.charAt(tagHeadIndex + 1) == '!' && node.charAt(tagHeadIndex + 2) == '-' && node.charAt(tagHeadIndex + 3) == '-') {
-				text.append(node.substring(node.pos(), tagHeadIndex));
+			int tagHeadIndex = node.indexOf("<"); // 获取标签初始位置
+			if (node.charAt(tagHeadIndex + 1) == '!' && node.charAt(tagHeadIndex + 2) == '-' && node.charAt(tagHeadIndex + 3) == '-') { // 标签为注释
+				var text = node.substring(node.pos(), tagHeadIndex).strip();
+				if (!text.isEmpty()) childs.add(Document.unescape(text)); // 合法标签之前数据识别为文本
 				node.pos(node.indexOf("-->", tagHeadIndex + 4) + 3); // 去除注释
 				continue;
 			}
 			int tagtailIndex = node.indexOf(">", tagHeadIndex + 1);
-			var childTag = node.substring(tagHeadIndex, tagtailIndex + 1); // 获取当前子标签
-			int error = childTag.indexOf("<", 1);
-			if (error != -1) { // 错误标签
-				text.append(node.substring(node.pos(), tagHeadIndex + error)); // 写入文本
+			var thisChild = node.substring(tagHeadIndex, tagtailIndex + 1); // 获取当前子标签
+
+			int error = thisChild.indexOf("<", 1); // 检查标签合法性
+			if (error != -1) { // 标签错误,存在多个'<'符号
+				var text = node.substring(node.pos(), tagHeadIndex + error).strip();
+				if (!text.isEmpty()) childs.add(Document.unescape(text)); // 合法标签之前数据识别为文本
 				node.pos(tagHeadIndex + error);
 				continue;
 			}
-			text.append(node.substring(node.pos(), tagHeadIndex)); // 提前写入文本,防止返回
-			if (node.charAt(tagHeadIndex + 1) == '/') { // 遇到结束标签返回上级
-				if (node.substring(tagHeadIndex + 2, tagtailIndex).equals(name)) this.text = Document.unescape(text.toString().strip()); // 反转义文本
+			var text = node.substring(node.pos(), tagHeadIndex).strip();
+			if (!text.isEmpty()) childs.add(Document.unescape(text)); // 提前写入文本,防止结束返回
+			if (thisChild.charAt(1) == '/') {
 				node.pos(tagtailIndex + 1);
-				return;
+				if (thisChild.substring(2, thisChild.length() - 1).equals(name)) return; // 结束标签返回上级
+				else continue; // 错误标签,跳过
 			}
-			var childName = (childTag.contains(" ") ? childTag.substring(1, childTag.indexOf(" ")) : node.charAt(childTag.length() - 2) == '/' ? childTag.substring(1, childTag.length() - 2) : childTag.substring(1, childTag.length() - 1)).strip().toLowerCase();
-			if (isHtml && name.equals("a") && name.equals(childName)) return; // 可能不规范的链接标签,需要排序处理
-			childs.add(new Element(node.pos(tagHeadIndex), childTag, childName, isHtml));
-		}
-	}
 
-	/**
-	 * 提取html标签内属性值
-	 *
-	 * @param tag html标签
-	 * @return 列表: 属性名称 - 属性值
-	 */
-	private static Map<String, String> htmlAttributes(@NotNull String tag) {
-		Map<String, String> attrs = new HashMap<>();
-		var body = new ParserStringBuilder(tag);
-		int index = body.indexOf(" ");
-		if (index == -1) return attrs;
-		do {
-			int end = body.indexOf("=", ++index);
-			if (end == -1) break;
-			var key = body.substring(index, index = end).strip();
-			String value;
-			if (body.charAt(++index) == '"') {
-				value = body.substring(++index, index = body.indexOf("\"", index));
-				attrs.put(key, value);
-			} else if (body.charAt(index) == '\'') {
-				value = body.substring(++index, index = body.indexOf("'", index));
-				attrs.put(key, value);
-			} else if (body.charAt(index) == '&') {
-				value = body.substring(index = body.indexOf(";", index + 1) + 1, index = body.indexOf("&", index + 1));
-				index = body.indexOf(";", index + 1);
-				attrs.put(key, value);
-			} else {
-				int thisEnd = body.indexOf(" ", index + 1);
-				value = body.substring(index, index = thisEnd == -1 ? body.charAt(body.length() - 2) == '/' ? body.length() - 2 : body.length() - 1 : thisEnd).strip();
-			}
-			attrs.put(key, Document.unescape(value));
-		} while (++index < body.length() && body.charAt(index) != '/' && body.charAt(index) != '>');
-		return attrs;
+			var childTag = new Tag(thisChild);
+			if (isHtml && name.equals("a") && name.equals(childTag.name())) return; // 可能不规范的链接标签,需要排序处理
+			childs.add(new Element(node.pos(tagtailIndex + 1), childTag, isHtml));
+
+		}
 	}
 
 	/**
@@ -140,7 +98,7 @@ public class Element {
 	 * @return 当前节点
 	 */
 	public Element close(boolean close) {
-		this.close = close;
+		tag.isClose(close);
 		return this;
 	}
 
@@ -152,7 +110,7 @@ public class Element {
 	 * @return 当前节点
 	 */
 	public Element attr(@NotNull String key, @NotNull String value) {
-		this.attrs.put(key, value);
+		tag.attr(key, value);
 		return this;
 	}
 
@@ -163,7 +121,7 @@ public class Element {
 	 * @return 当前节点
 	 */
 	public Element attrs(@NotNull Map<String, String> attrs) {
-		this.attrs.putAll(attrs);
+		tag.attrs(attrs);
 		return this;
 	}
 
@@ -174,7 +132,7 @@ public class Element {
 	 * @return 当前节点
 	 */
 	public Element removeAttr(@NotNull String key) {
-		this.attrs.remove(key);
+		tag.removeAttr(key);
 		return this;
 	}
 
@@ -212,17 +170,6 @@ public class Element {
 	}
 
 	/**
-	 * 设置当前节点文本
-	 *
-	 * @param text 文本
-	 * @return 当前节点
-	 */
-	public Element text(@NotNull String text) {
-		this.text = text;
-		return this;
-	}
-
-	/**
 	 * 获取当前标签名称
 	 *
 	 * @return 标签名称
@@ -230,7 +177,7 @@ public class Element {
 	@NotNull
 	@Contract(pure = true)
 	public String name() {
-		return name;
+		return tag.name();
 	}
 
 	/**
@@ -241,7 +188,7 @@ public class Element {
 	 */
 	@Contract(pure = true)
 	public boolean containsAttr(@NotNull String key) {
-		return attrs.containsKey(key);
+		return tag.containsKey(key);
 	}
 
 	/**
@@ -252,7 +199,7 @@ public class Element {
 	@NotNull
 	@Contract(pure = true)
 	public Map<String, String> attrs() {
-		return attrs;
+		return tag.attrs();
 	}
 
 	/**
@@ -263,7 +210,18 @@ public class Element {
 	 */
 	@Contract(pure = true)
 	public String attr(@NotNull String key) {
-		return attrs.get(key);
+		return tag.attr(key);
+	}
+
+	/**
+	 * 获取当前标签的下级子标签
+	 *
+	 * @return 下级子标签
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Object child(int i) {
+		return childs.get(i);
 	}
 
 	/**
@@ -273,7 +231,7 @@ public class Element {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public Elements childs() {
+	public XmlChilds childs() {
 		return childs;
 	}
 
@@ -287,19 +245,7 @@ public class Element {
 	@NotNull
 	@Contract(pure = true)
 	public String text() {
-		StringBuilder text = new StringBuilder(this.text);
-		for (var child : childs) {
-			switch (child.name()) {
-				case "script", "textarea", "style" -> {} // 特殊文本标签
-				default -> {
-					String childText = child.text();
-					if (!childText.isEmpty()) {
-						text.append(" ").append(childText);
-					}
-				}
-			}
-		}
-		return text.toString().strip();
+		return childs.stream().map(l -> l instanceof Element e ? e.text() : l.toString()).filter(l -> !l.isEmpty()).collect(Collectors.joining(" "));
 	}
 
 	/**
@@ -347,8 +293,8 @@ public class Element {
 			result.add(this);
 			return result;
 		}
-		for (Element child : childs) {
-			result.addAll(child.selectById(id));
+		for (var child : childs) {
+			if (child instanceof Element e) result.addAll(e.selectById(id));
 		}
 		return result;
 	}
@@ -367,8 +313,8 @@ public class Element {
 			result.add(this);
 			return result;
 		}
-		for (Element child : childs) {
-			result.addAll(child.selectByName(name));
+		for (var child : childs) {
+			if (child instanceof Element e) result.addAll(e.selectByName(name));
 		}
 		return result;
 	}
@@ -388,8 +334,8 @@ public class Element {
 			result.add(this);
 			return result;
 		}
-		for (Element child : childs) {
-			result.addAll(child.selectByNameAndAttrKey(name, key));
+		for (var child : childs) {
+			if (child instanceof Element e) result.addAll(e.selectByNameAndAttrKey(name, key));
 		}
 		return result;
 	}
@@ -410,8 +356,8 @@ public class Element {
 			result.add(this);
 			return result;
 		}
-		for (Element child : childs) {
-			result.addAll(child.selectByNameAndAttr(name, key, value));
+		for (var child : childs) {
+			if (child instanceof Element e) result.addAll(e.selectByNameAndAttr(name, key, value));
 		}
 		return result;
 	}
@@ -430,8 +376,8 @@ public class Element {
 			result.add(this);
 			return result;
 		}
-		for (Element child : childs) {
-			result.addAll(child.selectByAttr(key));
+		for (var child : childs) {
+			if (child instanceof Element e) result.addAll(e.selectByAttr(key));
 		}
 		return result;
 	}
@@ -451,8 +397,8 @@ public class Element {
 			result.add(this);
 			return result;
 		}
-		for (Element child : childs) {
-			result.addAll(child.selectByAttr(key, value));
+		for (var child : childs) {
+			if (child instanceof Element e) result.addAll(e.selectByAttr(key, value));
 		}
 		return result;
 	}
@@ -471,22 +417,17 @@ public class Element {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("    ".repeat(depth)).append("<").append(name).append(attrs.entrySet().stream().map(attr -> " " + attr.getKey() + "=\"" + attr.getValue() + "\"").collect(Collectors.joining()));
-		if (close) return sb.append("/>").toString();
-		else sb.append(">");
-		if (childs.isEmpty()) {
-			if (!text.isEmpty()) {
-				switch (name) {
-					// 特殊文本标签
-					case "script", "textarea", "style" -> sb.append("\n").append("    ".repeat(depth)).append(text).append("\n").append("    ".repeat(depth));
-					default -> sb.append(text);
+		var sb = new StringBuilder().append("    ".repeat(depth)).append(tag);
+		if (!tag.isClose() && !childs.isEmpty()) {
+			var name = this.name();
+			switch (name) {
+				case "script", "textarea", "style" -> sb.append("\n").append("    ".repeat(depth)).append(childs.get(0)).append("\n").append("    ".repeat(depth));
+				default -> {
+					if (childs.size() == 1 && childs.get(0) instanceof String s) return sb.append(s).append("</").append(name).append(">").toString();
+					sb.append(childs.toString(depth + 1)).append("\n").append("    ".repeat(depth));
 				}
 			}
-			return sb.append(tail).toString();
-		} else {
-			for (Element child : childs) sb.append("\n").append(child.toString(depth + 1));
-			sb.append(text).append("\n").append("    ".repeat(depth)).append(tail);
+			return sb.append("</").append(name).append(">").toString();
 		}
 		return sb.toString();
 	}

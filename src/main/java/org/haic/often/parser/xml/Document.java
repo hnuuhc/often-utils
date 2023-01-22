@@ -17,23 +17,26 @@ public class Document extends Element {
 	public static Document parse(@NotNull String body) {
 		var sb = new ParserStringBuilder(body.strip());
 		if (sb.startsWith("<!") && sb.charAt(2) != '-') {
-			return new Document(sb.pos(sb.indexOf(">") + 1).substring(0, sb.pos()), sb, sb.pos(sb.indexOf("<html", sb.pos())).substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), "html", true);
+			var start = sb.indexOf("<html");
+			var tail = sb.indexOf(">", start + 5);
+			return new Document(sb.substring(0, sb.indexOf(">", 2) + 1), sb.pos(tail + 1), sb.substring(start, tail), true);
 		} else if (sb.startsWith("<?")) {
-			var doctype = sb.pos(sb.indexOf(">") + 1).substring(0, sb.pos());
-			var name = sb.substring(sb.lastIndexOf("</") + 2, sb.lastIndexOf(">"));
-			var tag = sb.pos(sb.indexOf("<" + name, sb.pos())).substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1);
-			return new Document(doctype, sb, tag, name, false);
+			var name = sb.substring(sb.lastIndexOf("<") + 2, sb.lastIndexOf(">"));
+			var start = sb.indexOf("<" + name);
+			var tail = sb.indexOf(">", start + name.length() + 1);
+			return new Document(sb.substring(0, sb.indexOf(">", 2) + 1), sb.pos(tail + 1), sb.substring(start, tail), false);
 		} else if (sb.startsWith("<html")) {
-			return new Document("", sb, sb.substring(sb.pos(), sb.indexOf(">", sb.pos() + 1) + 1), "html", true);
+			var index = sb.indexOf(">", 1) + 1;
+			return new Document("", sb.pos(index), sb.substring(0, index), true);
 		} else if (sb.startsWith("<body")) {
-			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>"), "<html>", "html", true);
+			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>").pos(6), "<html>", true);
 		} else {
-			return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>"), "<html>", "html", true);
+			return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>").pos(6), "<html>", true);
 		}
 	}
 
-	private Document(@NotNull String doctype, @NotNull ParserStringBuilder body, @NotNull String tag, @NotNull String name, boolean isHtml) {
-		super(body, tag, name, isHtml);
+	private Document(@NotNull String doctype, @NotNull ParserStringBuilder body, @NotNull String tag, boolean isHtml) {
+		super(body, new Tag(tag), isHtml);
 		this.doctype = doctype.isEmpty() ? doctype : doctype + "\n";
 	}
 
