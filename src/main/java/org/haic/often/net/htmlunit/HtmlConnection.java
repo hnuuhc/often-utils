@@ -1,9 +1,9 @@
 package org.haic.often.net.htmlunit;
 
+import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
 import org.haic.often.parser.xml.Document;
-import org.haic.often.annotations.Contract;
 
 import java.net.Proxy;
 import java.util.List;
@@ -205,7 +205,7 @@ public abstract class HtmlConnection {
 	public abstract HtmlConnection data(@NotNull Map<String, String> params);
 
 	/**
-	 * 设置 POST（或 PUT）请求正文<br/> 当服务器需要一个普通的请求正文，而不是一组 URL 编码形式的键/值对时很有用<br/> 一般为JSON格式,若不是则作为普通数据发送
+	 * 设置 POST（或 PUT）请求正文<br/> 当服务器需要一个普通请求正文，而不是一组 URL 编码形式的键/值对时很有用<br/> 一般为JSON格式,若不是则作为普通数据发送
 	 *
 	 * @param body 请求正文
 	 * @return 此连接，用于链接

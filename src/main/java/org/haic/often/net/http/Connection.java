@@ -1,5 +1,6 @@
 package org.haic.often.net.http;
 
+import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
@@ -301,7 +302,7 @@ public abstract class Connection {
 
 	/**
 	 * 设置 POST（或 PUT）请求正文<br/>
-	 * 当服务器需要一个普通的请求正文，而不是一组 URL 编码形式的键/值对时很有用<br/>
+	 * 当服务器需要一个普通请求正文，而不是一组 URL 编码形式的键/值对时很有用<br/>
 	 * 一般为JSON格式,若不是则作为普通数据发送
 	 *
 	 * @param body 请求正文
@@ -317,7 +318,14 @@ public abstract class Connection {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract Connection socks(@NotNull String ipAddr);
+	public Connection socks(@NotNull String ipAddr) {
+		if (ipAddr.startsWith("[")) {
+			return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+		} else {
+			int index = ipAddr.lastIndexOf(":");
+			return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
+		}
+	}
 
 	/**
 	 * 设置用于此请求的 SOCKS 代理
@@ -337,7 +345,14 @@ public abstract class Connection {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract Connection proxy(@NotNull String ipAddr);
+	public Connection proxy(@NotNull String ipAddr) {
+		if (ipAddr.startsWith("[")) {
+			return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+		} else {
+			int index = ipAddr.lastIndexOf(":");
+			return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
+		}
+	}
 
 	/**
 	 * 连接代理（ @NotNull  Proxy 代理）<br/>

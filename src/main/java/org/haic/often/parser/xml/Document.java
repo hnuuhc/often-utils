@@ -18,13 +18,13 @@ public class Document extends Element {
 		var sb = new ParserStringBuilder(body.strip());
 		if (sb.startsWith("<!") && sb.charAt(2) != '-') {
 			var start = sb.indexOf("<html");
-			var tail = sb.indexOf(">", start + 5);
-			return new Document(sb.substring(0, sb.indexOf(">", 2) + 1), sb.pos(tail + 1), sb.substring(start, tail), true);
+			var tail = sb.indexOf(">", start + 5) + 1;
+			return new Document(sb.substring(0, sb.indexOf(">", 2) + 1), sb.pos(tail), sb.substring(start, tail), true);
 		} else if (sb.startsWith("<?")) {
 			var name = sb.substring(sb.lastIndexOf("<") + 2, sb.lastIndexOf(">"));
 			var start = sb.indexOf("<" + name);
-			var tail = sb.indexOf(">", start + name.length() + 1);
-			return new Document(sb.substring(0, sb.indexOf(">", 2) + 1), sb.pos(tail + 1), sb.substring(start, tail), false);
+			var tail = sb.indexOf(">", start + name.length() + 1) + 1;
+			return new Document(sb.substring(0, sb.indexOf(">", 2) + 1), sb.pos(tail), sb.substring(start, tail), false);
 		} else if (sb.startsWith("<html")) {
 			var index = sb.indexOf(">", 1) + 1;
 			return new Document("", sb.pos(index), sb.substring(0, index), true);

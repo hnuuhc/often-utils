@@ -1,7 +1,6 @@
 package org.haic.often.net.htmlunit;
 
 import com.gargoylesoftware.htmlunit.*;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
@@ -472,11 +471,6 @@ public class HtmlUnitUtil {
 		@Contract(pure = true)
 		public boolean isHtmlPage() {
 			return page != null && page.isHtmlPage();
-		}
-
-		@Contract(pure = true)
-		public HtmlPage getHtmlPage() {
-			return isHtmlPage() ? (HtmlPage) page : null;
 		}
 
 		@Contract(pure = true)

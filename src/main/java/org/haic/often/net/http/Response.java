@@ -2,11 +2,17 @@ package org.haic.often.net.http;
 
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
+import org.haic.often.exception.HttpException;
+import org.haic.often.net.URIUtil;
+import org.haic.often.parser.json.JSONArray;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -17,6 +23,11 @@ import java.util.Map;
  * @since 2022/3/16 11:52
  */
 public abstract class Response {
+
+	protected Map<String, String> headers;
+	protected Map<String, String> cookies;
+	protected Charset charset;
+	protected ByteArrayOutputStream body;
 
 	/**
 	 * 返回此页面的 URL
@@ -61,7 +72,9 @@ public abstract class Response {
 	 * @return 请求头的值
 	 */
 	@Contract(pure = true)
-	public abstract String header(@NotNull String name);
+	public String header(@NotNull String name) {
+		return headers().get(name);
+	}
 
 	/**
 	 * 获取 请求头
@@ -78,7 +91,9 @@ public abstract class Response {
 	 * @return cookie value
 	 */
 	@Contract(pure = true)
-	public abstract String cookie(@NotNull String name);
+	public String cookie(@NotNull String name) {
+		return cookies().get(name);
+	}
 
 	/**
 	 * 获取 cookies
@@ -96,7 +111,9 @@ public abstract class Response {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract Response charset(@NotNull String charsetName);
+	public Response charset(@NotNull String charsetName) {
+		return charset(Charset.forName(charsetName));
+	}
 
 	/**
 	 * Response字符集（ 字符串 字符集）<br/>
@@ -106,7 +123,10 @@ public abstract class Response {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract Response charset(@NotNull Charset charset);
+	public Response charset(@NotNull Charset charset) {
+		this.charset = charset;
+		return this;
+	}
 
 	/**
 	 * 获取当前Response字符集编码<br/>
@@ -114,7 +134,22 @@ public abstract class Response {
 	 * @return 字符集编码
 	 */
 	@Contract(pure = true)
-	public abstract Charset charset();
+	public Charset charset() {
+		if (charset == null) {
+			if (headers().containsKey("content-type")) {
+				var type = headers().get("content-type");
+				if (type.contains(";")) return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
+				else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
+					if (bodyAsByteArray() == null) throw new HttpException("解析字符集编码时出错,未能获取网页数据");
+					var meta = Document.parse(body.toString(StandardCharsets.UTF_8)).selectFirst("meta[charset]");
+					if (meta != null) charset = Charset.forName(meta.attr("charset")); // 从meta中获取
+					return charset == null ? charset = URIUtil.encoding(bodyAsBytes()) : charset; // meta未成功获取,则在本地判断UTF8或GBK
+				}
+			}
+			charset = StandardCharsets.UTF_8;
+		}
+		return charset;
+	}
 
 	/**
 	 * 读取响应的正文并将其解析为文档,如果连接超时或IO异常会返回null
@@ -122,7 +157,32 @@ public abstract class Response {
 	 * @return 已解析的文档
 	 */
 	@Contract(pure = true)
-	public abstract Document parse();
+	public Document parse() {
+		return parse(Document.class);
+	}
+
+	/**
+	 * 读取响应的正文并将其解析,如果连接超时或IO异常会返回null
+	 * <p>
+	 * 注意解析类型仅支持:
+	 * <pre>	1. {@link Document}</pre>
+	 * <pre>	2. {@link JSONObject}</pre>
+	 * <pre>	3. {@link JSONArray}</pre>
+	 *
+	 * @param itemClass 返回解析类型
+	 * @param <T>       解析类型
+	 * @return 已解析的文档
+	 */
+	@Contract(pure = true)
+	@SuppressWarnings("unchecked")
+	public <T> T parse(@NotNull Class<T> itemClass) {
+		var body = body();
+		if (body == null) return null;
+		if (itemClass == Document.class) return (T) Document.parse(body);
+		if (itemClass == JSONObject.class) return (T) JSONObject.parseObject(body);
+		if (itemClass == JSONArray.class) return (T) JSONArray.parseArray(body);
+		throw new IllegalArgumentException("未知的解析类型");
+	}
 
 	/**
 	 * Get the body of the response as a plain string.
@@ -130,11 +190,13 @@ public abstract class Response {
 	 * @return body
 	 */
 	@Contract(pure = true)
-	public abstract String body();
+	public String body() {
+		return body == null && bodyAsByteArray() == null ? null : body.toString(charset());
+	}
 
 	/**
 	 * Get the body of the response as a (buffered) InputStream. You should close the input stream when you're done with it.
-	 * Other body methods (like bufferUp, body, parse, etc) will not work in conjunction with this method.
+	 * Other body methods (like bufferUp, body, parse, etc.) will not work in conjunction with this method.
 	 * <p>This method is useful for writing large responses to disk, without buffering them completely into memory first.</p>
 	 *
 	 * @return the response body input stream
@@ -148,6 +210,16 @@ public abstract class Response {
 	 * @return body bytes
 	 */
 	@Contract(pure = true)
-	public abstract byte[] bodyAsBytes();
+	public byte[] bodyAsBytes() {
+		return body == null && (body = bodyAsByteArray()) == null ? null : body.toByteArray();
+	}
+
+	/**
+	 * Get And Update Body ByteArrayOutputStream
+	 *
+	 * @return ByteArrayOutputStream
+	 */
+	@Contract(pure = true)
+	protected abstract ByteArrayOutputStream bodyAsByteArray();
 
 }

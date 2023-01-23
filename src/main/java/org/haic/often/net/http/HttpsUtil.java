@@ -2,7 +2,6 @@ package org.haic.often.net.http;
 
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
@@ -27,7 +26,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -276,28 +274,8 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
-		public Connection socks(@NotNull String ipAddr) {
-			if (ipAddr.startsWith("[")) {
-				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
-			} else {
-				int index = ipAddr.lastIndexOf(":");
-				return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
-			}
-		}
-
-		@Contract(pure = true)
 		public Connection socks(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port)));
-		}
-
-		@Contract(pure = true)
-		public Connection proxy(@NotNull String ipAddr) {
-			if (ipAddr.startsWith("[")) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
-			} else {
-				int index = ipAddr.lastIndexOf(":");
-				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
-			}
 		}
 
 		@Contract(pure = true)
@@ -489,10 +467,6 @@ public class HttpsUtil {
 	private static class HttpResponse extends Response {
 
 		private final HttpURLConnection conn;
-		private final Map<String, String> cookies;
-		private Map<String, String> headers;
-		private Charset charset;
-		private ByteArrayOutputStream body;
 
 		private HttpResponse(HttpURLConnection conn, Map<String, String> cookies) {
 			this.conn = conn;
@@ -528,18 +502,8 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
-		public String header(@NotNull String name) {
-			return headers().get(name);
-		}
-
-		@Contract(pure = true)
 		public Map<String, String> headers() {
 			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> new String((l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-") && !v.isBlank()).map(v -> v.substring(0, v.indexOf(";"))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue())).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8), (e1, e2) -> e2)) : headers;
-		}
-
-		@Contract(pure = true)
-		public String cookie(@NotNull String name) {
-			return cookies().get(name);
 		}
 
 		@Contract(pure = true)
@@ -548,65 +512,20 @@ public class HttpsUtil {
 		}
 
 		@Contract(pure = true)
-		public Response charset(@NotNull String charsetName) {
-			return charset(Charset.forName(charsetName));
-		}
-
-		@Contract(pure = true)
-		public Response charset(@NotNull Charset charset) {
-			this.charset = charset;
-			return this;
-		}
-
-		@Contract(pure = true)
-		public Charset charset() {
-			if (charset == null) {
-				if (headers().containsKey("content-type")) {
-					var type = headers().get("content-type");
-					if (type.contains(";")) return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
-					else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
-						if (bodyAsByteArray() == null) throw new HttpException("解析字符集编码时出错,未能获取网页数据");
-						var meta = Document.parse(body.toString(StandardCharsets.UTF_8)).selectFirst("meta[charset]");
-						if (meta != null) charset = Charset.forName(meta.attr("charset")); // 从meta中获取
-						return charset == null ? charset = URIUtil.encoding(bodyAsBytes()) : charset; // meta未成功获取,则在本地判断UTF8或GBK
-					}
-				}
-				charset = StandardCharsets.UTF_8;
-			}
-			return charset;
-		}
-
-		@Contract(pure = true)
-		public Document parse() {
-			var body = body();
-			return body == null ? null : Document.parse(body);
-		}
-
-		@Contract(pure = true)
-		public String body() {
-			return body == null && bodyAsByteArray() == null ? null : body.toString(charset());
-		}
-
-		@Contract(pure = true)
 		public InputStream bodyStream() throws IOException {
 			return URIUtil.statusIsNormal(statusCode()) ? conn.getInputStream() : conn.getErrorStream();
 		}
 
 		@Contract(pure = true)
-		public byte[] bodyAsBytes() {
-			return body == null && (body = bodyAsByteArray()) == null ? null : body.toByteArray();
-		}
-
-		@Contract(pure = true)
-		public ByteArrayOutputStream bodyAsByteArray() {
+		protected ByteArrayOutputStream bodyAsByteArray() {
+			if (this.body != null) return this.body;
 			try (InputStream in = bodyStream()) {
 				var encoding = header("content-encoding");
 				InputStream body = "gzip".equals(encoding) ? new GZIPInputStream(in) : "deflate".equals(encoding) ? new InflaterInputStream(in, new Inflater(true)) : "br".equals(encoding) ? new BrotliInputStream(in) : in;
-				this.body = IOUtil.stream(body).toByteArrayOutputStream();
+				return this.body = IOUtil.stream(body).toByteArrayOutputStream();
 			} catch (Exception e) {
 				return null;
 			}
-			return this.body;
 		}
 
 	}
