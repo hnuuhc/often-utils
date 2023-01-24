@@ -20,8 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Proxy;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -439,10 +437,6 @@ public class HtmlUnitUtil {
 	private static class HttpResponse extends HtmlResponse {
 
 		private final Page page; // Page对象
-		private Map<String, String> headers;
-		private Map<String, String> cookies;
-		private Charset charset;
-		private ByteArrayOutputStream body;
 
 		private HttpResponse(Page page) {
 			this.page = page;
@@ -474,11 +468,6 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
-		public String header(@NotNull String name) {
-			return headers().get(name);
-		}
-
-		@Contract(pure = true)
 		public Map<String, String> headers() {
 			if (headers == null) {
 				Map<String, String> headers = new HashMap<>();
@@ -499,53 +488,8 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
-		public String cookie(@NotNull String name) {
-			return cookies().get(name);
-		}
-
-		@Contract(pure = true)
 		public Map<String, String> cookies() {
 			return cookies = cookies == null ? page.getWebResponse().getResponseHeaders().stream().filter(l -> l.getName().equalsIgnoreCase("set-cookie")).filter(l -> !l.getValue().equals("-")).map(l -> l.getValue().substring(0, l.getValue().indexOf(";"))).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1), (e1, e2) -> e2)) : cookies;
-		}
-
-		@Contract(pure = true)
-		public HtmlResponse charset(@NotNull String charsetName) {
-			return charset(Charset.forName(charsetName));
-		}
-
-		@Contract(pure = true)
-		public HtmlResponse charset(@NotNull Charset charset) {
-			this.charset = charset;
-			return this;
-		}
-
-		@Contract(pure = true)
-		public Charset charset() {
-			if (charset == null) {
-				if (headers().containsKey("content-type")) {
-					var type = headers().get("content-type");
-					if (type.contains(";")) return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
-					else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
-						if (bodyAsByteArray() == null) throw new HttpException("解析字符集编码时出错,未能获取网页数据");
-						var meta = Document.parse(body.toString(StandardCharsets.UTF_8)).selectFirst("meta[charset]");
-						if (meta != null) charset = Charset.forName(meta.attr("charset")); // 从meta中获取
-						return charset == null ? charset = URIUtil.encoding(bodyAsBytes()) : charset; // meta未成功获取,则在本地判断UTF8或GBK
-					}
-				}
-				charset = StandardCharsets.UTF_8;
-			}
-			return charset;
-		}
-
-		@Contract(pure = true)
-		public Document parse() {
-			String body = body();
-			return body == null ? null : Document.parse(body);
-		}
-
-		@Contract(pure = true)
-		public String body() {
-			return body == null && (body = bodyAsByteArray()) == null ? null : body.toString(charset());
 		}
 
 		@Contract(pure = true)
@@ -554,12 +498,7 @@ public class HtmlUnitUtil {
 		}
 
 		@Contract(pure = true)
-		public byte[] bodyAsBytes() {
-			return body == null && (body = bodyAsByteArray()) == null ? null : body.toByteArray();
-		}
-
-		@Contract(pure = true)
-		public ByteArrayOutputStream bodyAsByteArray() {
+		protected ByteArrayOutputStream bodyAsByteArray() {
 			try (InputStream in = bodyStream()) {
 				this.body = IOUtil.stream(in).toByteArrayOutputStream();
 			} catch (Exception e) {
