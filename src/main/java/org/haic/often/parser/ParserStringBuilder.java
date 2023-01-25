@@ -14,9 +14,11 @@ public class ParserStringBuilder {
 
 	private final String body;
 	private int index;
+	private int length;
 
 	public ParserStringBuilder(@NotNull String body) {
 		this.body = body;
+		this.length = body.length();
 	}
 
 	public boolean startsWith(String prefix) {
@@ -32,7 +34,7 @@ public class ParserStringBuilder {
 	}
 
 	public int length() {
-		return body.length();
+		return length;
 	}
 
 	public int pos() {
@@ -58,7 +60,7 @@ public class ParserStringBuilder {
 	}
 
 	public int lastIndexOf(@NotNull String str) {
-		return body.lastIndexOf(str);
+		return body.lastIndexOf(str, length - 1);
 	}
 
 	public int lastIndexOf(@NotNull String str, int fromIndex) {
@@ -66,7 +68,7 @@ public class ParserStringBuilder {
 	}
 
 	public String substring(int start) {
-		return body.substring(start);
+		return body.substring(start, length);
 	}
 
 	public String substring(int start, int end) {
@@ -109,7 +111,18 @@ public class ParserStringBuilder {
 	 * @return 当前pos参数值
 	 */
 	public ParserStringBuilder strip() {
+		return stripLeading().stripTrailing();
+	}
+
+	public ParserStringBuilder stripLeading() {
 		while (Character.isWhitespace(body.charAt(index))) index++; // 跳过空格
+		return this;
+	}
+
+	public ParserStringBuilder stripTrailing() {
+		int i = length - 1;
+		while (Character.isWhitespace(body.charAt(i))) i--; // 跳过空格
+		this.length = i + 1;
 		return this;
 	}
 

@@ -33,7 +33,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	public JSONArray(@NotNull ParserStringBuilder body) {
 		if (body.charAt(body.pos()) == '[') {
-			if (body.charAt(body.offset(1).strip().pos()) == ']') return;
+			if (body.charAt(body.offset(1).stripLeading().pos()) == ']') return;
 			for (int i = body.pos(); i < body.length(); i++) {
 				while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 				switch (body.charAt(i)) {
@@ -114,7 +114,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public static JSONArray parseArray(@NotNull String body) {
-		ParserStringBuilder builder = new ParserStringBuilder(body.strip());
+		ParserStringBuilder builder = new ParserStringBuilder(body).strip();
 		JSONArray object = new JSONArray(builder);
 		if (builder.pos() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
 		return object;

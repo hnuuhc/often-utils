@@ -34,7 +34,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	public JSONObject(@NotNull ParserStringBuilder body) {
 		if (body.charAt(body.pos()) != '{') throw new JSONException("位置 " + body.pos() + " 处格式错误期望值不为'{'");
-		if (body.charAt(body.offset(1).strip().pos()) == '}') return;
+		if (body.charAt(body.offset(1).stripLeading().pos()) == '}') return;
 		for (int i = body.pos(); i < body.length(); i++) {
 			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 			if (body.charAt(i) == ':') throw new JSONException("位置 " + i + " 处不存在键");
@@ -126,7 +126,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public static JSONObject parseObject(@NotNull String body) {
-		ParserStringBuilder builder = new ParserStringBuilder(body.strip());
+		ParserStringBuilder builder = new ParserStringBuilder(body).strip();
 		JSONObject object = new JSONObject(builder);
 		if (builder.pos() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
 		return object;

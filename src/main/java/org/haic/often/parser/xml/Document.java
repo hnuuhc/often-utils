@@ -27,12 +27,13 @@ public class Document extends Element {
 			var tail = sb.indexOf(">", start + name.length() + 1) + 1;
 			return new Document(sb.substring(sb.pos(), sb.indexOf(">", 2) + 1), sb.pos(tail), sb.substring(start, tail), false);
 		} else if (sb.startsWith("<html")) {
-			var index = sb.indexOf(">", 1) + 1;
-			return new Document("", sb.pos(index), sb.substring(0, index), true);
+			var start = sb.pos();
+			var tail = sb.indexOf(">", 1) + 1;
+			return new Document("", sb.pos(tail), sb.substring(start, tail), true);
 		} else if (sb.startsWith("<body")) {
-			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>").pos(6), "<html>", true);
+			return new Document("", new ParserStringBuilder("<html><head></head>" + (sb.pos() == 0 ? sb : sb.substring(sb.pos())) + "</html>").pos(6), "<html>", true);
 		} else {
-			return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>").pos(6), "<html>", true);
+			return new Document("", new ParserStringBuilder("<html><head></head><body>" + (sb.pos() == 0 ? sb : sb.substring(sb.pos())) + "</body></html>").pos(6), "<html>", true);
 		}
 	}
 
