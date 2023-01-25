@@ -20,7 +20,11 @@ public class ParserStringBuilder {
 	}
 
 	public boolean startsWith(String prefix) {
-		return body.startsWith(prefix);
+		return body.startsWith(prefix, index);
+	}
+
+	public boolean startsWith(String prefix, int index) {
+		return body.startsWith(prefix, index);
 	}
 
 	public char charAt(int index) {
@@ -104,9 +108,9 @@ public class ParserStringBuilder {
 	 *
 	 * @return 当前pos参数值
 	 */
-	public int skipWhitespace() {
+	public ParserStringBuilder strip() {
 		while (Character.isWhitespace(body.charAt(index))) index++; // 跳过空格
-		return index;
+		return this;
 	}
 
 	@Override
