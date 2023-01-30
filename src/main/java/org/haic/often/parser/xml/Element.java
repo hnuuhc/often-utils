@@ -48,7 +48,7 @@ public class Element {
 					return;
 				}
 				// 文本标签
-				case "textarea", "script", "style" -> {
+				case "textarea", "script", "style", "noscript" -> {
 					int index = node.indexOf("</" + name + ">");
 					var text = node.substring(node.pos(), index).strip();
 					if (!text.isEmpty()) childs.add(text);
@@ -424,7 +424,8 @@ public class Element {
 		if (!tag.isClose() && !childs.isEmpty()) {
 			var name = this.name();
 			switch (name) {
-				case "script", "textarea", "style" -> sb.append("\n").append("    ".repeat(depth)).append(childs.get(0)).append("\n").append("    ".repeat(depth));
+				case "script", "style" -> sb.append("\n").append("    ".repeat(depth)).append(childs.get(0)).append("\n").append("    ".repeat(depth));
+				case "textarea", "noscript" -> sb.append("\n").append("    ".repeat(depth)).append('"').append(childs.get(0)).append('"').append("\n").append("    ".repeat(depth));
 				default -> {
 					if (childs.size() == 1 && childs.get(0) instanceof String s) return sb.append(s).append("</").append(name).append(">").toString();
 					sb.append(childs.toString(depth + 1)).append("\n").append("    ".repeat(depth));
