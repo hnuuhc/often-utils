@@ -115,13 +115,13 @@ public class ParserStringBuilder {
 	}
 
 	public ParserStringBuilder stripLeading() {
-		while (Character.isWhitespace(body.charAt(index))) index++; // 跳过空格
+		while (index < length && Character.isWhitespace(body.charAt(index))) index++; // 跳过空格
 		return this;
 	}
 
 	public ParserStringBuilder stripTrailing() {
 		int i = length - 1;
-		while (Character.isWhitespace(body.charAt(i))) i--; // 跳过空格
+		while (i > 0 && Character.isWhitespace(body.charAt(i))) i--; // 跳过空格
 		this.length = i + 1;
 		return this;
 	}

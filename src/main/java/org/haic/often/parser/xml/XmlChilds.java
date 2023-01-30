@@ -18,7 +18,7 @@ public class XmlChilds extends ArrayList<Object> {
 
 	public String toString(int depth) {
 		StringBuilder sb = new StringBuilder();
-		for (var child : this) sb.append("\n").append(child instanceof Element e ? e.toString(depth) : "    ".repeat(depth) + child);
+		for (var child : this) sb.append("\n").append(child instanceof XmlTree e ? e.toString(depth) : "    ".repeat(depth) + child);
 		return sb.toString();
 	}
 
