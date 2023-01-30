@@ -44,7 +44,7 @@ public class Element {
 		if (isHtml) { // html特殊标签处理后返回
 			switch (name) {
 				// 自闭合标签
-				case "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "feflood", "feblend", "feoffset", "fegaussianblur", "fecomposite", "fecolormatrix", "lineargradient", "radialgradient" -> {
+				case "hr", "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "feflood", "feblend", "feoffset", "fegaussianblur", "fecomposite", "fecolormatrix", "lineargradient", "radialgradient" -> {
 					return;
 				}
 				// 文本标签
@@ -85,9 +85,11 @@ public class Element {
 			}
 
 			var childTag = new Tag(thisChild);
-			if (isHtml && name.equals("a") && name.equals(childTag.name())) return; // 可能不规范的链接标签,需要排序处理
+			if (isHtml) {  // 可能不规范的链接标签,需要排序处理
+				if (name.equals("a") && name.equals(childTag.name())) return;
+				if (name.equals("p") && name.equals(childTag.name())) return;
+			}
 			childs.add(new Element(node.pos(tagtailIndex + 1), childTag, isHtml));
-
 		}
 	}
 
