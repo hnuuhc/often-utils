@@ -80,7 +80,7 @@ public class Element {
 			if (!text.isEmpty()) childs.add(Document.unescape(text)); // 提前写入文本,防止结束返回
 			if (thisChild.charAt(1) == '/') {
 				node.pos(tagtailIndex + 1);
-				if (thisChild.substring(2, thisChild.length() - 1).equals(name)) return; // 结束标签返回上级
+				if (thisChild.substring(2, thisChild.length() - 1).equalsIgnoreCase(name)) return; // 结束标签返回上级
 				else continue; // 错误标签,跳过
 			}
 
