@@ -132,7 +132,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectById(@NotNull String id) {
-		Elements result = new Elements();
+		var result = new Elements();
 		this.forEach(child -> result.addAll(child.selectById(id)));
 		return result;
 	}
@@ -146,7 +146,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByName(@NotNull String name) {
-		Elements result = new Elements();
+		var result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByName(name)));
 		return result;
 	}
@@ -161,7 +161,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByNameAndAttrKey(@NotNull String name, @NotNull String key) {
-		Elements result = new Elements();
+		var result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByNameAndAttrKey(name, key)));
 		return result;
 	}
@@ -177,7 +177,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
-		Elements result = new Elements();
+		var result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByNameAndAttr(name, key, value)));
 		return result;
 	}
@@ -191,7 +191,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key) {
-		Elements result = new Elements();
+		var result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByAttr(key)));
 		return result;
 	}
@@ -206,7 +206,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key, @NotNull String value) {
-		Elements result = new Elements();
+		var result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByAttr(key, value)));
 		return result;
 	}
@@ -235,8 +235,8 @@ public class Elements extends ArrayList<Element> {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (Element child : this) {
+		var sb = new StringBuilder();
+		for (var child : this) {
 			sb.append(child.toString(0)).append("\n");
 		}
 		return sb.toString();

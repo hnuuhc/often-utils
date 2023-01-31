@@ -51,7 +51,7 @@ public class Document extends Element {
 	private Document(@NotNull String type, @NotNull ParserStringBuilder node, @NotNull String tag, boolean isHtml) {
 		super(tag);
 		this.type = type;
-		var tree = (XmlTree) this;
+		var tree = (Element) this;
 		while (node.stripLeading().pos() < node.length() && tree != null) {
 			int tagHeadIndex = node.stripLeading().indexOf("<"); // 获取标签初始位置
 			if (node.startsWith("!--", tagHeadIndex + 1)) {  // 去除注释
@@ -82,12 +82,12 @@ public class Document extends Element {
 				}
 				continue;
 			}
-			XmlTree child;
+			Element child;
 			try {
-				child = new XmlTree(tree, thisChild);
+				child = new Element(tree, thisChild);
 			} catch (ParserStringException e) {
 				thisChild += node.substring(tagtailIndex, tagtailIndex = node.indexOf(">", tagtailIndex) + 1);
-				child = new XmlTree(tree, thisChild);
+				child = new Element(tree, thisChild);
 			}
 			if (isHtml) {  // 可能不规范的标签,需要排序处理
 				switch (child.name()) { // html特殊标签处理后返回

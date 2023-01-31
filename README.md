@@ -10,13 +10,13 @@ Java 网络常用工具类
 mvn clean install
 ```
 
-已上传中央仓库,在Maven依赖中添加:
+在Maven依赖中添加:
 
 ```
 <dependency>
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.1.6</version>
+    <version>1.1.7</version>
 </dependency>
 ```
 

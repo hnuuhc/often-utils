@@ -14,8 +14,12 @@ import java.util.Map;
  */
 public class Element extends XmlTree {
 
-	protected Element(@NotNull String tag) {
+	public Element(@NotNull String tag) {
 		super(tag);
+	}
+
+	public Element(@NotNull XmlTree e, @NotNull String tag) {
+		super(e, tag);
 	}
 
 	/**
