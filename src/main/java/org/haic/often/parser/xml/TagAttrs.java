@@ -1,6 +1,7 @@
 package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
+import org.haic.often.exception.ParserStringException;
 import org.haic.often.parser.ParserStringBuilder;
 
 import java.util.HashMap;
@@ -20,11 +21,12 @@ public class TagAttrs extends HashMap<String, String> {
 	public TagAttrs(@NotNull String tag) {
 		var body = new ParserStringBuilder(tag);
 		int index = body.indexOf(" ");
+
 		if (index == -1) return;
 		do {
 			int end = body.indexOf("=", ++index);
 			if (end == -1) break;
-			var key = body.substring(index, index = end).strip();
+			var key = body.substring(index, index = end).strip().toLowerCase();
 			int keyIndex = key.indexOf(" ");
 			if (keyIndex != -1) {
 				this.put(key.substring(0, keyIndex), null);
@@ -32,11 +34,19 @@ public class TagAttrs extends HashMap<String, String> {
 			}
 			String value;
 			if (body.charAt(++index) == '"') {
-				value = body.substring(++index, index = body.indexOf("\"", index));
-				this.put(key, value);
+				try {
+					value = body.substring(++index, index = body.indexOf("\"", index));
+					this.put(key, value);
+				} catch (StringIndexOutOfBoundsException e) {
+					throw new ParserStringException("找不到闭合符号");
+				}
 			} else if (body.charAt(index) == '\'') {
-				value = body.substring(++index, index = body.indexOf("'", index));
-				this.put(key, value);
+				try {
+					value = body.substring(++index, index = body.indexOf("'", index));
+					this.put(key, value);
+				} catch (StringIndexOutOfBoundsException e) {
+					throw new ParserStringException("找不到闭合符号");
+				}
 			} else if (body.charAt(index) == '&') {
 				value = body.substring(index = body.indexOf(";", index + 1) + 1, index = body.indexOf("&", index + 1));
 				index = body.indexOf(";", index + 1);

@@ -2,6 +2,7 @@ package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -26,8 +27,8 @@ public class XmlTree extends Tag {
 		this.parent = parent;
 	}
 
-	public XmlTree(XmlTree pid, String tag, XmlChilds childs) {
-		this(pid, tag);
+	public XmlTree(XmlTree parent, String tag, XmlChilds childs) {
+		this(parent, tag);
 		this.childs.addAll(childs);
 	}
 
@@ -101,6 +102,51 @@ public class XmlTree extends Tag {
 		return childs().stream().map(l -> l instanceof XmlTree e ? e.text() : l.toString()).filter(l -> !l.isEmpty()).collect(Collectors.joining(" "));
 	}
 
+	/**
+	 * 添加属性
+	 *
+	 * @param key   属性名称
+	 * @param value 属性值
+	 * @return 当前标签
+	 */
+	public XmlTree attr(@NotNull String key, @NotNull String value) {
+		super.attr(key, value);
+		return this;
+	}
+
+	/**
+	 * 为当前标签添加所有属性
+	 *
+	 * @param attrs 属性数组
+	 * @return 当前标签
+	 */
+	public XmlTree addAttrs(@NotNull Map<String, String> attrs) {
+		super.addAttrs(attrs);
+		return this;
+	}
+
+	/**
+	 * 删除当前标签的指定属性
+	 *
+	 * @param key 属性名称
+	 * @return 当前标签
+	 */
+	public XmlTree removeAttr(@NotNull String key) {
+		super.removeAttr(key);
+		return this;
+	}
+
+	/**
+	 * 设置当前节点是否为自闭合(警告: 如果设置为自闭合,在格式化时将不会输出子节点以及文本,查询不受影响)
+	 *
+	 * @param isClose true为是自闭合标签,反之同理
+	 * @return 当前节点
+	 */
+	public XmlTree close(boolean isClose) {
+		super.close(isClose);
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return toString(0);
@@ -108,19 +154,22 @@ public class XmlTree extends Tag {
 
 	public String toString(int depth) {
 		var sb = new StringBuilder().append("    ".repeat(depth)).append(super.toString());
-		if (!isClose() && !childs.isEmpty()) {
-			var name = this.name();
-			switch (name) {
-				case "script", "style" -> sb.append("\n").append("    ".repeat(depth)).append(childs.get(0)).append("\n").append("    ".repeat(depth));
-				case "textarea", "noscript" -> sb.append("\n").append("    ".repeat(depth + 1)).append('"').append(childs.get(0)).append('"').append("\n").append("    ".repeat(depth));
-				default -> {
-					if (childs.size() == 1 && childs.get(0) instanceof String s) return sb.append(s).append("</").append(name).append(">").toString();
-					sb.append(childs.toString(depth + 1)).append("\n").append("    ".repeat(depth));
+		switch (this.name()) {
+			case "script", "style" -> {
+				if (!childs.isEmpty()) sb.append("\n").append("    ".repeat(depth)).append(childs.get(0)).append("\n").append("    ".repeat(depth));
+			}
+			case "textarea", "noscript" -> {
+				if (!childs.isEmpty()) sb.append("\n").append("    ".repeat(depth + 1)).append('"').append(childs.get(0)).append('"').append("\n").append("    ".repeat(depth));
+			}
+			default -> {
+				if (isClose()) return sb.toString();
+				if (!childs.isEmpty()) {
+					if (childs.size() == 1 && childs.get(0) instanceof String s) sb.append(s);
+					else sb.append(childs.toString(depth + 1)).append("\n").append("    ".repeat(depth));
 				}
 			}
-			return sb.append("</").append(name).append(">").toString();
 		}
-		return sb.toString();
+		return sb.append("</").append(this.name()).append(">").toString();
 	}
 
 }

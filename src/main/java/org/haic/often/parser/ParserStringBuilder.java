@@ -80,7 +80,7 @@ public class ParserStringBuilder {
 	 *
 	 * @return 字符串
 	 */
-	public String interceptString() {
+	public String intercept() {
 		char eof = body.charAt(index);
 		StringBuilder sb = new StringBuilder();
 		while (body.charAt(++index) != eof) {

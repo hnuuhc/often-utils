@@ -1,10 +1,8 @@
 package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
+import org.haic.often.exception.ParserStringException;
 import org.haic.often.parser.ParserStringBuilder;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 这是一个html和xml解析器,使用方法为 Document doc = Document.parse(String)
@@ -15,9 +13,7 @@ import java.util.List;
  */
 public class Document extends Element {
 
-	private final String doctype;
-
-	public static final List<String> titleTag = Arrays.asList("h1", "h2", "h3", "h4", "h5");
+	private final String type;
 
 	public static Document parse(String body) {
 		if (body == null) return null;
@@ -52,76 +48,78 @@ public class Document extends Element {
 		}
 	}
 
-	private Document(@NotNull String doctype, @NotNull ParserStringBuilder node, @NotNull String tag, boolean isHtml) {
+	private Document(@NotNull String type, @NotNull ParserStringBuilder node, @NotNull String tag, boolean isHtml) {
 		super(tag);
-		this.doctype = doctype.isEmpty() ? doctype : doctype + "\n";
-		var e = (XmlTree) this;
-		while (node.stripLeading().pos() < node.length() && e != null) {
-			if (e.isClose()) e = e.parent();
-			var name = e.name();
-			if (isHtml) { // html特殊标签处理后返回
-				switch (name) {
-					// 自闭合标签
-					case "hr", "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "feflood", "feblend", "feoffset", "fegaussianblur", "fecomposite", "fecolormatrix", "lineargradient", "radialgradient" -> {
-						e = e.parent();
-						continue;
-					}
-					// 文本标签
-					case "textarea", "script", "style", "noscript" -> {
-						int index = node.stripLeading().indexOf("</" + name + ">");
-						if (index == -1) index = node.indexOf("</" + name.toUpperCase() + ">");
-						var text = node.substring(node.pos(), index).strip();
-						if (!text.isEmpty()) e.addChild(text);
-						node.pos(index + name.length() + 3);
-						e = e.parent();
-						continue;
-					}
-				}
-			}
-
+		this.type = type;
+		var tree = (XmlTree) this;
+		while (node.stripLeading().pos() < node.length() && tree != null) {
 			int tagHeadIndex = node.stripLeading().indexOf("<"); // 获取标签初始位置
 			if (node.startsWith("!--", tagHeadIndex + 1)) {  // 去除注释
 				var text = Document.unescape(node.substring(node.pos(), tagHeadIndex).stripTrailing()).strip();
-				if (!text.isEmpty()) e.addChild(text); // 合法标签之前数据识别为文本
+				if (!text.isEmpty()) tree.addChild(text); // 合法标签之前数据识别为文本
 				node.pos(node.indexOf("-->", tagHeadIndex + 4) + 3);
 				continue;
 			}
-			int tagtailIndex = node.indexOf(">", tagHeadIndex + 1);
-			var thisChild = node.substring(tagHeadIndex, tagtailIndex + 1); // 获取当前子标签
+
+			int tagtailIndex = node.indexOf(">", tagHeadIndex + 1) + 1;
+			var thisChild = node.substring(tagHeadIndex, tagtailIndex); // 获取当前子标签
 			int error = thisChild.indexOf("<", 1); // 检查标签合法性
 			if (error != -1) { // 标签错误,存在多个'<'符号
 				var text = Document.unescape(node.substring(node.pos(), tagHeadIndex + error).stripTrailing()).strip();
-				if (!text.isEmpty()) e.addChild(text); // 合法标签之前数据识别为文本
+				if (!text.isEmpty()) tree.addChild(text); // 合法标签之前数据识别为文本
 				node.pos(tagHeadIndex + error);
 				continue;
 			}
 			var text = Document.unescape(node.substring(node.pos(), tagHeadIndex).stripTrailing()).strip();
-			if (!text.isEmpty()) e.addChild(text); // 提前写入文本,防止结束返回
+			if (!text.isEmpty()) tree.addChild(text); // 提前写入文本,防止结束返回
 			if (thisChild.charAt(1) == '/') {
-				node.pos(tagtailIndex + 1);
-				for (var p = e; p != null; p = p.parent()) {
-					if (thisChild.substring(2, thisChild.length() - 1).equalsIgnoreCase(p.name())) {
-						e = p.parent();
+				node.pos(tagtailIndex);
+				for (var t = tree; t != null; t = t.parent()) {
+					if (thisChild.substring(2, thisChild.length() - 1).equalsIgnoreCase(t.name())) {
+						tree = t.parent();
 						break;
 					}
 				}
 				continue;
 			}
-
-			var child = new XmlTree(e, thisChild);
+			XmlTree child;
+			try {
+				child = new XmlTree(tree, thisChild);
+			} catch (ParserStringException e) {
+				thisChild += node.substring(tagtailIndex, tagtailIndex = node.indexOf(">", tagtailIndex) + 1);
+				child = new XmlTree(tree, thisChild);
+			}
 			if (isHtml) {  // 可能不规范的标签,需要排序处理
-				if (name.equals("a") && name.equals(child.name())) {
-					e = e.parent();
-					continue;
-				}
-				if (name.equals("p") && name.equals(child.name())) {
-					e = e.parent();
-					continue;
+				switch (child.name()) { // html特殊标签处理后返回
+					case "a", "p" -> {   // 可能不规范的标签,需要排序处理
+						if (child.name().equals(tree.name())) {
+							tree = tree.parent();
+							tree.addChild(child);
+							node.pos(tagtailIndex);
+							continue;
+						}
+					}
+					// 自闭合标签
+					case "hr", "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "feflood", "feblend", "feoffset", "fegaussianblur", "fecomposite", "fecolormatrix", "lineargradient", "radialgradient" -> {
+						tree.addChild(child.close(true));
+						node.pos(tagtailIndex);
+						continue;
+					}
+					// 文本标签
+					case "textarea", "script", "style", "noscript" -> {
+						int index = node.indexOf("</" + child.name() + ">", tagtailIndex);
+						if (index == -1) index = node.indexOf("</" + child.name().toUpperCase() + ">");
+						var t = node.substring(tagtailIndex, index).strip();
+						if (!t.isEmpty()) child.addChild(t);
+						node.pos(index + child.name().length() + 3);
+						tree.addChild(child);
+						continue;
+					}
 				}
 			}
-			e.addChild(child);
-			e = child;
-			node.pos(tagtailIndex + 1);
+			tree.addChild(child);
+			node.pos(tagtailIndex);
+			if (!child.isClose()) tree = child;
 		}
 
 	}
@@ -165,7 +163,7 @@ public class Document extends Element {
 
 	@Override
 	public String toString() {
-		return doctype + super.toString(0);
+		return type.isEmpty() ? super.toString() : type + "\n" + super.toString();
 	}
 
 }

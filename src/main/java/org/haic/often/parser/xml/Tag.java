@@ -20,7 +20,7 @@ public class Tag {
 	public Tag(@NotNull String tag) {
 		this.isClose = tag.charAt(tag.length() - 2) == '/';
 		int index = tag.indexOf(" ");
-		this.name = (index == -1 ? tag.substring(1, tag.length() - (isClose ? 2 : 1)) : tag.substring(1, tag.indexOf(" "))).strip().toLowerCase();
+		this.name = (index == -1 ? tag.substring(1, tag.length() - (isClose ? 2 : 1)) : tag.substring(1, index)).strip().toLowerCase();
 		this.attrs = new TagAttrs(tag);
 	}
 

@@ -38,7 +38,7 @@ public class JSONArray extends ArrayList<Object> {
 				while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
 				switch (body.charAt(i)) {
 					case '"', '\'' -> {
-						String value = body.pos(i).interceptString();
+						String value = body.pos(i).intercept();
 						i = body.pos() + 1;
 						this.add(value);
 					}

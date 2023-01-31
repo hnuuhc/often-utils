@@ -41,7 +41,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			String key;
 			switch (body.charAt(i)) {
 				case '"', '\'' -> {
-					key = body.pos(i).interceptString();
+					key = body.pos(i).intercept();
 					i = body.pos() + 1;
 				}
 				default -> {
@@ -55,7 +55,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 			do i++; while (Character.isWhitespace(body.charAt(i))); // 跳过空格
 			switch (body.charAt(i)) {
 				case '"', '\'' -> { // 键可能不存在引号
-					String value = body.pos(i).interceptString();
+					String value = body.pos(i).intercept();
 					i = body.pos() + 1;
 					this.put(key, value);
 				}
