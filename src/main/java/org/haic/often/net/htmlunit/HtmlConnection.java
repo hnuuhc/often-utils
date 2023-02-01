@@ -205,7 +205,21 @@ public abstract class HtmlConnection {
 	public abstract HtmlConnection data(@NotNull Map<String, String> params);
 
 	/**
-	 * 设置 POST（或 PUT）请求正文<br/> 当服务器需要一个普通请求正文，而不是一组 URL 编码形式的键/值对时很有用<br/> 一般为JSON格式,若不是则作为普通数据发送
+	 * 设置 POST（或 PUT）请求正文<br/>
+	 * 此方法首先调用 String.valueOf(x) 以获取打印对象的字符串值,用以调用 {@link #requestBody(String)}
+	 *
+	 * @param body 请求正文
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public HtmlConnection requestBody(@NotNull Object body) {
+		return requestBody(String.valueOf(body));
+	}
+
+	/**
+	 * 设置 POST（或 PUT）请求正文<br/>
+	 * 当服务器需要一个普通请求正文，而不是一组 URL 编码形式的键/值对时很有用<br/>
+	 * 一般为JSON格式,若不是则作为普通数据发送
 	 *
 	 * @param body 请求正文
 	 * @return 此连接，用于链接
