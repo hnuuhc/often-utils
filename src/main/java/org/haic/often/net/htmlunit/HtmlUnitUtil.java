@@ -499,6 +499,7 @@ public class HtmlUnitUtil {
 
 		@Contract(pure = true)
 		protected ByteArrayOutputStream bodyAsByteArray() {
+			if (this.body != null) return this.body;
 			try (InputStream in = bodyStream()) {
 				this.body = IOUtil.stream(in).toByteArrayOutputStream();
 			} catch (Exception e) {
