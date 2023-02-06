@@ -4,6 +4,7 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Element数组,用于存储多个标签节点
@@ -97,11 +98,10 @@ public class Elements extends ArrayList<Element> {
 			} else {
 				int index = querys[i].indexOf("[");
 				if (index == -1) {
-					result = result.selectByName(querys[i]); // 查询标签名
+					result = querys[i].startsWith("!") ? result.selectByNoName(querys[i].substring(1)) : result.selectByName(querys[i]);
 				} else {
 					var name = querys[i].substring(0, index);
-					result = result.selectByName(name); // 查询标签名
-					String attr = querys[i];
+					var attr = querys[i];
 					if (!attr.endsWith("]")) { // 属性值中存在空格,重新拼接
 						do { // 可能存在多个空格
 							//noinspection StringConcatenationInLoop
@@ -111,11 +111,11 @@ public class Elements extends ArrayList<Element> {
 					attr = attr.substring(index + 1, attr.length() - 1);
 					int indexAttr = attr.indexOf("=");
 					if (indexAttr == -1) { // 不存在等号
-						result = result.selectByNameAndAttrKey(name, attr); // 查询标签名
+						result = attr.startsWith("!") ? result.selectByNameAndNoAttr(name, attr.substring(1)) : result.selectByNameAndAttr(name, attr);
 					} else {
 						var key = attr.substring(0, indexAttr);
 						var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
-						result = result.selectByNameAndAttr(name, key, value); // 查询标签名
+						result = key.endsWith("!") ? result.selectByNameAndNoAttr(name, key.substring(0, key.length() - 1), value) : result.selectByNameAndAttr(name, key, value);
 					}
 				}
 			}
@@ -152,6 +152,18 @@ public class Elements extends ArrayList<Element> {
 	}
 
 	/**
+	 * 排除标签名称查询标签
+	 *
+	 * @param name 标签名称
+	 * @return 查询结果
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Elements selectByNoName(@NotNull String name) {
+		return this.stream().filter(l -> !l.name().equals(name)).collect(Collectors.toCollection(Elements::new));
+	}
+
+	/**
 	 * 按照标签名称和属性名查询标签
 	 *
 	 * @param name 标签名称
@@ -160,9 +172,24 @@ public class Elements extends ArrayList<Element> {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public Elements selectByNameAndAttrKey(@NotNull String name, @NotNull String key) {
+	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key) {
 		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectByNameAndAttrKey(name, key)));
+		this.forEach(child -> result.addAll(child.selectByNameAndAttr(name, key)));
+		return result;
+	}
+
+	/**
+	 * 按照标签名称和排除属性名查询标签
+	 *
+	 * @param name 标签名称
+	 * @param key  属性名
+	 * @return 查询结果
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Elements selectByNameAndNoAttr(@NotNull String name, @NotNull String key) {
+		var result = new Elements();
+		this.forEach(child -> result.addAll(child.selectByNameAndNoAttr(name, key)));
 		return result;
 	}
 
@@ -179,6 +206,22 @@ public class Elements extends ArrayList<Element> {
 	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
 		var result = new Elements();
 		this.forEach(child -> result.addAll(child.selectByNameAndAttr(name, key, value)));
+		return result;
+	}
+
+	/**
+	 * 按照标签名称和排除属性值查询标签
+	 *
+	 * @param name  标签名称
+	 * @param key   属性名
+	 * @param value 属性值
+	 * @return 查询结果
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Elements selectByNameAndNoAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
+		var result = new Elements();
+		this.forEach(child -> result.addAll(child.selectByNameAndNoAttr(name, key, value)));
 		return result;
 	}
 
@@ -236,9 +279,7 @@ public class Elements extends ArrayList<Element> {
 	@Override
 	public String toString() {
 		var sb = new StringBuilder();
-		for (var child : this) {
-			sb.append(child.toString(0)).append("\n");
-		}
+		for (var child : this) sb.append(child.toString(0)).append("\n");
 		return sb.toString();
 	}
 

@@ -87,19 +87,19 @@ public class XmlTree extends Tag {
 	}
 
 	/**
-	 * 获取当前节点的所有子节点
+	 * 获取当前节点的所有子元素
 	 *
-	 * @return 所有子节点
+	 * @return 所有子元素
 	 */
 	public XmlChilds childs() {
 		return childs;
 	}
 
 	/**
-	 * 获取指定索引的子节点
+	 * 获取指定索引的子元素
 	 *
 	 * @param i 指定索引参数
-	 * @return 子节点
+	 * @return 子元素
 	 */
 	public Object child(int i) {
 		return childs.get(i);

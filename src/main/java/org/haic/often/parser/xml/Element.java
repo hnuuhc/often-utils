@@ -5,6 +5,7 @@ import org.haic.often.annotations.NotNull;
 
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * xml解析器
@@ -64,13 +65,8 @@ public class Element extends XmlTree {
 	@Contract(pure = true)
 	public Elements selectById(@NotNull String id) {
 		var result = new Elements();
-		if (id.equals(attr("id"))) {
-			result.add(this);
-			return result;
-		}
-		for (var child : childs()) {
-			if (child instanceof Element e) result.addAll(e.selectById(id));
-		}
+		if (id.equals(attr("id"))) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectById(id));
 		return result;
 	}
 
@@ -84,14 +80,21 @@ public class Element extends XmlTree {
 	@Contract(pure = true)
 	public Elements selectByName(@NotNull String name) {
 		var result = new Elements();
-		if (name().equals(name)) {
-			result.add(this);
-			return result;
-		}
-		for (var child : childs()) {
-			if (child instanceof Element e) result.addAll(e.selectByName(name));
-		}
+		if (name().equals(name)) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectByName(name));
 		return result;
+	}
+
+	/**
+	 * 排除标签名称查询标签
+	 *
+	 * @param name 标签名称
+	 * @return 查询结果
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Elements selectByNoName(@NotNull String name) {
+		return this.childs().stream().filter(l -> l instanceof Element e && !e.name().equals(name)).map(l -> (Element) l).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
@@ -103,15 +106,26 @@ public class Element extends XmlTree {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public Elements selectByNameAndAttrKey(@NotNull String name, @NotNull String key) {
+	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key) {
 		var result = new Elements();
-		if (name().equals(name) && containsAttr(key)) {
-			result.add(this);
-			return result;
-		}
-		for (var child : childs()) {
-			if (child instanceof Element e) result.addAll(e.selectByNameAndAttrKey(name, key));
-		}
+		if (name().equals(name) && containsAttr(key)) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectByNameAndAttr(name, key));
+		return result;
+	}
+
+	/**
+	 * 按照标签名称和排除属性名查询标签
+	 *
+	 * @param name 标签名称
+	 * @param key  属性名
+	 * @return 查询结果
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Elements selectByNameAndNoAttr(@NotNull String name, @NotNull String key) {
+		var result = new Elements();
+		if (name().equals(name) && !containsAttr(key)) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectByNameAndNoAttr(name, key));
 		return result;
 	}
 
@@ -127,13 +141,25 @@ public class Element extends XmlTree {
 	@Contract(pure = true)
 	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
 		var result = new Elements();
-		if (name().equals(name) && containsAttr(key) && value.equals(attr(key))) {
-			result.add(this);
-			return result;
-		}
-		for (var child : childs()) {
-			if (child instanceof Element e) result.addAll(e.selectByNameAndAttr(name, key, value));
-		}
+		if (name().equals(name) && containsAttr(key) && value.equals(attr(key))) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectByNameAndAttr(name, key, value));
+		return result;
+	}
+
+	/**
+	 * 按照标签名称和排除属性值查询标签
+	 *
+	 * @param name  标签名称
+	 * @param key   属性名
+	 * @param value 属性值
+	 * @return 查询结果
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Elements selectByNameAndNoAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
+		var result = new Elements();
+		if (name().equals(name) && containsAttr(key) && !value.equals(attr(key))) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectByNameAndNoAttr(name, key, value));
 		return result;
 	}
 
@@ -147,13 +173,8 @@ public class Element extends XmlTree {
 	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key) {
 		var result = new Elements();
-		if (containsAttr(key)) {
-			result.add(this);
-			return result;
-		}
-		for (var child : childs()) {
-			if (child instanceof Element e) result.addAll(e.selectByAttr(key));
-		}
+		if (containsAttr(key)) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectByAttr(key));
 		return result;
 	}
 
@@ -168,13 +189,8 @@ public class Element extends XmlTree {
 	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key, @NotNull String value) {
 		var result = new Elements();
-		if (containsAttr(key) && value.equals(attr(key))) {
-			result.add(this);
-			return result;
-		}
-		for (var child : childs()) {
-			if (child instanceof Element e) result.addAll(e.selectByAttr(key, value));
-		}
+		if (containsAttr(key) && value.equals(attr(key))) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectByAttr(key, value));
 		return result;
 	}
 
