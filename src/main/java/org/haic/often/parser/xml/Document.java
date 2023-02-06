@@ -125,6 +125,24 @@ public class Document extends Element {
 	}
 
 	/**
+	 * 返回html文档的html.head元素,如果不存在body,则会发生异常
+	 *
+	 * @return BODY元素
+	 */
+	public Element head() {
+		return (Element) this.childs().stream().filter(l -> l instanceof XmlTree e && e.name().equals("head")).findFirst().orElseThrow();
+	}
+
+	/**
+	 * 返回html文档的html.body元素,如果不存在body,则会发生异常
+	 *
+	 * @return BODY元素
+	 */
+	public Element body() {
+		return (Element) this.childs().stream().filter(l -> l instanceof XmlTree e && e.name().equals("body")).findFirst().orElseThrow();
+	}
+
+	/**
 	 * 反转义当前字符串,如果存在未知转义符,则不做转义处理
 	 *
 	 * @param s 待反转义字符串
