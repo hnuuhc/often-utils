@@ -34,8 +34,9 @@ import java.util.stream.Collectors;
  */
 public class HtmlUnitUtil {
 
-	static {
-		Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF); // 屏蔽HtmlUnit日志
+	static {  // 屏蔽HtmlUnit日志
+		Logger.getLogger("org.apache.http").setLevel(Level.OFF);
+		Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 	}
 
 	private HtmlUnitUtil() {
