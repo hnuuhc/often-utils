@@ -166,6 +166,19 @@ public abstract class HtmlConnection {
 	public abstract HtmlConnection cookies(@NotNull Map<String, String> cookies);
 
 	/**
+	 * 连接 cookies
+	 * <p>
+	 * 将每个提供的 cookie 添加到请求中
+	 *
+	 * @param cookies cookie字符串
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public HtmlConnection cookies(@NotNull String cookies) {
+		return header("cookie", cookies);
+	}
+
+	/**
 	 * 连接 cookies （ Map < String  , String  >cookies）
 	 * <p>
 	 * 将为连接设置全新的 cookie
