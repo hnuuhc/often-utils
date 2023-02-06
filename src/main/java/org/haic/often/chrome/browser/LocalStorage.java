@@ -88,11 +88,13 @@ public class LocalStorage {
 
 		private ChromeBrowser(File home) {
 			storage = new File(new File(this.home = home, "Default"), "Local Storage\\leveldb");
+			if (!storage.exists()) throw new RuntimeException("未找到 Local Storage leveldb 目录");
 		}
 
 		@Contract(pure = true)
 		public Browser setProfile(@NotNull String name) {
 			storage = new File(new File(home, Judge.isEmpty(name) ? "Default" : JSONObject.parseObject(ReadWriteUtil.orgin(new File(home, "Local State")).read()).getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey()), "Local Storage\\leveldb");
+			if (!storage.exists()) throw new RuntimeException("未找到 Local Storage leveldb 目录");
 			return this;
 		}
 
