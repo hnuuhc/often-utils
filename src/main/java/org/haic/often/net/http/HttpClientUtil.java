@@ -1,5 +1,6 @@
 package org.haic.often.net.http;
 
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -59,6 +60,11 @@ import java.util.stream.Collectors;
  * @since 2022/2/20 9:51
  */
 public class HttpClientUtil {
+
+	static {  // 屏蔽HtmlUnit日志
+		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
+		Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
+	}
 
 	private HttpClientUtil() {
 	}

@@ -2,6 +2,7 @@ package org.haic.often.net.htmlunit;
 
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import org.apache.commons.logging.LogFactory;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
@@ -35,8 +36,9 @@ import java.util.stream.Collectors;
 public class HtmlUnitUtil {
 
 	static {  // 屏蔽HtmlUnit日志
-		Logger.getLogger("org.apache.http").setLevel(Level.OFF);
-		Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
+		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
+		Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF);
+		Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
 	}
 
 	private HtmlUnitUtil() {
