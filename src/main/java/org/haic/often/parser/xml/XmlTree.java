@@ -3,6 +3,7 @@ package org.haic.often.parser.xml;
 import org.haic.often.annotations.NotNull;
 
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +63,17 @@ public class XmlTree extends Tag {
 	 */
 	public XmlTree removeChild(int i) {
 		this.childs.remove(i);
+		return this;
+	}
+
+	/**
+	 * 删除满足条件的子节点
+	 *
+	 * @param filter 条件函数
+	 * @return 当前节点
+	 */
+	public XmlTree removeIf(Predicate<Object> filter) {
+		this.childs.removeIf(filter);
 		return this;
 	}
 
@@ -159,7 +171,13 @@ public class XmlTree extends Tag {
 				if (!childs.isEmpty()) sb.append("\n").append("    ".repeat(depth)).append(childs.get(0)).append("\n").append("    ".repeat(depth));
 			}
 			case "textarea", "noscript" -> {
-				if (!childs.isEmpty()) sb.append("\n").append("    ".repeat(depth + 1)).append('"').append(childs.get(0)).append('"').append("\n").append("    ".repeat(depth));
+				if (!childs.isEmpty()) {
+					var text = (String) childs.get(0);
+					sb.append("\n").append("    ".repeat(depth + 1));
+					if (text.startsWith("\"")) sb.append(text);
+					else sb.append('"').append(text).append('"');
+					sb.append("\n").append("    ".repeat(depth));
+				}
 			}
 			default -> {
 				if (isClose()) return sb.toString();

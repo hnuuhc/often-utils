@@ -4,6 +4,7 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * xml解析器
@@ -252,6 +253,17 @@ public class Element extends XmlTree {
 	 */
 	public Element removeChild(int i) {
 		super.removeChild(i);
+		return this;
+	}
+
+	/**
+	 * 删除满足条件的子节点
+	 *
+	 * @param filter 条件函数
+	 * @return 当前节点
+	 */
+	public Element removeIf(Predicate<Object> filter) {
+		super.removeIf(filter);
 		return this;
 	}
 
