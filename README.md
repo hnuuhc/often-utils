@@ -16,14 +16,14 @@ mvn clean install
 <dependency>
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.1.7</version>
+    <version>1.1.8</version>
 </dependency>
 ```
 
 简介:
 ----
 
-在日常网络操作中,针对经常遇到的一些问题,设计的一些常用类,目的是使代码简洁且高效,重复且复杂的操作尽可能由一段代码完成,并且尽可能的使用Java
+在日常网络操作中,针对经常遇到的一些问题,设计的一些常用类,目的是使代码简洁且高效,重复且复杂的操作尽可能由一段代码完成,并且尽可能地使用Java
 
 文件下载工具类
 ------------
@@ -107,6 +107,7 @@ JSON解析器
 ```
 JSONObject json = JSONObject.parseObject(String); // 构建JSON对象
 JSONArray json = JSONArray.parseArray(String); // 构建JSON数组
+json.select(".cc[0]",Class); // 位置索引
 ```
 
 文件读写工具类

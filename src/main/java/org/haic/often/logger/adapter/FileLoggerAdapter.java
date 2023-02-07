@@ -32,7 +32,7 @@ public final class FileLoggerAdapter extends LoggerAdapter {
 	private static final SimpleDateFormat FILE_SUFFIX_FORMAT = new SimpleDateFormat(".yyyy-MM-dd");
 
 	public FileLoggerAdapter() {
-		final PrintStream output = this.buildOutput();
+		var output = this.buildOutput();
 		this.output = output;
 		this.errorOutput = output;
 	}
@@ -72,9 +72,7 @@ public final class FileLoggerAdapter extends LoggerAdapter {
 		File file = new File(LoggerConfig.getFileName() + FILE_SUFFIX_FORMAT.format(new Date()) + ".log");
 		// 创建上级目录
 		final File parent = file.getParentFile();
-		if (parent != null) {
-			FileUtil.createFolder(parent);
-		}
+		if (parent != null) FileUtil.createFolder(parent);
 		return file;
 	}
 
