@@ -429,7 +429,7 @@ public class HtmlUnitUtil {
 
 			String redirectUrl; // 修复重定向
 			if (webClient.getOptions().isRedirectEnabled() && URIUtil.statusIsOK(response.statusCode()) && !Judge.isEmpty(redirectUrl = response.header("location"))) {
-				url(redirectUrl);
+				url(redirectUrl).method(Method.GET); // 跳转修正为GET
 				response = executeProgram(request);
 			}
 

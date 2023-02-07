@@ -352,11 +352,11 @@ public class HttpsUtil {
 		@NotNull
 		@Contract(pure = true)
 		public Response execute() {
-			Response response = executeProgram(url, params);
+			Response response = executeProgram(url, method, params);
 			int statusCode = response.statusCode();
 			for (int i = 0; (URIUtil.statusIsTimeout(statusCode) || retryStatusCodes.contains(statusCode)) && (i < retry || unlimit); i++) {
 				ThreadUtil.waitThread(MILLISECONDS_SLEEP); // 程序等待
-				response = executeProgram(url, params);
+				response = executeProgram(url, method, params);
 				statusCode = response.statusCode();
 			}
 			if (failThrow && !URIUtil.statusIsNormal(statusCode)) {
@@ -372,7 +372,7 @@ public class HttpsUtil {
 		 */
 		@NotNull
 		@Contract(pure = true)
-		private Response executeProgram(@NotNull String requestUrl, @NotNull String params) {
+		private Response executeProgram(@NotNull String requestUrl, @NotNull Method method, @NotNull String params) {
 			try {
 				HttpURLConnection conn;
 				switch (method) {
@@ -419,7 +419,7 @@ public class HttpsUtil {
 
 				String redirectUrl; // 修复重定向
 				if (followRedirects && URIUtil.statusIsNormal(res.statusCode()) && !Judge.isEmpty(redirectUrl = res.header("location"))) {
-					return executeProgram(URIUtil.toAbsoluteUrl(requestUrl, redirectUrl), "");
+					return executeProgram(URIUtil.toAbsoluteUrl(requestUrl, redirectUrl), Method.GET, "");  // 跳转修正为GET
 				}
 				return res;
 			} catch (IOException e) {

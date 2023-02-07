@@ -453,7 +453,7 @@ public class HttpClientUtil {
 
 			String redirectUrl; // 修复重定向
 			if (followRedirects && URIUtil.statusIsOK(response.statusCode()) && !Judge.isEmpty(redirectUrl = response.header("location"))) {
-				response = url(redirectUrl).execute();
+				response = url(redirectUrl).method(Method.GET).execute();  // 跳转修正为GET
 			}
 
 			return response;
