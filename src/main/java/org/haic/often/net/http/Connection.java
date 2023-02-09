@@ -8,6 +8,8 @@ import org.haic.often.parser.xml.Document;
 
 import javax.net.ssl.SSLContext;
 import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
@@ -363,6 +365,25 @@ public abstract class Connection {
 	public abstract Connection socks(@NotNull String host, int port);
 
 	/**
+	 * 设置用于此请求的 SOCKS 代理
+	 *
+	 * @param host     代理地址
+	 * @param port     代理端口
+	 * @param user     用户
+	 * @param password 密码
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public Connection socks(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
+		Authenticator.setDefault(new Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(user, password.toCharArray());
+			}
+		});
+		return socks(host, port);
+	}
+
+	/**
 	 * 连接代理（ @NotNull  Proxy 代理）<br/>
 	 * 设置用于此请求的代理
 	 *
@@ -389,6 +410,26 @@ public abstract class Connection {
 	 */
 	@Contract(pure = true)
 	public abstract Connection proxy(@NotNull String host, int port);
+
+	/**
+	 * 连接代理（ @NotNull  Proxy 代理）<br/>
+	 * 设置用于此请求的代理
+	 *
+	 * @param host     代理地址
+	 * @param port     代理端口
+	 * @param user     用户
+	 * @param password 密码
+	 * @return 此连接，用于链接
+	 */
+	@Contract(pure = true)
+	public Connection proxy(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
+		Authenticator.setDefault(new Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(user, password.toCharArray());
+			}
+		});
+		return proxy(host, port);
+	}
 
 	/**
 	 * 连接代理（ @NotNull  Proxy 代理）<br/>
