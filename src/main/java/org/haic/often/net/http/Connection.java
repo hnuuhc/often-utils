@@ -340,12 +340,15 @@ public abstract class Connection {
 
 	/**
 	 * 设置用于此请求的 SOCKS 代理
+	 * <p>
+	 * 如果参数为空,则不使用代理,等同于 proxy(Proxy.NO_PROXY)
 	 *
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
 	public Connection socks(@NotNull String ipAddr) {
+		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
 			return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 		} else {
@@ -384,14 +387,18 @@ public abstract class Connection {
 	}
 
 	/**
-	 * 连接代理（ @NotNull  Proxy 代理）<br/>
+	 * 连接代理（ @NotNull  Proxy 代理）
+	 * <p>
 	 * 设置用于此请求的代理
+	 * <p>
+	 * 如果参数为空,则不使用代理,等同于 proxy(Proxy.NO_PROXY)
 	 *
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
 	public Connection proxy(@NotNull String ipAddr) {
+		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
 			return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 		} else {
