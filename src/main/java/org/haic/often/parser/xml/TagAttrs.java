@@ -1,7 +1,6 @@
 package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
-import org.haic.often.exception.ParserStringException;
 import org.haic.often.parser.ParserStringBuilder;
 
 import java.util.HashMap;
@@ -18,45 +17,33 @@ public class TagAttrs extends HashMap<String, String> {
 
 	public TagAttrs() {super();}
 
-	public TagAttrs(@NotNull String tag) {
-		var body = new ParserStringBuilder(tag);
-		int index = body.indexOf(" ");
-
-		if (index == -1) return;
-		do {
-			int end = body.indexOf("=", ++index);
-			if (end == -1) break;
-			var key = body.substring(index, index = end).strip().toLowerCase();
-			int keyIndex = key.indexOf(" ");
-			if (keyIndex != -1) {
-				this.put(key.substring(0, keyIndex), null);
-				key = key.substring(keyIndex + 1);
-			}
-			String value;
-			if (body.charAt(++index) == '"') {
-				try {
-					value = body.substring(++index, index = body.indexOf("\"", index));
-					this.put(key, value);
-				} catch (StringIndexOutOfBoundsException e) {
-					throw new ParserStringException("找不到闭合符号");
+	protected TagAttrs(@NotNull ParserStringBuilder node) {
+		node:
+		for (var c = node.offset(1).charAt(); c != '>'; c = node.offset(1).charAt()) {
+			if (c == ' ') continue;
+			if (c == '<') return;
+			if (node.charAt() == '/' && node.charAt(node.pos() + 1) == '>') return;
+			var key = new StringBuilder();
+			for (var ck = node.charAt(); ck != '='; ck = node.offset(1).charAt()) {
+				if (node.charAt() == ' ') {
+					this.put(key.toString(), null);
+					continue node;
 				}
-			} else if (body.charAt(index) == '\'') {
-				try {
-					value = body.substring(++index, index = body.indexOf("'", index));
-					this.put(key, value);
-				} catch (StringIndexOutOfBoundsException e) {
-					throw new ParserStringException("找不到闭合符号");
-				}
-			} else if (body.charAt(index) == '&') {
-				value = body.substring(index = body.indexOf(";", index + 1) + 1, index = body.indexOf("&", index + 1));
-				index = body.indexOf(";", index + 1);
-				this.put(key, value);
-			} else {
-				int thisEnd = body.indexOf(" ", index + 1);
-				value = body.substring(index, index = thisEnd == -1 ? body.charAt(body.length() - 2) == '/' ? body.length() - 2 : body.length() - 1 : thisEnd).strip();
+				key.append(ck);
 			}
-			this.put(key, Document.unescape(value));
-		} while (++index < body.length() && body.charAt(index) != '/' && body.charAt(index) != '>');
+			switch (node.offset(1).charAt()) {
+				case '"', '\'' -> this.put(key.toString(), node.intercept());
+				case '&' -> {
+					if (node.startsWith("&quot;")) {
+						int index = node.offset(6).indexOf("&quot;");
+						this.put(key.toString(), node.offset(6).substring(node.pos(), index));
+						node.offset(5);
+					} else {
+						throw new IllegalArgumentException("在索引 " + node.pos() + " 处存在未知意义符号");
+					}
+				}
+			}
+		}
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
+import org.haic.often.parser.ParserStringBuilder;
 
 import java.util.Map;
 
@@ -13,21 +14,37 @@ import java.util.Map;
  */
 public class Tag {
 
-	private final String name;
-	private final TagAttrs attrs;
+	private String name;
+	private TagAttrs attrs;
 	private boolean isClose;
 
-	public Tag(@NotNull String tag) {
-		this.isClose = tag.charAt(tag.length() - 2) == '/';
-		int index = tag.indexOf(" ");
-		this.name = (index == -1 ? tag.substring(1, tag.length() - (isClose ? 2 : 1)) : tag.substring(1, index)).strip().toLowerCase();
-		this.attrs = new TagAttrs(tag);
-	}
-
-	public Tag(@NotNull String name, @NotNull TagAttrs attrs, boolean close) {
-		this.name = name;
-		this.attrs = attrs;
-		this.isClose = close;
+	protected Tag(@NotNull ParserStringBuilder node) {
+		if (node.offset(1).charAt() == '/') return; // 结束标签
+		var name = new StringBuilder();
+		for (var c = node.charAt(); c != '>'; c = node.offset(1).charAt()) {
+			if (c == '/' && node.charAt(node.pos() + 1) == '>') {
+				var e = node.charAt(node.pos() + 1);
+				if (e == '>' || (e == ' ' && node.stripLeading().charAt() == '>')) {
+					this.isClose = true;
+					this.attrs = new TagAttrs();
+					node.offset(1);
+					break;
+				}
+				throw new IllegalArgumentException("在索引 " + node.pos() + " 处存在未知意义 '/' 符号");
+			}
+			if (c == ' ') {
+				this.attrs = new TagAttrs(node);
+				if (node.charAt() == '/') {
+					this.isClose = true;
+					node.offset(1);
+				}
+				break;
+			}
+			if (c == '<') return;
+			name.append(c);
+		}
+		this.name = name.toString().strip().toLowerCase();
+		if (this.attrs == null) this.attrs = new TagAttrs();
 	}
 
 	/**

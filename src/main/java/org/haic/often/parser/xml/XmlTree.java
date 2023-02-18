@@ -1,6 +1,7 @@
 package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
+import org.haic.often.parser.ParserStringBuilder;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -19,18 +20,9 @@ public class XmlTree extends Tag {
 
 	private final XmlChilds childs = new XmlChilds();
 
-	public XmlTree(String tag) {
-		this(null, tag);
-	}
-
-	public XmlTree(XmlTree parent, String tag) {
-		super(tag);
+	protected XmlTree(XmlTree parent, @NotNull ParserStringBuilder node) {
+		super(node);
 		this.parent = parent;
-	}
-
-	public XmlTree(XmlTree parent, String tag, XmlChilds childs) {
-		this(parent, tag);
-		this.childs.addAll(childs);
 	}
 
 	/**

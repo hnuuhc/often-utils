@@ -29,6 +29,10 @@ public class ParserStringBuilder {
 		return body.startsWith(prefix, index);
 	}
 
+	public char charAt() {
+		return body.charAt(index);
+	}
+
 	public char charAt(int index) {
 		return body.charAt(index);
 	}
@@ -46,8 +50,8 @@ public class ParserStringBuilder {
 		return this;
 	}
 
-	public ParserStringBuilder offset(int index) {
-		this.index += index;
+	public ParserStringBuilder offset(int i) {
+		this.index += i;
 		return this;
 	}
 
@@ -82,7 +86,7 @@ public class ParserStringBuilder {
 	 */
 	public String intercept() {
 		char eof = body.charAt(index);
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		while (body.charAt(++index) != eof) {
 			if (body.charAt(index) == '\\') {
 				switch (body.charAt(++index)) {
@@ -93,7 +97,8 @@ public class ParserStringBuilder {
 					case '"' -> sb.append('"');
 					case 'r' -> sb.append("\\r");
 					case 'n' -> sb.append("\\n");
-					case '0' -> {}
+					case '0' -> sb.append((char) Integer.parseInt(body.substring(++index, ++index + 1), 8));
+					case 'x' -> sb.append((char) Integer.parseInt(body.substring(++index, ++index + 1), 16));
 					case '\r' -> throw new JSONException("存在非法换行符: \\r");
 					case '\n' -> throw new JSONException("存在非法换行符: \\n");
 					default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));

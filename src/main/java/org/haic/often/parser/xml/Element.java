@@ -2,6 +2,7 @@ package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
+import org.haic.often.parser.ParserStringBuilder;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -16,12 +17,8 @@ import java.util.stream.Collectors;
  */
 public class Element extends XmlTree {
 
-	public Element(@NotNull String tag) {
-		super(tag);
-	}
-
-	public Element(@NotNull XmlTree e, @NotNull String tag) {
-		super(e, tag);
+	protected Element(XmlTree parent, @NotNull ParserStringBuilder node) {
+		super(parent, node);
 	}
 
 	/**

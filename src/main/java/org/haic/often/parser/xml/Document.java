@@ -1,11 +1,12 @@
 package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
-import org.haic.often.exception.ParserStringException;
 import org.haic.often.parser.ParserStringBuilder;
 
 /**
  * 这是一个html和xml解析器,使用方法为 Document doc = Document.parse(String)
+ * <p>
+ * 重要警告: 由于格式化时自动完成转义,已经格式化的文本不可再次被解析
  *
  * @author haicdust
  * @version 1.0
@@ -25,35 +26,31 @@ public class Document extends Element {
 			var type = sb.substring(sb.pos(), typeTail);
 			sb.pos(typeTail); // 更新位置
 			while (sb.stripLeading().startsWith("<!--")) sb.pos(sb.indexOf("-->", sb.pos() + 4) + 3); // 去除注释
-			var start = sb.pos();
-			var tail = sb.indexOf(">", start + 5) + 1;
-			return new Document(type, sb.pos(tail), sb.substring(start, tail), true);
+			return new Document(type, sb, true);
 		} else if (sb.startsWith("<?")) {
 			var typeTail = sb.indexOf(">", sb.pos() + 2) + 1;
 			var type = sb.substring(sb.pos(), typeTail);
 			sb.pos(typeTail); // 更新位置
 			while (sb.stripLeading().startsWith("<!--")) sb.pos(sb.indexOf("-->", sb.pos() + 4) + 3); // 去除注释
 			var name = sb.substring(sb.lastIndexOf("<") + 2, sb.lastIndexOf(">"));
-			var start = sb.indexOf("<" + name);
-			var tail = sb.indexOf(">", start + name.length() + 1) + 1;
-			return new Document(type, sb.pos(tail), sb.substring(start, tail), false);
+			return new Document(type, sb.pos(sb.indexOf("<" + name)), false);
 		} else if (sb.startsWith("<html")) {
-			var start = sb.pos();
-			var tail = sb.indexOf(">", 1) + 1;
-			return new Document("", sb.pos(tail), sb.substring(start, tail), true);
+			return new Document("", sb, true);
 		} else if (sb.startsWith("<body")) {
-			return new Document("", new ParserStringBuilder("<html><head></head>" + (sb.pos() == 0 ? sb : sb.substring(sb.pos())) + "</html>").pos(6), "<html>", true);
+			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>"), true);
 		} else {
-			return new Document("", new ParserStringBuilder("<html><head></head><body>" + (sb.pos() == 0 ? sb : sb.substring(sb.pos())) + "</body></html>").pos(6), "<html>", true);
+			return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>"), true);
 		}
 	}
 
-	private Document(@NotNull String type, @NotNull ParserStringBuilder node, @NotNull String tag, boolean isHtml) {
-		super(tag);
+	private Document(@NotNull String type, @NotNull ParserStringBuilder node, boolean isHtml) {
+		super(null, node);
 		this.type = type;
-		var tree = (Element) this;
-		while (node.stripLeading().pos() < node.length() && tree != null) {
-			int tagHeadIndex = node.stripLeading().indexOf("<"); // 获取标签初始位置
+		node.offset(1);
+		for (Element tree = this; node.stripLeading().pos() < node.length() && tree != null; node.offset(1)) {
+			int start = node.stripLeading().pos(); // 记录初始位置
+			int tagHeadIndex = node.indexOf("<"); // 获取标签初始位置
+
 			if (node.startsWith("!--", tagHeadIndex + 1)) {  // 去除注释
 				var text = Document.unescape(node.substring(node.pos(), tagHeadIndex).stripTrailing()).strip();
 				if (!text.isEmpty()) tree.addChild(text); // 合法标签之前数据识别为文本
@@ -61,65 +58,59 @@ public class Document extends Element {
 				continue;
 			}
 
-			int tagtailIndex = node.indexOf(">", tagHeadIndex + 1) + 1;
-			var thisChild = node.substring(tagHeadIndex, tagtailIndex); // 获取当前子标签
-			int error = thisChild.indexOf("<", 1); // 检查标签合法性
-			if (error != -1) { // 标签错误,存在多个'<'符号
-				var text = Document.unescape(node.substring(node.pos(), tagHeadIndex + error).stripTrailing()).strip();
-				if (!text.isEmpty()) tree.addChild(text); // 合法标签之前数据识别为文本
-				node.pos(tagHeadIndex + error);
-				continue;
+			var child = new Element(tree, node.pos(tagHeadIndex));
+
+			while (node.charAt() == '<') { // 修正错误标签
+				tagHeadIndex = node.pos();
+				child = new Element(tree, node);
 			}
-			var text = Document.unescape(node.substring(node.pos(), tagHeadIndex).stripTrailing()).strip();
-			if (!text.isEmpty()) tree.addChild(text); // 提前写入文本,防止结束返回
-			if (thisChild.charAt(1) == '/') {
-				node.pos(tagtailIndex);
-				for (var t = tree; t != null; t = t.parent()) {
-					if (thisChild.substring(2, thisChild.length() - 1).equalsIgnoreCase(t.name())) {
-						tree = t.parent();
+
+			if (start + 1 < tagHeadIndex) { // 提前写入文本,防止结束返回
+				var text = Document.unescape(node.substring(start, tagHeadIndex).stripTrailing()).strip();
+				if (!text.isEmpty()) tree.addChild(text);
+			}
+
+			if (node.charAt() == '/') { // 结束标签返回,允许多级返回
+				var name = node.offset(1).substring(node.pos(), node.pos(node.indexOf(">")).pos());
+				for (var e = tree; e != null; e = e.parent()) {
+					if (name.equalsIgnoreCase(e.name())) {
+						tree = e.parent();
 						break;
 					}
 				}
 				continue;
 			}
-			Element child;
-			try {
-				child = new Element(tree, thisChild);
-			} catch (ParserStringException e) {
-				thisChild += node.substring(tagtailIndex, tagtailIndex = node.indexOf(">", tagtailIndex) + 1);
-				child = new Element(tree, thisChild);
-			}
-			if (isHtml) {  // 可能不规范的标签,需要排序处理
+
+			if (isHtml) {  // 可能不规范的标签,需要处理
 				switch (child.name()) { // html特殊标签处理后返回
 					case "a", "p" -> {   // 可能不规范的标签,需要排序处理
 						if (child.name().equals(tree.name())) {
 							tree = tree.parent();
 							tree.addChild(child);
-							node.pos(tagtailIndex);
 							continue;
 						}
 					}
 					// 自闭合标签
 					case "hr", "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "feflood", "feblend", "feoffset", "fegaussianblur", "fecomposite", "fecolormatrix", "lineargradient", "radialgradient" -> {
 						tree.addChild(child.close(true));
-						node.pos(tagtailIndex);
 						continue;
 					}
 					// 文本标签
 					case "textarea", "script", "style", "noscript" -> {
-						int index = node.indexOf("</" + child.name() + ">", tagtailIndex);
+						if (tree.name().equals("div")) tree = tree.parent(); // 异常位置
+						int index = node.offset(1).indexOf("</" + child.name() + ">");
 						if (index == -1) index = node.indexOf("</" + child.name().toUpperCase() + ">");
-						var t = node.substring(tagtailIndex, index).strip();
-						if (!t.isEmpty()) child.addChild(t);
-						node.pos(index + child.name().length() + 3);
+						var s = node.substring(node.pos(), index).strip();
+						if (!s.isEmpty()) child.addChild(s);
 						tree.addChild(child);
+						node.pos(index + child.name().length() + 2);
 						continue;
 					}
 				}
 			}
+
 			tree.addChild(child);
-			node.pos(tagtailIndex);
-			if (!child.isClose()) tree = child;
+			if (!child.isClose()) tree = child; // 非自闭合标签,进入下级
 		}
 
 	}
