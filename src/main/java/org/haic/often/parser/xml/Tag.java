@@ -98,6 +98,27 @@ public class Tag {
 	}
 
 	/**
+	 * 如果此映射将一个或多个键映射到指定值，则返回 true
+	 *
+	 * @param value 要测试此地图中是否存在的值
+	 * @return 判断结果
+	 */
+	public boolean containsAttrOfValue(String value) {
+		return attrs.containsValue(value);
+	}
+
+	/**
+	 * 判断当前标签是否存在指定属性
+	 *
+	 * @param key   属性名称
+	 * @param value 属性值
+	 * @return 判断结果
+	 */
+	public boolean containsAttrValue(@NotNull String key, String value) {
+		return attrs.containsKey(key) && attrs.get(key).equals(value);
+	}
+
+	/**
 	 * 为当前标签添加所有属性
 	 *
 	 * @param attrs 属性数组

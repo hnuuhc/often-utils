@@ -36,12 +36,7 @@ public class Element extends XmlTree {
 	/**
 	 * 按照指定规则查询标签,支持使用空格分割,以确保更精确的查询
 	 * <p>
-	 * 例:
-	 * <blockquote>
-	 * <pre>    #stop - 查询属性名id值为stop的标签节点</pre>
-	 * <pre>    .stop - 查询属性名class值为stop的标签节点</pre>
-	 * <pre>    a[class=stop] - 查询标签名为a属性名class值为stop的标签节点</pre>
-	 * </blockquote>
+	 * 查询规则查看 {@link Elements#select(String)}
 	 *
 	 * @param cssQuery 查询规则
 	 * @return 查询结果
@@ -287,6 +282,15 @@ public class Element extends XmlTree {
 	 */
 	public Element parent() {
 		return (Element) super.parent();
+	}
+
+	/**
+	 * 获取当前节点的所有子元素
+	 *
+	 * @return 所有子元素
+	 */
+	public Elements childElements() {
+		return super.childs().stream().filter(e -> e instanceof XmlTree).map(e -> (Element) e).collect(Collectors.toCollection(Elements::new));
 	}
 
 }

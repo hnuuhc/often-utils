@@ -75,6 +75,7 @@ public class Elements extends ArrayList<Element> {
 	 * <p>
 	 * 例:
 	 * <blockquote>
+	 * <pre>    @head - 查询当前节点名称为head的子节点</pre>
 	 * <pre>    #stop - 查询属性名id值为stop的标签节点</pre>
 	 * <pre>    .stop - 查询属性名class值为stop的标签节点</pre>
 	 * <pre>    a[class=stop] - 查询标签名为a属性名class值为stop的标签节点</pre>
@@ -89,33 +90,37 @@ public class Elements extends ArrayList<Element> {
 		var result = new Elements(this);
 		var querys = cssQuery.split(" ");
 		for (int i = 0; i < querys.length; i++) {
-			if (querys[i].charAt(0) == '.') {
-				var value = querys[i].substring(1);
-				result = selectByAttr("class", value);
-			} else if (querys[i].charAt(0) == '#') {
-				var value = querys[i].substring(1);
-				result = selectByAttr("id", value);
-			} else {
-				int index = querys[i].indexOf("[");
-				if (index == -1) {
-					result = querys[i].startsWith("!") ? result.selectByNoName(querys[i].substring(1)) : result.selectByName(querys[i]);
-				} else {
-					var name = querys[i].substring(0, index);
-					var attr = querys[i];
-					if (!attr.endsWith("]")) { // 属性值中存在空格,重新拼接
-						do { // 可能存在多个空格
-							//noinspection StringConcatenationInLoop
-							attr += " " + querys[++i];
-						} while (!attr.endsWith("]"));
-					}
-					attr = attr.substring(index + 1, attr.length() - 1);
-					int indexAttr = attr.indexOf("=");
-					if (indexAttr == -1) { // 不存在等号
-						result = attr.startsWith("!") ? result.selectByNameAndNoAttr(name, attr.substring(1)) : result.selectByNameAndAttr(name, attr);
+			switch (querys[i].charAt(0)) {
+				case '.' -> result = selectByAttr("class", querys[i].substring(1));
+				case '#' -> result = selectByAttr("id", querys[i].substring(1));
+				case '@' -> {
+					var value = querys[i].substring(1);
+					if (result.size() != 1) throw new IllegalStateException("在参数 " + querys[i] + " 查询对象不为Element类型");
+					var e = result.get(0);
+					result = e.childElements().stream().filter(l -> l.name().equals(value)).collect(Collectors.toCollection(Elements::new));
+				}
+				default -> {
+					int index = querys[i].indexOf("[");
+					if (index == -1) {
+						result = querys[i].startsWith("!") ? result.selectByNoName(querys[i].substring(1)) : result.selectByName(querys[i]);
 					} else {
-						var key = attr.substring(0, indexAttr);
-						var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
-						result = key.endsWith("!") ? result.selectByNameAndNoAttr(name, key.substring(0, key.length() - 1), value) : result.selectByNameAndAttr(name, key, value);
+						var attr = querys[i];
+						var name = attr.substring(0, index);
+						if (!attr.endsWith("]")) { // 属性值中存在空格,重新拼接
+							do { // 可能存在多个空格
+								//noinspection StringConcatenationInLoop
+								attr += " " + querys[++i];
+							} while (!attr.endsWith("]"));
+						}
+						attr = attr.substring(index + 1, attr.length() - 1);
+						int indexAttr = attr.indexOf("=");
+						if (indexAttr == -1) { // 不存在等号
+							result = attr.startsWith("!") ? result.selectByNameAndNoAttr(name, attr.substring(1)) : result.selectByNameAndAttr(name, attr);
+						} else {
+							var key = attr.substring(0, indexAttr);
+							var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
+							result = key.endsWith("!") ? result.selectByNameAndNoAttr(name, key.substring(0, key.length() - 1), value) : result.selectByNameAndAttr(name, key, value);
+						}
 					}
 				}
 			}

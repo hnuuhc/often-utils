@@ -141,9 +141,13 @@ public abstract class Response {
 				if (type.contains(";")) return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
 				else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
 					if (bodyAsByteArray() == null) throw new HttpException("解析字符集编码时出错,未能获取网页数据");
-					var meta = Document.parse(body.toString(StandardCharsets.UTF_8)).selectFirst("meta[charset]");
-					if (meta != null) charset = Charset.forName(meta.attr("charset")); // 从meta中获取
-					return charset == null ? charset = URIUtil.encoding(bodyAsBytes()) : charset; // meta未成功获取,则在本地判断UTF8或GBK
+					var metas = Document.parse(body.toString(StandardCharsets.UTF_8)).select("@head @meta");
+					var meta = metas.stream().filter(e -> e.containsAttr("charset")).findFirst().orElse(null);
+					if (meta != null) return charset = Charset.forName(meta.attr("charset")); // 判断方式 meta[charset]
+					meta = metas.stream().filter(e -> e.containsAttrValue("http-equiv", "Content-Type")).findFirst().orElse(null);
+					if (meta == null) return charset = URIUtil.encoding(bodyAsBytes()); // meta未成功获取,则在本地判断UTF8或GBK
+					var content = meta.attr("content"); // 判断方式 meta[http-equiv=Content-Type]
+					return charset = Charset.forName(content.substring(content.lastIndexOf("=") + 1));
 				}
 			}
 			charset = StandardCharsets.UTF_8;
