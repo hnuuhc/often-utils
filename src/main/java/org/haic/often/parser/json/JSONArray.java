@@ -33,72 +33,50 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	public JSONArray(@NotNull ParserStringBuilder body) {
 		if (body.charAt(body.pos()) == '[') {
-			if (body.charAt(body.offset(1).stripLeading().pos()) == ']') return;
-			for (int i = body.pos(); i < body.length(); i++) {
-				while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
-				switch (body.charAt(i)) {
-					case '"', '\'' -> {
-						String value = body.pos(i).intercept();
-						i = body.pos() + 1;
-						this.add(value);
-					}
+			if (body.offset(1).stripLeading().charAt() == ']') return;
+			while (body.pos() < body.length()) {
+				switch (body.charAt()) {
+					case '"', '\'' -> this.add(body.intercept());
+					case '{' -> this.add(new JSONObject(body));
+					case '[' -> this.add(new JSONArray(body));
 					case 'n' -> {
-						if (body.charAt(++i) == 'u' && body.charAt(++i) == 'l' && body.charAt(++i) == 'l') {
-							this.add(null);
-						} else {
-							throw new JSONException("位置 " + i + " 处期望值不为'NULL'");
-						}
-						i++;
+						if (body.startsWith("null")) this.add(null);
+						else throw new JSONException("位置 " + body.pos() + " 处期望值不为'null'");
+						body.offset(3);
 					}
 					case 't' -> {
-						if (body.charAt(++i) == 'r' && body.charAt(++i) == 'u' && body.charAt(++i) == 'e') {
-							this.add(true);
-						} else {
-							throw new JSONException("位置 " + i + " 处期望值不为'TRUE'");
-						}
-						i++;
+						if (body.startsWith("true")) this.add(true);
+						else throw new JSONException("位置 " + body.pos() + " 处期望值不为'true'");
+						body.offset(3);
 					}
 					case 'f' -> {
-						if (body.charAt(++i) == 'a' && body.charAt(++i) == 'l' && body.charAt(++i) == 's' && body.charAt(++i) == 'e') {
-							this.add(false);
-						} else {
-							throw new JSONException("位置 " + i + " 处期望值不为'FALSE'");
-						}
-						i++;
+						if (body.startsWith("false")) this.add(false);
+						else throw new JSONException("位置 " + body.pos() + " 处期望值不为'false'");
+						body.offset(4);
 					}
 					case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-						StringBuilder value = new StringBuilder();
+						var value = new StringBuilder();
 						do {
-							value.append(body.charAt(i++));
-						} while (Character.isDigit(body.charAt(i)) || body.charAt(i) == '.');
-						if (body.charAt(i) == 'e' || body.charAt(i) == 'E') { // 自然数
-							value.append(body.charAt(i++));
-							if (body.charAt(i) == '+') {
+							value.append(body.charAt());
+						} while (Character.isDigit(body.offset(1).charAt()) || body.charAt() == '.');
+						if (body.charAt() == 'e' || body.charAt() == 'E') { // 自然数
+							value.append('e');
+							if (body.offset(1).charAt() == '+') {
 								value.append('+');
-								i++;
+								body.offset(1);
 							}
-							do value.append(body.charAt(i++)); while (Character.isDigit(body.charAt(i)));
+							do value.append(body.charAt()); while (Character.isDigit(body.offset(1).charAt()));
 						}
 						this.add(new JSONNumber(value.toString()));
+						body.offset(-1); // 修正索引
 					}
-					case '{' -> {
-						this.add(new JSONObject(body.pos(i)));
-						i = body.pos() + 1;
-					}
-					case '[' -> {
-						this.add(new JSONArray(body.pos(i)));
-						i = body.pos() + 1;
-					}
-					default -> throw new JSONException("位置 " + i + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
+					default -> throw new JSONException("位置 " + body.pos() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 				}
-				while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
-				if (body.charAt(i) == ']') {
-					body.pos(i);
-					return;
-				} else if (body.charAt(i) != ',') {
-					throw new JSONException("位置 " + i + " 处期望值不为分隔符','");
-				}
+				if (body.offset(1).stripLeading().charAt() == ']') return;
+				if (body.charAt() != ',') throw new JSONException("位置 " + body.pos() + " 处期望值不为分隔符','");
+				body.offset(1).stripLeading();
 			}
+			throw new JSONException("数据未封闭");
 		} else if (body.charAt(body.pos()) == '{') {
 			this.add(new JSONObject(body));
 		} else {

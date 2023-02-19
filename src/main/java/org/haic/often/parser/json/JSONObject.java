@@ -33,89 +33,68 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param body 字符串
 	 */
 	public JSONObject(@NotNull ParserStringBuilder body) {
-		if (body.charAt(body.pos()) != '{') throw new JSONException("位置 " + body.pos() + " 处格式错误期望值不为'{'");
-		if (body.charAt(body.offset(1).stripLeading().pos()) == '}') return;
-		for (int i = body.pos(); i < body.length(); i++) {
-			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
-			if (body.charAt(i) == ':') throw new JSONException("位置 " + i + " 处不存在键");
+		if (body.charAt() != '{') throw new JSONException("位置 " + body.pos() + " 处格式错误期望值不为'{'");
+		if (body.offset(1).stripLeading().charAt() == '}') return;
+		while (body.pos() < body.length()) {
+			if (body.charAt() == ':') throw new JSONException("位置 " + body.pos() + " 处不存在键");
 			String key;
-			switch (body.charAt(i)) {
+			switch (body.charAt()) {
 				case '"', '\'' -> {
-					key = body.pos(i).intercept();
-					i = body.pos() + 1;
+					key = body.intercept();
+					body.offset(1);
 				}
 				default -> {
-					StringBuilder keySb = new StringBuilder();
-					while (Character.isLetterOrDigit(body.charAt(i)) || body.charAt(i) == '_') keySb.append(body.charAt(i++));
+					var keySb = new StringBuilder();
+					for (char c = body.charAt(); Character.isLetterOrDigit(c) || c == '_'; c = body.offset(1).charAt()) {
+						keySb.append(body.charAt());
+					}
 					key = keySb.toString();
 				}
 			}
-			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
-			if (body.charAt(i) != ':') throw new JSONException("位置 " + i + " 处期望值不为':'");
-			do i++; while (Character.isWhitespace(body.charAt(i))); // 跳过空格
-			switch (body.charAt(i)) {
-				case '"', '\'' -> { // 键可能不存在引号
-					String value = body.pos(i).intercept();
-					i = body.pos() + 1;
-					this.put(key, value);
-				}
+			if (body.stripLeading().charAt() != ':') throw new JSONException("位置 " + body.pos() + " 处期望值不为':'");
+			body.offset(1).stripLeading();
+			switch (body.charAt()) {
+				case '"', '\'' -> this.put(key, body.intercept());
+				case '{' -> this.put(key, new JSONObject(body));
+				case '[' -> this.put(key, new JSONArray(body));
 				case 'n' -> {
-					if (body.charAt(++i) == 'u' && body.charAt(++i) == 'l' && body.charAt(++i) == 'l') {
-						this.put(key, null);
-					} else {
-						throw new JSONException("位置 " + i + " 处期望值不为'NULL'");
-					}
-					i++;
+					if (body.startsWith("null")) this.put(key, null);
+					else throw new JSONException("位置 " + body.pos() + " 处期望值不为'null'");
+					body.offset(3);
 				}
 				case 't' -> {
-					if (body.charAt(++i) == 'r' && body.charAt(++i) == 'u' && body.charAt(++i) == 'e') {
-						this.put(key, true);
-					} else {
-						throw new JSONException("位置 " + i + " 处期望值不为'TRUE'");
-					}
-					i++;
+					if (body.startsWith("true")) this.put(key, true);
+					else throw new JSONException("位置 " + body.pos() + " 处期望值不为'true'");
+					body.offset(3);
 				}
 				case 'f' -> {
-					if (body.charAt(++i) == 'a' && body.charAt(++i) == 'l' && body.charAt(++i) == 's' && body.charAt(++i) == 'e') {
-						this.put(key, false);
-					} else {
-						throw new JSONException("位置 " + i + " 处期望值不为'FALSE'");
-					}
-					i++;
+					if (body.startsWith("false")) this.put(key, false);
+					else throw new JSONException("位置 " + body.pos() + " 处期望值不为'false'");
+					body.offset(4);
 				}
 				case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-					StringBuilder value = new StringBuilder();
+					var value = new StringBuilder();
 					do {
-						value.append(body.charAt(i++));
-					} while (Character.isDigit(body.charAt(i)) || body.charAt(i) == '.');
-					if (body.charAt(i) == 'e' || body.charAt(i) == 'E') { // 自然数
-						value.append(body.charAt(i++));
-						if (body.charAt(i) == '+') {
+						value.append(body.charAt());
+					} while (Character.isDigit(body.offset(1).charAt()) || body.charAt() == '.');
+					if (body.charAt() == 'e' || body.charAt() == 'E') { // 自然数
+						value.append('e');
+						if (body.offset(1).charAt() == '+') {
 							value.append('+');
-							i++;
+							body.offset(1);
 						}
-						do value.append(body.charAt(i++)); while (Character.isDigit(body.charAt(i)));
+						do value.append(body.charAt()); while (Character.isDigit(body.offset(1).charAt()));
 					}
 					this.put(key, new JSONNumber(value.toString()));
+					body.offset(-1); // 修正索引
 				}
-				case '{' -> {
-					this.put(key, new JSONObject(body.pos(i)));
-					i = body.pos() + 1;
-				}
-				case '[' -> {
-					this.put(key, new JSONArray(body.pos(i)));
-					i = body.pos() + 1;
-				}
-				default -> throw new JSONException("位置 " + i + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
+				default -> throw new JSONException("位置 " + body.pos() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 			}
-			while (Character.isWhitespace(body.charAt(i))) i++; // 跳过空格
-			if (body.charAt(i) == '}') { // 分隔符或结束符
-				body.pos(i);
-				return;
-			} else if (body.charAt(i) != ',') {
-				throw new JSONException("位置 " + i + " 处期望值不为分隔符','");
-			}
+			if (body.offset(1).stripLeading().charAt() == '}') return;
+			if (body.charAt() != ',') throw new JSONException("位置 " + body.pos() + " 处期望值不为分隔符','");
+			body.offset(1).stripLeading();
 		}
+		throw new JSONException("数据未封闭");
 	}
 
 	/**
