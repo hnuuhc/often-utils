@@ -52,7 +52,7 @@ public class Document extends Element {
 			int tagHeadIndex = node.indexOf("<"); // 获取标签初始位置
 
 			if (node.startsWith("!--", tagHeadIndex + 1)) {  // 去除注释
-				var text = Document.unescape(node.substring(node.pos(), tagHeadIndex).stripTrailing()).strip();
+				var text = Document.unescape(node.substring(start, tagHeadIndex).stripTrailing()).strip();
 				if (!text.isEmpty()) tree.addChild(text); // 合法标签之前数据识别为文本
 				node.pos(node.indexOf("-->", tagHeadIndex + 4) + 3);
 				continue;
@@ -65,10 +65,8 @@ public class Document extends Element {
 				child = new Element(tree, node);
 			}
 
-			if (start + 1 < tagHeadIndex) { // 提前写入文本,防止结束返回
-				var text = Document.unescape(node.substring(start, tagHeadIndex).stripTrailing()).strip();
-				if (!text.isEmpty()) tree.addChild(text);
-			}
+			var text = Document.unescape(node.substring(start, tagHeadIndex).stripTrailing()).strip();
+			if (!text.isEmpty()) tree.addChild(text);  // 提前写入文本,防止结束返回
 
 			if (node.charAt() == '/') { // 结束标签返回,允许多级返回
 				var name = node.offset(1).substring(node.pos(), node.pos(node.indexOf(">")).pos());
