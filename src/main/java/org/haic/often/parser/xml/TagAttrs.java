@@ -19,7 +19,7 @@ public class TagAttrs extends HashMap<String, String> {
 
 	protected TagAttrs(@NotNull ParserStringBuilder node) {
 		node:
-		for (var c = node.offset(1).charAt(); c != '>'; c = node.offset(1).charAt()) {
+		for (var c = node.offset(1).stripLeading().charAt(); c != '>'; c = node.offset(1).stripLeading().charAt()) {
 			if (c == ' ') continue;
 			if (c == '<') return;
 			if (node.charAt() == '/' && node.charAt(node.pos() + 1) == '>') return;
