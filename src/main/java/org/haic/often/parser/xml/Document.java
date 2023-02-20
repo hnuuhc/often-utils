@@ -51,15 +51,7 @@ public class Document extends Element {
 			int start = node.stripLeading().pos(); // 记录初始位置
 			int tagHeadIndex = node.indexOf("<"); // 获取标签初始位置
 
-			if (node.startsWith("!--", tagHeadIndex + 1)) {  // 去除注释
-				var text = Document.unescape(node.substring(start, tagHeadIndex).stripTrailing()).strip();
-				if (!text.isEmpty()) tree.addChild(text); // 合法标签之前数据识别为文本
-				node.pos(node.indexOf("-->", tagHeadIndex + 4) + 3);
-				continue;
-			}
-
 			var child = new Element(tree, node.pos(tagHeadIndex));
-
 			while (node.charAt() == '<') { // 修正错误标签
 				tagHeadIndex = node.pos();
 				child = new Element(tree, node);
@@ -76,6 +68,11 @@ public class Document extends Element {
 						break;
 					}
 				}
+				continue;
+			}
+
+			if (node.charAt() == '!') { // 去除注释
+				node.pos(node.indexOf("-->", tagHeadIndex + 3) + 2);
 				continue;
 			}
 

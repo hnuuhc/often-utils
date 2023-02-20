@@ -19,7 +19,7 @@ public class Tag {
 	private boolean isClose;
 
 	protected Tag(@NotNull ParserStringBuilder node) {
-		if (node.offset(1).charAt() == '/') return; // 结束标签
+		if (node.offset(1).charAt() == '/' || node.charAt() == '!') return; // 结束标签和注释
 		var name = new StringBuilder();
 		for (var c = node.charAt(); c != '>'; c = node.offset(1).charAt()) {
 			if (c == '/' && node.charAt(node.pos() + 1) == '>') {
