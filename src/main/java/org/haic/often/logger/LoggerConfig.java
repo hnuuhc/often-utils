@@ -1,12 +1,6 @@
 package org.haic.often.logger;
 
-import org.haic.often.util.StringUtil;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
-import java.util.Properties;
+import org.haic.often.annotations.NotNull;
 
 /**
  * <p>日志配置</p>
@@ -17,86 +11,24 @@ import java.util.Properties;
  */
 public final class LoggerConfig {
 
-	public static final String DEFAULT_CONFIG = """
-												logger.level=DEBUG
-												logger.adapter=file,console
-												logger.file=logs/log.log
-												logger.file.buffer=8192
-												logger.file.max.day=30
-												""";
+	private static Level DEFAULT_LEVEL = Level.DEBUG; // 日志等级
+	private static boolean DEFAULT_CONSOLE_ENABLE = true; // 控制台输出
+	private static boolean DEFAULT_FILE_ENABLE = true; // 文件输出
+	private static String DEFAULT_FILE_FOLDER = "logs"; // 日志目录
+	private static String DEFAULT_FILE_NAME = "log"; // 日志文件名
+	private static String DEFAULT_ERROR_FILE_NAME = "log"; // 错误日志文件名
+	private static int DEFAULT_FILE_BUFFER = 4096; // 日志缓存
+	private static int DEFAULT_FILE_MAX_DAY = 30; // 日志保留天数
 
-	private static final LoggerConfig INSTANCE = new LoggerConfig();
-
-	public static LoggerConfig getInstance() {
-		return INSTANCE;
-	}
+	private LoggerConfig() {}
 
 	/**
-	 * <p>配置文件：{@value}</p>
+	 * 设置日志等级
+	 *
+	 * @param level 日志等级
 	 */
-	private static final String LOGGER_CONFIG = "/logger.properties";
-
-	static {
-		INSTANCE.init();
-	}
-
-	private LoggerConfig() {
-	}
-
-	/**
-	 * <p>日志级别</p>
-	 */
-	private int level;
-	/**
-	 * <p>日志适配</p>
-	 */
-	private String adapter;
-	/**
-	 * <p>文件日志名称</p>
-	 */
-	private String fileName;
-	/**
-	 * <p>文件日志缓存（byte）</p>
-	 */
-	private int fileBuffer;
-	/**
-	 * <p>文件日志最大备份时间（天）</p>
-	 */
-	private int fileMaxDay;
-
-	/**
-	 * <p>初始化配置</p>
-	 */
-	private void init() {
-		final Properties properties = new Properties();
-		File LOGGER_FILE = new File(LOGGER_CONFIG);
-		if (LOGGER_FILE.exists()) {
-			try (final InputStream input = LOGGER_FILE.exists() ? Objects.requireNonNull(LoggerConfig.class.getResourceAsStream(LOGGER_CONFIG)) : StringUtil.toStream(DEFAULT_CONFIG)) {
-				properties.load(input);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			try (final var input = StringUtil.toStream(DEFAULT_CONFIG)) {
-				properties.load(input);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		this.level = Level.of(properties.getProperty("logger.level")).value();
-		this.adapter = properties.getProperty("logger.adapter");
-		this.fileName = properties.getProperty("logger.file");
-		this.fileName = fileName.endsWith(".log") ? fileName.substring(0, fileName.length() - 4) : fileName;
-		this.fileBuffer = Integer.parseInt(properties.getProperty("logger.file.buffer", "8192"));
-		this.fileMaxDay = Integer.parseInt(properties.getProperty("logger.file.max.day", "30"));
-	}
-
-	/**
-	 * <p>关闭日志</p>
-	 */
-	public static void off() {
-		INSTANCE.level = Level.OFF.value();
+	public static void setLevel(@NotNull Level level) {
+		DEFAULT_LEVEL = level;
 	}
 
 	/**
@@ -105,25 +37,106 @@ public final class LoggerConfig {
 	 * @return 日志级别
 	 */
 	public static int getLevel() {
-		return INSTANCE.level;
+		return DEFAULT_LEVEL.value();
 	}
 
 	/**
-	 * <p>获取日志适配</p>
+	 * <p>设置控制台输出是否启用</p>
 	 *
-	 * @return 日志适配
+	 * @param enable 是否启用
 	 */
-	public static String getAdapter() {
-		return INSTANCE.adapter;
+	public static void setConsoleEnable(boolean enable) {
+		DEFAULT_CONSOLE_ENABLE = enable;
 	}
 
 	/**
-	 * <p>获取文件日志名称</p>
+	 * <p>获取控制台输出是否启用</p>
 	 *
-	 * @return 文件日志名称
+	 * @return 是否启用
+	 */
+	public static boolean getConsoleEnable() {
+		return DEFAULT_CONSOLE_ENABLE;
+	}
+
+	/**
+	 * <p>设置是否启用文件输出</p>
+	 *
+	 * @param enable 是否启用
+	 */
+	public static void setFileEnable(boolean enable) {
+		DEFAULT_FILE_ENABLE = enable;
+	}
+
+	/**
+	 * <p>获取文件输出是否启用</p>
+	 *
+	 * @return 是否启用
+	 */
+	public static boolean getFileEnable() {
+		return DEFAULT_FILE_ENABLE;
+	}
+
+	/**
+	 * <p>设置日志文件目录</p>
+	 *
+	 * @param folder 日志文件目录
+	 */
+	public static void setFileFolder(@NotNull String folder) {
+		DEFAULT_FILE_FOLDER = folder;
+	}
+
+	/**
+	 * <p>获取日志文件目录</p>
+	 *
+	 * @return 日志文件目录
+	 */
+	public static String getFileFolder() {
+		return DEFAULT_FILE_FOLDER;
+	}
+
+	/**
+	 * <p>设置日志文件名称</p>
+	 *
+	 * @param name 日志文件名称
+	 */
+	public static void setFileName(@NotNull String name) {
+		DEFAULT_FILE_NAME = name;
+	}
+
+	/**
+	 * <p>获取日志文件名称</p>
+	 *
+	 * @return 日志文件名称
 	 */
 	public static String getFileName() {
-		return INSTANCE.fileName;
+		return DEFAULT_FILE_FOLDER + "/" + DEFAULT_FILE_NAME;
+	}
+
+	/**
+	 * <p>设置错误日志文件名称</p>
+	 *
+	 * @param name 日志文件名称
+	 */
+	public static void setErrorFileName(@NotNull String name) {
+		DEFAULT_ERROR_FILE_NAME = name;
+	}
+
+	/**
+	 * <p>获取错误日志文件名称</p>
+	 *
+	 * @return 日志文件名称
+	 */
+	public static String getErrorFileName() {
+		return DEFAULT_FILE_FOLDER + "/" + DEFAULT_ERROR_FILE_NAME;
+	}
+
+	/**
+	 * <p>设置文件日志缓存（byte）</p>
+	 *
+	 * @param bufferSize 文件日志缓存（byte）
+	 */
+	public static void setFileBuffer(int bufferSize) {
+		DEFAULT_FILE_BUFFER = bufferSize;
 	}
 
 	/**
@@ -132,7 +145,16 @@ public final class LoggerConfig {
 	 * @return 文件日志缓存（byte）
 	 */
 	public static int getFileBuffer() {
-		return INSTANCE.fileBuffer;
+		return DEFAULT_FILE_BUFFER;
+	}
+
+	/**
+	 * <p>设置文件日志最大备份时间（天）</p>
+	 *
+	 * @param day 文件日志最大备份时间（天）
+	 */
+	public static void setFileMaxDay(int day) {
+		DEFAULT_FILE_MAX_DAY = day;
 	}
 
 	/**
@@ -141,7 +163,7 @@ public final class LoggerConfig {
 	 * @return 文件日志最大备份时间（天）
 	 */
 	public static int getFileMaxDay() {
-		return INSTANCE.fileMaxDay;
+		return DEFAULT_FILE_MAX_DAY;
 	}
 
 }

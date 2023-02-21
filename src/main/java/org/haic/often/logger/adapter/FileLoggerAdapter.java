@@ -22,41 +22,42 @@ import java.util.Objects;
  */
 public final class FileLoggerAdapter extends LoggerAdapter {
 
-	/**
-	 * <p>文件适配器名称：{@value}</p>
-	 */
-	public static final String ADAPTER = "file";
-	/**
-	 * <p>文件格式：{@value}</p>
-	 */
 	private static final SimpleDateFormat FILE_SUFFIX_FORMAT = new SimpleDateFormat(".yyyy-MM-dd");
 
 	public FileLoggerAdapter() {
-		var output = this.buildOutput();
-		this.output = output;
-		this.errorOutput = output;
+		this.deleteFile();
+		this.output = buildOutput();
+		this.errorOutput = LoggerConfig.getFileName().equals(LoggerConfig.getErrorFileName()) ? output : buildErrorOutput();
 	}
 
 	@Override
 	public void release() {
 		super.release();
-		final LocalDateTime time = LocalDateTime.now();
-		final int maxDay = LoggerConfig.getFileMaxDay();
-		for (File children : Objects.requireNonNull(this.buildFile().getParentFile().listFiles())) {
-			if (children.getName().endsWith(".log") && this.deleteable(children, time, maxDay)) {
-				children.delete();
-			}
-		}
+		this.deleteFile();
 	}
 
 	/**
-	 * <p>新建文件输出流</p>
+	 * <p>新建日志输出流</p>
 	 *
-	 * @return 文件输出流
+	 * @return 日志输出流
 	 */
 	private PrintStream buildOutput() {
 		try {
 			return new PrintStream(new BufferedOutputStream(new FileOutputStream(buildFile(), true), LoggerConfig.getFileBuffer()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * <p>新建错误日志输出流</p>
+	 *
+	 * @return 错误日志输出流
+	 */
+	private PrintStream buildErrorOutput() {
+		try {
+			return new PrintStream(new BufferedOutputStream(new FileOutputStream(buildErrorFile(), true), LoggerConfig.getFileBuffer()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -69,9 +70,20 @@ public final class FileLoggerAdapter extends LoggerAdapter {
 	 * @return 日志文件
 	 */
 	private File buildFile() {
-		File file = new File(LoggerConfig.getFileName() + FILE_SUFFIX_FORMAT.format(new Date()) + ".log");
-		// 创建上级目录
-		final File parent = file.getParentFile();
+		var file = new File(LoggerConfig.getFileName() + FILE_SUFFIX_FORMAT.format(new Date()) + ".log");
+		var parent = file.getParentFile(); // 创建上级目录
+		if (parent != null) FileUtil.createFolder(parent);
+		return file;
+	}
+
+	/**
+	 * <p>新建错误日志文件</p>
+	 *
+	 * @return 日志文件
+	 */
+	private File buildErrorFile() {
+		var file = new File(LoggerConfig.getErrorFileName() + FILE_SUFFIX_FORMAT.format(new Date()) + ".log");
+		var parent = file.getParentFile(); // 创建上级目录
 		if (parent != null) FileUtil.createFolder(parent);
 		return file;
 	}
@@ -86,6 +98,17 @@ public final class FileLoggerAdapter extends LoggerAdapter {
 	 */
 	private boolean deleteable(File logFile, LocalDateTime time, int maxDay) {
 		return Duration.between(LocalDateTime.ofInstant(Instant.ofEpochMilli(logFile.lastModified()), ZoneId.systemDefault()), time).toDays() > maxDay;
+	}
+
+	/**
+	 * <p>删除日志</p>
+	 */
+	private void deleteFile() {
+		var time = LocalDateTime.now();
+		int maxDay = LoggerConfig.getFileMaxDay();
+		for (File child : Objects.requireNonNull(new File(LoggerConfig.getFileFolder()).listFiles())) {
+			if (child.getName().endsWith(".log") && deleteable(child, time, maxDay)) child.delete();
+		}
 	}
 
 }

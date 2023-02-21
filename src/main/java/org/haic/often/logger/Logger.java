@@ -25,12 +25,6 @@ public final class Logger {
 	 * <p>时间格式</p>
 	 */
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS");
-
-	/**
-	 * <p>日志级别</p>
-	 */
-	private final int level;
-
 	/**
 	 * <p>日志上下文</p>
 	 */
@@ -40,11 +34,7 @@ public final class Logger {
 	 */
 	private final Map<String, LoggerUnit> tupleMap;
 
-	/**
-	 * @param name 日志名称
-	 */
-	public Logger(String name) {
-		this.level = LoggerConfig.getLevel();
+	public Logger(String ignore) {
 		this.adapters = LoggerFactory.getAdapters();
 		this.tupleMap = new ConcurrentHashMap<>();
 	}
@@ -58,12 +48,12 @@ public final class Logger {
 	 * @return 日志
 	 */
 	private String format(Level level, String format, Object... args) {
-		LoggerUnit loggerUnit = this.tupleMap.computeIfAbsent(format, LoggerUnit::new);
-		StringBuilder builder = new StringBuilder(DEFAULT_CAPACITY).append("[").append(level).append("] ").append(DATE_TIME_FORMATTER.format(LocalDateTime.now())).append(" [").append(Thread.currentThread().getName()).append("] ");
+		var loggerUnit = this.tupleMap.computeIfAbsent(format, LoggerUnit::new);
+		var builder = new StringBuilder(DEFAULT_CAPACITY).append("[").append(level).append("] ").append(DATE_TIME_FORMATTER.format(LocalDateTime.now())).append(" [").append(Thread.currentThread().getName()).append("] ");
 		loggerUnit.format(builder, args);
-		Throwable throwable = loggerUnit.throwable(args);
+		var throwable = loggerUnit.throwable(args);
 		if (throwable != null) {
-			StringWriter stringWriter = new StringWriter();
+			var stringWriter = new StringWriter();
 			throwable.printStackTrace(new PrintWriter(stringWriter));
 			builder.append(stringWriter).append("\n");
 		}
@@ -77,7 +67,7 @@ public final class Logger {
 	 * @return 是否支持
 	 */
 	private boolean isEnabled(Level level) {
-		return this.level <= level.value();
+		return LoggerConfig.getLevel() <= level.value();
 	}
 
 	/**
@@ -89,8 +79,7 @@ public final class Logger {
 	 */
 	private void log(Level level, String format, Object... args) {
 		if (this.isEnabled(level)) {
-			String message = this.format(level, format, args);
-			// 减少判断
+			var message = this.format(level, format, args);
 			if (level.value() >= Level.ERROR.value()) {
 				this.adapters.forEach(adapter -> adapter.errorOutput(message));
 			} else {

@@ -1,6 +1,7 @@
 package org.haic.often.logger;
 
-import java.util.Objects;
+import org.haic.often.annotations.NotNull;
+
 import java.util.StringJoiner;
 
 /**
@@ -54,11 +55,8 @@ public final class LoggerUnit {
 				format = resizeFormat;
 			}
 		}
-		if (last != 0 && last < messageLength) {
-			this.suffix = message.substring(last);
-		} else {
-			this.suffix = null;
-		}
+		if (last != 0 && last < messageLength) this.suffix = message.substring(last);
+		else this.suffix = null;
 		this.format = new String[index];
 		System.arraycopy(format, 0, this.format, 0, index);
 	}
@@ -81,30 +79,18 @@ public final class LoggerUnit {
 	 * @param objects 参数列表
 	 * @return 日志信息
 	 */
-	public StringBuilder format(StringBuilder builder, Object... objects) {
-		Objects.requireNonNull(builder, "没有日志Builder");
-		final int formatLength = this.format.length;
-		if (objects == null || objects.length == 0 || formatLength == 0) {
-			builder.append(this.message);
-			return builder;
-		}
-		final int objectLength = objects.length;
-		for (int index = 0; index < formatLength; index++) {
+	public StringBuilder format(@NotNull StringBuilder builder, Object... objects) {
+		if (objects == null || objects.length == 0 || this.format.length == 0) return builder.append(this.message);
+		for (int index = 0; index < this.format.length; index++) {
 			builder.append(this.format[index]);
-			if (index < objectLength) {
-				if (objects[index] != null && objects[index].getClass().isArray()) {
-					builder.append(this.array(objects[index]));
-				} else {
-					builder.append(objects[index]);
-				}
+			if (index < objects.length) {
+				if (objects[index] != null && objects[index].getClass().isArray()) builder.append(this.array(objects[index]));
+				else builder.append(objects[index]);
 			} else {
 				builder.append(FORMAT_CODE);
 			}
 		}
-		if (this.suffix != null) {
-			builder.append(this.suffix);
-		}
-		// 注意：直接忽略后面多余参数
+		if (this.suffix != null) builder.append(this.suffix);
 		return builder;
 	}
 
@@ -115,13 +101,9 @@ public final class LoggerUnit {
 	 * @return 异常
 	 */
 	public Throwable throwable(Object... objects) {
-		if (objects == null || objects.length == 0) {
-			return null;
-		}
+		if (objects == null || objects.length == 0) return null;
 		final Object object = objects[objects.length - 1];
-		if (object instanceof Throwable t) {
-			return t;
-		}
+		if (object instanceof Throwable t) return t;
 		return null;
 	}
 
@@ -132,45 +114,38 @@ public final class LoggerUnit {
 	 * @return 字符输出
 	 */
 	private String array(Object object) {
-		final StringJoiner joiner = new StringJoiner(", ", "[", "]");
-		if (object instanceof boolean[] array) {
-			for (boolean value : array) {
-				joiner.add(Boolean.toString(value));
+		var joiner = new StringJoiner(", ", "[", "]");
+		switch (object) {
+			case boolean[] array -> {
+				for (boolean value : array) joiner.add(Boolean.toString(value));
 			}
-		} else if (object instanceof byte[] array) {
-			for (byte value : array) {
-				joiner.add(Byte.toString(value));
+			case byte[] array -> {
+				for (byte value : array) joiner.add(Byte.toString(value));
 			}
-		} else if (object instanceof char[] array) {
-			for (char value : array) {
-				joiner.add(Character.toString(value));
+			case char[] array -> {
+				for (char value : array) joiner.add(Character.toString(value));
 			}
-		} else if (object instanceof short[] array) {
-			for (short value : array) {
-				joiner.add(Short.toString(value));
+			case short[] array -> {
+				for (short value : array) joiner.add(Short.toString(value));
 			}
-		} else if (object instanceof int[] array) {
-			for (int value : array) {
-				joiner.add(Integer.toString(value));
+			case int[] array -> {
+				for (int value : array) joiner.add(Integer.toString(value));
 			}
-		} else if (object instanceof long[] array) {
-			for (long value : array) {
-				joiner.add(Long.toString(value));
+			case long[] array -> {
+				for (long value : array) joiner.add(Long.toString(value));
 			}
-		} else if (object instanceof float[] array) {
-			for (float value : array) {
-				joiner.add(Float.toString(value));
+			case float[] array -> {
+				for (float value : array) joiner.add(Float.toString(value));
 			}
-		} else if (object instanceof double[] array) {
-			for (double value : array) {
-				joiner.add(Double.toString(value));
+			case double[] array -> {
+				for (double value : array) joiner.add(Double.toString(value));
 			}
-		} else if (object instanceof Object[] array) {
-			for (Object value : array) {
-				joiner.add(String.valueOf(value));
+			case Object[] array -> {
+				for (Object value : array) joiner.add(String.valueOf(value));
 			}
-		} else {
-			return String.valueOf(object);
+			case null, default -> {
+				return String.valueOf(object);
+			}
 		}
 		return joiner.toString();
 	}

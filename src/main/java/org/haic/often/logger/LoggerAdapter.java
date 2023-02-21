@@ -14,7 +14,7 @@ public abstract class LoggerAdapter {
 	/**
 	 * <p>是否可用</p>
 	 */
-	private volatile boolean available = true;
+	private boolean available = true;
 	/**
 	 * <p>常规日志输出流</p>
 	 */
@@ -56,7 +56,7 @@ public abstract class LoggerAdapter {
 	public void errorOutput(String message) {
 		if (this.available) {
 			errorOutput.println(message);
-			output.flush();
+			errorOutput.flush();
 		}
 	}
 
@@ -66,11 +66,10 @@ public abstract class LoggerAdapter {
 	public void release() {
 		this.available = false;
 		// 是否需要关闭错误输出
-		final boolean closeErrorOutput = this.output != this.errorOutput;
+		boolean closeErrorOutput = this.output != this.errorOutput;
 		if (this.output != null) {
 			this.output.flush();
 			this.output.close();
-
 		}
 		if (closeErrorOutput && this.errorOutput != null) {
 			this.errorOutput.flush();

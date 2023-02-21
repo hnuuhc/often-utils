@@ -23,31 +23,12 @@ public final class LoggerFactory {
 		return INSTANCE;
 	}
 
-	/**
-	 * <p>日志对象</p>
-	 */
-	private final Map<String, Logger> loggers;
-	/**
-	 * <p>日志适配器</p>
-	 */
-	private final List<LoggerAdapter> adapters;
+	private final Map<String, Logger> loggers = new ConcurrentHashMap<>();
+	private final List<LoggerAdapter> adapters = new ArrayList<>();
 
 	private LoggerFactory() {
-		this.loggers = new ConcurrentHashMap<>();
-		final String adapter = LoggerConfig.getAdapter();
-		final List<LoggerAdapter> list = new ArrayList<>();
-		if (adapter != null && !adapter.isEmpty()) {
-			final String[] adapters = adapter.split(",");
-			for (String value : adapters) {
-				value = value.strip();
-				if (FileLoggerAdapter.ADAPTER.equalsIgnoreCase(value)) {
-					list.add(new FileLoggerAdapter());
-				} else if (ConsoleLoggerAdapter.ADAPTER.equalsIgnoreCase(value)) {
-					list.add(new ConsoleLoggerAdapter());
-				}
-			}
-		}
-		this.adapters = list;
+		if (LoggerConfig.getFileEnable()) adapters.add(new FileLoggerAdapter());
+		if (LoggerConfig.getConsoleEnable()) adapters.add(new ConsoleLoggerAdapter());
 	}
 
 	/**
