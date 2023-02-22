@@ -92,12 +92,12 @@ public class ParserStringBuilder {
 				switch (body.charAt(++index)) {
 					case 'u' -> sb.append((char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16));
 					case '\\' -> sb.append('\\');
-					case '/' -> sb.append("/");
+					case '/' -> sb.append('/');
 					case '\'' -> sb.append('\'');
 					case '"' -> sb.append('"');
-					case 'r' -> sb.append("\\r");
-					case 'n' -> sb.append("\\n");
-					case 't' -> sb.append("\\t");
+					case 'r' -> sb.append('\r');
+					case 'n' -> sb.append('\n');
+					case 't' -> sb.append('\t');
 					case '0' -> sb.append((char) Integer.parseInt(body.substring(++index, ++index + 1), 8));
 					case 'x' -> sb.append((char) Integer.parseInt(body.substring(++index, ++index + 1), 16));
 					case '\r' -> throw new JSONException("存在非法换行符: \\r");
