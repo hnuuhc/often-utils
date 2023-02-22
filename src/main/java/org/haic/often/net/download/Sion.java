@@ -1,6 +1,5 @@
 package org.haic.often.net.download;
 
-import org.haic.often.Symbol;
 import org.haic.often.Terminal;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
@@ -9,8 +8,6 @@ import org.haic.often.util.SystemUtil;
 import org.haic.often.util.ThreadUtil;
 
 import java.io.File;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
@@ -35,12 +32,12 @@ public class Sion {
 	private static int retry; // 请求异常重试次数
 	private static boolean unlimit;
 	private static File DEFAULT_FOLDER = SystemUtil.DEFAULT_DOWNLOAD_FOLDER;
-	private static Proxy proxy = Proxy.NO_PROXY;
+	private static String DEFAULT_PROXY = "";
 	private static ExecutorService pool = Executors.newFixedThreadPool(MAX_TASK_THREADS); // 任务线程池
 
 	private static final StringBuffer print = new StringBuffer(); // 控制台输出
-	private static final SionListener listenerSion = (fileName, rate, schedule, fileSize) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(String.format("%.2f", (float) schedule * 100 / fileSize)).append("% 下载速率: ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n"));
-	private static final HLSListener listenerHLS = (fileName, rate, written, total) -> print.append(new StringBuilder().append(fileName).append(" - 下载进度: ").append(written).append("/").append(total).append(" ")).append("下载速率:" + " ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n");
+	private static final SionListener listenerSion = (fileName, rate, schedule, fileSize) -> print.append(fileName).append(" - 下载进度: ").append(String.format("%.2f", (float) schedule * 100 / fileSize)).append("% 下载速率: ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n");
+	private static final HLSListener listenerHLS = (fileName, rate, written, total) -> print.append(fileName).append(" - 下载进度: ").append(written).append("/").append(total).append(" ").append("下载速率:" + " ").append(rate > 1048575 ? String.format("%.2f", (float) rate / 1048576) + "mb" : String.format("%.2f", (float) rate / 1024) + "kb").append("/s\n");
 	private static final Set<String> listTask = new CopyOnWriteArraySet<>(); // 任务列表
 	private static final SafetyLinkedHashMap<String, SionResponse> result = new SafetyLinkedHashMap<>(1000); // 存储下载结果
 	private static final Timer timer = new Timer();
@@ -52,9 +49,7 @@ public class Sion {
 			int activeCount = Math.min(listTask.size(), MAX_TASK_THREADS); // 正在下载的任务数量
 			System.out.println(print.append("正在下载: ").append(activeCount).append(" 等待下载: ").append(activeCount == MAX_TASK_THREADS ? listTask.size() - MAX_TASK_THREADS : 0));
 			print.setLength(0); // 清空输出内容
-			if (pool.isTerminated()) { // 线程池为空退出监听
-				timer.cancel();
-			}
+			if (pool.isTerminated()) timer.cancel();  // 线程池为空退出监听
 		}
 	};
 
@@ -79,15 +74,15 @@ public class Sion {
 		if (url.startsWith("http") && !listTask.contains(url)) {
 			listTask.add(url);
 			if ((url.contains("?") ? url.substring(0, url.indexOf("?")) : url).endsWith(".m3u8")) {
-				pool.execute(() -> {
-					result.put(url, HLSDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerHLS, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(proxy).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
+				pool.execute(Thread.ofPlatform().unstarted(() -> {
+					result.put(url, HLSDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerHLS, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(DEFAULT_PROXY).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
 					listTask.remove(url);
-				});
+				}));
 			} else {
-				pool.execute(() -> {
-					result.put(url, SionDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerSion, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(proxy).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
+				pool.execute(Thread.ofPlatform().unstarted(() -> {
+					result.put(url, SionDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerSion, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(DEFAULT_PROXY).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
 					listTask.remove(url);
-				});
+				}));
 			}
 			outPrint();
 		}
@@ -150,23 +145,7 @@ public class Sion {
 	 */
 	@Contract(pure = true)
 	public static void proxy(@NotNull String ipAddr) {
-		if (ipAddr.startsWith("[")) {
-			proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
-		} else {
-			int index = ipAddr.lastIndexOf(":");
-			proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
-		}
-	}
-
-	/**
-	 * 设置下载任务使用的代理
-	 *
-	 * @param host 代理地址
-	 * @param port 代理端口
-	 */
-	@Contract(pure = true)
-	public static void proxy(@NotNull String host, int port) {
-		proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
+		DEFAULT_PROXY = ipAddr;
 	}
 
 	/**
@@ -176,17 +155,7 @@ public class Sion {
 	 */
 	@Contract(pure = true)
 	public static void folder(@NotNull String folder) {
-		folder(new File(folder));
-	}
-
-	/**
-	 * 设置文件存放目录
-	 *
-	 * @param folder 存放目录
-	 */
-	@Contract(pure = true)
-	public static void folder(@NotNull File folder) {
-		DEFAULT_FOLDER = folder;
+		DEFAULT_FOLDER = new File(folder);
 	}
 
 	/**
@@ -217,9 +186,7 @@ public class Sion {
 	private static void outPrint() {
 		if (isOutPrint) {
 			isOutPrint = false;
-			if (outPrint) {
-				timer.schedule(task, MAX_LISTIN_INTERVAL, MAX_LISTIN_INTERVAL);
-			}
+			if (outPrint) timer.schedule(task, MAX_LISTIN_INTERVAL, MAX_LISTIN_INTERVAL);
 		}
 	}
 

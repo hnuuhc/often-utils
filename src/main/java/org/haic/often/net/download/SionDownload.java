@@ -16,13 +16,11 @@ import org.haic.often.util.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -336,6 +334,7 @@ public class SionDownload {
 
 		@Contract(pure = true)
 		public SionConnection proxy(@NotNull String ipAddr) {
+			if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 			if (ipAddr.startsWith("[")) {
 				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
@@ -466,7 +465,7 @@ public class SionDownload {
 					method = SionMethod.valueOf(fileInfo.getString("method"));
 					MAX_THREADS = fileInfo.getInteger("threads");
 					request.setStorage(storage = new File(DEFAULT_FOLDER, fileName));  // 获取其file对象
-					JSONObject renew = fileInfo.getJSONObject("renew");
+					var renew = fileInfo.getJSONObject("renew");
 					if (storage.exists() && renew != null) {
 						schedule.set(MAX_COMPLETED = renew.getLong("completed"));
 						status.putAll(renew.getJSONObject("status").toMap(Long.class, Long.class));
@@ -476,7 +475,7 @@ public class SionDownload {
 					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 重置配置文件
 				}
 				case FULL, PIECE, MULTITHREAD, MANDATORY -> {    // 获取文件信息
-					Response res = HttpsUtil.connect(url).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
+					var res = HttpsUtil.connect(url).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
 					// 获取URL连接状态
 					int statusCode = res.statusCode();
 					if (!URIUtil.statusIsOK(statusCode)) {
@@ -485,9 +484,9 @@ public class SionDownload {
 					request.headers(res.headers()).cookies(res.cookies());
 					// 获取文件名
 					if (Judge.isEmpty(fileName)) {
-						String disposition = res.header("content-disposition");
+						var disposition = res.header("content-disposition");
 						if (disposition == null || !disposition.contains("filename")) {
-							String url = res.url(); // 可能为跳转链接,使用最终URL
+							var url = res.url(); // 可能为跳转链接,使用最终URL
 							fileName = url.substring(url.lastIndexOf("/") + 1);
 							fileName = URIUtil.decode(fileName.contains("?") ? fileName.substring(0, fileName.indexOf("?")) : fileName);
 							fileName = fileName.contains(".") ? fileName : fileName + MimeType.getMimeSuffix(res.header("content-type")); // 尝试修复后缀
@@ -507,8 +506,8 @@ public class SionDownload {
 					} else if (storage.exists()) { // 文件已存在
 						if (rename) { // 重命名
 							int count = 1, index = fileName.lastIndexOf(".");
-							String head = index > 0 ? fileName.substring(0, index) : fileName;
-							String suffix = index > 0 ? fileName.substring(index) : "";
+							var head = index > 0 ? fileName.substring(0, index) : fileName;
+							var suffix = index > 0 ? fileName.substring(index) : "";
 							do {
 								fileName = head + " - " + count++ + suffix;
 								storage = new File(DEFAULT_FOLDER, fileName);
@@ -523,7 +522,7 @@ public class SionDownload {
 						}
 					}
 
-					String contentLength = res.header("content-length"); // 获取文件大小
+					var contentLength = res.header("content-length"); // 获取文件大小
 					request.setFileSize(fileSize = contentLength == null ? fileSize : Long.parseLong(contentLength));
 					method = Judge.isEmpty(fileSize) ? SionMethod.FULL : method;// 如果文件大小获取失败或线程为1，使用全量下载模式
 					request.setHash(hash = Judge.isEmpty(hash) ? URIUtil.getHash(request.headers()) : hash);  // 获取文件hash
@@ -543,8 +542,8 @@ public class SionDownload {
 			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
 			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", new JSONObject().fluentPut("completed", MAX_COMPLETED).fluentPut("status", status)).toString());
 			Thread abnormal;
-			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
-			Thread listenTask = ThreadUtil.start(listener);
+			Runtime.getRuntime().addShutdownHook(abnormal = Thread.ofPlatform().unstarted(breakPoint));
+			var listenTask = listener == null ? null : Thread.startVirtualThread(listener);
 			int statusCode;
 			switch (method) {  // 开始下载
 				case FULL -> statusCode = FULL(MAX_RETRY);
@@ -607,7 +606,7 @@ public class SionDownload {
 		 */
 		@Contract(pure = true)
 		private int FULL(int retry) {
-			Response piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + MAX_COMPLETED + "-").cookies(cookies).failThrow(failThrow).execute();
+			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + MAX_COMPLETED + "-").cookies(cookies).failThrow(failThrow).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? FULL(piece, retry) : unlimit || retry > 0 ? FULL(retry - 1) : statusCode;
 		}
@@ -621,9 +620,9 @@ public class SionDownload {
 		 */
 		@Contract(pure = true)
 		private int FULL(Response res, int retry) {
-			try (InputStream in = res.bodyStream(); RandomAccessFile out = new RandomAccessFile(storage, "rw")) {
+			try (var in = res.bodyStream(); var out = new RandomAccessFile(storage, "rw")) {
 				out.seek(MAX_COMPLETED);
-				byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+				var buffer = new byte[DEFAULT_BUFFER_SIZE];
 				for (int len; (len = in.read(buffer, 0, DEFAULT_BUFFER_SIZE)) != -1; MAX_COMPLETED = schedule.addAndGet(len)) {
 					out.write(buffer, 0, len);
 				}
@@ -642,11 +641,11 @@ public class SionDownload {
 
 		@Contract(pure = true)
 		private int MULTITHREAD(int PIECE_COUNT, long PIECE_SIZE, int MAX_THREADS) {
-			AtomicInteger statusCodes = new AtomicInteger(HttpStatus.SC_OK);
-			AtomicBoolean addCompleted = new AtomicBoolean(true);
-			ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS); // 下载线程池
+			var statusCodes = new AtomicInteger(HttpStatus.SC_OK);
+			var addCompleted = new AtomicBoolean(true);
+			var executor = Executors.newFixedThreadPool(MAX_THREADS); // 下载线程池
 			for (long i = MAX_COMPLETED / PIECE_SIZE; i < PIECE_COUNT; i++) {
-				executor.execute(new ConsumerThread(i, (index) -> { // 执行多线程程
+				executor.execute(Thread.ofPlatform().unstarted(new ConsumerThread(i, (index) -> { // 执行多线程程
 					long start = index * PIECE_SIZE;
 					long end = (index + 1 == PIECE_COUNT ? fileSize : (index + 1) * PIECE_SIZE) - 1;
 					long flip = status.getOrDefault(start, start);
@@ -664,7 +663,7 @@ public class SionDownload {
 						statusCodes.set(statusCode);
 						executor.shutdownNow(); // 结束未开始的线程，并关闭线程池
 					}
-				}));
+				})));
 			}
 			ThreadUtil.waitEnd(executor); // 等待线程结束
 			return statusCodes.get();
@@ -681,7 +680,7 @@ public class SionDownload {
 		 */
 		@Contract(pure = true)
 		private int writePiece(long start, long flip, long end, int retry) {
-			Response piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + flip + "-" + end).cookies(cookies).execute();
+			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + flip + "-" + end).cookies(cookies).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? writePiece(start, flip, end, piece, retry) : unlimit || retry > 0 ? writePiece(start, flip, end, retry - 1) : statusCode;
 		}
@@ -699,9 +698,9 @@ public class SionDownload {
 		@Contract(pure = true)
 		private int writePiece(long start, long flip, long end, Response piece, int retry) {
 			long count = 0;
-			try (InputStream inputStream = piece.bodyStream(); RandomAccessFile out = new RandomAccessFile(storage, "rw")) {
+			try (var inputStream = piece.bodyStream(); var out = new RandomAccessFile(storage, "rw")) {
 				out.seek(flip);
-				byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+				var buffer = new byte[DEFAULT_BUFFER_SIZE];
 				for (int len; !Judge.isMinusOne(len = inputStream.read(buffer)); count += len, status.put(start, flip + count), schedule.addAndGet(len)) {
 					out.write(buffer, 0, len);
 				}

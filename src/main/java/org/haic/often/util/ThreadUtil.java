@@ -76,19 +76,6 @@ public class ThreadUtil {
 	}
 
 	/**
-	 * 新建并启动线程
-	 *
-	 * @param runnable 线程实参
-	 * @return 新建的线程
-	 */
-	@Contract(pure = true)
-	public static Thread start(Runnable runnable) {
-		Thread thread = new Thread(runnable);
-		thread.start();
-		return thread;
-	}
-
-	/**
 	 * 启动线程,若线程为null则不做处理
 	 *
 	 * @param thread 线程

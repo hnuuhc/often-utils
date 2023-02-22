@@ -8,7 +8,6 @@ import org.haic.often.exception.AESException;
 import org.haic.often.exception.HLSDownloadException;
 import org.haic.often.function.StringFunction;
 import org.haic.often.net.URIUtil;
-import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpStatus;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
@@ -24,7 +23,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -461,11 +459,11 @@ public class HLSDownload {
 		@Contract(pure = true)
 		private SionResponse execute(@NotNull String method) {
 			initializationStatus(); // 初始化进度
-			Connection conn = HttpsUtil.newSession().proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
+			var conn = HttpsUtil.newSession().proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
 			File storage;
 			switch (method) {
 				case "BODY" -> {
-					List<String> info = body.lines().toList();
+					var info = body.lines().toList();
 					if (!info.get(0).equals("#EXTM3U")) {
 						throw new HLSDownloadException("内容不是M3U8格式");
 					}
@@ -491,15 +489,15 @@ public class HLSDownload {
 					if (storage.exists()) {
 						throw new HLSDownloadException("存储文件已经存在: " + storage);
 					}
-					String keyInfo = info.stream().filter(l -> l.startsWith("#EXT-X-KEY")).findFirst().orElse(null);
+					var keyInfo = info.stream().filter(l -> l.startsWith("#EXT-X-KEY")).findFirst().orElse(null);
 					if (keyInfo != null) {
-						String[] extKey = keyInfo.substring(11).split(",");
-						String encryptMethod = extKey[0].substring(7);
+						var extKey = keyInfo.substring(11).split(",");
+						var encryptMethod = extKey[0].substring(7);
 						if (!encryptMethod.contains("AES")) {
 							throw new HLSDownloadException("未知的解密方法: " + encryptMethod);
 						}
-						String keyUrl = URIUtil.toAbsoluteUrl(url, StringUtil.strip(extKey[1].substring(4), "\""));
-						Response res = conn.url(keyUrl).execute();
+						var keyUrl = URIUtil.toAbsoluteUrl(url, StringUtil.strip(extKey[1].substring(4), "\""));
+						var res = conn.url(keyUrl).execute();
 						int statusCode = res.statusCode();
 						if (!URIUtil.statusIsOK(statusCode)) {
 							return new HttpResponse(this, request.statusCode(statusCode));
@@ -538,15 +536,15 @@ public class HLSDownload {
 					}
 					// 获取待下载文件和配置文件对象
 					request.setStorage(storage = new File(DEFAULT_FOLDER, fileName)); // 获取其file对象
-					File folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
+					var folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
 					session = new File(folder, SESSION_SUFFIX); // 配置信息文件后缀
 					if (session.exists()) { // 转为会话配置
 						return execute("FILE");
 					} else if (storage.exists()) { // 文件已存在
 						if (rename) { // 重命名
 							int count = 1, index = fileName.lastIndexOf(".");
-							String head = fileName.substring(0, index);
-							String suffix = fileName.substring(index);
+							var head = fileName.substring(0, index);
+							var suffix = fileName.substring(index);
 							do {
 								String newPath = head + " - " + count++;
 								fileName = newPath + suffix;
@@ -562,7 +560,7 @@ public class HLSDownload {
 						}
 					}
 
-					Response res = conn.url(url).execute();
+					var res = conn.url(url).execute();
 					int statusCode = res.statusCode();
 					if (!URIUtil.statusIsOK(statusCode)) {
 						return new HttpResponse(this, request.statusCode(statusCode));
@@ -581,7 +579,7 @@ public class HLSDownload {
 					iv = fileInfo.getString("iv");
 					links = fileInfo.getList("data", String.class);
 					storage = new File(DEFAULT_FOLDER, fileName);
-					JSONObject renew = fileInfo.getJSONObject("renew");
+					var renew = fileInfo.getJSONObject("renew");
 					if (renew != null) {
 						status.putAll(renew.toMap(File.class, Long.class));
 						fileInfo.remove("renew");
@@ -591,21 +589,21 @@ public class HLSDownload {
 				default -> throw new HLSDownloadException("Unknown mode");
 			}
 
-			File folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
+			var folder = new File(DEFAULT_FOLDER, fileName.substring(0, fileName.lastIndexOf(".")));
 			session = new File(folder, SESSION_SUFFIX); // 配置信息文件后缀
 			FileUtil.createFolder(folder); // 创建文件夹
 			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", status).toString());
 			Thread abnormal;
-			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
-			Thread listenTask = ThreadUtil.start(listener);
-			AtomicInteger statusCodes = new AtomicInteger(HttpStatus.SC_OK);
-			ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
+			Runtime.getRuntime().addShutdownHook(abnormal = Thread.ofPlatform().unstarted(breakPoint));
+			var listenTask = listener == null ? null : Thread.startVirtualThread(listener);
+			var statusCodes = new AtomicInteger(HttpStatus.SC_OK);
+			var executor = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
 			for (int i = 0; i < links.size(); i++) {
-				File file = new File(folder, i + ".ts");
+				var file = new File(folder, i + ".ts");
 				if (file.exists() && !status.containsKey(file)) {
 					site++;
 				} else {
-					executor.execute(new ConsumerThread(i, (index) -> {
+					executor.execute(Thread.ofPlatform().unstarted(new ConsumerThread(i, (index) -> {
 						int statusCode = FULL(links.get(index), status.getOrDefault(file, 0L), MAX_RETRY, file);
 						if (URIUtil.statusIsOK(statusCode)) {
 							status.remove(file);
@@ -614,7 +612,7 @@ public class HLSDownload {
 							statusCodes.set(statusCode);
 							executor.shutdownNow(); // 结束未开始的线程，并关闭线程池
 						}
-					}));
+					})));
 				}
 			}
 			ThreadUtil.waitEnd(executor); // 等待线程结束
@@ -623,24 +621,24 @@ public class HLSDownload {
 
 			long fileSize = 0;
 			if (URIUtil.statusIsOK(statusCodes.get())) { // 验证下载状态
-				try (FileOutputStream out = new FileOutputStream(storage)) {
+				try (var out = new FileOutputStream(storage)) {
 					try {
 						if (key.isEmpty()) {
 							for (int i = 0; i < links.size(); i++) {
-								File file = new File(folder, i + ".ts");
-								byte[] data = ReadWriteUtil.orgin(file).readBytes();
+								var file = new File(folder, i + ".ts");
+								var data = ReadWriteUtil.orgin(file).readBytes();
 								out.write(data, 0, data.length);
 								fileSize += data.length;
 								file.delete();
 							}
 						} else { // AES/CBC/PKCS7Padding解密
-							Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-							SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
-							IvParameterSpec ivSpec = new IvParameterSpec(iv.substring(0, 16).getBytes());
+							var cipher = Cipher.getInstance("AES/CBC/NoPadding");
+							var keySpec = new SecretKeySpec(key.getBytes(), "AES");
+							var ivSpec = new IvParameterSpec(iv.substring(0, 16).getBytes());
 							cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
 							for (int i = 0; i < links.size(); i++) {
-								File file = new File(folder, i + ".ts");
-								byte[] data = cipher.doFinal(ReadWriteUtil.orgin(file).readBytes());
+								var file = new File(folder, i + ".ts");
+								var data = cipher.doFinal(ReadWriteUtil.orgin(file).readBytes());
 								int replenish = data.length - data[data.length - 1];  // 获取去除填充参数的实际长度
 								out.write(data, 0, replenish);
 								fileSize += replenish;
@@ -675,14 +673,14 @@ public class HLSDownload {
 
 		@Contract(pure = true)
 		private int FULL(String url, long complete, int retry, File storage) {
-			Response piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + complete + "-").cookies(cookies).failThrow(failThrow).execute();
+			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + complete + "-").cookies(cookies).failThrow(failThrow).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? FULL(url, piece, complete, retry, storage) : unlimit || retry > 0 ? FULL(url, complete, retry - 1, storage) : statusCode;
 		}
 
 		@Contract(pure = true)
 		private int FULL(String url, Response res, long complete, int retry, File storage) {
-			String length = res.header("content-length"); // 获取文件大小
+			var length = res.header("content-length"); // 获取文件大小
 			long fileSize = length == null ? 0 : Long.parseLong(length);
 			try (InputStream in = res.bodyStream(); RandomAccessFile out = new RandomAccessFile(storage, "rw")) {
 				out.seek(complete);
