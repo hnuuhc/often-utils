@@ -74,15 +74,15 @@ public class Sion {
 		if (url.startsWith("http") && !listTask.contains(url)) {
 			listTask.add(url);
 			if ((url.contains("?") ? url.substring(0, url.indexOf("?")) : url).endsWith(".m3u8")) {
-				pool.execute(Thread.ofPlatform().unstarted(() -> {
+				pool.execute(() -> {
 					result.put(url, HLSDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerHLS, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(DEFAULT_PROXY).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
 					listTask.remove(url);
-				}));
+				});
 			} else {
-				pool.execute(Thread.ofPlatform().unstarted(() -> {
+				pool.execute(() -> {
 					result.put(url, SionDownload.connect(url).headers(headers).thread(MAX_THREADS).listener(listenerSion, MAX_LISTIN_INTERVAL).rename(DEFAULT_RENAME).proxy(DEFAULT_PROXY).folder(DEFAULT_FOLDER).retry(retry).retry(unlimit).execute());
 					listTask.remove(url);
-				}));
+				});
 			}
 			outPrint();
 		}

@@ -17,7 +17,10 @@ import org.haic.often.util.*;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.*;
@@ -573,8 +576,8 @@ public class HLSDownload {
 			FileUtil.createFolder(folder); // 创建文件夹
 			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", status).toString());
 			Thread abnormal;
-			Runtime.getRuntime().addShutdownHook(abnormal = Thread.ofPlatform().unstarted(breakPoint));
-			var listenTask = listener == null ? null : Thread.startVirtualThread(listener);
+			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
+			var listenTask = ThreadUtil.start(listener);
 			var statusCodes = new AtomicInteger(HttpStatus.SC_OK);
 			var executor = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
 			for (int i = 0; i < links.size(); i++) {
@@ -582,7 +585,7 @@ public class HLSDownload {
 				if (file.exists() && !status.containsKey(file)) {
 					site++;
 				} else {
-					executor.execute(Thread.ofPlatform().unstarted(new ConsumerThread(i, (index) -> {
+					executor.execute(new ConsumerThread(i, (index) -> {
 						int statusCode = FULL(links.get(index), status.getOrDefault(file, 0L), MAX_RETRY, file);
 						if (URIUtil.statusIsOK(statusCode)) {
 							status.remove(file);
@@ -591,7 +594,7 @@ public class HLSDownload {
 							statusCodes.set(statusCode);
 							executor.shutdownNow(); // 结束未开始的线程，并关闭线程池
 						}
-					})));
+					}));
 				}
 			}
 			ThreadUtil.waitEnd(executor); // 等待线程结束
@@ -661,15 +664,13 @@ public class HLSDownload {
 		private int FULL(String url, Response res, long complete, int retry, File storage) {
 			var length = res.header("content-length"); // 获取文件大小
 			long fileSize = length == null ? 0 : Long.parseLong(length);
-			try (InputStream in = res.bodyStream(); RandomAccessFile out = new RandomAccessFile(storage, "rw")) {
+			try (var in = res.bodyStream(); var out = new RandomAccessFile(storage, "rw")) {
 				out.seek(complete);
-				byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+				var buffer = new byte[DEFAULT_BUFFER_SIZE];
 				for (int len; (len = in.read(buffer, 0, DEFAULT_BUFFER_SIZE)) != -1; schedule.addAndGet(len), complete += len, status.put(storage, complete)) {
 					out.write(buffer, 0, len);
 				}
-				if (fileSize == 0 || complete >= fileSize) {
-					return HttpStatus.SC_OK;
-				}
+				if (fileSize == 0 || complete >= fileSize) return HttpStatus.SC_OK;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

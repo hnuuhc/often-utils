@@ -520,8 +520,8 @@ public class SionDownload {
 			FileUtil.createFolder(DEFAULT_FOLDER); // 创建文件夹
 			Runnable breakPoint = () -> ReadWriteUtil.orgin(session).append(false).write(fileInfo.fluentPut("renew", new JSONObject().fluentPut("completed", MAX_COMPLETED).fluentPut("status", status)).toString());
 			Thread abnormal;
-			Runtime.getRuntime().addShutdownHook(abnormal = Thread.ofPlatform().unstarted(breakPoint));
-			var listenTask = listener == null ? null : Thread.startVirtualThread(listener);
+			Runtime.getRuntime().addShutdownHook(abnormal = new Thread(breakPoint));
+			var listenTask = ThreadUtil.start(listener);
 			int statusCode;
 			switch (method) {  // 开始下载
 				case FULL -> statusCode = FULL(MAX_RETRY);
@@ -604,9 +604,7 @@ public class SionDownload {
 				for (int len; (len = in.read(buffer, 0, DEFAULT_BUFFER_SIZE)) != -1; MAX_COMPLETED = schedule.addAndGet(len)) {
 					out.write(buffer, 0, len);
 				}
-				if (fileSize == 0 || MAX_COMPLETED >= fileSize) {
-					return HttpStatus.SC_OK;
-				}
+				if (fileSize == 0 || MAX_COMPLETED >= fileSize) return HttpStatus.SC_OK;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -623,7 +621,7 @@ public class SionDownload {
 			var addCompleted = new AtomicBoolean(true);
 			var executor = Executors.newFixedThreadPool(MAX_THREADS); // 下载线程池
 			for (long i = MAX_COMPLETED / PIECE_SIZE; i < PIECE_COUNT; i++) {
-				executor.execute(Thread.ofPlatform().unstarted(new ConsumerThread(i, (index) -> { // 执行多线程程
+				executor.execute(new ConsumerThread(i, (index) -> { // 执行多线程程
 					long start = index * PIECE_SIZE;
 					long end = (index + 1 == PIECE_COUNT ? fileSize : (index + 1) * PIECE_SIZE) - 1;
 					long flip = status.getOrDefault(start, start);
@@ -641,7 +639,7 @@ public class SionDownload {
 						statusCodes.set(statusCode);
 						executor.shutdownNow(); // 结束未开始的线程，并关闭线程池
 					}
-				})));
+				}));
 			}
 			ThreadUtil.waitEnd(executor); // 等待线程结束
 			return statusCodes.get();
@@ -682,9 +680,7 @@ public class SionDownload {
 				for (int len; !Judge.isMinusOne(len = inputStream.read(buffer)); count += len, status.put(start, flip + count), schedule.addAndGet(len)) {
 					out.write(buffer, 0, len);
 				}
-				if (end - flip + 1 == count) {
-					return HttpStatus.SC_PARTIAL_CONTENT;
-				}
+				if (end - flip + 1 == count) return HttpStatus.SC_PARTIAL_CONTENT;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
