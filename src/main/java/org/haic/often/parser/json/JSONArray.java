@@ -7,10 +7,7 @@ import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -337,6 +334,10 @@ public class JSONArray extends ArrayList<Object> {
 	public JSONArray fluentAddAll(Collection<?> c) {
 		super.addAll(c);
 		return this;
+	}
+
+	public JSONArray sorted(Comparator<Object> comparator) {
+		return JSONArray.parseArray(this.stream().sorted(comparator).toList());
 	}
 
 	@Override
