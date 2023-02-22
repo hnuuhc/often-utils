@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.AESException;
@@ -336,28 +335,8 @@ public class HLSDownload {
 		}
 
 		@Contract(pure = true)
-		public HLSConnection socks(@NotNull String ipAddr) {
-			if (ipAddr.startsWith("[")) {
-				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
-			} else {
-				int index = ipAddr.lastIndexOf(":");
-				return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
-			}
-		}
-
-		@Contract(pure = true)
 		public HLSConnection socks(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port)));
-		}
-
-		@Contract(pure = true)
-		public HLSConnection proxy(@NotNull String ipAddr) {
-			if (ipAddr.startsWith("[")) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
-			} else {
-				int index = ipAddr.lastIndexOf(":");
-				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
-			}
 		}
 
 		@Contract(pure = true)

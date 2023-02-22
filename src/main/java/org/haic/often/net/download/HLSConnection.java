@@ -1,5 +1,6 @@
 package org.haic.often.net.download;
 
+import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.function.StringFunction;
@@ -195,7 +196,15 @@ public abstract class HLSConnection {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract HLSConnection socks(@NotNull String ipAddr);
+	public HLSConnection socks(@NotNull String ipAddr) {
+		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
+		if (ipAddr.startsWith("[")) {
+			return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+		} else {
+			int index = ipAddr.lastIndexOf(":");
+			return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
+		}
+	}
 
 	/**
 	 * 设置用于此请求的 SOCKS 代理
@@ -215,7 +224,15 @@ public abstract class HLSConnection {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public abstract HLSConnection proxy(@NotNull String ipAddr);
+	public HLSConnection proxy(@NotNull String ipAddr) {
+		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
+		if (ipAddr.startsWith("[")) {
+			return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+		} else {
+			int index = ipAddr.lastIndexOf(":");
+			return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
+		}
+	}
 
 	/**
 	 * 设置用于此请求的 HTTP 代理

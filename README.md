@@ -16,7 +16,7 @@ mvn clean install
 <dependency>
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
 </dependency>
 ```
 
@@ -178,7 +178,7 @@ Map<String, String> storages = LocalStorage.home().getForDomain("pixiv.net");
 ### 简单示例:
 
 ```
-ExecutorService executorService = Executors.newFixedThreadPool(10);
+ExecutorService executor = Executors.newFixedThreadPool(10);
 for (int i = 0; i < 10; i++) {	
 	executorService.execute(new ConsumerThread(i, (index) -> { // 传参执行多线程
 		// TODO
@@ -188,7 +188,7 @@ for (int i = 0; i < 10; i++) {
 		return index + 1;
 	}));
 }
-ThreadUtil.waitEnd(executorService); // 等待线程结束
+ThreadUtil.waitEnd(executor); // 等待线程结束
 ```
 
 常用网盘API

@@ -115,38 +115,25 @@ public final class LoggerUnit {
 	 */
 	private String array(Object object) {
 		var joiner = new StringJoiner(", ", "[", "]");
-		switch (object) {
-			case boolean[] array -> {
-				for (boolean value : array) joiner.add(Boolean.toString(value));
-			}
-			case byte[] array -> {
-				for (byte value : array) joiner.add(Byte.toString(value));
-			}
-			case char[] array -> {
-				for (char value : array) joiner.add(Character.toString(value));
-			}
-			case short[] array -> {
-				for (short value : array) joiner.add(Short.toString(value));
-			}
-			case int[] array -> {
-				for (int value : array) joiner.add(Integer.toString(value));
-			}
-			case long[] array -> {
-				for (long value : array) joiner.add(Long.toString(value));
-			}
-			case float[] array -> {
-				for (float value : array) joiner.add(Float.toString(value));
-			}
-			case double[] array -> {
-				for (double value : array) joiner.add(Double.toString(value));
-			}
-			case Object[] array -> {
-				for (Object value : array) joiner.add(String.valueOf(value));
-			}
-			case null, default -> {
-				return String.valueOf(object);
-			}
-		}
+		if (object instanceof boolean[] array) {
+			for (boolean value : array) joiner.add(Boolean.toString(value));
+		} else if (object instanceof byte[] array) {
+			for (byte value : array) joiner.add(Byte.toString(value));
+		} else if (object instanceof char[] array) {
+			for (char value : array) joiner.add(Character.toString(value));
+		} else if (object instanceof short[] array) {
+			for (short value : array) joiner.add(Short.toString(value));
+		} else if (object instanceof int[] array) {
+			for (int value : array) joiner.add(Integer.toString(value));
+		} else if (object instanceof long[] array) {
+			for (long value : array) joiner.add(Long.toString(value));
+		} else if (object instanceof float[] array) {
+			for (float value : array) joiner.add(Float.toString(value));
+		} else if (object instanceof double[] array) {
+			for (double value : array) joiner.add(Double.toString(value));
+		} else if (object instanceof Object[] array) {
+			for (Object value : array) joiner.add(String.valueOf(value));
+		} else return String.valueOf(object);
 		return joiner.toString();
 	}
 

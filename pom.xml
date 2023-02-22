@@ -6,7 +6,7 @@
 
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
     <description>Java network common tools</description>
     <name>often-utils</name>
 
@@ -141,17 +141,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>19</source>
-                    <target>19</target>
-                    <compilerArgs>--enable-preview</compilerArgs>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -177,6 +171,10 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.version}</version>
                     <configuration>
+                        <compilerArgs>
+                            <compilerArg>--enable-preview</compilerArg>
+                            <compilerArg>-Xlint:preview</compilerArg>
+                        </compilerArgs>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <encoding>${encoding}</encoding>
