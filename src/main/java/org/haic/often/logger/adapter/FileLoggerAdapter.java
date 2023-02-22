@@ -106,8 +106,11 @@ public final class FileLoggerAdapter extends LoggerAdapter {
 	private void deleteFile() {
 		var time = LocalDateTime.now();
 		int maxDay = LoggerConfig.getFileMaxDay();
-		for (File child : Objects.requireNonNull(new File(LoggerConfig.getFileFolder()).listFiles())) {
-			if (child.getName().endsWith(".log") && deleteable(child, time, maxDay)) child.delete();
+		var folder = new File(LoggerConfig.getFileFolder());
+		if (folder.exists()) {
+			for (File child : Objects.requireNonNull(folder.listFiles())) {
+				if (child.getName().endsWith(".log") && deleteable(child, time, maxDay)) child.delete();
+			}
 		}
 	}
 
