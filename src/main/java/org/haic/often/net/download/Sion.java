@@ -164,7 +164,7 @@ public class Sion {
 	 * @return 所有的下载结果
 	 */
 	@Contract(pure = true)
-	public Map<String, SionResponse> getResults() {
+	public static Map<String, SionResponse> getResults() {
 		return result;
 	}
 
@@ -175,7 +175,7 @@ public class Sion {
 	 * @return 下载结果
 	 */
 	@Contract(pure = true)
-	public SionResponse getResult(@NotNull String url) {
+	public static SionResponse getResult(@NotNull String url) {
 		return result.getOrDefault(url, null);
 	}
 
