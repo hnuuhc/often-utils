@@ -18,6 +18,12 @@ public class Tag {
 	private TagAttrs attrs;
 	private boolean isClose;
 
+	public Tag(@NotNull String name) {
+		this.name = name;
+		this.attrs = new TagAttrs();
+		this.isClose = false;
+	}
+
 	protected Tag(@NotNull ParserStringBuilder node) {
 		if (node.offset(1).charAt() == '/' || node.charAt() == '!') return; // 结束标签和注释
 		var name = new StringBuilder();

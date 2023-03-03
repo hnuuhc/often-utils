@@ -17,6 +17,10 @@ import java.util.stream.Collectors;
  */
 public class Element extends XmlTree {
 
+	public Element(@NotNull String name) {
+		super(name);
+	}
+
 	protected Element(XmlTree parent, @NotNull ParserStringBuilder node) {
 		super(parent, node);
 	}

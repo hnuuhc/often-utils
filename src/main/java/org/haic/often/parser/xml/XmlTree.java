@@ -20,6 +20,15 @@ public class XmlTree extends Tag {
 
 	private final XmlChilds childs = new XmlChilds();
 
+	public XmlTree(@NotNull String name) {
+		this(null, name);
+	}
+
+	protected XmlTree(XmlTree parent, @NotNull String name) {
+		super(name);
+		this.parent = parent;
+	}
+
 	protected XmlTree(XmlTree parent, @NotNull ParserStringBuilder node) {
 		super(node);
 		this.parent = parent;
