@@ -31,7 +31,7 @@ public class TypeUtil {
 	public static <T> T convert(Object obj, TypeReference<T> type) {
 		var rawType = type.getRawType();
 		if (!type.isActualType()) return (T) TypeUtil.convert(obj, rawType);
-		Object[] arguments = type.getArguments();
+		var arguments = type.getArguments();
 		Function<Class<?>, Constructor<?>> convert = convertType -> {
 			for (var constructor : convertType.getConstructors()) {
 				if (constructor.getParameterCount() == arguments.length) {
@@ -48,20 +48,15 @@ public class TypeUtil {
 			}
 			throw new TypeException("无匹配参数的对应对象");
 		};
-
 		var actualTypeArguments = type.getActualTypeArguments();
-		try {
-			if (Map.class.isAssignableFrom(rawType)) {
-				if (rawType.isInterface()) rawType = Class.forName("java.util.HashMap");
-				return (T) TypeUtil.convertMap(obj, TypeUtil.getRawType(actualTypeArguments[0]), TypeUtil.getRawType(actualTypeArguments[1]), convert.apply(rawType), arguments);
-			} else if (Collection.class.isAssignableFrom(rawType)) {
-				if (rawType.isInterface()) rawType = Class.forName("java.util.ArrayList");
-				return (T) TypeUtil.convertList(obj, TypeUtil.getRawType(actualTypeArguments[0]), convert.apply(rawType), arguments);
-			} else {
-				throw new TypeException("不支持的转换类型");
-			}
-		} catch (ClassNotFoundException e) {
-			throw new TypeException(e);
+		if (Map.class.isAssignableFrom(rawType)) {
+			if (rawType.isInterface()) rawType = HashMap.class;
+			return (T) TypeUtil.convertMap(obj, TypeUtil.getRawType(actualTypeArguments[0]), TypeUtil.getRawType(actualTypeArguments[1]), convert.apply(rawType), arguments);
+		} else if (Collection.class.isAssignableFrom(rawType)) {
+			if (rawType.isInterface()) rawType = ArrayList.class;
+			return (T) TypeUtil.convertList(obj, TypeUtil.getRawType(actualTypeArguments[0]), convert.apply(rawType), arguments);
+		} else {
+			throw new TypeException("不支持的转换类型");
 		}
 	}
 
@@ -156,7 +151,7 @@ public class TypeUtil {
 				return (T) type.newInstance(obj);
 			}
 		} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-			throw new TypeException("转换类型匹配");
+			throw new TypeException("转换类型不匹配");
 		}
 	}
 

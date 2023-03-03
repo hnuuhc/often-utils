@@ -89,8 +89,8 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@Contract(pure = true)
 	public static JSONArray parseArray(@NotNull String body) {
-		ParserStringBuilder builder = new ParserStringBuilder(body).strip();
-		JSONArray object = new JSONArray(builder);
+		var builder = new ParserStringBuilder(body).strip();
+		var object = new JSONArray(builder);
 		if (builder.pos() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
 		return object;
 	}

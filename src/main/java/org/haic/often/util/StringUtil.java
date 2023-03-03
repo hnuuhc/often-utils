@@ -50,14 +50,10 @@ public class StringUtil extends StringUtils {
 	 * @since 3.0 Changed signature from isBlank(String) to isBlank(CharSequence)
 	 */
 	public static boolean isBlank(final CharSequence cs) {
-		final int strLen = length(cs);
-		if (strLen == 0) {
-			return true;
-		}
+		int strLen = length(cs);
+		if (strLen == 0) return true;
 		for (int i = 0; i < strLen; i++) {
-			if (!Character.isWhitespace(cs.charAt(i))) {
-				return false;
-			}
+			if (!Character.isWhitespace(cs.charAt(i))) return false;
 		}
 		return true;
 	}
@@ -414,7 +410,7 @@ public class StringUtil extends StringUtils {
 	@NotNull
 	@Contract(pure = true)
 	public static String filter(@NotNull String str, @NotNull String shift) {
-		return str.replaceAll("\\p{C}", "");
+		return str.replaceAll("\\p{C}", shift);
 	}
 
 	/**

@@ -43,7 +43,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public String text() {
-		StringBuilder text = new StringBuilder();
+		var text = new StringBuilder();
 		for (var child : this) {
 			switch (child.name()) {
 				case "script", "textarea", "style" -> {} // 特殊文本标签
@@ -66,7 +66,7 @@ public class Elements extends ArrayList<Element> {
 	 */
 	@Contract(pure = true)
 	public Element selectFirst(String cssQuery) {
-		Elements result = select(cssQuery);
+		var result = select(cssQuery);
 		return result.isEmpty() ? null : result.get(0);
 	}
 

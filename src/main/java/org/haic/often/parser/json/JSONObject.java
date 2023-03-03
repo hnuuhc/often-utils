@@ -105,8 +105,8 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public static JSONObject parseObject(@NotNull String body) {
-		ParserStringBuilder builder = new ParserStringBuilder(body).strip();
-		JSONObject object = new JSONObject(builder);
+		var builder = new ParserStringBuilder(body).strip();
+		var object = new JSONObject(builder);
 		if (builder.pos() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
 		return object;
 	}
@@ -463,7 +463,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@Contract(pure = true)
 	public <K, V> Map<K, V> toMap(@NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
-		Map<K, V> map = new HashMap<>();
+		var map = new HashMap<K, V>();
 		this.forEach((key, value) -> map.put(TypeUtil.convert(key, keyClass), TypeUtil.convert(value, valueClass)));
 		return map;
 	}

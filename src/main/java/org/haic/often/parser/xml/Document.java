@@ -115,7 +115,6 @@ public class Document extends Element {
 				if (child instanceof Element e) body.addChild(e);
 			}
 		}
-
 	}
 
 	/**
