@@ -6,7 +6,7 @@
 
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <description>Java network common tools</description>
     <name>often-utils</name>
 

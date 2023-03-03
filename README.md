@@ -16,11 +16,9 @@ mvn clean install
 <dependency>
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
 </dependency>
 ```
-
-注: Version: 1.2.3 使用预览特性,需要开启pom中配置--enable-preview参数
 
 简介:
 ----
