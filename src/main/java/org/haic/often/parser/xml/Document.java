@@ -46,8 +46,8 @@ public class Document extends Element {
 	private Document(@NotNull String type, @NotNull ParserStringBuilder node, boolean isHtml) {
 		super(null, node);
 		this.type = type;
-		node.offset(1);
-		for (Element tree = this; node.stripLeading().pos() < node.length() && tree != null; node.offset(1)) {
+		Element tree = this;
+		for (node.offset(1); node.stripLeading().pos() < node.length() && tree != null; node.offset(1)) {
 			int start = node.stripLeading().pos(); // 记录初始位置
 			int tagHeadIndex = node.indexOf("<"); // 获取标签初始位置
 
@@ -106,6 +106,14 @@ public class Document extends Element {
 
 			tree.addChild(child);
 			if (!child.isClose()) tree = child; // 非自闭合标签,进入下级
+		}
+		if (isHtml && node.stripLeading().pos() < node.length()) { // 不规范的网页可能存在越界标签,即html结束标签后仍然存在标签
+			var outbounds = new ParserStringBuilder("<body>" + node.substring(node.pos(), node.length()) + "</body>");
+			var body = this.selectFirst("@body"); // 修正为body标签子元素
+			if (body == null) body = this; // 不规范网页可能不存在body
+			for (var child : new Document("", outbounds, true).childs()) {
+				if (child instanceof Element e) body.addChild(e);
+			}
 		}
 
 	}
