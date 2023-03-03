@@ -5,6 +5,7 @@ import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.TypeException;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
+import org.haic.often.parser.xml.Document;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -137,6 +138,7 @@ public class TypeUtil {
 		if (itemClass == JSONArray.class) {
 			return (T) (obj instanceof Collection<?> c ? JSONArray.parseArray(c) : obj instanceof Object[] os ? JSONArray.parseArray(Arrays.asList(os)) : JSONArray.parseArray(String.valueOf(obj)));
 		}
+		if (itemClass == Document.class) return (T) Document.parse(String.valueOf(obj));
 		if (itemClass.isPrimitive()) return convertBasicType(obj, itemClass);
 		// 上方为处理特殊类型,下方对单对象类型转换
 		var thisClassName = obj.getClass().getName();
