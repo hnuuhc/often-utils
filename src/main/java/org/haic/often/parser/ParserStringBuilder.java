@@ -85,7 +85,10 @@ public class ParserStringBuilder {
 	 * @return 字符串
 	 */
 	public String intercept() {
-		char eof = body.charAt(index);
+		return intercept(charAt());
+	}
+
+	public String intercept(char eof) {
 		var sb = new StringBuilder();
 		while (body.charAt(++index) != eof) {
 			if (body.charAt(index) == '\\') {
