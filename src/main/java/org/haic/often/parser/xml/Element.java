@@ -304,24 +304,6 @@ public class Element extends XmlTree {
 	}
 
 	/**
-	 * 获取当前节点的属性列表状态
-	 *
-	 * @return 当前节点的属性是否为空
-	 */
-	public boolean attrIsEmpty() {
-		return attrs().isEmpty();
-	}
-
-	/**
-	 * 获取当前节点的子元素列表状态
-	 *
-	 * @return 当前节点的子元素是否为空
-	 */
-	public boolean isEmpty() {
-		return childs().isEmpty();
-	}
-
-	/**
 	 * 获取当前节点的所有子元素
 	 *
 	 * @return 所有子元素
