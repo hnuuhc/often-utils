@@ -43,19 +43,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public String text() {
-		var text = new StringBuilder();
-		for (var child : this) {
-			switch (child.name()) {
-				case "script", "textarea", "style" -> {} // 特殊文本标签
-				default -> {
-					String childText = child.text();
-					if (!childText.isEmpty()) {
-						text.append(" ").append(childText);
-					}
-				}
-			}
-		}
-		return text.toString().strip();
+		return this.stream().map(XmlTree::text).filter(e -> !e.isEmpty()).collect(Collectors.joining("\n"));
 	}
 
 	/**
