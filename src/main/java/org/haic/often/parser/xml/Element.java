@@ -94,6 +94,21 @@ public class Element extends XmlTree {
 	}
 
 	/**
+	 * 按照标签名称且不存在属性查询标签
+	 *
+	 * @param name 标签名称
+	 * @return 查询结果
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Elements selectByNameAndAttrs(@NotNull String name) {
+		var result = new Elements();
+		if (name().equals(name) && attrIsEmpty()) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.selectByNameAndAttrs(name));
+		return result;
+	}
+
+	/**
 	 * 按照标签名称和属性名查询标签
 	 *
 	 * @param name 标签名称
@@ -286,6 +301,24 @@ public class Element extends XmlTree {
 	 */
 	public Element parent() {
 		return (Element) super.parent();
+	}
+
+	/**
+	 * 获取当前节点的属性列表状态
+	 *
+	 * @return 当前节点的属性是否为空
+	 */
+	public boolean attrIsEmpty() {
+		return attrs().isEmpty();
+	}
+
+	/**
+	 * 获取当前节点的子元素列表状态
+	 *
+	 * @return 当前节点的子元素是否为空
+	 */
+	public boolean isEmpty() {
+		return childs().isEmpty();
 	}
 
 	/**

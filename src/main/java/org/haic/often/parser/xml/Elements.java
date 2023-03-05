@@ -67,6 +67,7 @@ public class Elements extends ArrayList<Element> {
 	 * <pre>    #stop - 查询属性名id值为stop的标签节点</pre>
 	 * <pre>    .stop - 查询属性名class值为stop的标签节点</pre>
 	 * <pre>    a[class=stop] - 查询标签名为a属性名class值为stop的标签节点</pre>
+	 * <pre>    a[!class] - 查询标签名为a且不包含属性名class标签节点</pre>
 	 * </blockquote>
 	 *
 	 * @param cssQuery 查询规则
@@ -103,7 +104,7 @@ public class Elements extends ArrayList<Element> {
 						attr = attr.substring(index + 1, attr.length() - 1);
 						int indexAttr = attr.indexOf("=");
 						if (indexAttr == -1) { // 不存在等号
-							result = attr.startsWith("!") ? result.selectByNameAndNoAttr(name, attr.substring(1)) : result.selectByNameAndAttr(name, attr);
+							result = attr.startsWith("!") ? attr.length() == 1 ? result.selectByNameAndAttrs(name) : result.selectByNameAndNoAttr(name, attr.substring(1)) : result.selectByNameAndAttr(name, attr);
 						} else {
 							var key = attr.substring(0, indexAttr);
 							var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
@@ -125,9 +126,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectById(@NotNull String id) {
-		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectById(id)));
-		return result;
+		return this.stream().map(e -> e.selectById(id)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
@@ -139,9 +138,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByName(@NotNull String name) {
-		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectByName(name)));
-		return result;
+		return this.stream().map(e -> e.selectByName(name)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
@@ -157,6 +154,18 @@ public class Elements extends ArrayList<Element> {
 	}
 
 	/**
+	 * 按照标签名称且不存在属性查询标签
+	 *
+	 * @param name 标签名称
+	 * @return 查询结果
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public Elements selectByNameAndAttrs(@NotNull String name) {
+		return this.stream().map(e -> e.selectByNameAndAttrs(name)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
+	}
+
+	/**
 	 * 按照标签名称和属性名查询标签
 	 *
 	 * @param name 标签名称
@@ -166,9 +175,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key) {
-		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectByNameAndAttr(name, key)));
-		return result;
+		return this.stream().map(e -> e.selectByNameAndAttr(name, key)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
@@ -181,9 +188,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByNameAndNoAttr(@NotNull String name, @NotNull String key) {
-		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectByNameAndNoAttr(name, key)));
-		return result;
+		return this.stream().map(e -> e.selectByNameAndNoAttr(name, key)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
@@ -197,9 +202,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByNameAndAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
-		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectByNameAndAttr(name, key, value)));
-		return result;
+		return this.stream().map(e -> e.selectByNameAndAttr(name, key, value)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
@@ -213,9 +216,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByNameAndNoAttr(@NotNull String name, @NotNull String key, @NotNull String value) {
-		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectByNameAndNoAttr(name, key, value)));
-		return result;
+		return this.stream().map(e -> e.selectByNameAndNoAttr(name, key, value)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
@@ -227,9 +228,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key) {
-		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectByAttr(key)));
-		return result;
+		return this.stream().map(e -> e.selectByAttr(key)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
@@ -242,9 +241,7 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements selectByAttr(@NotNull String key, @NotNull String value) {
-		var result = new Elements();
-		this.forEach(child -> result.addAll(child.selectByAttr(key, value)));
-		return result;
+		return this.stream().map(e -> e.selectByAttr(key, value)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
