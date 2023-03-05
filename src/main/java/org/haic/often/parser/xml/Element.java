@@ -51,6 +51,13 @@ public class Element extends XmlTree {
 		return new Elements().fluentAdd(this).select(cssQuery);
 	}
 
+	public Elements select(@NotNull Predicate<Element> predicate) {
+		var result = new Elements();
+		if (predicate.test(this)) return result.fluentAdd(this);
+		for (var child : childs()) if (child instanceof Element e) result.addAll(e.select(predicate));
+		return result;
+	}
+
 	/**
 	 * 按照ID查询标签
 	 *

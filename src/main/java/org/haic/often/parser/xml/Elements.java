@@ -4,6 +4,7 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -63,11 +64,16 @@ public class Elements extends ArrayList<Element> {
 	 * <p>
 	 * 例:
 	 * <blockquote>
-	 * <pre>    @head - 查询当前节点名称为head的子节点</pre>
-	 * <pre>    #stop - 查询属性名id值为stop的标签节点</pre>
-	 * <pre>    .stop - 查询属性名class值为stop的标签节点</pre>
-	 * <pre>    a[class=stop] - 查询标签名为a属性名class值为stop的标签节点</pre>
-	 * <pre>    a[!class] - 查询标签名为a且不包含属性名class标签节点</pre>
+	 * <pre> 	@ - @head - 查询当前节点名称为head的子节点</pre>
+	 * <pre> 	# - #stop - 查询属性名id值为stop的标签节点</pre>
+	 * <pre> 	. - .stop - 查询属性名class值为stop的标签节点</pre>
+	 * <pre>	! - !name - 查询标签名不匹配相等的标签节点</pre>
+	 * <pre>	name - 查询标签名匹配相等的标签节点</pre>
+	 * <pre>	name[key] - 查询标签名并且属性名都匹配相等的标签节点</pre>
+	 * <pre>	name[key=value] - 查询标签名并且属性名和值都匹配相等的标签节点</pre>
+	 * <pre>	name[key!=value] - 查询标签名并且属性名和值都匹配且不包含匹配属性值的标签节点</pre>
+	 * <pre>	name[!key] - 查询标签名匹配且不包含匹配属性名标签节点</pre>
+	 * <pre>	name[!class|!src] - 管道符'|'连接多个属性筛选</pre>
 	 * </blockquote>
 	 *
 	 * @param cssQuery 查询规则
@@ -76,45 +82,51 @@ public class Elements extends ArrayList<Element> {
 	@NotNull
 	@Contract(pure = true)
 	public Elements select(String cssQuery) {
-		var result = new Elements(this);
+		var es = new Elements(this);
 		var querys = cssQuery.split(" ");
 		for (int i = 0; i < querys.length; i++) {
 			switch (querys[i].charAt(0)) {
-				case '.' -> result = selectByAttr("class", querys[i].substring(1));
-				case '#' -> result = selectByAttr("id", querys[i].substring(1));
+				case '.' -> es = selectByAttr("class", querys[i].substring(1));
+				case '#' -> es = selectByAttr("id", querys[i].substring(1));
 				case '@' -> {
 					var value = querys[i].substring(1);
-					if (result.size() != 1) throw new IllegalStateException("在参数 " + querys[i] + " 查询对象不为Element类型");
-					var e = result.get(0);
-					result = e.childElements().stream().filter(l -> l.name().equals(value)).collect(Collectors.toCollection(Elements::new));
+					if (es.size() != 1) throw new IllegalStateException("在参数 " + querys[i] + " 查询对象不为Element类型");
+					var e = es.get(0);
+					es = e.childElements().stream().filter(l -> l.name().equals(value)).collect(Collectors.toCollection(Elements::new));
 				}
 				default -> {
 					int index = querys[i].indexOf("[");
 					if (index == -1) {
-						result = querys[i].startsWith("!") ? result.selectByNoName(querys[i].substring(1)) : result.selectByName(querys[i]);
+						es = querys[i].startsWith("!") ? es.selectByNoName(querys[i].substring(1)) : es.selectByName(querys[i]);
 					} else {
-						var attr = querys[i];
-						var name = attr.substring(0, index);
-						if (!attr.endsWith("]")) { // 属性值中存在空格,重新拼接
+						var attrs = querys[i];
+						var name = attrs.substring(0, index);
+						if (!attrs.endsWith("]")) { // 属性值中存在空格,重新拼接
 							do { // 可能存在多个空格
 								//noinspection StringConcatenationInLoop
-								attr += " " + querys[++i];
-							} while (!attr.endsWith("]"));
+								attrs += " " + querys[++i];
+							} while (!attrs.endsWith("]"));
 						}
-						attr = attr.substring(index + 1, attr.length() - 1);
-						int indexAttr = attr.indexOf("=");
-						if (indexAttr == -1) { // 不存在等号
-							result = attr.startsWith("!") ? attr.length() == 1 ? result.selectByNameAndAttrs(name) : result.selectByNameAndNoAttr(name, attr.substring(1)) : result.selectByNameAndAttr(name, attr);
-						} else {
-							var key = attr.substring(0, indexAttr);
-							var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
-							result = key.endsWith("!") ? result.selectByNameAndNoAttr(name, key.substring(0, key.length() - 1), value) : result.selectByNameAndAttr(name, key, value);
+						attrs = attrs.substring(index + 1, attrs.length() - 1);
+						for (var attr : attrs.split("\\|")) {
+							int indexAttr = attr.indexOf("=");
+							if (indexAttr == -1) { // 不存在等号
+								es = attr.startsWith("!") ? attr.length() == 1 ? es.selectByNameAndAttrs(name) : es.selectByNameAndNoAttr(name, attr.substring(1)) : es.selectByNameAndAttr(name, attr);
+							} else {
+								var key = attr.substring(0, indexAttr);
+								var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
+								es = key.endsWith("!") ? es.selectByNameAndNoAttr(name, key.substring(0, key.length() - 1), value) : es.selectByNameAndAttr(name, key, value);
+							}
 						}
 					}
 				}
 			}
 		}
-		return result;
+		return es;
+	}
+
+	public Elements select(@NotNull Predicate<Element> predicate) {
+		return this.stream().map(e -> e.select(predicate)).flatMap(Elements::stream).collect(Collectors.toCollection(Elements::new));
 	}
 
 	/**
