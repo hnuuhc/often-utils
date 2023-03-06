@@ -86,40 +86,80 @@ public class Elements extends ArrayList<Element> {
 		var es = new Elements(this);
 		for (var sb = new ParserStringBuilder(cssQuery); sb.stripLeading().pos() < sb.length(); sb.offset(1)) {
 			switch (sb.charAt()) {
-				case '.' -> es = select(e -> sb.offset(1).intercept(' ').equals(e.attr("class")));
-				case '#' -> es = select(e -> sb.offset(1).intercept(' ').equals(e.attr("id")));
+				case '.' -> {
+					var value = sb.interceptOrEof(' ');
+					es = es.select(e -> e.containsAttr("class") && value.equals(e.attr("class")));
+				}
+				case '#' -> {
+					var value = sb.interceptOrEof(' ');
+					es = es.select(e -> e.containsAttr("id") && value.equals(e.attr("id")));
+				}
 				case '@' -> {
-					var value = sb.offset(1).intercept(' ');
+					var value = sb.interceptOrEof(' ');
 					if (es.size() != 1) throw new IllegalStateException("参数 " + value + " 错误,查询对象不为Element类型");
 					es = es.get(0).childElements().stream().filter(l -> l.name().equals(value)).collect(Collectors.toCollection(Elements::new));
 				}
 				default -> {
 					var css = new StringBuilder();
 					var attrs = "";
-					for (char c = sb.charAt(); c != ' '; c = sb.charAt()) {
+					while (sb.isNoOutBounds()) {
+						var c = sb.charAt();
 						if (c == '[') {
 							attrs = sb.intercept(']');
 							break;
 						}
 						css.append(c);
-						if (sb.offset(1).pos() == sb.length()) break;
+						sb.offset(1);
 					}
-					var name = css.toString();
-					if (attrs.isEmpty()) {
-						es = name.startsWith("!") ? es.select(e -> !e.name().equals(name.substring(1))) : es.select(e -> e.name().equals(name));
-					} else {
-						for (var attr : attrs.split("\\|")) {
-							int indexAttr = attr.indexOf("=");
-							if (indexAttr == -1) { // 不存在等号
-								es = name.startsWith("!") ? attr.startsWith("!") ? attr.length() == 1 ? es.select(e -> !e.name().equals(name) && e.attrIsEmpty()) : es.select(e -> !e.name().equals(name) && !e.containsAttr(attr.substring(1))) : es.select(e -> !e.name().equals(name) && e.containsAttr(attr)) : attr.startsWith("!") ? attr.length() == 1 ? es.select(e -> e.name().equals(name) && e.attrIsEmpty()) : es.select(e -> e.name().equals(name) && !e.containsAttr(attr.substring(1))) : es.select(e -> e.name().equals(name) && e.containsAttr(attr));
-							} else {
-								var key = attr.substring(0, indexAttr);
-								var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
-								if (key.endsWith("!")) {
-									var thisKey = key.substring(0, key.length() - 1);
-									es = name.startsWith("!") ? es.select(e -> !e.name().equals(name) && e.containsAttr(thisKey) && !value.equals(e.attr(thisKey))) : es.select(e -> e.name().equals(name) && e.containsAttr(thisKey) && !value.equals(e.attr(thisKey)));
+					if (css.charAt(0) == '!') {
+						var name = css.substring(1);
+						if (attrs.isEmpty()) {
+							es = es.select(e -> !e.name().equals(name));
+						} else {
+							for (var attr : attrs.split("\\|")) {
+								int indexAttr = attr.indexOf("=");
+								if (indexAttr == -1) { // 不存在等号
+									if (attr.startsWith("!")) {
+										var thisAttr = attr.substring(1);
+										es = thisAttr.isEmpty() ? es.select(e -> !e.name().equals(name) && e.attrIsEmpty()) : es.select(e -> !e.name().equals(name) && !e.containsAttr(thisAttr));
+									} else {
+										es = es.select(e -> !e.name().equals(name) && e.containsAttr(attr));
+									}
 								} else {
-									es = name.startsWith("!") ? es.select(e -> !e.name().equals(name) && e.containsAttr(key) && value.equals(e.attr(key))) : es.select(e -> e.name().equals(name) && e.containsAttr(key) && value.equals(e.attr(key)));
+									var key = attr.substring(0, indexAttr);
+									var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
+									if (key.endsWith("!")) {
+										var thisKey = key.substring(0, key.length() - 1);
+										es = es.select(e -> !e.name().equals(name) && e.containsAttr(thisKey) && !value.equals(e.attr(thisKey)));
+									} else {
+										es = es.select(e -> !e.name().equals(name) && e.containsAttr(key) && value.equals(e.attr(key)));
+									}
+								}
+							}
+						}
+					} else {
+						var name = css.toString();
+						if (attrs.isEmpty()) {
+							es = es.select(e -> e.name().equals(name));
+						} else {
+							for (var attr : attrs.split("\\|")) {
+								int indexAttr = attr.indexOf("=");
+								if (indexAttr == -1) { // 不存在等号
+									if (attr.startsWith("!")) {
+										var thisAttr = attr.substring(1);
+										es = thisAttr.isEmpty() ? es.select(e -> e.name().equals(name) && e.attrIsEmpty()) : es.select(e -> e.name().equals(name) && !e.containsAttr(thisAttr));
+									} else {
+										es = es.select(e -> e.name().equals(name) && e.containsAttr(attr));
+									}
+								} else {
+									var key = attr.substring(0, indexAttr);
+									var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
+									if (key.endsWith("!")) {
+										var thisKey = key.substring(0, key.length() - 1);
+										es = es.select(e -> e.name().equals(name) && e.containsAttr(thisKey) && !value.equals(e.attr(thisKey)));
+									} else {
+										es = es.select(e -> e.name().equals(name) && e.containsAttr(key) && value.equals(e.attr(key)));
+									}
 								}
 							}
 						}
@@ -164,9 +204,7 @@ public class Elements extends ArrayList<Element> {
 
 	@Override
 	public String toString() {
-		var sb = new StringBuilder();
-		for (var child : this) sb.append(child.toString(0)).append("\n");
-		return sb.toString();
+		return this.stream().map(e -> e.toString(0)).collect(Collectors.joining("\n"));
 	}
 
 }

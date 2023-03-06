@@ -90,28 +90,34 @@ public class ParserStringBuilder {
 
 	public String intercept(char eof) {
 		var sb = new StringBuilder();
-		while (body.charAt(++index) != eof) {
-			if (body.charAt(index) == '\\') {
-				switch (body.charAt(++index)) {
-					case 'u' -> sb.append((char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16));
-					case '\\' -> sb.append('\\');
-					case '/' -> sb.append('/');
-					case '\'' -> sb.append('\'');
-					case '"' -> sb.append('"');
-					case 'r' -> sb.append('\r');
-					case 'n' -> sb.append('\n');
-					case 't' -> sb.append('\t');
-					case '0' -> sb.append((char) Integer.parseInt(body.substring(++index, ++index + 1), 8));
-					case 'x' -> sb.append((char) Integer.parseInt(body.substring(++index, ++index + 1), 16));
-					case '\r' -> throw new JSONException("存在非法换行符: \\r");
-					case '\n' -> throw new JSONException("存在非法换行符: \\n");
-					default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
-				}
-			} else {
-				sb.append(body.charAt(index));
-			}
+		for (char c = body.charAt(++index); c != eof; c = body.charAt(++index)) sb.append(c == '\\' ? interceptChar() : c);
+		return sb.toString();
+	}
+
+	public String interceptOrEof(char eof) {
+		var sb = new StringBuilder();
+		while (++index < length) {
+			var c = body.charAt(index);
+			if (c == eof) break;
+			sb.append(c == '\\' ? interceptChar() : c);
 		}
 		return sb.toString();
+	}
+
+	private char interceptChar() {
+		switch (body.charAt(++index)) {
+			case 'u' -> {return (char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16);}
+			case '\\' -> {return '\\';}
+			case '/' -> {return '/';}
+			case '\'' -> {return '\'';}
+			case '"' -> {return '"';}
+			case 'r' -> {return '\r';}
+			case 'n' -> {return '\n';}
+			case 't' -> {return '\t';}
+			case '0' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 8);}
+			case 'x' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 16);}
+			default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
+		}
 	}
 
 	/**
@@ -133,6 +139,10 @@ public class ParserStringBuilder {
 		while (i > 0 && Character.isWhitespace(body.charAt(i))) i--; // 跳过空格
 		this.length = i + 1;
 		return this;
+	}
+
+	public boolean isNoOutBounds() {
+		return index < length;
 	}
 
 	@Override

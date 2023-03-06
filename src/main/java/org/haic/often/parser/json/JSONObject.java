@@ -35,7 +35,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	public JSONObject(@NotNull ParserStringBuilder body) {
 		if (body.charAt() != '{') throw new JSONException("位置 " + body.pos() + " 处格式错误期望值不为'{'");
 		if (body.offset(1).stripLeading().charAt() == '}') return;
-		while (body.pos() < body.length()) {
+		while (body.isNoOutBounds()) {
 			if (body.charAt() == ':') throw new JSONException("位置 " + body.pos() + " 处不存在键");
 			String key;
 			switch (body.charAt()) {

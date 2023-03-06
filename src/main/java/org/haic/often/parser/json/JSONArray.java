@@ -31,7 +31,7 @@ public class JSONArray extends ArrayList<Object> {
 	public JSONArray(@NotNull ParserStringBuilder body) {
 		if (body.charAt(body.pos()) == '[') {
 			if (body.offset(1).stripLeading().charAt() == ']') return;
-			while (body.pos() < body.length()) {
+			while (body.isNoOutBounds()) {
 				switch (body.charAt()) {
 					case '"', '\'' -> this.add(body.intercept());
 					case '{' -> this.add(new JSONObject(body));
