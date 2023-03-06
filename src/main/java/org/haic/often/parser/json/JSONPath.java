@@ -38,23 +38,23 @@ public class JSONPath {
 	/**
 	 * 使用规则对JSON进行快捷解析,查询规则键{@link #select(String, Class)}
 	 *
-	 * @param regex 查询规则
+	 * @param cssQuery 查询规则
 	 * @return 查询结果
 	 */
-	public Object select(@NotNull String regex) {
-		return select(regex, Object.class);
+	public Object select(@NotNull String cssQuery) {
+		return select(cssQuery, Object.class);
 	}
 
 	/**
 	 * 使用规则对JSON进行快捷解析,查询规则键{@link #select(String, Class)}
 	 *
-	 * @param regex 查询规则
-	 * @param type  指定返回类型
-	 * @param <T>   返回结果类型
+	 * @param cssQuery 查询规则
+	 * @param type     指定返回类型
+	 * @param <T>      返回结果类型
 	 * @return 查询结果
 	 */
-	public <T> T select(@NotNull String regex, TypeReference<T> type) {
-		return TypeUtil.convert(select(regex, Object.class), type);
+	public <T> T select(@NotNull String cssQuery, TypeReference<T> type) {
+		return TypeUtil.convert(select(cssQuery, Object.class), type);
 	}
 
 	/**
@@ -75,20 +75,20 @@ public class JSONPath {
 	 * <pre>规则: ".123.cc2[0]" 			结果: 123</pre>
 	 * <pre>规则: ".c43[@'zzz'>100][0].zzz"		结果: 113</pre>
 	 *
-	 * @param regex 查询规则
-	 * @param clazz 指定返回类型
-	 * @param <T>   返回结果类型
+	 * @param cssQuery 查询规则
+	 * @param clazz    指定返回类型
+	 * @param <T>      返回结果类型
 	 * @return 查询结果
 	 */
-	public <T> T select(@NotNull String regex, Class<T> clazz) {
+	public <T> T select(@NotNull String cssQuery, Class<T> clazz) {
 		Object result = this.json;
-		for (int index = 0; index < regex.length(); index++) {
-			switch (regex.charAt(index)) {
+		for (int index = 0; index < cssQuery.length(); index++) {
+			switch (cssQuery.charAt(index)) {
 				case '.' -> {
 					int off = ++index;
 					//noinspection StatementWithEmptyBody
-					while (regex.charAt(index) != '.' && regex.charAt(index) != '[' && ++index < regex.length()) {}
-					var key = regex.substring(off, index--);
+					while (cssQuery.charAt(index) != '.' && cssQuery.charAt(index) != '[' && ++index < cssQuery.length()) {}
+					var key = cssQuery.substring(off, index--);
 					result = ((Map<?, ?>) result).get(key);
 				}
 				case '[' -> {
@@ -98,23 +98,23 @@ public class JSONPath {
 						Function<Predicate<Map<String, Boolean>>, Object> mapBoolCompare = predicate -> TypeUtil.convertList(as, Map.class).stream().map(l -> TypeUtil.convert(l, new TypeReference<Map<String, Boolean>>() {})).filter(predicate).collect(Collectors.toList());
 						Function<Predicate<Map<String, String>>, Object> mapStringCompare = predicate -> TypeUtil.convertList(as, Map.class).stream().map(l -> TypeUtil.convert(l, new TypeReference<Map<String, String>>() {})).filter(predicate).collect(Collectors.toList());
 
-						switch (regex.charAt(i)) {
+						switch (cssQuery.charAt(i)) {
 							case '<' -> {
-								int a = regex.charAt(++i) == '=' ? Integer.parseInt(regex.substring(++i, end)) + 1 : Integer.parseInt(regex.substring(i, end));
+								int a = cssQuery.charAt(++i) == '=' ? Integer.parseInt(cssQuery.substring(++i, end)) + 1 : Integer.parseInt(cssQuery.substring(i, end));
 								return TypeUtil.convertList(as, Integer.class).stream().filter(non ? l -> l > a : l -> l < a).collect(Collectors.toList());
 							}
 							case '>' -> {
-								int a = regex.charAt(++i) == '=' ? Integer.parseInt(regex.substring(++i, end)) - 1 : Integer.parseInt(regex.substring(i, end));
+								int a = cssQuery.charAt(++i) == '=' ? Integer.parseInt(cssQuery.substring(++i, end)) - 1 : Integer.parseInt(cssQuery.substring(i, end));
 								return TypeUtil.convertList(as, Integer.class).stream().filter(non ? l -> l < a : l -> l > a).collect(Collectors.toList());
 							}
 							case '=' -> {
-								switch (regex.charAt(++i)) {
+								switch (cssQuery.charAt(++i)) {
 									case '=' -> {
-										if (regex.charAt(++i) == '\'') {
-											var value = regex.substring(++i, regex.indexOf("'", i));
+										if (cssQuery.charAt(++i) == '\'') {
+											var value = cssQuery.substring(++i, cssQuery.indexOf("'", i));
 											return TypeUtil.convertList(as, String.class).stream().filter(non ? l -> !l.equals(value) : l -> l.equals(value)).collect(Collectors.toList());
 										}
-										var value = regex.substring(i, end);
+										var value = cssQuery.substring(i, end);
 										switch (value) {
 											case "null" -> {
 												return TypeUtil.convertList(as, Object.class).stream().filter(non ? Objects::nonNull : Objects::isNull).collect(Collectors.toList());
@@ -132,51 +132,51 @@ public class JSONPath {
 										}
 									}
 									case '~' -> {
-										Validate.isTrue(regex.charAt(++i) == '\'', "查询参数在索引 " + i + " 处期待值不为''',包含判断符必须为字符串,且使用单引号环绕");
-										var value = regex.substring(++i, regex.indexOf("'", i));
+										Validate.isTrue(cssQuery.charAt(++i) == '\'', "查询参数在索引 " + i + " 处期待值不为''',包含判断符必须为字符串,且使用单引号环绕");
+										var value = cssQuery.substring(++i, cssQuery.indexOf("'", i));
 										return TypeUtil.convertList(as, String.class).stream().filter(non ? l -> !l.contains(value) : l -> l.contains(value)).collect(Collectors.toList());
 									}
 									default -> throw new IllegalArgumentException("查询参数在索引 " + i + " 处未知的判断符");
 								}
 							}
 							case '~' -> {
-								Validate.isTrue(regex.charAt(++i) == '=', "查询参数在索引 " + i + " 处未知的判断符");
-								Validate.isTrue(regex.charAt(++i) == '\'', "查询参数在索引 " + i + " 处期待值不为''',包含判断符必须为字符串,且使用单引号环绕");
-								var value = regex.substring(++i, regex.indexOf("'", i));
+								Validate.isTrue(cssQuery.charAt(++i) == '=', "查询参数在索引 " + i + " 处未知的判断符");
+								Validate.isTrue(cssQuery.charAt(++i) == '\'', "查询参数在索引 " + i + " 处期待值不为''',包含判断符必须为字符串,且使用单引号环绕");
+								var value = cssQuery.substring(++i, cssQuery.indexOf("'", i));
 								return TypeUtil.convertList(as, String.class).stream().filter(non ? l -> !value.contains(l) : value::contains).collect(Collectors.toList());
 							}
 							case '!' -> {
-								Validate.isTrue(regex.charAt(++i) == '=', "查询参数在索引 " + i + " 处期待值不为'='");
-								int a = Integer.parseInt(regex.substring(++i, end));
+								Validate.isTrue(cssQuery.charAt(++i) == '=', "查询参数在索引 " + i + " 处期待值不为'='");
+								int a = Integer.parseInt(cssQuery.substring(++i, end));
 								return TypeUtil.convertList(as, Integer.class).stream().filter(non ? l -> l == a : l -> l != a).collect(Collectors.toList());
 							}
 							case '\'' -> {
-								var key = regex.substring(++i, i = regex.indexOf("'", i));
-								switch (regex.charAt(++i)) {
+								var key = cssQuery.substring(++i, i = cssQuery.indexOf("'", i));
+								switch (cssQuery.charAt(++i)) {
 									case '<' -> {
-										if (regex.charAt(++i) == '=') {
-											int a = Integer.parseInt(regex.substring(++i, end));
+										if (cssQuery.charAt(++i) == '=') {
+											int a = Integer.parseInt(cssQuery.substring(++i, end));
 											return mapIntCompare.apply(non ? l -> l.get(key) > a : l -> l.get(key) <= a);
 										}
-										int a = Integer.parseInt(regex.substring(i, end));
+										int a = Integer.parseInt(cssQuery.substring(i, end));
 										return mapIntCompare.apply(non ? l -> l.get(key) >= a : l -> l.get(key) < a);
 									}
 									case '>' -> {
-										if (regex.charAt(++i) == '=') {
-											int a = Integer.parseInt(regex.substring(++i, end));
+										if (cssQuery.charAt(++i) == '=') {
+											int a = Integer.parseInt(cssQuery.substring(++i, end));
 											return mapIntCompare.apply(non ? l -> l.get(key) < a : l -> l.get(key) >= a);
 										}
-										int a = regex.charAt(++i) == '=' ? Integer.parseInt(regex.substring(++i, end)) - 1 : Integer.parseInt(regex.substring(i, end));
+										int a = cssQuery.charAt(++i) == '=' ? Integer.parseInt(cssQuery.substring(++i, end)) - 1 : Integer.parseInt(cssQuery.substring(i, end));
 										return mapIntCompare.apply(non ? l -> l.get(key) <= a : l -> l.get(key) > a);
 									}
 									case '=' -> {
-										switch (regex.charAt(++i)) {
+										switch (cssQuery.charAt(++i)) {
 											case '=' -> {
-												if (regex.charAt(++i) == '\'') {
-													var value = regex.substring(++i, regex.indexOf("'", i));
+												if (cssQuery.charAt(++i) == '\'') {
+													var value = cssQuery.substring(++i, cssQuery.indexOf("'", i));
 													return mapStringCompare.apply(non ? l -> !l.get(key).equals(value) : l -> l.get(key).equals(value));
 												}
-												var value = regex.substring(i, end);
+												var value = cssQuery.substring(i, end);
 												switch (value) {
 													case "null" -> {
 														return TypeUtil.convertList(as, Map.class).stream().filter(non ? l -> l.get(key) != null : l -> l.get(key) == null).collect(Collectors.toList());
@@ -194,26 +194,26 @@ public class JSONPath {
 												}
 											}
 											case '~' -> {
-												Validate.isTrue(regex.charAt(++i) == '\'', "查询参数在索引 " + i + " 处期待值不为''',包含判断符必须为字符串,且使用单引号环绕");
-												var value = regex.substring(++i, regex.indexOf("'", i));
+												Validate.isTrue(cssQuery.charAt(++i) == '\'', "查询参数在索引 " + i + " 处期待值不为''',包含判断符必须为字符串,且使用单引号环绕");
+												var value = cssQuery.substring(++i, cssQuery.indexOf("'", i));
 												return mapStringCompare.apply(non ? l -> !value.contains(l.get(key)) : l -> value.contains(l.get(key)));
 											}
 											default -> throw new IllegalArgumentException("查询参数在索引 " + i + " 处未知的判断符");
 										}
 									}
 									case '~' -> {
-										Validate.isTrue(regex.charAt(++i) == '=', "查询参数在索引 " + i + " 处未知的判断符");
-										Validate.isTrue(regex.charAt(++i) == '\'', "查询参数在索引 " + i + " 处期待值不为''',包含判断符必须为字符串,且使用单引号环绕");
-										var value = regex.substring(++i, regex.indexOf("'", i));
+										Validate.isTrue(cssQuery.charAt(++i) == '=', "查询参数在索引 " + i + " 处未知的判断符");
+										Validate.isTrue(cssQuery.charAt(++i) == '\'', "查询参数在索引 " + i + " 处期待值不为''',包含判断符必须为字符串,且使用单引号环绕");
+										var value = cssQuery.substring(++i, cssQuery.indexOf("'", i));
 										return mapStringCompare.apply(non ? l -> !l.get(key).contains(value) : l -> l.get(key).contains(value));
 									}
 									case '!' -> {
-										Validate.isTrue(regex.charAt(++i) == '=', "查询参数在索引 " + i + " 处期待值不为'='");
-										if (regex.charAt(++i) == '\'') {
-											var value = regex.substring(++i, regex.indexOf("'", i));
+										Validate.isTrue(cssQuery.charAt(++i) == '=', "查询参数在索引 " + i + " 处期待值不为'='");
+										if (cssQuery.charAt(++i) == '\'') {
+											var value = cssQuery.substring(++i, cssQuery.indexOf("'", i));
 											return mapStringCompare.apply(non ? l -> l.get(key).equals(value) : l -> !l.get(key).equals(value));
 										}
-										var value = regex.substring(i, end);
+										var value = cssQuery.substring(i, end);
 										switch (value) {
 											case "null" -> {
 												return TypeUtil.convertList(as, Map.class).stream().filter(non ? l -> l.get(key) == null : l -> l.get(key) != null).collect(Collectors.toList());
@@ -239,23 +239,23 @@ public class JSONPath {
 							default -> throw new IllegalArgumentException("查询参数在索引 " + i + " 处不正确");
 						}
 					};
-					if (regex.charAt(++index) == '!') {
-						Validate.isTrue(regex.charAt(++index) == '@', "查询参数在索引 " + index + " 处期待值不为'@'");
-						result = filter.apply(result, ++index, index = regex.indexOf("]", index), true);
-					} else if (regex.charAt(index) == '@') {
-						result = filter.apply(result, ++index, index = regex.indexOf("]", index), false);
-					} else if (regex.charAt(index) == '\'') {
-						var key = regex.substring(++index, index = regex.indexOf("'", index) + 1);
+					if (cssQuery.charAt(++index) == '!') {
+						Validate.isTrue(cssQuery.charAt(++index) == '@', "查询参数在索引 " + index + " 处期待值不为'@'");
+						result = filter.apply(result, ++index, index = cssQuery.indexOf("]", index), true);
+					} else if (cssQuery.charAt(index) == '@') {
+						result = filter.apply(result, ++index, index = cssQuery.indexOf("]", index), false);
+					} else if (cssQuery.charAt(index) == '\'') {
+						var key = cssQuery.substring(++index, index = cssQuery.indexOf("'", index) + 1);
 						result = ((Map<?, ?>) result).get(key);
 					} else {
 						Validate.isTrue(result instanceof Collection, "上次查询结果不为数组");
-						var key = Integer.parseInt(regex.substring(index, index = regex.indexOf("]", index)));
+						var key = Integer.parseInt(cssQuery.substring(index, index = cssQuery.indexOf("]", index)));
 						result = ((List<?>) result).get(key);
 					}
 				}
 				case '|' -> {
 					Collection<Object> list = result instanceof Collection<?> c ? new ArrayList<>(c) : result instanceof Object[] objs ? Arrays.asList(objs) : new JSONArray().fluentAdd(result);
-					Object pipeline = select(regex.substring(++index), clazz);
+					Object pipeline = select(cssQuery.substring(++index), clazz);
 					if (pipeline instanceof Collection<?> c) list.addAll(c);
 					else if (result instanceof Object[] objs) list.addAll(Arrays.asList(objs));
 					else list.add(pipeline);
