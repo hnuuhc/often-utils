@@ -29,7 +29,7 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param body 字符串
 	 */
 	public JSONArray(@NotNull ParserStringBuilder body) {
-		if (body.charAt(body.pos()) == '[') {
+		if (body.charAt() == '[') {
 			if (body.offset(1).stripLeading().charAt() == ']') return;
 			while (body.isNoOutBounds()) {
 				switch (body.charAt()) {

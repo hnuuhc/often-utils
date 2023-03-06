@@ -2,6 +2,7 @@ package org.haic.often.parser.json;
 
 import org.haic.often.annotations.NotNull;
 import org.haic.often.function.FourFunction;
+import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 import org.haic.often.util.Validate;
@@ -21,6 +22,10 @@ import java.util.stream.Collectors;
 public class JSONPath {
 
 	private final Object json;
+
+	public JSONPath(@NotNull String json) {
+		this.json = new ParserStringBuilder(json).stripLeading().charAt() == '[' ? JSONArray.parseArray(json) : JSONObject.parseObject(json);
+	}
 
 	public JSONPath(JSONObject json) {
 		this.json = json;
