@@ -115,6 +115,16 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * 使用规则对JSON进行快捷解析,查询规则键{@link JSONPath#select(String, Class)}
 	 *
 	 * @param regex 查询规则
+	 * @return 查询结果
+	 */
+	public Object select(@NotNull String regex) {
+		return new JSONPath(this).select(regex);
+	}
+
+	/**
+	 * 使用规则对JSON进行快捷解析,查询规则键{@link JSONPath#select(String, Class)}
+	 *
+	 * @param regex 查询规则
 	 * @param type  指定返回类型
 	 * @param <T>   返回结果类型
 	 * @return 查询结果
