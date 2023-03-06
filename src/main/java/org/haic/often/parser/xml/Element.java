@@ -40,7 +40,7 @@ public class Element extends XmlTree {
 	/**
 	 * 按照指定规则查询标签,支持使用空格分割,以确保更精确的查询
 	 * <p>
-	 * 查询规则查看 {@link Elements#select(String)}
+	 * 查询规则查看 {@link XmlPath#select(String)}
 	 *
 	 * @param cssQuery 查询规则
 	 * @return 查询结果
@@ -48,7 +48,7 @@ public class Element extends XmlTree {
 	@NotNull
 	@Contract(pure = true)
 	public Elements select(@NotNull String cssQuery) {
-		return new Elements().fluentAdd(this).select(cssQuery);
+		return new XmlPath(this).select(cssQuery);
 	}
 
 	/**
