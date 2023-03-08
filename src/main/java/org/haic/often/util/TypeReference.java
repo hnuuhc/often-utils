@@ -28,26 +28,13 @@ public abstract class TypeReference<T> {
 	private final Type[] actualTypeArguments;
 	private final Object[] arguments;
 
-	public TypeReference() {
-		this(new Object[0]);
-	}
-
 	@SuppressWarnings("unchecked")
 	public TypeReference(Object... arguments) {
-		Type superClass = this.getClass().getGenericSuperclass();
+		var superClass = this.getClass().getGenericSuperclass();
 		this.type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
 		this.rawType = (Class<? super T>) TypeUtil.getRawType(type);
 		this.actualTypeArguments = type instanceof ParameterizedType parameterizedType ? parameterizedType.getActualTypeArguments() : new Type[0];
 		this.arguments = arguments;
-	}
-
-	@SuppressWarnings("unchecked")
-	public TypeReference(Class<?>... clazz) {
-		Type superClass = this.getClass().getGenericSuperclass();
-		this.type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
-		this.rawType = (Class<? super T>) TypeUtil.getRawType(type);
-		this.actualTypeArguments = clazz;
-		this.arguments = new Object[0];
 	}
 
 	public Type getType() {
