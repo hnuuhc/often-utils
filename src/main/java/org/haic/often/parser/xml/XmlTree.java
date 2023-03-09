@@ -2,6 +2,7 @@ package org.haic.often.parser.xml;
 
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
+import org.haic.often.parser.json.JSONObject;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -176,6 +177,15 @@ public class XmlTree extends Tag {
 	 */
 	public boolean isEmpty() {
 		return childs().isEmpty();
+	}
+
+	/**
+	 * 将树状结构转换为 {@link JSONObject} 类型
+	 *
+	 * @return JSON数据
+	 */
+	public JSONObject toJSONObject() {
+		return new JSONObject(attrs()).fluentPut("name", name()).fluentPut("child", childs().toJSONArray());
 	}
 
 	@Override
