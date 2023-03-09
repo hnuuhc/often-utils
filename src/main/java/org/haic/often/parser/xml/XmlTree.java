@@ -185,7 +185,7 @@ public class XmlTree extends Tag {
 	 * @return JSON数据
 	 */
 	public JSONObject toJSONObject() {
-		return new JSONObject(attrs()).fluentPut("name", name()).fluentPut("child", childs().toJSONArray());
+		return new JSONObject().fluentPut("name", name()).fluentPut("attr", attrs()).fluentPut("child", childs().toJSONArray());
 	}
 
 	@Override
