@@ -114,6 +114,8 @@ public class ParserStringBuilder {
 			case 'r' -> {return '\r';}
 			case 'n' -> {return '\n';}
 			case 't' -> {return '\t';}
+			case 'f' -> {return '\f';}
+			case 'b' -> {return '\b';}
 			case '0' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 8);}
 			case 'x' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 16);}
 			default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
