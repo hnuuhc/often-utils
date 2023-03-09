@@ -523,11 +523,12 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * <pre>	name - 节点名称</pre>
 	 * <pre>	attr - 节点属性</pre>
 	 * <pre>	child - 子节点</pre>
+	 * <pre>	close - 是否为自闭合</pre>
 	 *
 	 * @return Element对象
 	 */
 	public Element toXmlTree() {
-		return new Element(this.getString("name")).addAttrs(this.get("attr", new TypeReference<>() {})).addChilds(this.get("child", JSONArray.class).toXmlChilds());
+		return new Element(this.getString("name")).close(this.getBoolean("close")).addAttrs(this.get("attr", new TypeReference<>() {})).addChilds(this.get("child", JSONArray.class).toXmlChilds());
 	}
 
 	@Override
