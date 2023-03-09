@@ -4,6 +4,7 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.parser.ParserStringBuilder;
+import org.haic.often.parser.xml.XmlChilds;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 
@@ -360,8 +361,23 @@ public class JSONArray extends ArrayList<Object> {
 		return this;
 	}
 
+	/**
+	 * 按照所给比较函数获取排序后的数组
+	 *
+	 * @param comparator 一个比较函数，它对某些对象集合施加总排序
+	 * @return 排序后的数组
+	 */
 	public JSONArray sorted(Comparator<Object> comparator) {
 		return JSONArray.parseArray(this.stream().sorted(comparator).toList());
+	}
+
+	/**
+	 * 转化为 {@link XmlChilds} 类型
+	 *
+	 * @return XmlChilds对象
+	 */
+	public XmlChilds toXmlChilds() {
+		return this.stream().map(m -> m instanceof JSONObject e ? e.toXmlTree() : m).collect(Collectors.toCollection(XmlChilds::new));
 	}
 
 	@Override

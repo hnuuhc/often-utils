@@ -31,7 +31,6 @@ public class TypeUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(Object obj, TypeReference<T> type) {
 		var rawType = type.getRawType();
-		if (!type.isActualType()) return (T) TypeUtil.convert(obj, rawType);
 		var arguments = type.getArguments();
 		Function<Class<?>, Constructor<?>> convert = convertType -> {
 			for (var constructor : convertType.getConstructors()) {
@@ -52,10 +51,12 @@ public class TypeUtil {
 		var actualTypeArguments = type.getActualTypeArguments();
 		if (Map.class.isAssignableFrom(rawType)) {
 			if (rawType.isInterface()) rawType = HashMap.class;
-			return (T) TypeUtil.convertMap(obj, TypeUtil.getRawType(actualTypeArguments[0]), TypeUtil.getRawType(actualTypeArguments[1]), convert.apply(rawType), arguments);
+			return (T) TypeUtil.convertMap(obj, TypeUtil.getRawType(actualTypeArguments.length == 0 ? Object.class : actualTypeArguments[0]), TypeUtil.getRawType(actualTypeArguments.length == 0 ? Object.class : actualTypeArguments[1]), convert.apply(rawType), arguments);
 		} else if (Collection.class.isAssignableFrom(rawType)) {
 			if (rawType.isInterface()) rawType = ArrayList.class;
-			return (T) TypeUtil.convertList(obj, TypeUtil.getRawType(actualTypeArguments[0]), convert.apply(rawType), arguments);
+			return (T) TypeUtil.convertList(obj, TypeUtil.getRawType(actualTypeArguments.length == 0 ? Object.class : actualTypeArguments[0]), convert.apply(rawType), arguments);
+		} else if (!type.isActualType()) {
+			return (T) TypeUtil.convert(obj, rawType);
 		} else {
 			throw new TypeException("不支持的转换类型");
 		}

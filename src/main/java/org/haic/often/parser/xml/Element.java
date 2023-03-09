@@ -132,6 +132,17 @@ public class Element extends XmlTree {
 	}
 
 	/**
+	 * 添加多个子节点
+	 *
+	 * @param childs 子节点数组
+	 * @return 当前节点
+	 */
+	public Element addChilds(@NotNull XmlChilds childs) {
+		super.addChilds(childs);
+		return this;
+	}
+
+	/**
 	 * 删除指定索引的子节点
 	 *
 	 * @param i 指定索引参数

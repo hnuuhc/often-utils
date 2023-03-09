@@ -58,6 +58,17 @@ public class XmlTree extends Tag {
 	}
 
 	/**
+	 * 添加多个子节点
+	 *
+	 * @param childs 子节点数组
+	 * @return 当前节点
+	 */
+	public XmlTree addChilds(@NotNull XmlChilds childs) {
+		this.childs.addAll(childs);
+		return this;
+	}
+
+	/**
 	 * 删除指定索引的子节点
 	 *
 	 * @param i 指定索引参数

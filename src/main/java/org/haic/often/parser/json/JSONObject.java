@@ -4,6 +4,7 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.parser.ParserStringBuilder;
+import org.haic.often.parser.xml.Element;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
@@ -515,6 +516,20 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 		return this;
 	}
 
+	/**
+	 * 将树状结构转化为 {@link Element} 类型
+	 * <p>
+	 * 在每个节点中必须包含键:
+	 * <pre>	name - 节点名称</pre>
+	 * <pre>	attr - 节点属性</pre>
+	 * <pre>	child - 子节点</pre>
+	 *
+	 * @return Element对象
+	 */
+	public Element toXmlTree() {
+		return new Element(this.getString("name")).addAttrs(this.get("attr", new TypeReference<>() {})).addChilds(this.get("child", JSONArray.class).toXmlChilds());
+	}
+
 	@Override
 	public String toString() {
 		return '{' + this.entrySet().stream().map(token -> '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue())).collect(Collectors.joining(",")) + '}';
@@ -529,7 +544,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		return '{' + this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue(), depth)).collect(Collectors.joining(",")) + "\n" + "    ".repeat(depth) + '}';
+		return this.isEmpty() ? "{}" : '{' + this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue(), depth)).collect(Collectors.joining(",")) + "\n" + "    ".repeat(depth) + '}';
 	}
 
 }
