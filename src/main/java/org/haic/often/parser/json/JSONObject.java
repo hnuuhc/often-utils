@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -184,14 +185,14 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	/**
 	 * 获取名称对应键的值
 	 *
-	 * @param key       名称
-	 * @param itemClass 指定类型
-	 * @param <T>       返回泛型
+	 * @param key    名称
+	 * @param mapper 函数式接口,用于指定转换类型
+	 * @param <T>    返回泛型
 	 * @return 值
 	 */
 	@Contract(pure = true)
-	public <T> T get(@NotNull String key, @NotNull Class<T> itemClass) {
-		return TypeUtil.convert(this.get(key), itemClass);
+	public <T> T get(@NotNull String key, @NotNull Function<Object, ? extends T> mapper) {
+		return mapper.apply(this.get(key));
 	}
 
 	/**
@@ -205,6 +206,19 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	@Contract(pure = true)
 	public <T> T get(@NotNull String key, @NotNull TypeReference<T> type) {
 		return TypeUtil.convert(this.get(key), type);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key       名称
+	 * @param itemClass 指定类型
+	 * @param <T>       返回泛型
+	 * @return 值
+	 */
+	@Contract(pure = true)
+	public <T> T get(@NotNull String key, @NotNull Class<T> itemClass) {
+		return TypeUtil.convert(this.get(key), itemClass);
 	}
 
 	/**

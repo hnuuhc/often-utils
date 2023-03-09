@@ -8,6 +8,7 @@ import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -149,6 +150,19 @@ public class JSONArray extends ArrayList<Object> {
 	@Contract(pure = true)
 	public Object get(int i) {
 		return JSONFormat.format(super.get(i));
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param i      要返回的元素的索引
+	 * @param mapper 函数式接口,用于指定转换类型
+	 * @param <T>    返回泛型
+	 * @return 值
+	 */
+	@Contract(pure = true)
+	public <T> T get(int i, @NotNull Function<Object, ? extends T> mapper) {
+		return mapper.apply(this.get(i));
 	}
 
 	/**
