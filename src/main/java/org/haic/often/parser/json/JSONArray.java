@@ -378,7 +378,7 @@ public class JSONArray extends ArrayList<Object> {
 	@NotNull
 	@Contract(pure = true)
 	public String toString(int depth) {
-		return '[' + this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + JSONFormat.toOutFormat(token, depth)).collect(Collectors.joining(",")) + "\n" + "    ".repeat(depth) + ']';
+		return this.isEmpty() ? "[]" : '[' + this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + JSONFormat.toOutFormat(token, depth)).collect(Collectors.joining(",")) + "\n" + "    ".repeat(depth) + ']';
 	}
 
 }

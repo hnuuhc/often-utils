@@ -180,7 +180,7 @@ Map<String, String> storages = LocalStorage.home().getForDomain("pixiv.net");
 ```
 ExecutorService executor = Executors.newFixedThreadPool(10);
 for (int i = 0; i < 10; i++) {	
-	executorService.execute(new ConsumerThread(i, (index) -> { // 传参执行多线程
+	executor.execute(new ConsumerThread(i, (index) -> { // 传参执行多线程
 		// TODO
 	}));
 			
