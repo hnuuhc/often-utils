@@ -4,6 +4,7 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.parser.ParserStringBuilder;
+import org.haic.often.parser.xml.Element;
 import org.haic.often.parser.xml.XmlChilds;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
@@ -377,7 +378,17 @@ public class JSONArray extends ArrayList<Object> {
 	 * @return XmlChilds对象
 	 */
 	public XmlChilds toXmlChilds() {
-		return this.stream().map(m -> m instanceof JSONObject e ? e.toXmlTree() : m).collect(Collectors.toCollection(XmlChilds::new));
+		return toXmlChilds(null);
+	}
+
+	/**
+	 * 转化为 {@link XmlChilds} 类型
+	 *
+	 * @param parent 父节点
+	 * @return XmlChilds对象
+	 */
+	public XmlChilds toXmlChilds(Element parent) {
+		return this.stream().map(m -> m instanceof JSONObject e ? e.toXmlTree(parent) : m).collect(Collectors.toCollection(XmlChilds::new));
 	}
 
 	@Override

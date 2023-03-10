@@ -25,7 +25,7 @@ public class XmlTree extends Tag {
 		this(null, name);
 	}
 
-	protected XmlTree(XmlTree parent, @NotNull String name) {
+	public XmlTree(XmlTree parent, @NotNull String name) {
 		super(name);
 		this.parent = parent;
 	}

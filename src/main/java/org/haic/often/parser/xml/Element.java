@@ -21,6 +21,10 @@ public class Element extends XmlTree {
 		super(name);
 	}
 
+	public Element(Element parent, @NotNull String name) {
+		super(parent, name);
+	}
+
 	protected Element(XmlTree parent, @NotNull ParserStringBuilder node) {
 		super(parent, node);
 	}

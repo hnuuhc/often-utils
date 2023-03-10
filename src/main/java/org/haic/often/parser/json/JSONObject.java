@@ -519,16 +519,29 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	/**
 	 * 将树状结构转化为 {@link Element} 类型
 	 * <p>
+	 * 在每个节点中必须包含指定键键,详见: {@link #toXmlTree(Element)}
+	 *
+	 * @return Element对象
+	 */
+	public Element toXmlTree() {
+		return toXmlTree(null);
+	}
+
+	/**
+	 * 将树状结构转化为 {@link Element} 类型
+	 * <p>
 	 * 在每个节点中必须包含键:
 	 * <pre>	name - 节点名称</pre>
 	 * <pre>	attr - 节点属性</pre>
 	 * <pre>	child - 子节点</pre>
 	 * <pre>	close - 是否为自闭合</pre>
 	 *
+	 * @param parent 父节点
 	 * @return Element对象
 	 */
-	public Element toXmlTree() {
-		return new Element(this.getString("name")).close(this.getBoolean("close")).addAttrs(this.get("attr", new TypeReference<>() {})).addChilds(this.get("child", JSONArray.class).toXmlChilds());
+	public Element toXmlTree(Element parent) {
+		var xml = new Element(parent, this.getString("name")).close(this.getBoolean("close")).addAttrs(this.get("attr", new TypeReference<>() {}));
+		return xml.addChilds(this.get("child", JSONArray.class).toXmlChilds(xml));
 	}
 
 	@Override
