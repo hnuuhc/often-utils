@@ -36,6 +36,8 @@ public class Document extends Element {
 			return new Document(type, sb.pos(sb.indexOf("<" + name)), false);
 		} else if (sb.startsWith("<html")) {
 			return new Document("", sb, true);
+		} else if (sb.startsWith("<head")) {
+			return new Document("", new ParserStringBuilder("<html>" + sb + "<body></body></html>"), true);
 		} else if (sb.startsWith("<body")) {
 			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>"), true);
 		} else {
@@ -96,6 +98,7 @@ public class Document extends Element {
 						int index = node.offset(1).indexOf("</" + child.name() + ">");
 						if (index == -1) index = node.indexOf("</" + child.name().toUpperCase() + ">");
 						var s = node.substring(node.pos(), index).strip();
+						if (s.startsWith("\"") && s.endsWith("\"")) s = new ParserStringBuilder(s).intercept();
 						if (!s.isEmpty()) child.addChild(s);
 						tree.addChild(child);
 						node.pos(index + child.name().length() + 2);

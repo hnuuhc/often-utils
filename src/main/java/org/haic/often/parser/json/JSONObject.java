@@ -114,6 +114,19 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	}
 
 	/**
+	 * 解析并获取JSON对象
+	 *
+	 * @param m Map数组
+	 * @return JSON对象
+	 */
+	@Contract(pure = true)
+	public static <K, V> JSONObject parseObject(@NotNull Map<? super K, ? super V> m) {
+		var object = new JSONObject();
+		m.forEach((key, value) -> object.put(String.valueOf(key), value));
+		return object;
+	}
+
+	/**
 	 * 使用规则对JSON进行快捷解析,查询规则键{@link JSONPath#select(String, Class)}
 	 *
 	 * @param cssQuery 查询规则
@@ -145,19 +158,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	public <T> T select(@NotNull String cssQuery, Class<T> clazz) {
 		return new JSONPath(this).select(cssQuery, clazz);
-	}
-
-	/**
-	 * 解析并获取JSON对象
-	 *
-	 * @param m Map数组
-	 * @return JSON对象
-	 */
-	@Contract(pure = true)
-	public static <K, V> JSONObject parseObject(@NotNull Map<? super K, ? super V> m) {
-		JSONObject object = new JSONObject();
-		m.forEach((key, value) -> object.put(String.valueOf(key), value));
-		return object;
 	}
 
 	/**

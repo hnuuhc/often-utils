@@ -3,6 +3,7 @@ package org.haic.often.parser.xml;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.parser.json.JSONObject;
+import org.haic.often.util.StringUtil;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -214,8 +215,8 @@ public class XmlTree extends Tag {
 				if (!childs.isEmpty()) {
 					var text = (String) childs.get(0);
 					sb.append("\n").append("    ".repeat(depth + 1));
-					if (text.startsWith("\"")) sb.append(text);
-					else sb.append('"').append(text).append('"');
+					if (text.startsWith("\"") && text.endsWith("\"")) sb.append(text);
+					else sb.append('"').append(StringUtil.toEscape(text)).append('"');
 					sb.append("\n").append("    ".repeat(depth));
 				}
 			}
