@@ -51,10 +51,10 @@ public class TypeUtil {
 		var actualTypeArguments = type.getActualTypeArguments();
 		if (Map.class.isAssignableFrom(rawType)) {
 			if (rawType.isInterface()) rawType = HashMap.class;
-			return (T) TypeUtil.convertMap(obj, TypeUtil.getRawType(actualTypeArguments.length == 0 ? Object.class : actualTypeArguments[0]), TypeUtil.getRawType(actualTypeArguments.length == 0 ? Object.class : actualTypeArguments[1]), convert.apply(rawType), arguments);
+			return (T) TypeUtil.convertMap(obj, TypeUtil.getRawType(actualTypeArguments[0]), TypeUtil.getRawType(actualTypeArguments[1]), convert.apply(rawType), arguments);
 		} else if (Collection.class.isAssignableFrom(rawType)) {
 			if (rawType.isInterface()) rawType = ArrayList.class;
-			return (T) TypeUtil.convertList(obj, TypeUtil.getRawType(actualTypeArguments.length == 0 ? Object.class : actualTypeArguments[0]), convert.apply(rawType), arguments);
+			return (T) TypeUtil.convertList(obj, TypeUtil.getRawType(actualTypeArguments[0]), convert.apply(rawType), arguments);
 		} else if (!type.isActualType()) {
 			return (T) TypeUtil.convert(obj, rawType);
 		} else {

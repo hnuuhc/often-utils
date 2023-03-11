@@ -49,7 +49,7 @@ public class Document extends Element {
 		super(null, node);
 		this.type = type;
 		Element tree = this;
-		for (node.offset(1); node.stripLeading().pos() < node.length() && tree != null; node.offset(1)) {
+		for (node.offset(1); node.stripLeading().isNoOutBounds() && tree != null; node.offset(1)) {
 			int start = node.stripLeading().pos(); // 记录初始位置
 			int tagHeadIndex = node.indexOf("<"); // 获取标签初始位置
 
