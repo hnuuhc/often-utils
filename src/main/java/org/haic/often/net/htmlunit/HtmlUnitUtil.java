@@ -12,6 +12,7 @@ import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
 import org.haic.often.net.http.HttpStatus;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
@@ -226,6 +227,16 @@ public class HtmlUnitUtil {
 		public HtmlConnection data(@NotNull Map<String, String> params) {
 			request.setRequestParameters(params.entrySet().stream().map(l -> new NameValuePair(l.getKey(), l.getValue())).collect(Collectors.toList()));
 			return this;
+		}
+
+		@Contract(pure = true)
+		public HtmlConnection requestBody(@NotNull Object body) {
+			method(Method.POST);
+			if (body instanceof JSONObject json) {
+				request.setRequestBody(json.toJSONString());
+				return contentType("application/json;charset=UTF-8");
+			}
+			return requestBody(String.valueOf(body));
 		}
 
 		@Contract(pure = true)

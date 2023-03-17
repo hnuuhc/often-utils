@@ -225,9 +225,7 @@ public abstract class HtmlConnection {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public HtmlConnection requestBody(@NotNull Object body) {
-		return requestBody(String.valueOf(body));
-	}
+	public abstract HtmlConnection requestBody(@NotNull Object body);
 
 	/**
 	 * 设置 POST（或 PUT）请求正文<br/>

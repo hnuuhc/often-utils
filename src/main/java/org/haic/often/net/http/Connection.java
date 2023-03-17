@@ -323,9 +323,7 @@ public abstract class Connection {
 	 * @return 此连接，用于链接
 	 */
 	@Contract(pure = true)
-	public Connection requestBody(@NotNull Object body) {
-		return requestBody(String.valueOf(body));
-	}
+	public abstract Connection requestBody(@NotNull Object body);
 
 	/**
 	 * 设置 POST（或 PUT）请求正文<br/>

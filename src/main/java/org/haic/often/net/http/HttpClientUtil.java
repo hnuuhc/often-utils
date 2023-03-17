@@ -33,6 +33,7 @@ import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
@@ -277,13 +278,25 @@ public class HttpClientUtil {
 		}
 
 		@Contract(pure = true)
+		public Connection requestBody(@NotNull Object body) {
+			if (body instanceof JSONObject json) {
+				try {
+					entity = new StringEntity(json.toJSONString());
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+				return contentType("application/json;charset=UTF-8");
+			}
+			return requestBody(String.valueOf(body));
+		}
+
+		@Contract(pure = true)
 		public Connection requestBody(@NotNull String body) {
 			try {
 				entity = new StringEntity(body);
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-			header("accept", "application/json;charset=UTF-8");
 			return StringUtil.isJson(body) ? contentType("application/json;charset=UTF-8") : contentType("application/x-www-form-urlencoded;charset=UTF-8");
 		}
 

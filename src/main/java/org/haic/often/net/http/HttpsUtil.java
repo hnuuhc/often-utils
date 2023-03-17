@@ -9,6 +9,7 @@ import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.tuple.Tuple;
 import org.haic.often.tuple.record.ThreeTuple;
@@ -262,14 +263,23 @@ public class HttpsUtil {
 
 		@Contract(pure = true)
 		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream, @NotNull String mimiType) {
-			String boundary = UUID.randomUUID().toString();
+			var boundary = UUID.randomUUID().toString();
 			file = Tuple.of("\r\n--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + fileName + "\"\r\ncontent-type: application/octet-stream; charset=utf-8\r\n\r\n", inputStream, "\r\n--" + boundary + "--\r\n");
 			return contentType(mimiType);
 		}
 
 		@Contract(pure = true)
+		public Connection requestBody(@NotNull Object body) {
+			if (body instanceof JSONObject json) {
+				this.params = json.toJSONString();
+				return contentType("application/json;charset=UTF-8");
+			}
+			return requestBody(String.valueOf(body));
+		}
+
+		@Contract(pure = true)
 		public Connection requestBody(@NotNull String body) {
-			params = body;
+			this.params = body;
 			return StringUtil.isJson(body) ? contentType("application/json;charset=UTF-8") : contentType("application/x-www-form-urlencoded;charset=UTF-8");
 		}
 
