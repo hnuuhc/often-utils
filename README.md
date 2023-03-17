@@ -16,7 +16,7 @@ mvn clean install
 <dependency>
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.7</version>
+    <version>1.2.8</version>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@ mvn clean install
 ### 简单示例:
 
 ```
-SionResponse res = SionDownload.connect(url)   
+var res = SionDownload.connect(url)   
 .retry(true)  // 重试次数,以及重试等待间隔, true为无限重试
 .thread(16)  // 多线程下载,无法获取文件大小转为全量下载,默认线程10  
 .execute(); // 开始下载
@@ -79,7 +79,9 @@ Aria2Util.connect("127.0.0.1", 6800)  //地址以及端口
 
 ### 网络工具:
 
-#### HttpsUtil HttpClientUtil HtmlUnitUtil
+#### HttpsUtil - 用于http请求
+
+#### HtmlUnitUtil - 用于获取动态页面
 
 ### 简单示例:
 
@@ -101,6 +103,9 @@ Document doc = Document.parse(String); // 构建解析对象
 
 JSON解析器
 ---------
+
+1. 其逻辑类似于fastjson,可以很快上手
+2. 测试64字符1000万次解析,稳定在4500ms
 
 ### 简单示例:
 
