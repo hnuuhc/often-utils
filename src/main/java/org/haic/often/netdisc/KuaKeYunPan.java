@@ -40,7 +40,7 @@ public class KuaKeYunPan {
 
 	private KuaKeYunPan(Map<String, String> cookies) {
 		conn.cookies(cookies);
-		JSONObject loginInfo = JSONObject.parseObject(conn.url(flushUrl).get().text());
+		var loginInfo = conn.url(flushUrl).get().json();
 		if (!URIUtil.statusIsOK(loginInfo.getInteger("status"))) {
 			throw new YunPanException(loginInfo.getString("message"));
 		}
@@ -93,7 +93,7 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getInfosOfExt(@NotNull String ext) {
-		return JSONObject.parseObject(conn.url(categoryUrl + ext).get().text()).getJSONObject("data").getList("list", JSONObject.class);
+		return conn.url(categoryUrl + ext).get().json().getJSONObject("data").getList("list", JSONObject.class);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listShares() {
-		return JSONObject.parseObject(conn.url(detailUrl).get().text()).getJSONObject("data").getList("list", JSONObject.class);
+		return conn.url(detailUrl).get().json().getJSONObject("data").getList("list", JSONObject.class);
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public boolean unShare(@NotNull List<String> shareIds) {
-		return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("share_ids", shareIds).toString()).post().text()).getInteger("status"));
+		return URIUtil.statusIsOK(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("share_ids", shareIds).toString()).post().json().getInteger("status"));
 	}
 
 	/**
@@ -149,26 +149,26 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject share(@NotNull String shareCode, @NotNull List<String> fids) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("expired_type", 2);
 		data.put("fid_list", fids);
 		data.put("passcode", shareCode);
 		data.put("url_type", shareCode.isEmpty() ? 1 : 2);
-		JSONObject shareInfo = JSONObject.parseObject(conn.url(shareUrl).requestBody(data.toString()).post().text()).getJSONObject("data");
-		String taskId = shareInfo.getString("task_id");
+		var shareInfo = conn.url(shareUrl).requestBody(data.toString()).post().json().getJSONObject("data");
+		var taskId = shareInfo.getString("task_id");
 		if (shareInfo.getBoolean("task_sync")) {
-			JSONObject taskResp = shareInfo.getJSONObject("task_resp");
-			JSONObject result = new JSONObject();
+			var taskResp = shareInfo.getJSONObject("task_resp");
+			var result = new JSONObject();
 			result.put("status", taskResp.getInteger("status"));
 			result.put("message", taskResp.getString("message"));
 			return result.fluentPut("task_id", taskId);
 		}
 		String shareId = null;
 		while (shareId == null) {
-			JSONObject taskInfo = JSONObject.parseObject(conn.url(taskUrl + taskId).get().text()).getJSONObject("data");
+			var taskInfo = conn.url(taskUrl + taskId).get().json().getJSONObject("data");
 			shareId = taskInfo.getInteger("status") == 2 ? taskInfo.getString("share_id") : null;
 		}
-		return JSONObject.parseObject(conn.url(passwordUrl).requestBody(new JSONObject().fluentPut("share_id", shareId).toString()).post().text()).getJSONObject("data").fluentPut("share_id", shareId);
+		return conn.url(passwordUrl).requestBody(new JSONObject().fluentPut("share_id", shareId).toString()).post().json().getJSONObject("data").fluentPut("share_id", shareId);
 	}
 
 	/**
@@ -190,11 +190,11 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public boolean delete(@NotNull List<String> fids) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("action_type", 2);
 		data.put("exclude_fids", new ArrayList<>());
 		data.put("filelist", fids);
-		return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(deleteUrl).requestBody(data.toString()).post().text()).getInteger("status"));
+		return URIUtil.statusIsOK(conn.url(deleteUrl).requestBody(data.toString()).post().json().getInteger("status"));
 	}
 
 	/**
@@ -206,10 +206,10 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public boolean rename(@NotNull String fid, @NotNull String name) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("fid", fid);
 		data.put("file_name", name);
-		return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(renameUrl).requestBody(data.toString()).post().text()).getInteger("status"));
+		return URIUtil.statusIsOK(conn.url(renameUrl).requestBody(data.toString()).post().json().getInteger("status"));
 	}
 
 	/**
@@ -233,12 +233,12 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public boolean move(@NotNull String tofid, @NotNull List<String> fids) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("action_type", 1);
 		data.put("exclude_fids", new ArrayList<>());
 		data.put("filelist", fids);
 		data.put("to_pdir_fid", tofid);
-		return URIUtil.statusIsOK(JSONObject.parseObject(conn.url(moveUrl).requestBody(data.toString()).post().text()).getInteger("status"));
+		return URIUtil.statusIsOK(conn.url(moveUrl).requestBody(data.toString()).post().json().getInteger("status"));
 	}
 
 	/**
@@ -250,12 +250,12 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String parentId, @NotNull String name) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("dir_init_lock", false);
 		data.put("dir_path", "");
 		data.put("file_name", name);
-		data.put("pdir_fid", "0");
-		return JSONObject.parseObject(conn.url(fileUrl).requestBody(data.toString()).post().text());
+		data.put("pdir_fid", parentId);
+		return conn.url(fileUrl).requestBody(data.toString()).post().json();
 	}
 
 	/**
@@ -276,7 +276,7 @@ public class KuaKeYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
-		return JSONObject.parseObject(conn.url(sortUrl + folderId).get().text()).getJSONObject("data").getList("list", JSONObject.class);
+		return conn.url(sortUrl + folderId).get().json().getJSONObject("data").getList("list", JSONObject.class);
 	}
 
 }

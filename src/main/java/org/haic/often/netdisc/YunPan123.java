@@ -76,7 +76,7 @@ public class YunPan123 {
 
 	@Contract(pure = true)
 	private static List<JSONObject> getInfosAsPage(String key, String sharePwd, String parentId, int page, String path) {
-		Map<String, String> data = new HashMap<>();
+		var data = new HashMap<String, String>();
 		data.put("limit", "100");
 		data.put("next", "1");
 		data.put("orderBy", "share_id");
@@ -85,10 +85,10 @@ public class YunPan123 {
 		data.put("sharePwd", sharePwd);
 		data.put("ParentFileId", parentId);
 		data.put("Page", String.valueOf(page));
-		JSONObject pageInfo = JSONObject.parseObject(HttpsUtil.connect(shareGetUrl).data(data).get().text()).getJSONObject("data");
-		List<JSONObject> filesInfo = new ArrayList<>();
-		for (JSONObject info : pageInfo.getList("InfoList", JSONObject.class)) {
-			String fileId = info.getString("FileId");
+		var pageInfo = HttpsUtil.connect(shareGetUrl).data(data).get().json().getJSONObject("data");
+		var filesInfo = new ArrayList<JSONObject>();
+		for (var info : pageInfo.getList("InfoList", JSONObject.class)) {
+			var fileId = info.getString("FileId");
 			int type = info.getInteger("Type");
 			if (type == 1) {
 				filesInfo.addAll(getInfosAsPage(key, sharePwd, fileId, 1, path + info.getString("FileName") + "/"));
@@ -171,7 +171,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public static YunPan123 localLogin(@NotNull String userHome) {
-		return login(LocalCookie.home().getForDomain("www.123pan.com").getOrDefault("authorToken", null));
+		return login(LocalCookie.home(userHome).getForDomain("www.123pan.com").getOrDefault("authorToken", null));
 	}
 
 	/**
@@ -226,11 +226,11 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public int restore(@NotNull List<String> fileIdList) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("driveId", "0");
 		data.put("operation", "false");
 		data.put("fileTrashInfoList", fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList());
-		return JSONObject.parseObject(conn.url(fileTrashUrl).requestBody(data.toString()).post().text()).getInteger("code");
+		return conn.url(fileTrashUrl).requestBody(data.toString()).post().json().getInteger("code");
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public int clearRecycle() {
-		return JSONObject.parseObject(conn.url(trashDeleteAllUrl).requestBody(new JSONObject().toString()).post().text()).getInteger("code");
+		return conn.url(trashDeleteAllUrl).requestBody(new JSONObject().toString()).post().json().getInteger("code");
 	}
 
 	/**
@@ -262,7 +262,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public int clearRecycle(@NotNull List<String> fileIdList) {
-		return JSONObject.parseObject(conn.url(fileDeleteUrl).requestBody(new JSONObject().fluentPut("fileIdList", fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()).toString()).post().text()).getInteger("code");
+		return conn.url(fileDeleteUrl).requestBody(new JSONObject().fluentPut("fileIdList", fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()).toString()).post().json().getInteger("code");
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public int unShare(@NotNull List<String> shareIdList) {
-		return JSONObject.parseObject(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("driveId", "0").fluentPut("shareInfoList", shareIdList.stream().map(l -> new JSONObject().fluentPut("shareId", l)).toList()).toString()).post().text()).getInteger("code");
+		return conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("driveId", "0").fluentPut("shareInfoList", shareIdList.stream().map(l -> new JSONObject().fluentPut("shareId", l)).toList()).toString()).post().json().getInteger("code");
 	}
 
 	/**
@@ -305,7 +305,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listShares(@NotNull String search) {
-		return JSONObject.parseObject(conn.url(shareListUrl).requestBody("driveId=0&limit=10000&next=0&orderBy=fileId&orderDirection=desc&SearchData=" + search).get().text()).getJSONObject("data").getList("InfoList", JSONObject.class);
+		return conn.url(shareListUrl).requestBody("driveId=0&limit=10000&next=0&orderBy=fileId&orderDirection=desc&SearchData=" + search).get().json().getJSONObject("data").getList("InfoList", JSONObject.class);
 	}
 
 	/**
@@ -357,16 +357,16 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public JSONObject share(@NotNull String shareName, @NotNull String fileId, @NotNull String sharePwd, int day) {
-		Calendar time = Calendar.getInstance();
+		var time = Calendar.getInstance();
 		time.add(Calendar.DAY_OF_MONTH, day);
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
-		JSONObject data = new JSONObject();
+		var format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
+		var data = new JSONObject();
 		data.put("driveId", "0");
 		data.put("expiration", format.format(time.getTime()));
 		data.put("fileIdList", fileId);
 		data.put("shareName", shareName);
 		data.put("sharePwd", sharePwd);
-		return JSONObject.parseObject(conn.url(createShareUrl).requestBody(data.toString()).post().text());
+		return conn.url(createShareUrl).requestBody(data.toString()).post().json();
 	}
 
 	/**
@@ -378,7 +378,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String parentId, @NotNull String fileName) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("driveId", "0");
 		data.put("etag", "");
 		data.put("fileName", fileName);
@@ -387,7 +387,7 @@ public class YunPan123 {
 		data.put("type", "1");
 		data.put("duplicate", "1");
 		data.put("NotReuse", "true");
-		return JSONObject.parseObject(conn.url(uploadRequestUrl).requestBody(data.toString()).post().text());
+		return conn.url(uploadRequestUrl).requestBody(data.toString()).post().json();
 	}
 
 	/**
@@ -399,11 +399,11 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public int rename(@NotNull String fileId, @NotNull String fileName) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("driveId", "0");
 		data.put("fileId", fileId);
 		data.put("fileName", fileName);
-		return JSONObject.parseObject(conn.url(renameUrl).requestBody(data.toString()).post().text()).getInteger("code");
+		return conn.url(renameUrl).requestBody(data.toString()).post().json().getInteger("code");
 	}
 
 	/**
@@ -425,11 +425,11 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public int delete(@NotNull List<String> fileIdList) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("driveId", "0");
 		data.put("operation", "true");
 		data.put("fileTrashInfoList", new JSONArray().fluentAddAll(fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()));
-		return JSONObject.parseObject(conn.url(trashUrl).requestBody(data.toString()).post().text()).getInteger("code");
+		return conn.url(trashUrl).requestBody(data.toString()).post().json().getInteger("code");
 	}
 
 	/**
@@ -453,10 +453,10 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public int move(@NotNull String parentId, @NotNull List<String> fileIdList) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("parentFileId", parentId);
 		data.put("fileIdList", new JSONArray().fluentAddAll(fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()));
-		return JSONObject.parseObject(conn.url(modPidUrl).requestBody(data.toString()).post().text()).getInteger("code");
+		return conn.url(modPidUrl).requestBody(data.toString()).post().json().getInteger("code");
 	}
 
 	/**
@@ -513,7 +513,7 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	private List<JSONObject> getInfoListAsHome(@NotNull String fileId, @NotNull String search, boolean trashed) {
-		Map<String, String> data = new HashMap<>();
+		var data = new HashMap<String, String>();
 		data.put("driveId", "0");
 		data.put("limit", "1000");
 		data.put("next", "0");
@@ -523,12 +523,12 @@ public class YunPan123 {
 		data.put("trashed", String.valueOf(trashed));
 		data.put("SearchData", search);
 		data.put("Page", "1");
-		JSONArray filesInfo = new JSONArray();
-		JSONObject info = JSONObject.parseObject(conn.url(filelistUrl).data(data).get().text()).getJSONObject("data");
+		var filesInfo = new JSONArray();
+		var info = conn.url(filelistUrl).data(data).get().json().getJSONObject("data");
 		filesInfo.addAll(info.getJSONArray("InfoList"));
 		for (int i = 2; !info.getString("Next").equals("-1"); i++) {
 			data.put("Page", String.valueOf(i));
-			info = JSONObject.parseObject(conn.url(filelistUrl).data(data).get().text()).getJSONObject("data");
+			info = conn.url(filelistUrl).data(data).get().json().getJSONObject("data");
 			filesInfo.addAll(info.getJSONArray("InfoList"));
 		}
 		return filesInfo.toList(JSONObject.class);
@@ -553,7 +553,7 @@ public class YunPan123 {
 		data.put("size", fileInfo.getString("Size"));
 		data.put("etag", fileInfo.getString("Etag"));
 		data.put("s3KeyFlag", fileInfo.get("S3KeyFlag"));
-		return JSONObject.parseObject(conn.url(fileDownloadInfoUrl).requestBody(data.toString()).post().text()).getJSONObject("data").getString("DownloadUrl");
+		return conn.url(fileDownloadInfoUrl).requestBody(data.toString()).post().json().getJSONObject("data").getString("DownloadUrl");
 	}
 
 	/**
@@ -591,7 +591,7 @@ public class YunPan123 {
 		 */
 		@Contract(pure = true)
 		public static String login(@NotNull String username, @NotNull String password) {
-			return JSONObject.parseObject(HttpsUtil.connect(signinUrl).requestBody(new JSONObject().fluentPut("passport", username).fluentPut("password", password).toString()).post().text()).getJSONObject("data").getString("token");
+			return HttpsUtil.connect(signinUrl).requestBody(new JSONObject().fluentPut("passport", username).fluentPut("password", password).toString()).post().json().getJSONObject("data").getString("token");
 		}
 
 	}

@@ -7,11 +7,7 @@ import org.haic.often.exception.YunPanException;
 import org.haic.often.net.Method;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
-import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
-import org.haic.often.parser.xml.Document;
-import org.haic.often.parser.xml.Element;
-import org.haic.often.parser.xml.Elements;
 import org.haic.often.util.StringUtil;
 
 import java.util.*;
@@ -35,7 +31,7 @@ public class LanZouYunPan {
 
 	private LanZouYunPan(Map<String, String> cookies) {
 		conn.cookies(cookies);
-		if (conn.url(mydiskUrl).get().selectFirst("div[class='mydisk_bar']") == null) {
+		if (conn.url(mydiskUrl).get().parse().selectFirst("div[class='mydisk_bar']") == null) {
 			throw new YunPanException("登陆信息无效,请检查cookies是否正确");
 		}
 	}
@@ -50,22 +46,22 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public static Map<String, String> getInfosAsPage(@NotNull String lanzouUrl, @NotNull String passwd) {
-		String infos = HttpsUtil.connect(lanzouUrl).get().selectFirst("body script").toString();
+		var infos = HttpsUtil.connect(lanzouUrl).get().parse().selectFirst("body script").toString();
 		infos = infos.substring(32, infos.indexOf("json") - 20).replaceAll("\t*　* *'*;*", "");
 
 		// 获取post参数
-		Map<String, String> params = new HashMap<>();
-		for (String data : StringUtil.extract(infos.replaceAll("\n", ""), "data.*").substring(6).split(",")) {
-			String[] entry = data.split(":");
+		var params = new HashMap<String, String>();
+		for (var data : StringUtil.extract(infos.replaceAll("\n", ""), "data.*").substring(6).split(",")) {
+			var entry = data.split(":");
 			params.put(entry[0], entry[1]);
 		}
 
 		// 获取修正后的参数
-		String pgs = StringUtil.extract(infos, "pgs=.*");
+		var pgs = StringUtil.extract(infos, "pgs=.*");
 		pgs = pgs.substring(pgs.indexOf("=") + 1);
-		String t = StringUtil.extract(infos, params.get("t") + "=.*");
+		var t = StringUtil.extract(infos, params.get("t") + "=.*");
 		t = t.substring(t.indexOf("=") + 1);
-		String k = StringUtil.extract(infos, params.get("k") + "=.*");
+		var k = StringUtil.extract(infos, params.get("k") + "=.*");
 		k = k.substring(k.indexOf("=") + 1);
 
 		// 修正post参数
@@ -74,12 +70,12 @@ public class LanZouYunPan {
 		params.put("k", k);
 		params.put("pwd", passwd);
 
-		Map<String, String> result = new HashMap<>();
-		JSONObject jsonInfos = JSONObject.parseObject(HttpsUtil.connect(domain + "filemoreajax.php").data(params).post().text());
+		var result = new HashMap<String, String>();
+		var jsonInfos = HttpsUtil.connect(domain + "filemoreajax.php").data(params).post().json();
 		if (jsonInfos.getInteger("zt") == 1) { // 处理json数据
-			JSONArray jsonArray = jsonInfos.getJSONArray("text");
+			var jsonArray = jsonInfos.getJSONArray("text");
 			for (int i = 0; i < jsonArray.size(); i++) {
-				JSONObject info = jsonArray.getJSONObject(i);
+				var info = jsonArray.getJSONObject(i);
 				result.put(info.getString("name_all"), domain + info.getString("id"));
 			}
 		}
@@ -133,11 +129,11 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public static String getStraight(@NotNull String lanzouUrl) {
-		Document doc = HttpsUtil.connect(lanzouUrl).get();
-		String downUrl = domain;
-		Element ifr2 = doc.selectFirst("iframe[class='ifr2']");
+		var doc = HttpsUtil.connect(lanzouUrl).get().parse();
+		var downUrl = domain;
+		var ifr2 = doc.selectFirst("iframe[class='ifr2']");
 		if (ifr2 == null) {
-			Element downlink = doc.selectFirst("iframe[class='n_downlink']");
+			var downlink = doc.selectFirst("iframe[class='n_downlink']");
 			if (downlink == null) {
 				return "";
 			}
@@ -147,24 +143,24 @@ public class LanZouYunPan {
 		}
 
 		// 提取POST参数信息段
-		String infos = Objects.requireNonNull(HttpsUtil.connect(downUrl).get().selectFirst("body script")).toString();
+		var infos = Objects.requireNonNull(HttpsUtil.connect(downUrl).get().parse().selectFirst("body script")).toString();
 		infos = infos.substring(32, infos.indexOf("json") - 17).replaceAll("\t*　* *'*;*", "");
 		infos = infos.lines().filter(l -> !l.startsWith("//")).collect(Collectors.joining("\n")); // 去除注释
 
 		// 获取post参数
-		String dataInfo = infos.lines().filter(l -> l.startsWith("data")).findFirst().orElse("");
-		Map<String, String> params = new HashMap<>();
+		var dataInfo = infos.lines().filter(l -> l.startsWith("data")).findFirst().orElse("");
+		var params = new HashMap<String, String>();
 		for (String data : dataInfo.substring(6, dataInfo.length() - 1).split(",")) {
-			String[] entry = data.split(":");
+			var entry = data.split(":");
 			params.put(entry[0], entry[1]);
 		}
 
 		// 获取修正后的参数
-		String signs = StringUtil.extract(infos, params.get("signs") + "=.*");
+		var signs = StringUtil.extract(infos, params.get("signs") + "=.*");
 		signs = signs.substring(signs.indexOf("=") + 1);
-		String websign = StringUtil.extract(infos, params.get("websign") + "=.*");
+		var websign = StringUtil.extract(infos, params.get("websign") + "=.*");
 		websign = websign.substring(websign.indexOf("=") + 1);
-		String websignkey = StringUtil.extract(infos, params.get("websignkey") + "=.*");
+		var websignkey = StringUtil.extract(infos, params.get("websignkey") + "=.*");
 		websignkey = websignkey.substring(websignkey.indexOf("=") + 1);
 
 		// 修正post参数
@@ -173,7 +169,7 @@ public class LanZouYunPan {
 		params.put("websignkey", websignkey);
 
 		// 处理json数据
-		JSONObject fileInfo = JSONObject.parseObject(HttpsUtil.connect(ajaxmUrl).referrer(downUrl).data(params).post().text());
+		var fileInfo = HttpsUtil.connect(ajaxmUrl).referrer(downUrl).data(params).post().json();
 		return HttpsUtil.connect(fileInfo.getString("dom") + "/file/" + fileInfo.getString("url")).execute().url();
 	}
 
@@ -187,8 +183,8 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public static String getStraight(@NotNull String lanzouUrl, @NotNull String password) {
-		JSONObject fileInfo = JSONObject.parseObject(HttpsUtil.connect(ajaxmUrl).requestBody(StringUtil.extract(HttpsUtil.connect(lanzouUrl).execute().body(), "action=.*&p=") + password).referrer(lanzouUrl).post().text());
-		String suffix = fileInfo.getString("url");
+		var fileInfo = HttpsUtil.connect(ajaxmUrl).requestBody(StringUtil.extract(HttpsUtil.connect(lanzouUrl).execute().body(), "action=.*&p=") + password).referrer(lanzouUrl).post().json();
+		var suffix = fileInfo.getString("url");
 		return suffix.equals("0") ? "" : HttpsUtil.connect(fileInfo.getString("dom") + "/file/" + suffix).execute().url();
 	}
 
@@ -231,11 +227,11 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listRecycleBin() {
-		Elements lists = conn.url(mydiskUrl).requestBody("item=recycle&action=files").get().select("table tr[class]");
+		var lists = conn.url(mydiskUrl).requestBody("item=recycle&action=files").get().parse().select("table tr[class]");
 		return lists.size() == 1 && lists.text().contains("回收站为空") ? new ArrayList<>() : lists.stream().map(l -> {
-			Element input = l.selectFirst("input");
+			var input = l.selectFirst("input");
 			assert input != null;
-			JSONObject info = new JSONObject();
+			var info = new JSONObject();
 			info.put("fileName", l.selectFirst("a").text());
 			info.put("inputName", input.attr("name"));
 			info.put("inputValue", input.attr("value"));
@@ -512,7 +508,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	private JSONObject doupload(@NotNull String body) {
-		return JSONObject.parseObject(conn.url(douploadUrl).requestBody(body).post().text());
+		return conn.url(douploadUrl).requestBody(body).post().json();
 	}
 
 }

@@ -13,7 +13,6 @@ import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
-import org.haic.often.parser.xml.Document;
 import org.haic.often.util.StringUtil;
 
 import javax.crypto.Cipher;
@@ -101,7 +100,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	private static JSONObject getshareUrlInfo(@NotNull String shareUrl) {
-		return JSONObject.parseObject(HttpsUtil.connect(shareInfoByCodeUrl).data("shareCode", shareUrl.contains("code") ? StringUtil.extract(shareUrl, "code=.*").substring(5) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1)).header("accept", "application/json;charset=UTF-8").get().text());
+		return HttpsUtil.connect(shareInfoByCodeUrl).data("shareCode", shareUrl.contains("code") ? StringUtil.extract(shareUrl, "code=.*").substring(5) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1)).header("accept", "application/json;charset=UTF-8").get().json();
 	}
 
 	/**
@@ -470,14 +469,13 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
-		Map<String, String> data = new HashMap<>();
+
+		var data = new HashMap<String, String>();
 		data.put("pageSize", "1");
 		data.put("folderId", folderId);
-		String urlInfo = conn.url(listFilesUrl).data(data).get().text();
-		data.put("pageSize", JSONObject.parseObject(urlInfo).getJSONObject("fileListAO").getString("count"));
-		urlInfo = conn.url(listFilesUrl).data(data).get().text();
-		JSONObject fileListAO = JSONObject.parseObject(urlInfo).getJSONObject("fileListAO");
-		JSONArray filesList = new JSONArray();
+		data.put("pageSize", conn.url(listFilesUrl).data(data).get().json().getJSONObject("fileListAO").getString("count"));
+		var fileListAO = conn.url(listFilesUrl).data(data).get().json().getJSONObject("fileListAO");
+		var filesList = new JSONArray();
 		filesList.addAll(fileListAO.getJSONArray("fileList"));
 		filesList.addAll(fileListAO.getJSONArray("folderList"));
 		return filesList.toList(JSONObject.class);
@@ -543,8 +541,8 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public String getStraightAsNotCode(@NotNull String url) {
-		JSONObject info = getshareUrlInfo(url);
-		String straight = JSONObject.parseObject(conn.url(fileDownloadUrl + "?dt=1&fileId=" + info.getString("fileId") + "&shareId=" + info.getString("shareId")).get().text()).getString("fileDownloadUrl");
+		var info = getshareUrlInfo(url);
+		var straight = conn.url(fileDownloadUrl + "?dt=1&fileId=" + info.getString("fileId") + "&shareId=" + info.getString("shareId")).get().json().getString("fileDownloadUrl");
 		return straight == null ? "" : straight;
 	}
 
@@ -568,13 +566,13 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public Map<String, String> getStraightsAsPage(@NotNull String url, @NotNull String accessCode) {
-		Map<String, String> fileUrls = new HashMap<>();
+		var fileUrls = new HashMap<String, String>();
 		for (JSONObject fileInfo : getInfoAsPage(url, accessCode)) {
-			Map<String, String> params = new HashMap<>();
+			var params = new HashMap<String, String>();
 			params.put("dt", "1");
 			params.put("fileId", fileInfo.getString("id"));
 			params.put("shareId", fileInfo.getString("shareId"));
-			String straight = JSONObject.parseObject(conn.url(fileDownloadUrl).data(params).get().text()).getString("fileDownloadUrl");
+			var straight = conn.url(fileDownloadUrl).data(params).get().json().getString("fileDownloadUrl");
 			fileUrls.put(fileInfo.getString("name"), straight == null ? "" : straight);
 		}
 		return fileUrls;
@@ -588,7 +586,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public String getStraight(@NotNull String fileId) {
-		return JSONObject.parseObject(conn.url(fileDownloadUrl).data("fileId", fileId).get().text()).getString("fileDownloadUrl");
+		return conn.url(fileDownloadUrl).data("fileId", fileId).get().json().getString("fileDownloadUrl");
 	}
 
 	/**
@@ -610,35 +608,35 @@ public class TianYiYunPan {
 		 */
 		@Contract(pure = true)
 		public static Map<String, String> login(@NotNull String userName, @NotNull String password) {
-			Connection conn = HttpsUtil.newSession();
-			JSONObject encryptConfData = JSONObject.parseObject(conn.url(encryptConfUrl).get().text()).getJSONObject("data");
-			String pre = encryptConfData.getString("pre");
-			String pubKey = encryptConfData.getString("pubKey");
+			var conn = HttpsUtil.newSession();
+			var encryptConfData = conn.url(encryptConfUrl).get().json().getJSONObject("data");
+			var pre = encryptConfData.getString("pre");
+			var pubKey = encryptConfData.getString("pubKey");
 			userName = pre + encrypt(userName, pubKey);
 			password = pre + encrypt(password, pubKey);
-			Document doc = conn.url(loginUrl).get();
-			String loginUrlText = doc.select("script[type='text/javascript']").toString();
-			String captcha_token = doc.selectFirst("input[name='captchaToken']").attr("value");
-			String appKey = StringUtil.extract(loginUrlText, "appKey =.*,");
+			var doc = conn.url(loginUrl).get().parse();
+			var loginUrlText = doc.select("script[type='text/javascript']").toString();
+			var captcha_token = doc.selectFirst("input[name='captchaToken']").attr("value");
+			var appKey = StringUtil.extract(loginUrlText, "appKey =.*,");
 			appKey = appKey.substring(appKey.indexOf("'") + 1, appKey.lastIndexOf("'"));
-			String accountType = StringUtil.extract(loginUrlText, "accountType =.*,");
+			var accountType = StringUtil.extract(loginUrlText, "accountType =.*,");
 			accountType = accountType.substring(accountType.indexOf("'") + 1, accountType.lastIndexOf("'"));
-			String clientType = StringUtil.extract(loginUrlText, "clientType =.*,");
+			var clientType = StringUtil.extract(loginUrlText, "clientType =.*,");
 			clientType = clientType.substring(clientType.indexOf("'") + 1, clientType.lastIndexOf("'"));
-			String returnUrl = StringUtil.extract(loginUrlText, "returnUrl =.*,");
+			var returnUrl = StringUtil.extract(loginUrlText, "returnUrl =.*,");
 			returnUrl = returnUrl.substring(returnUrl.indexOf("'") + 1, returnUrl.lastIndexOf("'"));
-			String mailSuffix = StringUtil.extract(loginUrlText, "mailSuffix =.*;");
+			var mailSuffix = StringUtil.extract(loginUrlText, "mailSuffix =.*;");
 			mailSuffix = mailSuffix.substring(mailSuffix.indexOf("'") + 1, mailSuffix.lastIndexOf("'"));
-			String isOauth2 = StringUtil.extract(loginUrlText, "isOauth2 =.*;");
+			var isOauth2 = StringUtil.extract(loginUrlText, "isOauth2 =.*;");
 			isOauth2 = isOauth2.substring(isOauth2.indexOf("\"") + 1, isOauth2.lastIndexOf("\""));
-			String lt = StringUtil.extract(loginUrlText, "lt =.*;");
+			var lt = StringUtil.extract(loginUrlText, "lt =.*;");
 			lt = lt.substring(lt.indexOf("\"") + 1, lt.lastIndexOf("\""));
-			String reqId = StringUtil.extract(loginUrlText, "reqId =.*;");
+			var reqId = StringUtil.extract(loginUrlText, "reqId =.*;");
 			reqId = reqId.substring(reqId.indexOf("\"") + 1, reqId.lastIndexOf("\""));
-			String paramId = StringUtil.extract(loginUrlText, "paramId =.*;");
+			var paramId = StringUtil.extract(loginUrlText, "paramId =.*;");
 			paramId = paramId.substring(paramId.indexOf("\"") + 1, paramId.lastIndexOf("\""));
 
-			Map<String, String> data = new HashMap<>();
+			var data = new HashMap<String, String>();
 			data.put("appKey", appKey);
 			data.put("accountType", accountType);
 			data.put("userName", userName);
@@ -650,8 +648,8 @@ public class TianYiYunPan {
 			data.put("clientType", clientType);
 			data.put("isOauth2", isOauth2);
 			data.put("paramId", paramId);
-			Response res = conn.url(loginSubmitUrl).header("lt", lt).header("reqid", reqId).header("referer", encryptConfUrl).data(data).method(Method.POST).execute();
-			JSONObject info = JSONObject.parseObject(res.body());
+			var res = conn.url(loginSubmitUrl).header("lt", lt).header("reqid", reqId).header("referer", encryptConfUrl).data(data).method(Method.POST).execute();
+			var info = JSONObject.parseObject(res.body());
 			if (!info.getString("result").equals("0")) {
 				throw new YunPanException(info.getString("msg"));
 			}

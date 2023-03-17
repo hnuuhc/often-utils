@@ -14,7 +14,6 @@ import org.haic.often.net.UserAgent;
 import org.haic.often.net.http.HttpStatus;
 import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONObject;
-import org.haic.often.parser.xml.Document;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
@@ -389,26 +388,6 @@ public class HtmlUnitUtil {
 		public HtmlConnection close() {
 			webClient.close(); // 设置连接超时时间
 			return this;
-		}
-
-		/**
-		 * 将请求作为 GET 执行，并解析结果
-		 *
-		 * @return HTML文档
-		 */
-		@Contract(pure = true)
-		public Document get() {
-			return method(Method.GET).execute().parse();
-		}
-
-		/**
-		 * 将请求作为 POST 执行，并解析结果
-		 *
-		 * @return HTML文档
-		 */
-		@Contract(pure = true)
-		public Document post() {
-			return method(Method.POST).execute().parse();
 		}
 
 		@NotNull

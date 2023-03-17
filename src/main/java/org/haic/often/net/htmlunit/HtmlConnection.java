@@ -4,7 +4,6 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
 import org.haic.often.net.http.Response;
-import org.haic.often.parser.xml.Document;
 
 import java.net.Proxy;
 import java.util.List;
@@ -418,7 +417,9 @@ public abstract class HtmlConnection {
 	 * @return HTML文档
 	 */
 	@Contract(pure = true)
-	public abstract Document get();
+	public Response get() {
+		return method(Method.GET).execute();
+	}
 
 	/**
 	 * 将请求作为 POST 执行，并解析结果
@@ -426,7 +427,9 @@ public abstract class HtmlConnection {
 	 * @return HTML文档
 	 */
 	@Contract(pure = true)
-	public abstract Document post();
+	public Response post() {
+		return method(Method.POST).execute();
+	}
 
 	/**
 	 * 运行程序，获取 响应结果

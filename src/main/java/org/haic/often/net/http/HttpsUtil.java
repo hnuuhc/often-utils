@@ -10,7 +10,6 @@ import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
 import org.haic.often.parser.json.JSONObject;
-import org.haic.often.parser.xml.Document;
 import org.haic.often.tuple.Tuple;
 import org.haic.often.tuple.record.ThreeTuple;
 import org.haic.often.util.IOUtil;
@@ -349,20 +348,10 @@ public class HttpsUtil {
 			return this;
 		}
 
-		@Contract(pure = true)
-		public Document get() {
-			return method(Method.GET).execute().parse();
-		}
-
-		@Contract(pure = true)
-		public Document post() {
-			return method(Method.POST).execute().parse();
-		}
-
 		@NotNull
 		@Contract(pure = true)
 		public Response execute() {
-			Response response = executeProgram(url, method, params);
+			var response = executeProgram(url, method, params);
 			int statusCode = response.statusCode();
 			for (int i = 0; (URIUtil.statusIsTimeout(statusCode) || retryStatusCodes.contains(statusCode)) && (i < retry || unlimit); i++) {
 				ThreadUtil.waitThread(MILLISECONDS_SLEEP); // 程序等待

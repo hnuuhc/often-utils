@@ -16,7 +16,7 @@ mvn clean install
 <dependency>
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.9</version>
+    <version>1.2.10</version>
 </dependency>
 ```
 
@@ -89,7 +89,7 @@ Aria2Util.connect("127.0.0.1", 6800)  //地址以及端口
 Document doc = HttpsUtil.connect("https://www.baidu.com")
 .proxy(proxyHost, proxyPort) // or socks() 设置代理  
 .retry(MAX_RETRY, MILLISECONDS_SLEEP) // 重试次数，重试等待间隔   
-.get(); // post() execute().body()  
+.get().parse(); // post() or execute() or get().json()
 ```
 
 HTML或XML解析器
