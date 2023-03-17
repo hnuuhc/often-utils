@@ -32,6 +32,48 @@ import java.util.stream.Stream;
 public class StringUtil extends StringUtils {
 
 	/**
+	 * 字符串转换unicode
+	 *
+	 * @param str 一般字符串
+	 * @return Unicode字符串
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static String chineseToUnicode(@NotNull String str) {
+		var result = new StringBuilder();
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (isChinese(c)) {
+				result.append("\\u").append(Integer.toHexString(c)); // 转换为unicode
+			} else {
+				result.append(c);
+			}
+		}
+		return String.valueOf(result);
+	}
+
+	/**
+	 * 判断字符是否为中文
+	 *
+	 * @param c 待判断的字符
+	 * @return 判断结果
+	 */
+	public static boolean isChinese(char c) {
+		return Character.UnicodeScript.of(c) == Character.UnicodeScript.HAN;
+	}
+
+	/**
+	 * 判断字符串是否存在中文
+	 *
+	 * @param s 待判断的字符串
+	 * @return 判断结果
+	 */
+	public static boolean isChinese(String s) {
+		for (int i = 0; i < s.length(); i++) if (isChinese(s.charAt(i))) return true;
+		return false;
+	}
+
+	/**
 	 * <p>Checks if a CharSequence is empty (""), null or whitespace only.</p>
 	 *
 	 * <p>Whitespace is defined by {@link Character#isWhitespace(char)}.</p>

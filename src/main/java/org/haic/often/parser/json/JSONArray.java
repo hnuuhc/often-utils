@@ -391,6 +391,17 @@ public class JSONArray extends ArrayList<Object> {
 		return this.stream().map(m -> m instanceof JSONObject e ? e.toXmlTree(parent) : m).collect(Collectors.toCollection(XmlChilds::new));
 	}
 
+	/**
+	 * 输出当前JSON数据,并对中文进行转义,使其符合JSON传输要求
+	 *
+	 * @return JSON字符串
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public String toJSONString() {
+		return '[' + this.stream().map(JSONFormat::toNetOutFormat).collect(Collectors.joining(",")) + ']';
+	}
+
 	@Override
 	public String toString() {
 		return '[' + this.stream().map(JSONFormat::toOutFormat).collect(Collectors.joining(",")) + ']';

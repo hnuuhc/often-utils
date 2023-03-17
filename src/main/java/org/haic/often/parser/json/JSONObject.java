@@ -544,16 +544,27 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 		return xml.addChilds(this.get("child", JSONArray.class).toXmlChilds(xml));
 	}
 
+	/**
+	 * 输出当前JSON数据,并对中文进行转义,使其符合JSON传输要求
+	 *
+	 * @return JSON字符串
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public String toJSONString() {
+		return '{' + this.entrySet().stream().map(token -> '"' + StringUtil.chineseToUnicode(StringUtil.toEscape(token.getKey())) + "\":" + JSONFormat.toNetOutFormat(token.getValue())).collect(Collectors.joining(",")) + '}';
+	}
+
 	@Override
 	public String toString() {
 		return '{' + this.entrySet().stream().map(token -> '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue())).collect(Collectors.joining(",")) + '}';
 	}
 
 	/**
-	 * 以指定的深度格式化当前标签
+	 * 以指定的深度格式化当前JSON
 	 *
 	 * @param depth 深度
-	 * @return 格式化的标签
+	 * @return 格式化的JSON
 	 */
 	@NotNull
 	@Contract(pure = true)

@@ -2,7 +2,6 @@ package org.haic.often.parser.json;
 
 import org.haic.often.util.StringUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -31,14 +30,44 @@ public class JSONFormat {
 			return format(value.toString());
 		} else if (value instanceof JSONArray || value instanceof JSONObject || value instanceof Number || value instanceof Boolean) {
 			return value;
-		} else if (value instanceof Collection) {
-			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value));
-		} else if (value instanceof Map) {
-			return JSONObject.parseObject((Map<?, ?>) value);
+		} else if (value instanceof Collection<?> c) {
+			return JSONArray.parseArray(c);
+		} else if (value instanceof Map<?, ?> m) {
+			return JSONObject.parseObject(m);
 		} else if (value.getClass().isArray()) {
 			return JSONArray.parseArray(Arrays.asList((Object[]) value));
 		} else {
 			return StringUtil.toEscape(String.valueOf(value));
+		}
+	}
+
+	/**
+	 * 对未知类型进行格式化,并且字符串类型前后加双引号,用于网络传输
+	 *
+	 * @param value 值
+	 * @return 处理后的文本
+	 */
+	public static String toNetOutFormat(Object value) {
+		if (value == null) return "null";
+		if (value instanceof String s) {
+			if (s.equals("null")) return "null";
+			return '"' + StringUtil.chineseToUnicode(StringUtil.toEscape(s)) + '"';
+		} else if (value instanceof StringBuilder || value instanceof StringBuffer) {
+			return StringUtil.chineseToUnicode(toOutFormat(value.toString()));
+		} else if (value instanceof JSONArray json) {
+			return json.toJSONString();
+		} else if (value instanceof JSONObject json) {
+			return json.toJSONString();
+		} else if (value instanceof Number || value instanceof Boolean) {
+			return value.toString();
+		} else if (value instanceof Collection<?> c) {
+			return JSONArray.parseArray(c).toJSONString();
+		} else if (value instanceof Map<?, ?> m) {
+			return JSONObject.parseObject(m).toJSONString();
+		} else if (value.getClass().isArray()) {
+			return JSONArray.parseArray(Arrays.asList((Object[]) value)).toJSONString();
+		} else {
+			return '"' + StringUtil.chineseToUnicode(StringUtil.toEscape(String.valueOf(value))) + '"';
 		}
 	}
 
@@ -57,10 +86,10 @@ public class JSONFormat {
 			return toOutFormat(value.toString());
 		} else if (value instanceof JSONArray || value instanceof JSONObject || value instanceof Number || value instanceof Boolean) {
 			return value.toString();
-		} else if (value instanceof Collection) {
-			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value)).toString();
-		} else if (value instanceof Map) {
-			return JSONObject.parseObject((Map<?, ?>) value).toString();
+		} else if (value instanceof Collection<?> c) {
+			return JSONArray.parseArray(c).toString();
+		} else if (value instanceof Map<?, ?> m) {
+			return JSONObject.parseObject(m).toString();
 		} else if (value.getClass().isArray()) {
 			return JSONArray.parseArray(Arrays.asList((Object[]) value)).toString();
 		} else {
@@ -88,10 +117,10 @@ public class JSONFormat {
 			return ((JSONArray) value).toString(depth + 1);
 		} else if (value instanceof JSONObject) {
 			return ((JSONObject) value).toString(depth + 1);
-		} else if (value instanceof Collection) {
-			return JSONArray.parseArray(new ArrayList<>((Collection<?>) value)).toString(depth + 1);
-		} else if (value instanceof Map) {
-			return JSONObject.parseObject((Map<?, ?>) value).toString(depth + 1);
+		} else if (value instanceof Collection<?> c) {
+			return JSONArray.parseArray(c).toString(depth + 1);
+		} else if (value instanceof Map<?, ?> m) {
+			return JSONObject.parseObject(m).toString(depth + 1);
 		} else if (value.getClass().isArray()) {
 			return JSONArray.parseArray(Arrays.asList((Object[]) value)).toString(depth + 1);
 		} else {
