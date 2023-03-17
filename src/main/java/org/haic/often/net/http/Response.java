@@ -4,9 +4,9 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.URIUtil;
-import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
+import org.haic.often.util.TypeUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -166,26 +166,25 @@ public abstract class Response {
 	}
 
 	/**
+	 * 读取响应的正文并将其解析为JSON,如果连接超时或IO异常会返回null
+	 *
+	 * @return 已解析的JSON
+	 */
+	@Contract(pure = true)
+	public JSONObject json() {
+		return parse(JSONObject.class);
+	}
+
+	/**
 	 * 读取响应的正文并将其解析,如果连接超时或IO异常会返回null
-	 * <p>
-	 * 注意解析类型仅支持:
-	 * <pre>	1. {@link Document}</pre>
-	 * <pre>	2. {@link JSONObject}</pre>
-	 * <pre>	3. {@link JSONArray}</pre>
 	 *
 	 * @param itemClass 返回解析类型
 	 * @param <T>       解析类型
 	 * @return 已解析的文档
 	 */
 	@Contract(pure = true)
-	@SuppressWarnings("unchecked")
 	public <T> T parse(@NotNull Class<T> itemClass) {
-		var body = body();
-		if (body == null) return null;
-		if (itemClass == Document.class) return (T) Document.parse(body);
-		if (itemClass == JSONObject.class) return (T) JSONObject.parseObject(body);
-		if (itemClass == JSONArray.class) return (T) JSONArray.parseArray(body);
-		throw new IllegalArgumentException("未知的解析类型");
+		return TypeUtil.convert(body(), itemClass);
 	}
 
 	/**
