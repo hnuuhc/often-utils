@@ -4,6 +4,7 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.URIUtil;
+import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.util.TypeUtil;
@@ -156,13 +157,13 @@ public abstract class Response {
 	}
 
 	/**
-	 * 读取响应的正文并将其解析为文档,如果连接超时或IO异常会返回null
+	 * 读取响应的正文并将其解析为JSON,如果连接超时或IO异常会返回null
 	 *
-	 * @return 已解析的文档
+	 * @return 已解析的JSON
 	 */
 	@Contract(pure = true)
-	public Document parse() {
-		return parse(Document.class);
+	public JSONObject json() {
+		return parse(JSONObject.class);
 	}
 
 	/**
@@ -171,8 +172,18 @@ public abstract class Response {
 	 * @return 已解析的JSON
 	 */
 	@Contract(pure = true)
-	public JSONObject json() {
-		return parse(JSONObject.class);
+	public JSONArray jsonArray() {
+		return parse(JSONArray.class);
+	}
+
+	/**
+	 * 读取响应的正文并将其解析为文档,如果连接超时或IO异常会返回null
+	 *
+	 * @return 已解析的文档
+	 */
+	@Contract(pure = true)
+	public Document parse() {
+		return parse(Document.class);
 	}
 
 	/**
