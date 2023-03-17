@@ -12,6 +12,7 @@ import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
 import org.haic.often.net.http.HttpStatus;
+import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.util.IOUtil;
@@ -412,8 +413,8 @@ public class HtmlUnitUtil {
 
 		@NotNull
 		@Contract(pure = true)
-		public HtmlResponse execute() {
-			HtmlResponse response = executeProgram(request);
+		public Response execute() {
+			var response = executeProgram(request);
 			int statusCode = response.statusCode();
 			for (int i = 0; (URIUtil.statusIsTimeout(statusCode) || retryStatusCodes.contains(statusCode)) && (i < retry || unlimit); i++) {
 				ThreadUtil.waitThread(MILLISECONDS_SLEEP);
@@ -429,8 +430,8 @@ public class HtmlUnitUtil {
 
 		@NotNull
 		@Contract(pure = true)
-		private HtmlResponse executeProgram(@NotNull WebRequest request) {
-			HtmlResponse response;
+		private Response executeProgram(@NotNull WebRequest request) {
+			Response response;
 			try { // 获得页面
 				response = new HttpResponse(webClient.getPage(request));
 			} catch (IOException e) {
@@ -448,7 +449,7 @@ public class HtmlUnitUtil {
 		}
 	}
 
-	private static class HttpResponse extends HtmlResponse {
+	private static class HttpResponse extends Response {
 
 		private final Page page; // Page对象
 
@@ -474,11 +475,6 @@ public class HtmlUnitUtil {
 		@Contract(pure = true)
 		public String contentType() {
 			return page.getWebResponse().getStatusMessage();
-		}
-
-		@Contract(pure = true)
-		public boolean isHtmlPage() {
-			return page != null && page.isHtmlPage();
 		}
 
 		@Contract(pure = true)

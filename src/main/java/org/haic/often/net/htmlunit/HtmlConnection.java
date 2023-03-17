@@ -3,6 +3,7 @@ package org.haic.often.net.htmlunit;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
+import org.haic.often.net.http.Response;
 import org.haic.often.parser.xml.Document;
 
 import java.net.Proxy;
@@ -433,6 +434,6 @@ public abstract class HtmlConnection {
 	 * @return Response
 	 */
 	@Contract(pure = true)
-	public abstract HtmlResponse execute();
+	public abstract Response execute();
 
 }
