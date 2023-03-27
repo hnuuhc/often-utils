@@ -10,7 +10,6 @@ import org.haic.often.util.ReadWriteUtil;
 import org.haic.often.util.SystemUtil;
 
 import java.io.File;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.HashSet;
 import java.util.Map;
@@ -112,7 +111,7 @@ public class LocalCookie {
 		 */
 		private Set<Data> processCookies(String domainFilter) {
 			var cookies = new HashSet<Data>();
-			try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {
+			try (var connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {
 				Class.forName("org.sqlite.JDBC");  // load the sqlite-JDBC driver using the current class loader
 				storageCopy.delete();
 				FileUtil.copyFile(storage, storageCopy);

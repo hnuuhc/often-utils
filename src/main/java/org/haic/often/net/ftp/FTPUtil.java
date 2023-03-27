@@ -5,7 +5,6 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.io.CopyStreamListener;
-import org.haic.often.Symbol;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.DownloadException;
 import org.haic.often.net.URIUtil;
@@ -98,7 +97,7 @@ public class FTPUtil {
 				int index = ipAddr.lastIndexOf(":");
 				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
 			} else if (URIUtil.isIPv6Address(ipAddr)) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+				return proxy(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				throw new RuntimeException("代理格式错误");
 			}

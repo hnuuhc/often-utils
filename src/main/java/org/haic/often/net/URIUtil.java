@@ -1,7 +1,6 @@
 package org.haic.often.net;
 
 import org.apache.http.HttpStatus;
-import org.haic.often.Symbol;
 import org.haic.often.Terminal;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.http.HttpsUtil;
@@ -333,7 +332,7 @@ public class URIUtil {
 	 */
 	public static boolean isIPv6Address(@NotNull String ipAddr) {
 		Predicate<String> valid = host -> host.length() < 40 && host.matches("^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4})*)?)::((([0-9A-Fa-f]{1,4}:)" + "*[0-9A-Fa-f]{1,4})?)$");
-		return ipAddr.matches("\\[.*]:\\d{1,5}") ? valid.test(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET))) : valid.test(ipAddr);
+		return ipAddr.matches("\\[.*]:\\d{1,5}") ? valid.test(ipAddr.substring(1, ipAddr.indexOf(']'))) : valid.test(ipAddr);
 	}
 
 	/**

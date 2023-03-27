@@ -1,6 +1,5 @@
 package org.haic.often.net.download;
 
-import org.haic.often.Symbol;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.function.StringFunction;
 
@@ -180,7 +179,7 @@ public abstract class HLSConnection {
 	public HLSConnection socks(@NotNull String ipAddr) {
 		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
-			return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+			return socks(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 		} else {
 			int index = ipAddr.lastIndexOf(":");
 			return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
@@ -206,7 +205,7 @@ public abstract class HLSConnection {
 	public HLSConnection proxy(@NotNull String ipAddr) {
 		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
-			return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+			return proxy(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 		} else {
 			int index = ipAddr.lastIndexOf(":");
 			return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));

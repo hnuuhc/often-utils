@@ -4,7 +4,6 @@ import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.apache.commons.logging.LogFactory;
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.Method;
@@ -222,7 +221,7 @@ public class HtmlUnitUtil {
 
 		public HtmlConnection socks(@NotNull String ipAddr) {
 			if (ipAddr.startsWith("[")) {
-				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+				return socks(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				int index = ipAddr.lastIndexOf(":");
 				return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
@@ -246,7 +245,7 @@ public class HtmlUnitUtil {
 
 		public HtmlConnection proxy(@NotNull String ipAddr) {
 			if (ipAddr.startsWith("[")) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+				return proxy(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				int index = ipAddr.lastIndexOf(":");
 				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));

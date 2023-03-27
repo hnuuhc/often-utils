@@ -1,6 +1,5 @@
 package org.haic.often.net.aria2;
 
-import org.haic.often.Symbol;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.parser.json.JSONArray;
@@ -71,7 +70,7 @@ public class Aria2Util {
 
 		public Aria2Connection socks(@NotNull String ipAddr) {
 			if (ipAddr.startsWith("[")) {
-				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+				return socks(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				int index = ipAddr.lastIndexOf(":");
 				return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
@@ -84,7 +83,7 @@ public class Aria2Util {
 
 		public Aria2Connection proxy(@NotNull String ipAddr) {
 			if (ipAddr.startsWith("[")) {
-				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
+				return proxy(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 			} else {
 				int index = ipAddr.lastIndexOf(":");
 				return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
