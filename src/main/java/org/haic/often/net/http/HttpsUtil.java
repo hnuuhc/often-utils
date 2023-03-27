@@ -89,7 +89,7 @@ public class HttpsUtil {
 		private Map<String, String> cookies = new HashMap<>(); // cookies
 		private List<Integer> retryStatusCodes = new ArrayList<>();
 		private ThreeTuple<String, InputStream, String> file;
-		private SSLSocketFactory sslSocketFactory = IgnoreSSLSocket.MyX509TrustManager().getSocketFactory();
+		private SSLSocketFactory sslSocketFactory = IgnoreSSLSocket.IgnoreSSLContext().getSocketFactory();
 
 		private HttpConnection(@NotNull String url) {
 			initialization(url);
