@@ -16,7 +16,24 @@ public class Document extends Element {
 
 	private final String type;
 
+	/**
+	 * 解析html文档
+	 *
+	 * @param body 数据
+	 * @return 文档
+	 */
 	public static Document parse(String body) {
+		return parse(body, true);
+	}
+
+	/**
+	 * 解析html或xml文档
+	 *
+	 * @param body   数据
+	 * @param isHtml 是否为html格式,如果文档顶部存在类型,将会自动判断覆盖此参数
+	 * @return 文档
+	 */
+	public static Document parse(String body, boolean isHtml) {
 		if (body == null) return null;
 		var sb = new ParserStringBuilder(body).strip();
 		if (sb.startsWith("\uFEFF")) sb.offset(1); // 去除特殊符号
@@ -32,17 +49,24 @@ public class Document extends Element {
 			var type = sb.substring(sb.pos(), typeTail);
 			sb.pos(typeTail); // 更新位置
 			while (sb.stripLeading().startsWith("<!--")) sb.pos(sb.indexOf("-->", sb.pos() + 4) + 3); // 去除注释
-			var name = sb.substring(sb.lastIndexOf("<") + 2, sb.lastIndexOf(">"));
-			return new Document(type, sb.pos(sb.indexOf("<" + name)), false);
-		} else if (sb.startsWith("<html")) {
-			return new Document("", sb, true);
-		} else if (sb.startsWith("<head")) {
-			return new Document("", new ParserStringBuilder("<html>" + sb + "<body></body></html>"), true);
-		} else if (sb.startsWith("<body")) {
-			return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>"), true);
+			return new Document(type, sb, false);
 		} else {
-			return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>"), true);
+			if (isHtml) {
+				if (sb.startsWith("<html")) {
+					return new Document("", sb, true);
+				} else if (sb.startsWith("<head")) {
+					return new Document("", new ParserStringBuilder("<html>" + sb + "<body></body></html>"), true);
+				} else if (sb.startsWith("<body")) {
+					return new Document("", new ParserStringBuilder("<html><head></head>" + sb + "</html>"), true);
+				} else {
+					return new Document("", new ParserStringBuilder("<html><head></head><body>" + sb + "</body></html>"), true);
+				}
+			} else {
+				if (!sb.startsWith("<")) throw new IllegalStateException("在索引 " + sb.pos() + " 处未找到到起始符'<'");
+				return new Document("", sb, false);
+			}
 		}
+
 	}
 
 	private Document(@NotNull String type, @NotNull ParserStringBuilder node, boolean isHtml) {
