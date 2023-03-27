@@ -2,7 +2,6 @@ package org.haic.often.netdisc;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
@@ -67,7 +66,6 @@ public class HeCaiYunPan {
 	 * @param shareUrl 分享链接
 	 * @return 文件信息列表
 	 */
-	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(String shareUrl) {
 		return getInfosAsPage(shareUrl, "");
 	}
@@ -79,7 +77,6 @@ public class HeCaiYunPan {
 	 * @param sharePwd 提取码
 	 * @return 文件信息列表
 	 */
-	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		var linkid = shareUrl.contains("?") ? shareUrl.substring(shareUrl.lastIndexOf("?") + 1) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
 		return getInfosAsPage(linkid, sharePwd, "root", "");
@@ -112,7 +109,6 @@ public class HeCaiYunPan {
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static HeCaiYunPan localLogin() {
 		return login(LocalCookie.home().getForDomain("yun.139.com"));
 	}
@@ -123,7 +119,6 @@ public class HeCaiYunPan {
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static HeCaiYunPan localLogin(@NotNull String userHome) {
 		return login(LocalCookie.home(userHome).getForDomain("yun.139.com"));
 	}
@@ -134,12 +129,10 @@ public class HeCaiYunPan {
 	 * @param cookies cookies
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static HeCaiYunPan login(@NotNull Map<String, String> cookies) {
 		return new HeCaiYunPan(cookies);
 	}
 
-	@Contract(pure = true)
 	private static String mcloudSign(JSONObject requestBody) {
 		var body = requestBody.toJSONString();
 		var key = RandomUtil.randomAlphanumeric(16);
@@ -158,7 +151,6 @@ public class HeCaiYunPan {
 	 *
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject clearRecycle() {
 		return batchOprTask(203, 2, empty, "");
 	}
@@ -169,7 +161,6 @@ public class HeCaiYunPan {
 	 * @param fileId 指定的文件或文件夹,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject clearRecycle(@NotNull String... fileId) {
 		return clearRecycle(Arrays.asList(fileId));
 	}
@@ -180,7 +171,6 @@ public class HeCaiYunPan {
 	 * @param fileIdList 指定的文件或文件夹ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject clearRecycle(@NotNull List<String> fileIdList) {
 		return batchOprTask(0, 2, fileIdList, "");
 	}
@@ -191,7 +181,6 @@ public class HeCaiYunPan {
 	 * @param fileId 文件或文件夹ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject restore(@NotNull String... fileId) {
 		return restore(Arrays.asList(fileId));
 	}
@@ -202,7 +191,6 @@ public class HeCaiYunPan {
 	 * @param fileIdList 文件或文件夹ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject restore(@NotNull List<String> fileIdList) {
 		return batchOprTask(0, 4, fileIdList, "");
 	}
@@ -212,7 +200,6 @@ public class HeCaiYunPan {
 	 *
 	 * @return 返回的JSON格式文件列表
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> listRecycleBin() {
 		var data = new JSONObject().fluentPut("getVirDirInfoReq", new JSONObject() {{
 			put("commonAccountInfo", user);
@@ -230,7 +217,6 @@ public class HeCaiYunPan {
 	 *
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject listShares() {
 		var data = new JSONObject().fluentPut("getOutLinkLstReq", new JSONObject() {{
 			put("commonAccountInfo", user);
@@ -250,7 +236,6 @@ public class HeCaiYunPan {
 	 * @param linkId 文件ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject unshare(@NotNull String... linkId) {
 		return unshare(Arrays.asList(linkId));
 	}
@@ -261,7 +246,6 @@ public class HeCaiYunPan {
 	 * @param linkIdList 文件ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject unshare(@NotNull List<String> linkIdList) {
 		var data = new JSONObject().fluentPut("delOutLinkReq", new JSONObject() {{
 			put("commonAccountInfo", user);
@@ -277,7 +261,6 @@ public class HeCaiYunPan {
 	 * @param fileId 文件ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject share(int day, @NotNull String... fileId) {
 		return share(day, Arrays.asList(fileId));
 	}
@@ -289,7 +272,6 @@ public class HeCaiYunPan {
 	 * @param fileIdList 文件ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject share(int day, @NotNull List<String> fileIdList) {
 		var data = new JSONObject().fluentPut("getOutLinkReq", new JSONObject() {{
 			put("commonAccountInfo", user);
@@ -312,7 +294,6 @@ public class HeCaiYunPan {
 	 * @param name   重命名后的名称
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject rename(@NotNull String fileId, @NotNull String name) {
 		var data = new JSONObject();
 		data.put("commonAccountInfo", user);
@@ -321,12 +302,10 @@ public class HeCaiYunPan {
 		return conn.url(updateCatalogInfoUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json();
 	}
 
-	@Contract(pure = true)
 	public JSONObject copy(@NotNull String parentId, @NotNull String... fileId) {
 		return copy(parentId, Arrays.asList(fileId));
 	}
 
-	@Contract(pure = true)
 	public JSONObject copy(@NotNull String parentId, @NotNull List<String> fileIdList) {
 		return batchOprTask(0, 1, fileIdList, parentId);
 	}
@@ -337,7 +316,6 @@ public class HeCaiYunPan {
 	 * @param fileId 文件或文件夹ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject delete(@NotNull String... fileId) {
 		return delete(Arrays.asList(fileId));
 	}
@@ -348,7 +326,6 @@ public class HeCaiYunPan {
 	 * @param fileIdList 文件或文件夹ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject delete(@NotNull List<String> fileIdList) {
 		return batchOprTask(201, 2, fileIdList, "");
 	}
@@ -360,7 +337,6 @@ public class HeCaiYunPan {
 	 * @param fileId   文件或文件夹ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject move(@NotNull String parentId, @NotNull String... fileId) {
 		return move(parentId, Arrays.asList(fileId));
 	}
@@ -372,12 +348,10 @@ public class HeCaiYunPan {
 	 * @param fileIdList 文件或文件夹ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject move(@NotNull String parentId, @NotNull List<String> fileIdList) {
 		return batchOprTask(304, 3, fileIdList, parentId);
 	}
 
-	@Contract(pure = true)
 	private JSONObject batchOprTask(int actionType, int taskType, @NotNull List<String> fileIdList, @NotNull String newCatalogID) {
 		var data = new JSONObject().fluentPut("createBatchOprTaskReq", new JSONObject() {{
 			put("actionType", actionType);
@@ -398,7 +372,6 @@ public class HeCaiYunPan {
 	 * @param search 搜索数据
 	 * @return 返回的JSON格式文件列表
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> search(@NotNull String search) {
 		return search(search, "00019700101000000001");
 	}
@@ -410,7 +383,6 @@ public class HeCaiYunPan {
 	 * @param id     指定目录ID
 	 * @return 返回的JSON格式文件列表
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> search(@NotNull String search, @NotNull String id) {
 		var data = new JSONObject();
 		data.put("commonAccountInfo", user);
@@ -426,7 +398,6 @@ public class HeCaiYunPan {
 	 * @param name 文件夹名称
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String id, @NotNull String name) {
 		var data = new JSONObject().fluentPut("createCatalogExtReq", new JSONObject() {{
 			put("commonAccountInfo", user);
@@ -441,7 +412,6 @@ public class HeCaiYunPan {
 	 *
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHome() {
 		return getInfosAsHomeOfFolder("root");
 	}
@@ -452,7 +422,6 @@ public class HeCaiYunPan {
 	 * @param folderId 文件夹ID(JSON数据"catalogID"参数),"root"为根目录
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
 		var data = new JSONObject();
 		data.put("catalogID", folderId);
@@ -511,7 +480,6 @@ public class HeCaiYunPan {
 	 * @param shareUrl 分享链接
 	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
-	@Contract(pure = true)
 	public Map<String, String> getStraightsAsPage(@NotNull String shareUrl) {
 		return getStraightsAsPage(shareUrl, "");
 	}
@@ -523,7 +491,6 @@ public class HeCaiYunPan {
 	 * @param sharePwd 提取码
 	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
-	@Contract(pure = true)
 	public Map<String, String> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		var linkid = shareUrl.contains("?") ? shareUrl.substring(shareUrl.lastIndexOf("?") + 1) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
 		var result = new HashMap<String, String>();
@@ -546,7 +513,6 @@ public class HeCaiYunPan {
 	 * @param fileid 文件ID
 	 * @return 文件直链
 	 */
-	@Contract(pure = true)
 	public String getStraight(@NotNull String fileid) {
 		var data = new JSONObject();
 		data.put("commonAccountInfo", user);

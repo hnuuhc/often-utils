@@ -1,6 +1,5 @@
 package org.haic.often.ffmpeg;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 /**
@@ -18,7 +17,6 @@ public abstract class FFmpeg {
 	 * @param video 视频文件路径
 	 * @return 视频工具类
 	 */
-	@Contract(pure = true)
 	public abstract Video video(@NotNull String video);
 
 	/**
@@ -27,7 +25,6 @@ public abstract class FFmpeg {
 	 * @param audio 音频文件路径
 	 * @return 音频工具类
 	 */
-	@Contract(pure = true)
 	public abstract Audio audio(@NotNull String audio);
 
 }

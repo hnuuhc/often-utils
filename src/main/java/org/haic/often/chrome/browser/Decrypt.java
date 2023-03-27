@@ -1,7 +1,5 @@
 package org.haic.often.chrome.browser;
 
-import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.dpapi.WinDPAPI;
 import org.haic.often.function.StringFunction;
 import org.haic.often.util.Base64Util;
@@ -28,7 +26,6 @@ public class Decrypt {
 	 * @param userHome userData home
 	 * @return encryptedKey
 	 */
-	@Contract(pure = true)
 	public static byte[] getEncryptedKey(File userHome) {
 		return ReadWriteUtil.orgin(new File(userHome, "Local State")).readJSON().getJSONObject("os_crypt").getString("encrypted_key").getBytes();
 	}
@@ -40,7 +37,6 @@ public class Decrypt {
 	 * @param encryptedKey   密钥
 	 * @return decrypt Value
 	 */
-	@Contract(pure = true)
 	public static byte[] DPAPIDecode(byte[] encryptedValue, byte[] encryptedKey) {
 		int keyLength = 256 / 8;
 		int nonceLength = 96 / 8;
@@ -72,11 +68,10 @@ public class Decrypt {
 	 * @param bytes encrypted Value
 	 * @return decrypt Value
 	 */
-	@Contract(pure = true)
 	public static String levelDBDecode(byte[] bytes) {
 		StringFunction<String> unsigned = unsignedInt -> unsignedInt.length() == 1 ? "0" + unsignedInt : unsignedInt;
 		StringBuilder result = new StringBuilder();
-		if (Judge.isEmpty(bytes[0])) {
+		if (bytes[0] == 0) {
 			for (int i = 1; i < bytes.length - 1; i += 2) {
 				result.append((char) Integer.parseInt(unsigned.apply(Integer.toHexString(Byte.toUnsignedInt(bytes[i + 1]))) + unsigned.apply(Integer.toHexString(Byte.toUnsignedInt(bytes[i]))), 16));
 			}

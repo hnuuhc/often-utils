@@ -1,10 +1,8 @@
 package org.haic.often.net;
 
 import org.apache.http.HttpStatus;
-import org.haic.often.Judge;
 import org.haic.often.Symbol;
 import org.haic.often.Terminal;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.util.Base64Util;
@@ -41,7 +39,6 @@ public class URIUtil {
 	 * @param relative 相对网址
 	 * @return 绝对网址
 	 */
-	@Contract(pure = true)
 	public static String toAbsoluteUrl(@NotNull String url, @NotNull String relative) {
 		return relative.isEmpty() ? "" : (relative.startsWith("http") ? relative : relative.startsWith("/") ? relative.charAt(1) == '/' ? getProtocol(url) + relative : getDomain(url) + relative : url.substring(0, url.lastIndexOf("/") + 1) + relative).replaceAll("&amp;", "&");
 	}
@@ -51,7 +48,6 @@ public class URIUtil {
 	 *
 	 * @return IP地址
 	 */
-	@Contract(pure = true)
 	public static String getPublicIPAddress() {
 		return HttpsUtil.connect("https://test.ipw.cn").execute().body();
 	}
@@ -61,7 +57,6 @@ public class URIUtil {
 	 *
 	 * @return IPv4地址
 	 */
-	@Contract(pure = true)
 	public static String getPublicIPv4Address() {
 		return HttpsUtil.connect("https://4.ipw.cn").execute().body();
 	}
@@ -71,7 +66,6 @@ public class URIUtil {
 	 *
 	 * @return IPv6地址
 	 */
-	@Contract(pure = true)
 	public static String getPublicIPv6Address() {
 		return HttpsUtil.connect("https://6.ipw.cn").execute().body();
 	}
@@ -81,7 +75,6 @@ public class URIUtil {
 	 *
 	 * @return IPv4地址, 可能为 NULL
 	 */
-	@Contract(pure = true)
 	public static String getLocalIPv4Address() {
 		Enumeration<NetworkInterface> networkInterfaces;
 		try {
@@ -110,7 +103,6 @@ public class URIUtil {
 	 *
 	 * @return IPv6地址, 可能为 NULL
 	 */
-	@Contract(pure = true)
 	public static String getLocalIPv6Address() {
 		Enumeration<NetworkInterface> networkInterfaces;
 		try {
@@ -140,7 +132,7 @@ public class URIUtil {
 	 * @param inetAddress Internet 协议 (IP) 地址
 	 * @return 判断结果
 	 */
-	@Contract(pure = true)
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private static boolean isReservedAddr(InetAddress inetAddress) {
 		return inetAddress.isAnyLocalAddress() || inetAddress.isLinkLocalAddress() || inetAddress.isLoopbackAddress();
 	}
@@ -151,7 +143,6 @@ public class URIUtil {
 	 * @param url URL字符串
 	 * @return 判断结果
 	 */
-	@Contract(pure = true)
 	public static boolean isURL(@NotNull String url) {
 		return url.matches("(ftp|https?)://.*\\..*") && url.lastIndexOf("://") < 6;
 	}
@@ -162,7 +153,6 @@ public class URIUtil {
 	 * @param url URL
 	 * @return 网络协议名称 例: http
 	 */
-	@Contract(pure = true)
 	public static String getProtocol(@NotNull String url) {
 		return url.split("/")[0];
 	}
@@ -173,7 +163,6 @@ public class URIUtil {
 	 * @param url URL
 	 * @return 域名网址
 	 */
-	@Contract(pure = true)
 	public static String getDomain(@NotNull String url) {
 		String[] info = url.split("/");
 		return info[0] + "//" + info[2];
@@ -185,7 +174,6 @@ public class URIUtil {
 	 * @param body 文本内容
 	 * @return URL列表
 	 */
-	@Contract(pure = true)
 	public static List<String> extractURL(@NotNull String body) {
 		return ListUtil.streamSet(StringUtil.extractList(body, "(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]"));
 	}
@@ -200,7 +188,6 @@ public class URIUtil {
 	 * @param bytes 网页数据
 	 * @return UTF-8 or GBK
 	 */
-	@Contract(pure = true)
 	public static Charset encoding(byte[] bytes) {
 		return StringUtil.isUTF8(bytes) ? StandardCharsets.UTF_8 : Charset.forName("GBK");
 	}
@@ -211,7 +198,6 @@ public class URIUtil {
 	 * @param url URL
 	 * @return URI对象
 	 */
-	@Contract(pure = true)
 	public static URI getURI(@NotNull String url) {
 		URI uri = null;
 		try {
@@ -228,7 +214,6 @@ public class URIUtil {
 	 * @param url URL
 	 * @return URL对象
 	 */
-	@Contract(pure = true)
 	public static URL getURL(@NotNull String url) {
 		URL uri = null;
 		try {
@@ -246,7 +231,6 @@ public class URIUtil {
 	 * @return 字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String getHost(@NotNull String url) {
 		return getURI(url).getHost();
 	}
@@ -257,7 +241,6 @@ public class URIUtil {
 	 * @param statusCode 状态码
 	 * @return 连接状态 boolean
 	 */
-	@Contract(pure = true)
 	public static boolean statusIsNormal(int statusCode) {
 		return statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_BAD_REQUEST;
 	}
@@ -268,7 +251,6 @@ public class URIUtil {
 	 * @param statusCode 状态码
 	 * @return 连接状态 boolean
 	 */
-	@Contract(pure = true)
 	public static boolean statusIsOK(int statusCode) {
 		return statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_MULTIPLE_CHOICES;
 	}
@@ -279,9 +261,8 @@ public class URIUtil {
 	 * @param statusCode 状态码
 	 * @return 连接状态 boolean
 	 */
-	@Contract(pure = true)
 	public static boolean statusIsTimeout(int statusCode) {
-		return statusCode == HttpStatus.SC_REQUEST_TIMEOUT || Judge.isEmpty(statusCode);
+		return statusCode == HttpStatus.SC_REQUEST_TIMEOUT || statusCode == 0;
 	}
 
 	/**
@@ -290,7 +271,6 @@ public class URIUtil {
 	 * @param statusCode 状态码
 	 * @return 连接状态 boolean
 	 */
-	@Contract(pure = true)
 	public static boolean statusIsRedirect(int statusCode) {
 		return statusCode >= HttpStatus.SC_MULTIPLE_CHOICES && statusCode < HttpStatus.SC_BAD_REQUEST;
 	}
@@ -301,7 +281,6 @@ public class URIUtil {
 	 * @param statusCode 状态码
 	 * @return 连接状态 boolean
 	 */
-	@Contract(pure = true)
 	public static boolean statusIsError(int statusCode) {
 		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode != HttpStatus.SC_REQUEST_TIMEOUT;
 	}
@@ -312,7 +291,6 @@ public class URIUtil {
 	 * @param statusCode 状态码
 	 * @return 连接状态 boolean
 	 */
-	@Contract(pure = true)
 	public static boolean statusIsServerError(int statusCode) {
 		return statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR;
 	}
@@ -323,7 +301,6 @@ public class URIUtil {
 	 * @param ipAddr IPV4地址
 	 * @return 判断结果
 	 */
-	@Contract(pure = true)
 	public static boolean isPrivateAddress(@NotNull String ipAddr) {
 		return ipAddr.matches("^1(((0|27)(.(([1-9]?|1[0-9])[0-9]|2([0-4][0-9]|5[0-5])))|(72.(1[6-9]|2[0-9]|3[01])|92.168))(.(([1-9]?|1[0-9])[0-9]|2([0-4][0-9]|5[0-5]))){2})$");
 	}
@@ -334,7 +311,6 @@ public class URIUtil {
 	 * @param ipAddr IPV4地址
 	 * @return 判断结果
 	 */
-	@Contract(pure = true)
 	public static boolean isSubnetMask(@NotNull String ipAddr) {
 		return ipAddr.matches("^((128|192)|2(24|4[08]|5[245]))(\\.(0|(128|192)|2((24)|(4[08])|(5[245])))){3}$");
 	}
@@ -345,7 +321,6 @@ public class URIUtil {
 	 * @param ipAddr IPV4地址
 	 * @return 判断结果
 	 */
-	@Contract(pure = true)
 	public static boolean isIPv4Address(@NotNull String ipAddr) {
 		return ipAddr.matches("^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|[1-9])(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}(:\\d{1,5})?$");
 	}
@@ -356,7 +331,6 @@ public class URIUtil {
 	 * @param ipAddr IPV6地址
 	 * @return 判断结果
 	 */
-	@Contract(pure = true)
 	public static boolean isIPv6Address(@NotNull String ipAddr) {
 		Predicate<String> valid = host -> host.length() < 40 && host.matches("^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4})*)?)::((([0-9A-Fa-f]{1,4}:)" + "*[0-9A-Fa-f]{1,4})?)$");
 		return ipAddr.matches("\\[.*]:\\d{1,5}") ? valid.test(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET))) : valid.test(ipAddr);
@@ -368,7 +342,6 @@ public class URIUtil {
 	 * @param ipAddr IP地址
 	 * @return 判断结果
 	 */
-	@Contract(pure = true)
 	public static boolean isIPAddress(@NotNull String ipAddr) {
 		return isIPv4Address(ipAddr) || isIPv6Address(ipAddr);
 	}
@@ -379,9 +352,8 @@ public class URIUtil {
 	 * @param host 域名或IP
 	 * @return 连接状态
 	 */
-	@Contract(pure = true)
 	public static boolean pingIp(@NotNull String host) {
-		return Judge.isEmpty(Terminal.command("ping", host, "-n", "1", "-w", "5000").execute());
+		return Terminal.command("ping", host, "-n", "1", "-w", "5000").execute() == 0;
 	}
 
 	/**
@@ -390,7 +362,6 @@ public class URIUtil {
 	 * @param host 域名或IP
 	 * @return 连接状态
 	 */
-	@Contract(pure = true)
 	public static boolean pingHost(@NotNull String host) {
 		return pingHost(host, 80);
 	}
@@ -402,7 +373,6 @@ public class URIUtil {
 	 * @param port 端口
 	 * @return 连接状态
 	 */
-	@Contract(pure = true)
 	public static boolean pingHost(@NotNull String host, int port) {
 		boolean isReachable;
 		try (Socket socket = new Socket()) {
@@ -421,7 +391,6 @@ public class URIUtil {
 	 * @param host 网址
 	 * @return IP地址
 	 */
-	@Contract(pure = true)
 	public static String hostIP(@NotNull String host) {
 		try {
 			return InetAddress.getByName(URIUtil.getDomain(host)).getHostAddress();
@@ -436,7 +405,6 @@ public class URIUtil {
 	 * @param disposition ontent-Disposition
 	 * @return 文件名
 	 */
-	@Contract(pure = true)
 	public static String getFileNameForDisposition(@NotNull String disposition) {
 		String fileName = disposition.substring(disposition.lastIndexOf("filename"));
 		fileName = fileName.substring(fileName.indexOf("=") + 1).replaceAll("\"", "");
@@ -450,7 +418,6 @@ public class URIUtil {
 	 * @param headers 请求头
 	 * @return hash值, 自行根据长度判断hash类型
 	 */
-	@Contract(pure = true)
 	public static String getHash(@NotNull Map<String, String> headers) {
 		String hash;
 		return (hash = headers.get("x-cos-meta-md5")) != null || (hash = headers.get("x-oss-hash-value")) != null || ((hash = headers.get("content-md5")) != null && hash.length() == 32) ? hash : null;
@@ -463,7 +430,6 @@ public class URIUtil {
 	 * @return URL直链
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String thunderToURL(@NotNull String thunder) {
 		String thunderUrl = Base64Util.decode(StringUtil.stripEnd(thunder, "=").replaceFirst("thunder://", ""), "GBK");
 		return thunderUrl.substring(2, thunderUrl.length() - 2);
@@ -476,16 +442,14 @@ public class URIUtil {
 	 * @return 判断结果
 	 */
 	public static boolean hasEnCode(@NotNull String s) {
-		if (!Judge.isEmpty(s.length())) {
+		if (s.length() != 0) {
 			for (int i = 0; i < s.length(); i++) {
 				char c = s.charAt(i);
 				if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 					i += 2;
 					continue;
 				}
-				if (!safetyChar.test(c) || !specialSafetyChar.test(c)) {
-					return false;
-				}
+				if (!safetyChar.test(c) || !specialSafetyChar.test(c)) return false;
 			}
 		}
 		return true;
@@ -498,7 +462,6 @@ public class URIUtil {
 	 * @return String
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String s) {
 		return decode(s, StandardCharsets.UTF_8);
 	}
@@ -511,7 +474,6 @@ public class URIUtil {
 	 * @return String
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String s, @NotNull String charset) {
 		return decode(s, Charset.forName(charset));
 	}
@@ -524,7 +486,6 @@ public class URIUtil {
 	 * @return String
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String s, @NotNull Charset charset) {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		for (int i = 0; i < s.length(); i++) {
@@ -551,7 +512,6 @@ public class URIUtil {
 	 * @return 加密的字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String encode(@NotNull String s) {
 		StringBuilder sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
@@ -579,7 +539,6 @@ public class URIUtil {
 	 * @return 加密的字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String encodeValue(@NotNull String s) {
 		StringBuilder sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {

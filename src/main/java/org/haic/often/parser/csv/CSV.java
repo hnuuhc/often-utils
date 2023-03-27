@@ -1,6 +1,5 @@
 package org.haic.often.parser.csv;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeReference;
@@ -66,7 +65,6 @@ public class CSV extends ArrayList<CSVNode> {
 	 * @param <T>    返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(@NotNull int y, int x, @NotNull Function<Object, ? extends T> mapper) {
 		return this.get(y).get(x, mapper);
 	}
@@ -80,7 +78,6 @@ public class CSV extends ArrayList<CSVNode> {
 	 * @param <T>  返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(int y, int x, @NotNull TypeReference<T> type) {
 		return this.get(y).get(x, type);
 	}
@@ -94,7 +91,6 @@ public class CSV extends ArrayList<CSVNode> {
 	 * @param <T>       返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(int y, int x, @NotNull Class<T> itemClass) {
 		return this.get(y).get(x, itemClass);
 	}

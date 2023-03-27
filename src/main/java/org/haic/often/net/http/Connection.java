@@ -1,7 +1,6 @@
 package org.haic.often.net.http;
 
 import org.haic.often.Symbol;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
 
@@ -30,7 +29,6 @@ public abstract class Connection {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection url(@NotNull String url);
 
 	/**
@@ -39,7 +37,6 @@ public abstract class Connection {
 	 *
 	 * @return 一个新的 Connection 对象，具有共享的 Cookie 存储和来自此 Connection 和 Request 的初始化设置
 	 */
-	@Contract(pure = true)
 	public abstract Connection newRequest();
 
 	/**
@@ -50,7 +47,6 @@ public abstract class Connection {
 	 * @param sslSocket 自定义 SSL 套接字工厂
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection sslSocketFactory(SSLContext sslSocket);
 
 	/**
@@ -60,7 +56,6 @@ public abstract class Connection {
 	 * @param userAgent 要使用的用户代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection userAgent(@NotNull String userAgent);
 
 	/**
@@ -69,7 +64,6 @@ public abstract class Connection {
 	 * @param isPhone true or false
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection isPhone(boolean isPhone);
 
 	/**
@@ -79,7 +73,6 @@ public abstract class Connection {
 	 * @param followRedirects 如果应该遵循服务器重定向，则为 true
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection followRedirects(boolean followRedirects);
 
 	/**
@@ -89,7 +82,6 @@ public abstract class Connection {
 	 * @param referrer 要使用的来源网址
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection referrer(@NotNull String referrer);
 
 	/**
@@ -104,7 +96,6 @@ public abstract class Connection {
 	 * @param auth 授权码或身份识别标识
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection auth(@NotNull String auth);
 
 	/**
@@ -114,7 +105,6 @@ public abstract class Connection {
 	 * @param millis 超时连接或读取之前的毫秒数（千分之一秒）
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection timeout(int millis);
 
 	/**
@@ -123,7 +113,6 @@ public abstract class Connection {
 	 * @param type 请求类型
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection contentType(@NotNull String type);
 
 	/**
@@ -134,7 +123,6 @@ public abstract class Connection {
 	 * @param value 标头值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection header(@NotNull String name, @NotNull String value);
 
 	/**
@@ -145,7 +133,6 @@ public abstract class Connection {
 	 * @param headers 标头名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection headers(@NotNull Map<String, String> headers);
 
 	/**
@@ -156,7 +143,6 @@ public abstract class Connection {
 	 * @param headers 标头名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection setHeaders(@NotNull Map<String, String> headers);
 
 	/**
@@ -165,7 +151,6 @@ public abstract class Connection {
 	 * @param key header的键
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection removeHeader(@NotNull String key);
 
 	/**
@@ -175,7 +160,6 @@ public abstract class Connection {
 	 * @param value cookie 的值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection cookie(@NotNull String name, @NotNull String value);
 
 	/**
@@ -186,7 +170,6 @@ public abstract class Connection {
 	 * @param cookies 名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection cookies(@NotNull Map<String, String> cookies);
 
 	/**
@@ -197,7 +180,6 @@ public abstract class Connection {
 	 * @param cookies cookie字符串
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public Connection cookies(@NotNull String cookies) {
 		return header("cookie", cookies);
 	}
@@ -210,7 +192,6 @@ public abstract class Connection {
 	 * @param cookies 名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection setCookies(@NotNull Map<String, String> cookies);
 
 	/**
@@ -219,7 +200,6 @@ public abstract class Connection {
 	 * @param name cookie的名称
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection removeCookie(@NotNull String name);
 
 	/**
@@ -229,7 +209,6 @@ public abstract class Connection {
 	 *
 	 * @return cookieStore
 	 */
-	@Contract(pure = true)
 	public abstract Map<String, String> cookieStore();
 
 	/**
@@ -240,7 +219,6 @@ public abstract class Connection {
 	 * @param value 数据值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection data(@NotNull String key, @NotNull String value);
 
 	/**
@@ -249,7 +227,6 @@ public abstract class Connection {
 	 * @param params 数据参数
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection data(@NotNull Map<String, String> params);
 
 	/**
@@ -258,7 +235,6 @@ public abstract class Connection {
 	 * @param in 要上传的输入流，您可能从FileInputStream获得。您必须在finally块中关闭 InputStream
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection data(@NotNull InputStream in);
 
 	/**
@@ -268,7 +244,6 @@ public abstract class Connection {
 	 * @param mimiType 文件对应的mimiType,将用于设置content-type,可用 {@link  java.net.URLConnection#guessContentTypeFromName(String)} 方法获取
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection data(@NotNull InputStream in, @NotNull String mimiType);
 
 	/**
@@ -289,7 +264,6 @@ public abstract class Connection {
 	 * @param in       要上传的输入流，您可能从FileInputStream获得。您必须在finally块中关闭 InputStream
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in);
 
 	/**
@@ -311,7 +285,6 @@ public abstract class Connection {
 	 * @param mimiType 文件对应的mimiType,将用于设置content-type,可用 {@link  java.net.URLConnection#guessContentTypeFromName(String)} 方法获取
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in, @NotNull String mimiType);
 
 	/**
@@ -321,7 +294,6 @@ public abstract class Connection {
 	 * @param body 请求正文
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection requestBody(@NotNull Object body);
 
 	/**
@@ -332,7 +304,6 @@ public abstract class Connection {
 	 * @param body 请求正文
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection requestBody(@NotNull String body);
 
 	/**
@@ -343,7 +314,6 @@ public abstract class Connection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public Connection socks(@NotNull String ipAddr) {
 		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
@@ -361,7 +331,6 @@ public abstract class Connection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection socks(@NotNull String host, int port);
 
 	/**
@@ -373,7 +342,6 @@ public abstract class Connection {
 	 * @param password 密码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public Connection socks(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
 		Authenticator.setDefault(new Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
@@ -393,7 +361,6 @@ public abstract class Connection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public Connection proxy(@NotNull String ipAddr) {
 		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
@@ -412,7 +379,6 @@ public abstract class Connection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection proxy(@NotNull String host, int port);
 
 	/**
@@ -425,7 +391,6 @@ public abstract class Connection {
 	 * @param password 密码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public Connection proxy(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
 		Authenticator.setDefault(new Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
@@ -442,7 +407,6 @@ public abstract class Connection {
 	 * @param proxy 要使用的代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection proxy(@NotNull Proxy proxy);
 
 	/**
@@ -452,7 +416,6 @@ public abstract class Connection {
 	 * @param method HTTP 请求方法
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection method(@NotNull Method method);
 
 	/**
@@ -461,7 +424,6 @@ public abstract class Connection {
 	 * @param retry 重试次数
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection retry(int retry);
 
 	/**
@@ -471,7 +433,6 @@ public abstract class Connection {
 	 * @param millis 重试等待时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Connection retry(int retry, int millis);
 
 	/**
@@ -480,7 +441,6 @@ public abstract class Connection {
 	 * @param unlimit 启用无限重试, 默认false
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection retry(boolean unlimit);
 
 	/**
@@ -490,7 +450,6 @@ public abstract class Connection {
 	 * @param millis  重试等待时间(毫秒)
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection retry(boolean unlimit, int millis);
 
 	/**
@@ -499,7 +458,6 @@ public abstract class Connection {
 	 * @param statusCode 状态码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection retryStatusCodes(int... statusCode);
 
 	/**
@@ -508,7 +466,6 @@ public abstract class Connection {
 	 * @param retryStatusCodes 状态码列表
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection retryStatusCodes(List<Integer> retryStatusCodes);
 
 	/**
@@ -518,7 +475,6 @@ public abstract class Connection {
 	 * @param exit 启用错误退出
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Connection failThrow(boolean exit);
 
 	/**
@@ -526,7 +482,6 @@ public abstract class Connection {
 	 *
 	 * @return HTML文档
 	 */
-	@Contract(pure = true)
 	public Response get() {
 		return method(Method.GET).execute();
 	}
@@ -536,7 +491,6 @@ public abstract class Connection {
 	 *
 	 * @return HTML文档
 	 */
-	@Contract(pure = true)
 	public Response post() {
 		return method(Method.POST).execute();
 	}
@@ -546,7 +500,6 @@ public abstract class Connection {
 	 *
 	 * @return Response
 	 */
-	@Contract(pure = true)
 	public abstract Response execute();
 
 }

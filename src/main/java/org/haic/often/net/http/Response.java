@@ -1,6 +1,5 @@
 package org.haic.often.net.http;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.URIUtil;
@@ -35,7 +34,6 @@ public abstract class Response {
 	 *
 	 * @return 此页面的 URL
 	 */
-	@Contract(pure = true)
 	public abstract String url();
 
 	/**
@@ -43,7 +41,6 @@ public abstract class Response {
 	 *
 	 * @return 请求响应代码
 	 */
-	@Contract(pure = true)
 	public abstract int statusCode();
 
 	/**
@@ -56,7 +53,6 @@ public abstract class Response {
 	 *
 	 * @return 状态消息
 	 */
-	@Contract(pure = true)
 	public abstract String statusMessage();
 
 	/**
@@ -64,7 +60,6 @@ public abstract class Response {
 	 *
 	 * @return 响应内容类型，如果未设置则为null
 	 */
-	@Contract(pure = true)
 	public abstract String contentType();
 
 	/**
@@ -72,7 +67,6 @@ public abstract class Response {
 	 *
 	 * @return 请求头的值
 	 */
-	@Contract(pure = true)
 	public String header(@NotNull String name) {
 		return headers().get(name);
 	}
@@ -82,7 +76,6 @@ public abstract class Response {
 	 *
 	 * @return 请求头
 	 */
-	@Contract(pure = true)
 	public abstract Map<String, String> headers();
 
 	/**
@@ -91,7 +84,6 @@ public abstract class Response {
 	 * @param name cookie name
 	 * @return cookie value
 	 */
-	@Contract(pure = true)
 	public String cookie(@NotNull String name) {
 		return cookies().get(name);
 	}
@@ -101,7 +93,6 @@ public abstract class Response {
 	 *
 	 * @return cookies
 	 */
-	@Contract(pure = true)
 	public abstract Map<String, String> cookies();
 
 	/**
@@ -111,7 +102,6 @@ public abstract class Response {
 	 * @param charsetName 字符集格式名称
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public Response charset(@NotNull String charsetName) {
 		return charset(Charset.forName(charsetName));
 	}
@@ -123,7 +113,6 @@ public abstract class Response {
 	 * @param charset 字符集格式
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public Response charset(@NotNull Charset charset) {
 		this.charset = charset;
 		return this;
@@ -134,7 +123,6 @@ public abstract class Response {
 	 *
 	 * @return 字符集编码
 	 */
-	@Contract(pure = true)
 	public Charset charset() {
 		if (charset == null) {
 			if (headers().containsKey("content-type")) {
@@ -161,7 +149,6 @@ public abstract class Response {
 	 *
 	 * @return 已解析的JSON
 	 */
-	@Contract(pure = true)
 	public JSONObject json() {
 		return parse(JSONObject.class);
 	}
@@ -171,7 +158,6 @@ public abstract class Response {
 	 *
 	 * @return 已解析的JSON
 	 */
-	@Contract(pure = true)
 	public JSONArray jsonArray() {
 		return parse(JSONArray.class);
 	}
@@ -181,7 +167,6 @@ public abstract class Response {
 	 *
 	 * @return 已解析的文档
 	 */
-	@Contract(pure = true)
 	public Document parse() {
 		return parse(Document.class);
 	}
@@ -193,7 +178,6 @@ public abstract class Response {
 	 * @param <T>       解析类型
 	 * @return 已解析的文档
 	 */
-	@Contract(pure = true)
 	public <T> T parse(@NotNull Class<T> itemClass) {
 		return TypeUtil.convert(body(), itemClass);
 	}
@@ -203,7 +187,6 @@ public abstract class Response {
 	 *
 	 * @return body
 	 */
-	@Contract(pure = true)
 	public String body() {
 		return body == null && bodyAsByteArray() == null ? null : body.toString(charset());
 	}
@@ -215,7 +198,6 @@ public abstract class Response {
 	 *
 	 * @return the response body input stream
 	 */
-	@Contract(pure = true)
 	public abstract InputStream bodyStream() throws IOException;
 
 	/**
@@ -223,7 +205,6 @@ public abstract class Response {
 	 *
 	 * @return body bytes
 	 */
-	@Contract(pure = true)
 	public byte[] bodyAsBytes() {
 		return body == null && (body = bodyAsByteArray()) == null ? null : body.toByteArray();
 	}
@@ -233,7 +214,6 @@ public abstract class Response {
 	 *
 	 * @return ByteArrayOutputStream
 	 */
-	@Contract(pure = true)
 	protected abstract ByteArrayOutputStream bodyAsByteArray();
 
 }

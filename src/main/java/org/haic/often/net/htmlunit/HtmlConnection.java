@@ -1,6 +1,5 @@
 package org.haic.often.net.htmlunit;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
 import org.haic.often.net.http.Response;
@@ -26,7 +25,6 @@ public abstract class HtmlConnection {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection url(@NotNull String url);
 
 	/**
@@ -34,7 +32,6 @@ public abstract class HtmlConnection {
 	 *
 	 * @return 一个新的 Connection 对象，具有共享的 Cookie 存储和来自此 Connection 和 Request 的初始化设置
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection newRequest();
 
 	/**
@@ -43,7 +40,6 @@ public abstract class HtmlConnection {
 	 * @param userAgent 要使用的用户代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection userAgent(@NotNull String userAgent);
 
 	/**
@@ -52,7 +48,6 @@ public abstract class HtmlConnection {
 	 * @param isPhone true or false
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection isPhone(boolean isPhone);
 
 	/**
@@ -61,7 +56,6 @@ public abstract class HtmlConnection {
 	 * @param followRedirects 如果应该遵循服务器重定向，则为 true
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection followRedirects(boolean followRedirects);
 
 	/**
@@ -70,7 +64,6 @@ public abstract class HtmlConnection {
 	 * @param referrer 要使用的来源网址
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection referrer(@NotNull String referrer);
 
 	/**
@@ -85,7 +78,6 @@ public abstract class HtmlConnection {
 	 * @param auth 授权码或身份识别标识
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection auth(@NotNull String auth);
 
 	/**
@@ -95,7 +87,6 @@ public abstract class HtmlConnection {
 	 * @param millis 超时连接或读取之前的毫秒数（千分之一秒）
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection timeout(int millis);
 
 	/**
@@ -104,7 +95,6 @@ public abstract class HtmlConnection {
 	 * @param type 请求类型
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection contentType(@NotNull String type);
 
 	/**
@@ -114,7 +104,6 @@ public abstract class HtmlConnection {
 	 * @param value 标头值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection header(@NotNull String name, @NotNull String value);
 
 	/**
@@ -123,7 +112,6 @@ public abstract class HtmlConnection {
 	 * @param headers 标头名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection headers(@NotNull Map<String, String> headers);
 
 	/**
@@ -134,7 +122,6 @@ public abstract class HtmlConnection {
 	 * @param headers 标头名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection setHeaders(@NotNull Map<String, String> headers);
 
 	/**
@@ -143,7 +130,6 @@ public abstract class HtmlConnection {
 	 * @param key header的键
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection removeHeader(@NotNull String key);
 
 	/**
@@ -153,7 +139,6 @@ public abstract class HtmlConnection {
 	 * @param value cookie 的值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection cookie(@NotNull String name, @NotNull String value);
 
 	/**
@@ -162,7 +147,6 @@ public abstract class HtmlConnection {
 	 * @param cookies 名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection cookies(@NotNull Map<String, String> cookies);
 
 	/**
@@ -173,7 +157,6 @@ public abstract class HtmlConnection {
 	 * @param cookies cookie字符串
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public HtmlConnection cookies(@NotNull String cookies) {
 		return header("cookie", cookies);
 	}
@@ -186,7 +169,6 @@ public abstract class HtmlConnection {
 	 * @param cookies 名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection setCookies(@NotNull Map<String, String> cookies);
 
 	/**
@@ -195,7 +177,6 @@ public abstract class HtmlConnection {
 	 * @param name cookie的名称
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection removeCookie(@NotNull String name);
 
 	/**
@@ -205,7 +186,6 @@ public abstract class HtmlConnection {
 	 * @param value 数据值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection data(@NotNull String key, @NotNull String value);
 
 	/**
@@ -214,7 +194,6 @@ public abstract class HtmlConnection {
 	 * @param params 数据参数
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection data(@NotNull Map<String, String> params);
 
 	/**
@@ -224,7 +203,6 @@ public abstract class HtmlConnection {
 	 * @param body 请求正文
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection requestBody(@NotNull Object body);
 
 	/**
@@ -235,7 +213,6 @@ public abstract class HtmlConnection {
 	 * @param body 请求正文
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection requestBody(@NotNull String body);
 
 	/**
@@ -244,7 +221,6 @@ public abstract class HtmlConnection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection socks(@NotNull String ipAddr);
 
 	/**
@@ -254,7 +230,6 @@ public abstract class HtmlConnection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection socks(@NotNull String host, int port);
 
 	/**
@@ -266,7 +241,6 @@ public abstract class HtmlConnection {
 	 * @param password 代理用户密码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection socks(@NotNull String host, int port, @NotNull String username, @NotNull String password);
 
 	/**
@@ -276,7 +250,6 @@ public abstract class HtmlConnection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection proxy(@NotNull String ipAddr);
 
 	/**
@@ -286,7 +259,6 @@ public abstract class HtmlConnection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection proxy(@NotNull String host, int port);
 
 	/**
@@ -298,7 +270,6 @@ public abstract class HtmlConnection {
 	 * @param password 代理用户密码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection proxy(@NotNull String host, int port, @NotNull String username, @NotNull String password);
 
 	/**
@@ -307,7 +278,6 @@ public abstract class HtmlConnection {
 	 * @param proxy 要使用的代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection proxy(@NotNull Proxy proxy);
 
 	/**
@@ -316,7 +286,6 @@ public abstract class HtmlConnection {
 	 * @param method HTTP 请求方法
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection method(@NotNull Method method);
 
 	/**
@@ -325,7 +294,6 @@ public abstract class HtmlConnection {
 	 * @param retry 重试次数
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection retry(int retry);
 
 	/**
@@ -335,7 +303,6 @@ public abstract class HtmlConnection {
 	 * @param millis 重试等待时间(毫秒)
 	 * @return 此链接, 用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection retry(int retry, int millis);
 
 	/**
@@ -344,7 +311,6 @@ public abstract class HtmlConnection {
 	 * @param unlimit 启用无限重试, 默认false
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection retry(boolean unlimit);
 
 	/**
@@ -354,7 +320,6 @@ public abstract class HtmlConnection {
 	 * @param millis  重试等待时间(毫秒)
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection retry(boolean unlimit, int millis);
 
 	/**
@@ -363,7 +328,6 @@ public abstract class HtmlConnection {
 	 * @param statusCode 状态码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection retryStatusCodes(int... statusCode);
 
 	/**
@@ -372,7 +336,6 @@ public abstract class HtmlConnection {
 	 * @param retryStatusCodes 状态码列表
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection retryStatusCodes(List<Integer> retryStatusCodes);
 
 	/**
@@ -381,7 +344,6 @@ public abstract class HtmlConnection {
 	 * @param exit 启用错误退出
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection failThrow(boolean exit);
 
 	/**
@@ -390,7 +352,6 @@ public abstract class HtmlConnection {
 	 * @param enableCSS true启用 CSS 支持
 	 * @return 此链接, 用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection enableCSS(boolean enableCSS);
 
 	/**
@@ -399,7 +360,6 @@ public abstract class HtmlConnection {
 	 * @param millis JS超时时间(毫秒)
 	 * @return 此链接, 用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HtmlConnection waitJSTime(int millis);
 
 	/**
@@ -408,7 +368,6 @@ public abstract class HtmlConnection {
 	 * @return 此链接, 用于链接
 	 */
 
-	@Contract(pure = true)
 	public abstract HtmlConnection close();
 
 	/**
@@ -416,7 +375,6 @@ public abstract class HtmlConnection {
 	 *
 	 * @return HTML文档
 	 */
-	@Contract(pure = true)
 	public Response get() {
 		return method(Method.GET).execute();
 	}
@@ -426,7 +384,6 @@ public abstract class HtmlConnection {
 	 *
 	 * @return HTML文档
 	 */
-	@Contract(pure = true)
 	public Response post() {
 		return method(Method.POST).execute();
 	}
@@ -436,7 +393,6 @@ public abstract class HtmlConnection {
 	 *
 	 * @return Response
 	 */
-	@Contract(pure = true)
 	public abstract Response execute();
 
 }

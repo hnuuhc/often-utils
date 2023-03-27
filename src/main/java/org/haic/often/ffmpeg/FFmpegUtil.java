@@ -1,11 +1,9 @@
 package org.haic.often.ffmpeg;
 
-import org.haic.often.Judge;
 import org.haic.often.Terminal;
+import org.haic.often.annotations.NotNull;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
-import org.haic.often.annotations.Contract;
-import org.haic.often.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
@@ -25,7 +23,6 @@ public class FFmpegUtil {
 	 * @param ffmpeg FFmpeg可执行文件路径
 	 * @return FFmpeg
 	 */
-	@Contract(pure = true)
 	public static FFmpeg ffmpeg(@NotNull String ffmpeg) {
 		return new FFmpegBuilder(ffmpeg);
 	}
@@ -35,9 +32,8 @@ public class FFmpegUtil {
 	 *
 	 * @return FFmpeg
 	 */
-	@Contract(pure = true)
 	public static FFmpeg ffmpeg() {
-		if (!Judge.isEmpty(Terminal.command("ffmpeg", "-version").execute())) {
+		if (Terminal.command("ffmpeg", "-version").execute() != 0) {
 			throw new RuntimeException("系统ffmpeg可执行文件不存在");
 		}
 		return new FFmpegBuilder("ffmpeg");
@@ -51,12 +47,10 @@ public class FFmpegUtil {
 			this.ffmpeg = ffmpeg;
 		}
 
-		@Contract(pure = true)
 		public Video video(@NotNull String video) {
 			return new VideoBuilder(ffmpeg, video);
 		}
 
-		@Contract(pure = true)
 		public Audio audio(@NotNull String audio) {
 			return new AudioBuilder(ffmpeg, audio);
 		}
@@ -73,53 +67,45 @@ public class FFmpegUtil {
 			this.video = video;
 		}
 
-		@Contract(pure = true)
 		public boolean setAudio(@NotNull String audio, @NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-i", Terminal.doubleQuote(audio), "-c", "copy", Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-i", Terminal.doubleQuote(audio), "-c", "copy", Terminal.doubleQuote(out)).execute() == 0;
 		}
 
-		@Contract(pure = true)
 		public boolean addAudio(@NotNull String audio, @NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-i", Terminal.doubleQuote(audio), "-c", "copy", "-map", "0", "-map", "1", Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-i", Terminal.doubleQuote(audio), "-c", "copy", "-map", "0", "-map", "1", Terminal.doubleQuote(out)).execute() == 0;
 		}
 
-		@Contract(pure = true)
 		public boolean removeAudio(@NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-an", Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-an", Terminal.doubleQuote(out)).execute() == 0;
 		}
 
-		@Contract(pure = true)
 		public boolean capture(@NotNull String start, int time, @NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-t", String.valueOf(time), "-ss", start, Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-t", String.valueOf(time), "-ss", start, Terminal.doubleQuote(out)).execute() == 0;
 		}
 
-		@Contract(pure = true)
 		public boolean speed(float multiple, @NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-filter:v", "setpts=PTS/" + multiple, Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-filter:v", "setpts=PTS/" + multiple, Terminal.doubleQuote(out)).execute() == 0;
 		}
 
-		@Contract(pure = true)
 		public boolean extractAudio(@NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-f", out.substring(out.lastIndexOf(".") + 1), Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", Terminal.doubleQuote(video), "-f", out.substring(out.lastIndexOf(".") + 1), Terminal.doubleQuote(out)).execute() == 0;
 		}
 
-		@Contract(pure = true)
 		public boolean addVideo(@NotNull String video, @NotNull String out) {
 			return addVideo(List.of(video), out);
 		}
 
-		@Contract(pure = true)
 		public boolean addVideo(@NotNull List<String> video, @NotNull String out) {
 			FileUtil.deteleFile(out);
 			File fileList = new File(out + ".txt");
 			ReadWriteUtil.orgin(fileList).append(false).write("file " + Terminal.quote(this.video) + "\n" + String.join("\n", video.stream().map(l -> "file " + Terminal.quote(l)).toList()));
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-f", "concat", "-safe", "0", "-i", fileList.getPath(), "-c", "copy", Terminal.doubleQuote(out)).execute()) && fileList.delete();
+			return Terminal.command(ffmpeg, "-f", "concat", "-safe", "0", "-i", fileList.getPath(), "-c", "copy", Terminal.doubleQuote(out)).execute() == 0 && fileList.delete();
 		}
 
 	}
@@ -134,27 +120,23 @@ public class FFmpegUtil {
 			this.audio = audio;
 		}
 
-		@Contract(pure = true)
 		public boolean merge(@NotNull String audio, @NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", this.audio, "-i", audio, "-f", out.substring(out.lastIndexOf(".") + 1), Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", this.audio, "-i", audio, "-f", out.substring(out.lastIndexOf(".") + 1), Terminal.doubleQuote(out)).execute() == 0;
 		}
 
-		@Contract(pure = true)
 		public boolean addAudio(@NotNull String audio, @NotNull String out) {
 			return addAudio(List.of(audio), out);
 		}
 
-		@Contract(pure = true)
 		public boolean addAudio(@NotNull List<String> audio, @NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", Terminal.doubleQuote("concat:" + this.audio + "|" + String.join("|", audio)), "-acodec", "copy", Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", Terminal.doubleQuote("concat:" + this.audio + "|" + String.join("|", audio)), "-acodec", "copy", Terminal.doubleQuote(out)).execute() == 0;
 		}
 
-		@Contract(pure = true)
 		public boolean transcoding(@NotNull String out) {
 			FileUtil.deteleFile(out);
-			return Judge.isEmpty(Terminal.command(ffmpeg, "-i", audio, "-acodec", "libmp3lame", Terminal.doubleQuote(out)).execute());
+			return Terminal.command(ffmpeg, "-i", audio, "-acodec", "libmp3lame", Terminal.doubleQuote(out)).execute() == 0;
 		}
 
 	}

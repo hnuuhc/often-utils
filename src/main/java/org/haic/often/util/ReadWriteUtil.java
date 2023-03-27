@@ -1,7 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.json.JSON;
 import org.haic.often.parser.json.JSONArray;
@@ -42,7 +40,6 @@ public class ReadWriteUtil {
 	 * @param source 文件或文件夹路径
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public static ReadWriteUtil orgin(String source) {
 		return orgin(new File(source));
 	}
@@ -53,7 +50,6 @@ public class ReadWriteUtil {
 	 * @param source 文件或文件夹
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public static ReadWriteUtil orgin(File source) {
 		return config().file(source);
 	}
@@ -63,7 +59,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
 	protected static ReadWriteUtil config() {
 		return new ReadWriteUtil();
 	}
@@ -74,7 +69,6 @@ public class ReadWriteUtil {
 	 * @param source 文件或文件夹
 	 * @return this
 	 */
-	@Contract(pure = true)
 	protected ReadWriteUtil file(File source) {
 		this.source = source;
 		return this;
@@ -86,7 +80,6 @@ public class ReadWriteUtil {
 	 * @param bufferSize 缓冲区大小
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public ReadWriteUtil bufferSize(int bufferSize) {
 		this.DEFAULT_BUFFER_SIZE = bufferSize;
 		return this;
@@ -98,7 +91,6 @@ public class ReadWriteUtil {
 	 * @param charset 字符集编码格式
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public ReadWriteUtil charset(Charset charset) {
 		this.charset = charset;
 		return this;
@@ -110,7 +102,6 @@ public class ReadWriteUtil {
 	 * @param charsetName 字符集格式
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public ReadWriteUtil charset(String charsetName) {
 		return charset(Charset.forName(charsetName));
 	}
@@ -121,7 +112,6 @@ public class ReadWriteUtil {
 	 * @param append 启用追加写入,默认true
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public ReadWriteUtil append(boolean append) {
 		this.append = append;
 		return this;
@@ -135,7 +125,6 @@ public class ReadWriteUtil {
 	 * @param lists 字符串数组
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean writeAsLine(@NotNull List<String> lists) {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -155,7 +144,6 @@ public class ReadWriteUtil {
 	 * @param s 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean write(@NotNull String s) {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -175,7 +163,6 @@ public class ReadWriteUtil {
 	 * @param b byte数组
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean write(byte[] b) {
 		return write(b, 0, b.length);
 	}
@@ -188,7 +175,6 @@ public class ReadWriteUtil {
 	 * @param len 长度
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean write(byte[] b, int off, int len) {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -208,7 +194,6 @@ public class ReadWriteUtil {
 	 * @param lists 字符串数组
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean write(@NotNull List<String> lists) {
 		return write(lists, StringUtil.SPACE);
 	}
@@ -219,7 +204,6 @@ public class ReadWriteUtil {
 	 * @param lists 字符串数组
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean write(@NotNull List<String> lists, @NotNull String regex) {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -239,7 +223,6 @@ public class ReadWriteUtil {
 	 * @param s 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean channelWrite(@NotNull String s) {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -258,7 +241,6 @@ public class ReadWriteUtil {
 	 * @param s 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean randomWrite(@NotNull String s) {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -280,7 +262,6 @@ public class ReadWriteUtil {
 	 * @param s 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
 	public boolean mappedWrite(String s) {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -300,7 +281,6 @@ public class ReadWriteUtil {
 	 * @param out 指定输出文件路径
 	 * @return 文件复制状态
 	 */
-	@Contract(pure = true)
 	public boolean copy(String out) {
 		return copy(new File(out));
 	}
@@ -311,7 +291,6 @@ public class ReadWriteUtil {
 	 * @param out 指定输出文件
 	 * @return 文件复制状态
 	 */
-	@Contract(pure = true)
 	public boolean copy(File out) {
 		File parent = out.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -330,7 +309,6 @@ public class ReadWriteUtil {
 	 * @param out 指定输出文件
 	 * @return 文件复制
 	 */
-	@Contract(pure = true)
 	public boolean randomCopy(@NotNull String out) {
 		return randomCopy(new File(out));
 	}
@@ -341,14 +319,13 @@ public class ReadWriteUtil {
 	 * @param out 指定输出文件
 	 * @return 文件复制
 	 */
-	@Contract(pure = true)
 	public boolean randomCopy(@NotNull File out) {
 		File parent = out.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
 		try (RandomAccessFile input = new RandomAccessFile(source, "r"); RandomAccessFile output = new RandomAccessFile(out, "rw")) {
 			byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
 			int length;
-			while (!Judge.isMinusOne(length = input.read(buffer))) {
+			while ((length = input.read(buffer)) != -1) {
 				output.write(buffer, 0, length);
 			}
 			return true;
@@ -364,7 +341,6 @@ public class ReadWriteUtil {
 	 * @param out 指定输出文件
 	 * @return 文件复制状态
 	 */
-	@Contract(pure = true)
 	public boolean channelCopy(String out) {
 		return channelCopy(new File(out));
 	}
@@ -375,7 +351,6 @@ public class ReadWriteUtil {
 	 * @param out 指定输出文件
 	 * @return 文件复制状态
 	 */
-	@Contract(pure = true)
 	public boolean channelCopy(File out) {
 		File parent = out.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -393,7 +368,6 @@ public class ReadWriteUtil {
 		return false;
 	}
 
-	@Contract(pure = true)
 	public boolean mappedCopy(String out) {
 		return mappedCopy(new File(out));
 	}
@@ -404,7 +378,6 @@ public class ReadWriteUtil {
 	 * @param out 指定输出文件路径
 	 * @return 文件复制状态
 	 */
-	@Contract(pure = true)
 	public boolean mappedCopy(File out) {
 		File parent = out.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
@@ -427,7 +400,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return 文本信息列表
 	 */
-	@Contract(pure = true)
 	public List<String> readAsLine() {
 		Function<File, List<String>> read = file -> {
 			List<String> result = null;
@@ -446,7 +418,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return 文本信息
 	 */
-	@Contract(pure = true)
 	public String read() {
 		String result = null;
 		try (InputStream in = new FileInputStream(source)) {
@@ -462,7 +433,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return json
 	 */
-	@Contract(pure = true)
 	public JSONObject readJSON() {
 		var str = read();
 		return str.isEmpty() ? null : JSON.parseObject(str);
@@ -473,7 +443,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return json
 	 */
-	@Contract(pure = true)
 	public JSONArray readJSONArray() {
 		var str = read();
 		return str.isEmpty() ? null : JSON.parseArray(str);
@@ -484,7 +453,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return Document
 	 */
-	@Contract(pure = true)
 	public Document readXML() {
 		var str = read();
 		return str.isEmpty() ? null : Document.parse(str);
@@ -495,7 +463,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return byte数组
 	 */
-	@Contract(pure = true)
 	public byte[] readBytes() {
 		byte[] result = null;
 		try (InputStream in = new FileInputStream(source)) {
@@ -511,7 +478,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return 文本字符串
 	 */
-	@Contract(pure = true)
 	public String channelRead() {
 		CharBuffer result = null;
 		try (FileInputStream in = new FileInputStream(source); FileChannel channel = in.getChannel()) {
@@ -530,13 +496,12 @@ public class ReadWriteUtil {
 	 *
 	 * @return 文本
 	 */
-	@Contract(pure = true)
 	public String randomRead() {
 		ByteArrayOutputStream result = new ByteArrayOutputStream();
 		try (RandomAccessFile randomAccess = new RandomAccessFile(source, "r")) {
 			byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
 			int length;
-			while (!Judge.isMinusOne(length = randomAccess.read(buffer))) {
+			while ((length = randomAccess.read(buffer)) != -1) {
 				result.write(buffer, 0, length);
 			}
 			result.flush();
@@ -551,7 +516,6 @@ public class ReadWriteUtil {
 	 *
 	 * @return 文本
 	 */
-	@Contract(pure = true)
 	public String mappedRead() {
 		CharBuffer result = null;
 		try (FileInputStream in = new FileInputStream(source); FileChannel channel = in.getChannel()) {

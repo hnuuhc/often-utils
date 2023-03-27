@@ -1,6 +1,5 @@
 package org.haic.often.netdisc;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
@@ -51,7 +50,6 @@ public class KuaKeYunPan {
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static KuaKeYunPan localLogin() {
 		return login(LocalCookie.home().getForDomain("quark.cn"));
 	}
@@ -62,7 +60,6 @@ public class KuaKeYunPan {
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static KuaKeYunPan localLogin(@NotNull String userHome) {
 		return login(LocalCookie.home(userHome).getForDomain("quark.cn"));
 	}
@@ -73,7 +70,6 @@ public class KuaKeYunPan {
 	 * @param cookies cookies
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static KuaKeYunPan login(@NotNull Map<String, String> cookies) {
 		return new KuaKeYunPan(cookies);
 	}
@@ -91,7 +87,6 @@ public class KuaKeYunPan {
 	 *            </blockquote>
 	 * @return 文件信息列表
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosOfExt(@NotNull String ext) {
 		return conn.url(categoryUrl + ext).get().json().getJSONObject("data").getList("list", JSONObject.class);
 	}
@@ -101,7 +96,6 @@ public class KuaKeYunPan {
 	 *
 	 * @return 分享文件列表
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> listShares() {
 		return conn.url(detailUrl).get().json().getJSONObject("data").getList("list", JSONObject.class);
 	}
@@ -112,7 +106,6 @@ public class KuaKeYunPan {
 	 * @param shareId 分享ID
 	 * @return 删除状态
 	 */
-	@Contract(pure = true)
 	public boolean unShare(@NotNull String... shareId) {
 		return unShare(Arrays.asList(shareId));
 	}
@@ -123,7 +116,6 @@ public class KuaKeYunPan {
 	 * @param shareIds 分享ID
 	 * @return 删除状态
 	 */
-	@Contract(pure = true)
 	public boolean unShare(@NotNull List<String> shareIds) {
 		return URIUtil.statusIsOK(conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("share_ids", shareIds).toString()).post().json().getInteger("status"));
 	}
@@ -135,7 +127,6 @@ public class KuaKeYunPan {
 	 * @param fid       文件ID
 	 * @return 含有分享链接等JSON格式信息
 	 */
-	@Contract(pure = true)
 	public JSONObject share(@NotNull String shareCode, @NotNull String... fid) {
 		return share(shareCode, Arrays.asList(fid));
 	}
@@ -147,7 +138,6 @@ public class KuaKeYunPan {
 	 * @param fids      文件ID
 	 * @return 含有分享链接等JSON格式信息
 	 */
-	@Contract(pure = true)
 	public JSONObject share(@NotNull String shareCode, @NotNull List<String> fids) {
 		var data = new JSONObject();
 		data.put("expired_type", 2);
@@ -177,7 +167,6 @@ public class KuaKeYunPan {
 	 * @param fid 文件ID
 	 * @return 删除状态
 	 */
-	@Contract(pure = true)
 	public boolean delete(@NotNull String... fid) {
 		return delete(Arrays.asList(fid));
 	}
@@ -188,7 +177,6 @@ public class KuaKeYunPan {
 	 * @param fids 文件ID
 	 * @return 删除状态
 	 */
-	@Contract(pure = true)
 	public boolean delete(@NotNull List<String> fids) {
 		var data = new JSONObject();
 		data.put("action_type", 2);
@@ -204,7 +192,6 @@ public class KuaKeYunPan {
 	 * @param name 新的名称
 	 * @return 重命名状态
 	 */
-	@Contract(pure = true)
 	public boolean rename(@NotNull String fid, @NotNull String name) {
 		var data = new JSONObject();
 		data.put("fid", fid);
@@ -219,7 +206,6 @@ public class KuaKeYunPan {
 	 * @param fid   待移动的文件ID
 	 * @return 移动状态
 	 */
-	@Contract(pure = true)
 	public boolean move(@NotNull String tofid, @NotNull String... fid) {
 		return move(tofid, Arrays.asList(fid));
 	}
@@ -231,7 +217,6 @@ public class KuaKeYunPan {
 	 * @param fids  待移动的文件ID
 	 * @return 移动状态
 	 */
-	@Contract(pure = true)
 	public boolean move(@NotNull String tofid, @NotNull List<String> fids) {
 		var data = new JSONObject();
 		data.put("action_type", 1);
@@ -248,7 +233,6 @@ public class KuaKeYunPan {
 	 * @param name     文件夹名称
 	 * @return 包含文件夹ID等JSON格式信息
 	 */
-	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String parentId, @NotNull String name) {
 		var data = new JSONObject();
 		data.put("dir_init_lock", false);
@@ -263,7 +247,6 @@ public class KuaKeYunPan {
 	 *
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHome() {
 		return getInfosAsHomeOfFolder("0");
 	}
@@ -274,7 +257,6 @@ public class KuaKeYunPan {
 	 * @param folderId 文件夹ID,根目录为0
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
 		return conn.url(sortUrl + folderId).get().json().getJSONObject("data").getList("list", JSONObject.class);
 	}

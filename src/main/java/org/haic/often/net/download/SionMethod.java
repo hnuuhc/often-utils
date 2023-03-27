@@ -1,7 +1,5 @@
 package org.haic.often.net.download;
 
-import org.haic.often.annotations.Contract;
-
 /**
  * 下载方法枚举<br/> FILE - 配置文件下载<br/> FULL - 全量下载模式<br/> MULTITHREAD - 多线程模式<br/> MANDATORY - 强制多线程模式<br/> 如果下载文件的配置文件存在,将会自动跳转FILE模式,配置信息将会被文件中的配置覆盖
  *
@@ -43,7 +41,6 @@ public enum SionMethod {
 	 *
 	 * @return value
 	 */
-	@Contract(pure = true)
 	public boolean hasBody() {
 		return hasBody;
 	}

@@ -2,7 +2,6 @@ package org.haic.often.chrome.browser;
 
 import com.protonail.leveldb.jna.*;
 import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.URIUtil;
 import org.haic.often.parser.json.JSONObject;
@@ -29,7 +28,6 @@ public class LocalStorage {
 	 *
 	 * @return 此连接, 用于链接
 	 */
-	@Contract(pure = true)
 	public static Browser home() {
 		return home(new File(SystemUtil.DEFAULT_USER_HOME, "AppData\\Local\\Microsoft\\Edge\\User Data"));
 	}
@@ -40,7 +38,6 @@ public class LocalStorage {
 	 * @param home User Data目录路径
 	 * @return 此连接, 用于链接
 	 */
-	@Contract(pure = true)
 	public static Browser home(@NotNull String home) {
 		return home(new File(home));
 	}
@@ -51,7 +48,6 @@ public class LocalStorage {
 	 * @param home User Data目录
 	 * @return 此连接, 用于链接
 	 */
-	@Contract(pure = true)
 	public static Browser home(@NotNull File home) {
 		return new ChromeBrowser(home);
 	}
@@ -91,21 +87,18 @@ public class LocalStorage {
 			if (!storage.exists()) throw new RuntimeException("未找到 Local Storage leveldb 目录");
 		}
 
-		@Contract(pure = true)
 		public Browser setProfile(@NotNull String name) {
 			storage = new File(new File(home, Judge.isEmpty(name) ? "Default" : ReadWriteUtil.orgin(new File(home, "Local State")).readJSON().getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey()), "Local Storage\\leveldb");
 			if (!storage.exists()) throw new RuntimeException("未找到 Local Storage leveldb 目录");
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Browser setTempDir(@NotNull String folder) {
 			FileUtil.createFolder(folder);
 			storageCopy = new File(folder, RandomUtil.randomAlphanumeric(32) + ".cookies.db");
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Map<String, Map<String, String>> getForAll() {
 			Map<String, Map<String, String>> result = new HashMap<>();
 			Set<Storage> storages = processLevelDB(null);
@@ -121,7 +114,6 @@ public class LocalStorage {
 			return result;
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> getForDomain(@NotNull String domain) {
 			return processLevelDB(domain).parallelStream().filter(l -> !Judge.isEmpty(l.getValue())).collect(Collectors.toMap(Storage::getName, Storage::getValue, (e1, e2) -> e2));
 		}
@@ -132,7 +124,6 @@ public class LocalStorage {
 		 * @param domainFilter domain
 		 * @return decrypted local storage
 		 */
-		@Contract(pure = true)
 		private Set<Storage> processLevelDB(String domainFilter) {
 			FileUtil.copyDirectory(storage, storageCopy);
 			Set<Storage> result = new HashSet<>();

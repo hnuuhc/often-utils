@@ -2,7 +2,6 @@ package org.haic.often.chrome.browser;
 
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
@@ -35,7 +34,6 @@ public class LocalCookie {
 	 *
 	 * @return 此连接, 用于链接
 	 */
-	@Contract(pure = true)
 	public static Browser home() {
 		return home(new File(SystemUtil.DEFAULT_USER_HOME, "AppData\\Local\\Microsoft\\Edge\\User Data"));
 	}
@@ -46,7 +44,6 @@ public class LocalCookie {
 	 * @param home User Data目录路径
 	 * @return 此连接, 用于链接
 	 */
-	@Contract(pure = true)
 	public static Browser home(@NotNull String home) {
 		return home(new File(home));
 	}
@@ -57,7 +54,6 @@ public class LocalCookie {
 	 * @param home User Data目录
 	 * @return 此连接, 用于链接
 	 */
-	@Contract(pure = true)
 	public static Browser home(@NotNull File home) {
 		return new ChromeBrowser(home);
 	}
@@ -169,7 +165,6 @@ public class LocalCookie {
 			if (!storage.exists()) throw new RuntimeException("未找到 Cookies 文件");
 		}
 
-		@Contract(pure = true)
 		public Browser setProfile(@NotNull String name) {
 			File folder = new File(home, Judge.isEmpty(name) ? "Default" : ReadWriteUtil.orgin(new File(home, "Local State")).readJSON().getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey());
 			storage = new File(folder, "Network\\Cookies"); // 新版本位置
@@ -178,14 +173,12 @@ public class LocalCookie {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Browser setTempDir(@NotNull String folder) {
 			FileUtil.createFolder(folder);
 			storageCopy = new File(folder, RandomUtil.randomAlphanumeric(32) + ".cookies.db");
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Map<String, Map<String, String>> getForAll() {
 			Map<String, Map<String, String>> result = new HashMap<>();
 			Set<Cookie> cookies = processCookies(null);
@@ -201,7 +194,6 @@ public class LocalCookie {
 			return result;
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> getForDomain(@NotNull String domain) {
 			return processCookies(domain).parallelStream().filter(l -> !Judge.isEmpty(l.getValue())).collect(Collectors.toMap(LocalCookie.Cookie::getName, LocalCookie.Cookie::getValue, (e1, e2) -> e2));
 		}
@@ -212,7 +204,6 @@ public class LocalCookie {
 		 * @param domainFilter domain
 		 * @return decrypted cookie
 		 */
-		@Contract(pure = true)
 		private Set<Cookie> processCookies(String domainFilter) {
 			Set<Cookie> cookies = new HashSet<>();
 			try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {

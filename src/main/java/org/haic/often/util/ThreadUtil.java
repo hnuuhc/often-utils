@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;
@@ -21,7 +20,6 @@ public class ThreadUtil {
 	 *
 	 * @param executor 线程池对象
 	 */
-	@Contract(pure = true)
 	public static void waitEnd(@NotNull ExecutorService executor) {
 		executor.shutdown(); // 关闭线程
 		try { // 等待线程结束
@@ -36,7 +34,6 @@ public class ThreadUtil {
 	 *
 	 * @param millis 线程等待时间 (毫秒)
 	 */
-	@Contract(pure = true)
 	public static void waitThread(int millis) {
 		try { // 程序等待
 			TimeUnit.MILLISECONDS.sleep(millis);
@@ -52,7 +49,6 @@ public class ThreadUtil {
 	 * @param <E>    泛型
 	 * @return 返回值
 	 */
-	@Contract(pure = true)
 	public static <E> E getFuture(@NotNull Future<E> future) {
 		E result = null;
 		try {
@@ -66,7 +62,6 @@ public class ThreadUtil {
 	/**
 	 * 输出程序运行时间，请在程序开始处加入函数
 	 */
-	@Contract(pure = true)
 	public static void runTime() {
 		long start = System.currentTimeMillis(); // 获取开始时间
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -81,7 +76,6 @@ public class ThreadUtil {
 	 * @param runnable 线程实参
 	 * @return 新建的线程
 	 */
-	@Contract(pure = true)
 	public static Thread start(Runnable runnable) {
 		Thread thread = new Thread(runnable);
 		thread.start();
@@ -93,7 +87,6 @@ public class ThreadUtil {
 	 *
 	 * @param thread 线程
 	 */
-	@Contract(pure = true)
 	public static void start(Thread thread) {
 		if (thread != null) thread.start();
 	}
@@ -103,7 +96,6 @@ public class ThreadUtil {
 	 *
 	 * @param thread 线程
 	 */
-	@Contract(pure = true)
 	public static void interrupt(Thread thread) {
 		if (thread != null) thread.interrupt();
 	}

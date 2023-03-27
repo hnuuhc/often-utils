@@ -1,6 +1,5 @@
 package org.haic.often.net.aria2;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.json.JSONArray;
 
@@ -16,7 +15,6 @@ import java.util.Map;
  */
 public abstract class Aria2Connection {
 
-	@Contract(pure = true)
 	public abstract Aria2Connection newRequest();
 
 	/**
@@ -25,7 +23,6 @@ public abstract class Aria2Connection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection socks(@NotNull String ipAddr);
 
 	/**
@@ -35,7 +32,6 @@ public abstract class Aria2Connection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection socks(@NotNull String host, int port);
 
 	/**
@@ -45,7 +41,6 @@ public abstract class Aria2Connection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection proxy(@NotNull String ipAddr);
 
 	/**
@@ -56,7 +51,6 @@ public abstract class Aria2Connection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection proxy(@NotNull String host, int port);
 
 	/**
@@ -66,7 +60,6 @@ public abstract class Aria2Connection {
 	 * @param proxy 要使用的代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection proxy(@NotNull Proxy proxy);
 
 	/**
@@ -75,7 +68,6 @@ public abstract class Aria2Connection {
 	 * @param folderPath 文件夹路径
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection folder(@NotNull String folderPath);
 
 	/**
@@ -84,7 +76,6 @@ public abstract class Aria2Connection {
 	 * @param folder 文件夹
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection folder(@NotNull File folder);
 
 	/**
@@ -93,7 +84,6 @@ public abstract class Aria2Connection {
 	 * @param token rpc密钥
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection rpcToken(@NotNull String token);
 
 	/**
@@ -103,7 +93,6 @@ public abstract class Aria2Connection {
 	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection rpcParams(@NotNull String name, @NotNull String value);
 
 	/**
@@ -114,7 +103,6 @@ public abstract class Aria2Connection {
 	 * @param params 公共参数
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection rpcParams(@NotNull Map<String, String> params);
 
 	/**
@@ -125,7 +113,6 @@ public abstract class Aria2Connection {
 	 * @param params 公共参数
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection setRpcParams(@NotNull Map<String, String> params);
 
 	/**
@@ -135,7 +122,6 @@ public abstract class Aria2Connection {
 	 * @param post 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection rpcProxy(@NotNull String host, int post);
 
 	/**
@@ -144,7 +130,6 @@ public abstract class Aria2Connection {
 	 * @param ipAddr 代理
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection rpcProxy(@NotNull String ipAddr);
 
 	/**
@@ -156,7 +141,6 @@ public abstract class Aria2Connection {
 	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection rpcHeader(@NotNull String name, @NotNull String value);
 
 	/**
@@ -167,7 +151,6 @@ public abstract class Aria2Connection {
 	 * @param headers 请求头参数
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection rpcHeaders(@NotNull Map<String, String> headers);
 
 	/**
@@ -178,7 +161,6 @@ public abstract class Aria2Connection {
 	 * @param headers 请求头参数
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection setRpcHeaders(@NotNull Map<String, String> headers);
 
 	/**
@@ -187,7 +169,6 @@ public abstract class Aria2Connection {
 	 * @param userAgent userAgent
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection setRpcUserAgent(@NotNull String userAgent);
 
 	/**
@@ -196,7 +177,6 @@ public abstract class Aria2Connection {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection addUrl(@NotNull String url);
 
 	/**
@@ -214,7 +194,6 @@ public abstract class Aria2Connection {
 	 * @param listUrl URL列表
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection addUrl(@NotNull List<String> listUrl);
 
 	/**
@@ -224,7 +203,6 @@ public abstract class Aria2Connection {
 	 * @param headers 请求头参数
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection addUrl(@NotNull List<String> listUrl, @NotNull Map<String, String> headers);
 
 	/**
@@ -233,7 +211,6 @@ public abstract class Aria2Connection {
 	 * @param method Aria2Method
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection session(@NotNull Aria2Method method);
 
 	/**
@@ -243,7 +220,6 @@ public abstract class Aria2Connection {
 	 * @param params Aria2Method params
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection session(@NotNull Aria2Method method, @NotNull JSONArray params);
 
 	/**
@@ -253,7 +229,6 @@ public abstract class Aria2Connection {
 	 * @param gid    gid
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection session(@NotNull Aria2Method method, @NotNull String gid);
 
 	/**
@@ -262,7 +237,6 @@ public abstract class Aria2Connection {
 	 * @param gid gid
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection remove(@NotNull String gid);
 
 	/**
@@ -271,7 +245,6 @@ public abstract class Aria2Connection {
 	 * @param gid gid
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection pause(@NotNull String gid);
 
 	/**
@@ -279,7 +252,6 @@ public abstract class Aria2Connection {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection pauseAll();
 
 	/**
@@ -288,7 +260,6 @@ public abstract class Aria2Connection {
 	 * @param gid gid
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection unpause(@NotNull String gid);
 
 	/**
@@ -296,7 +267,6 @@ public abstract class Aria2Connection {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection unpauseAll();
 
 	/**
@@ -304,7 +274,6 @@ public abstract class Aria2Connection {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection tellStatus(@NotNull String gid);
 
 	/**
@@ -314,7 +283,6 @@ public abstract class Aria2Connection {
 	 * @param option option信息
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract Aria2Connection changeOption(@NotNull String gid, @NotNull Map<String, String> option);
 
 	/**
@@ -322,7 +290,6 @@ public abstract class Aria2Connection {
 	 *
 	 * @return result or webstatus
 	 */
-	@Contract(pure = true)
 	public abstract String get();
 
 	/**
@@ -330,7 +297,6 @@ public abstract class Aria2Connection {
 	 *
 	 * @return result or webstatus
 	 */
-	@Contract(pure = true)
 	public abstract String post();
 
 }

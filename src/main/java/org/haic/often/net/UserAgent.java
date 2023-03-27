@@ -1,7 +1,5 @@
 package org.haic.often.net;
 
-import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.util.RandomUtil;
 
 /**
@@ -24,7 +22,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String random() {
 		String param = "";
 		switch (RandomUtil.nextInt(0, 13)) {
@@ -50,7 +47,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String chrome() {
 		String result = mozilla + " (";
 		switch (RandomUtil.nextInt(0, 3)) {
@@ -67,7 +63,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String fireFox() {
 		String result = mozilla + " (";
 		String version = RandomUtil.nextInt(0, 100) + ".0" + (twoSelectOne() ? "" : "esr");
@@ -85,7 +80,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String edge() {
 		return chrome() + edgTail();
 	}
@@ -95,7 +89,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String opera() {
 		return chrome() + oprTail();
 	}
@@ -105,7 +98,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String safari() {
 		return mozilla + " (" + macPlatform() + ")" + appleWebKitTail() + chromiumTail() + versionTail() + safari();
 	}
@@ -115,7 +107,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String ie() {
 		return mozilla + " (" + compatibleHeader() + "; " + winPlatform() + (twoSelectOne() ? "" : tridentHeader()) + ")";
 	}
@@ -125,7 +116,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String maxthon() {
 		return mozilla + " (" + compatibleHeader() + "; " + winPlatform() + "; Maxthon/" + RandomUtil.nextInt(2, 10) + " .0 " + ")";
 	}
@@ -135,7 +125,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String theWorld() {
 		return mozilla + " (" + compatibleHeader() + "; " + winPlatform() + "; The World)";
 	}
@@ -145,7 +134,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String tt() {
 		return mozilla + " (" + compatibleHeader() + "; " + winPlatform() + "; TencentTraveler " + RandomUtil.nextInt(4, 10) + " .0 " + ")";
 	}
@@ -155,7 +143,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String threeSixZero() {
 		return mozilla + " (" + compatibleHeader() + "; " + winPlatform() + "; 360SE)";
 	}
@@ -165,7 +152,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String avent() {
 		return mozilla + " (" + compatibleHeader() + "; " + winPlatform() + "; Avant Browser)";
 	}
@@ -175,7 +161,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String uc() {
 		return mozilla + " (" + winPlatform() + ")" + appleWebKitTail() + chromiumTail() + ucTail() + safariTail();
 	}
@@ -185,22 +170,18 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String sogu() {
 		return mozilla + " (" + compatibleHeader() + "; " + winPlatform() + tridentHeader() + "; SE 2.X MetaSr 1.0; SE 2.X MetaSr 1.0; .NET CLR 2.0.50727; SE 2.X MetaSr 1.0)";
 	}
 
-	@Contract(pure = true)
 	private static String language() {
 		return twoSelectOne() ? "" : "; " + language[RandomUtil.nextInt(0, language.length)];
 	}
 
-	@Contract(pure = true)
 	private static String macPlatform() {
 		return "Macintosh; Intel Mac OS X " + RandomUtil.nextInt(10, 20) + "_" + RandomUtil.nextInt(0, 20);
 	}
 
-	@Contract(pure = true)
 	private static String winPlatform() {
 		String result = winSystem[RandomUtil.nextInt(0, winSystem.length)];
 		result += twoSelectOne() ? "; Win64" : "; WOW64";
@@ -208,7 +189,6 @@ public class UserAgent {
 		return result;
 	}
 
-	@Contract(pure = true)
 	private static String linuxPlatform() {
 		String result = "X11; ";
 		result += twoSelectOne() ? "" : "U; ";
@@ -218,67 +198,54 @@ public class UserAgent {
 		return result;
 	}
 
-	@Contract(pure = true)
 	private static boolean twoSelectOne() {
-		return Judge.isEmpty(RandomUtil.nextInt(0, 2));
+		return RandomUtil.nextInt(0, 2) == 0;
 	}
 
-	@Contract(pure = true)
 	private static String compatibleHeader() {
 		return "compatible; MSIE " + RandomUtil.nextInt(5, 10) + ".0";
 	}
 
-	@Contract(pure = true)
 	private static String tridentHeader() {
 		return "; Trident/ " + RandomUtil.nextInt(4, 10) + ".0";
 	}
 
-	@Contract(pure = true)
 	private static String uHeader() {
 		return twoSelectOne() ? "" : "; U";
 	}
 
-	@Contract(pure = true)
 	private static String geckoTail() {
 		return " Gecko/" + RandomUtil.nextInt(2000, 2020) + "0101";
 	}
 
-	@Contract(pure = true)
 	private static String versionTail() {
 		return " Version/" + RandomUtil.nextInt(5, 20) + "." + RandomUtil.nextInt(0, 10);
 	}
 
-	@Contract(pure = true)
 	private static String safariTail() {
 		return " Safari/" + RandomUtil.nextInt(500, 600) + "." + RandomUtil.nextInt(10, 100);
 	}
 
-	@Contract(pure = true)
 	private static String appleWebKitTail() {
 		return " AppleWebKit/" + RandomUtil.nextInt(500, 800) + "." + RandomUtil.nextInt(10, 100) + " (KHTML, like Gecko)";
 	}
 
-	@Contract(pure = true)
 	private static String chromiumTail() {
 		return " Chrome/" + RandomUtil.nextInt(60, 100) + ".0." + RandomUtil.nextInt(1000, 10000) + "." + RandomUtil.nextInt(100, 1000);
 	}
 
-	@Contract(pure = true)
 	private static String oprTail() {
 		return " OPR/" + RandomUtil.nextInt(60, 100) + ".0." + RandomUtil.nextInt(1000, 10000) + "." + RandomUtil.nextInt(100, 1000);
 	}
 
-	@Contract(pure = true)
 	private static String edgTail() {
 		return " Edg/" + RandomUtil.nextInt(60, 100) + ".0." + RandomUtil.nextInt(1000, 10000) + "." + RandomUtil.nextInt(100, 1000);
 	}
 
-	@Contract(pure = true)
 	private static String ucTail() {
 		return " UBrowser/" + RandomUtil.nextInt(5, 10) + ".0." + RandomUtil.nextInt(1000, 10000) + "." + RandomUtil.nextInt(0, 1000);
 	}
 
-	@Contract(pure = true)
 	private static String prestoTail() {
 		return " Presto/" + RandomUtil.nextInt(2, 10) + "." + RandomUtil.nextInt(0, 10) + "." + RandomUtil.nextInt(100, 1000);
 	}
@@ -288,7 +255,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String randomAsPhone() {
 		String result = "";
 		switch (RandomUtil.nextInt(0, 5)) {
@@ -306,7 +272,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String chromeAsPhone() {
 		return mozilla + " (Linux" + androidHeader() + language() + ")" + appleWebKitTail() + chromiumTail() + " Mobile" + safariTail();
 	}
@@ -316,7 +281,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String safariAsPhone() {
 		String result = mozilla + " (";
 		switch (RandomUtil.nextInt(0, 3)) {
@@ -333,7 +297,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String operaAsPhone() {
 		return "Opera/9.80 (Linux" + androidHeader() + "; Opera Mobi/build-" + RandomUtil.randomNumeric(10) + uHeader() + ")" + prestoTail() + versionTail();
 	}
@@ -343,7 +306,6 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String qqAsPhone() {
 		return "MQQBrowser/26 " + mozilla + " (Linux" + uHeader() + androidHeader() + language() + "; MB200 Build/" + RandomUtil.randomAlphanumeric(5).toUpperCase() + "; CyanogenMod-7)" + appleWebKitTail() + versionTail() + safariTail();
 	}
@@ -353,17 +315,14 @@ public class UserAgent {
 	 *
 	 * @return Random UserAgent
 	 */
-	@Contract(pure = true)
 	public static String ucAsPhone() {
 		return mozilla + " (" + compatibleHeader() + ") Opera/UCWEB7.0.2.37/28/999";
 	}
 
-	@Contract(pure = true)
 	private static String androidHeader() {
 		return "; Android " + RandomUtil.nextInt(5, 13) + ".0";
 	}
 
-	@Contract(pure = true)
 	private static String mobileTail() {
 		return " Mobile/ " + RandomUtil.randomAlphanumeric(6).toUpperCase();
 	}

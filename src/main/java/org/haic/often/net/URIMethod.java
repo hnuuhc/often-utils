@@ -1,7 +1,5 @@
 package org.haic.often.net;
 
-import org.haic.often.annotations.Contract;
-
 /**
  * URI协议常量
  *
@@ -39,7 +37,6 @@ public enum URIMethod {
 	 *
 	 * @return value
 	 */
-	@Contract(pure = true)
 	public String getValue() {
 		return value;
 	}

@@ -1,7 +1,5 @@
 package org.haic.often.net.aria2;
 
-import org.haic.often.annotations.Contract;
-
 /**
  * Aria2方法名常量
  *
@@ -405,7 +403,6 @@ public enum Aria2Method {
 		this.value = value;
 	}
 
-	@Contract(pure = true)
 	public String getValue() {
 		return value;
 	}

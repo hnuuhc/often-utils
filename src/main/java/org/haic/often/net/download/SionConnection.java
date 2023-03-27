@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Symbol;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.io.File;
@@ -28,7 +27,6 @@ public abstract class SionConnection {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection url(@NotNull String url);
 
 	/**
@@ -41,7 +39,6 @@ public abstract class SionConnection {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection alterUrl(@NotNull String url);
 
 	/**
@@ -50,7 +47,6 @@ public abstract class SionConnection {
 	 * @param src session文件路径
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection session(@NotNull String src);
 
 	/**
@@ -59,7 +55,6 @@ public abstract class SionConnection {
 	 * @param file session文件
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection session(@NotNull File file);
 
 	/**
@@ -68,7 +63,6 @@ public abstract class SionConnection {
 	 * @param userAgent 要使用的用户代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection userAgent(@NotNull String userAgent);
 
 	/**
@@ -77,7 +71,6 @@ public abstract class SionConnection {
 	 * @param referrer 要使用的来源网址
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection referrer(@NotNull String referrer);
 
 	/**
@@ -87,7 +80,6 @@ public abstract class SionConnection {
 	 * @param value 标头值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection header(@NotNull String name, @NotNull String value);
 
 	/**
@@ -96,7 +88,6 @@ public abstract class SionConnection {
 	 * @param headers 标头名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection headers(@NotNull Map<String, String> headers);
 
 	/**
@@ -106,7 +97,6 @@ public abstract class SionConnection {
 	 * @param value cookie 的值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection cookie(@NotNull String name, @NotNull String value);
 
 	/**
@@ -115,7 +105,6 @@ public abstract class SionConnection {
 	 * @param cookies 名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection cookies(@NotNull Map<String, String> cookies);
 
 	/**
@@ -124,7 +113,6 @@ public abstract class SionConnection {
 	 * @param auth 授权码或身份识别标识
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection auth(@NotNull String auth);
 
 	/**
@@ -133,7 +121,6 @@ public abstract class SionConnection {
 	 * @param nThread 线程最大值,非零或负数
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection thread(int nThread);
 
 	/**
@@ -142,7 +129,6 @@ public abstract class SionConnection {
 	 * @param fileSize file size
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection fileSize(long fileSize);
 
 	/**
@@ -151,7 +137,6 @@ public abstract class SionConnection {
 	 * @param method 下载模式
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection method(@NotNull SionMethod method);
 
 	/**
@@ -162,7 +147,6 @@ public abstract class SionConnection {
 	 * @param fileName 文件名
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection fileName(@NotNull String fileName);
 
 	/**
@@ -173,7 +157,6 @@ public abstract class SionConnection {
 	 * @param rename 开启重命名
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection rename(boolean rename);
 
 	/**
@@ -182,7 +165,6 @@ public abstract class SionConnection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public SionConnection socks(@NotNull String ipAddr) {
 		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
@@ -200,7 +182,6 @@ public abstract class SionConnection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection socks(@NotNull String host, int port);
 
 	/**
@@ -210,7 +191,6 @@ public abstract class SionConnection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public SionConnection proxy(@NotNull String ipAddr) {
 		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
@@ -228,7 +208,6 @@ public abstract class SionConnection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection proxy(@NotNull String host, int port);
 
 	/**
@@ -237,7 +216,6 @@ public abstract class SionConnection {
 	 * @param proxy 要使用的代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection proxy(@NotNull Proxy proxy);
 
 	/**
@@ -246,7 +224,6 @@ public abstract class SionConnection {
 	 * @param exit 启用错误退出
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection failThrow(boolean exit);
 
 	/**
@@ -255,7 +232,6 @@ public abstract class SionConnection {
 	 * @param retry 重试次数
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection retry(int retry);
 
 	/**
@@ -265,7 +241,6 @@ public abstract class SionConnection {
 	 * @param millis 重试等待时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection retry(int retry, int millis);
 
 	/**
@@ -274,7 +249,6 @@ public abstract class SionConnection {
 	 * @param unlimit 启用无限重试, 默认false
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection retry(boolean unlimit);
 
 	/**
@@ -284,7 +258,6 @@ public abstract class SionConnection {
 	 * @param millis  重试等待时间(毫秒)
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection retry(boolean unlimit, int millis);
 
 	/**
@@ -293,7 +266,6 @@ public abstract class SionConnection {
 	 * @param statusCode 状态码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection retryStatusCodes(int... statusCode);
 
 	/**
@@ -302,7 +274,6 @@ public abstract class SionConnection {
 	 * @param retryStatusCodes 状态码列表
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection retryStatusCodes(List<Integer> retryStatusCodes);
 
 	/**
@@ -311,7 +282,6 @@ public abstract class SionConnection {
 	 * @param bufferSize 缓冲区大小
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection bufferSize(int bufferSize);
 
 	/**
@@ -320,7 +290,6 @@ public abstract class SionConnection {
 	 * @param hash 文件md5值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection hash(@NotNull String hash);
 
 	/**
@@ -329,7 +298,6 @@ public abstract class SionConnection {
 	 * @param valid 是否开启,默认为开启
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection valid(boolean valid);
 
 	/**
@@ -338,7 +306,6 @@ public abstract class SionConnection {
 	 * @param kb 指定块大小(KB)
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection pieceSize(long kb);
 
 	/**
@@ -347,7 +314,6 @@ public abstract class SionConnection {
 	 * @param folder 存储路径
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection folder(@NotNull String folder);
 
 	/**
@@ -356,7 +322,6 @@ public abstract class SionConnection {
 	 * @param folder 存储文件夹
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection folder(@NotNull File folder);
 
 	/**
@@ -365,7 +330,6 @@ public abstract class SionConnection {
 	 * @param listener 监听器
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection listener(@NotNull SionListener listener);
 
 	/**
@@ -375,7 +339,6 @@ public abstract class SionConnection {
 	 * @param millis   监听频率(毫秒)
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract SionConnection listener(@NotNull SionListener listener, int millis);
 
 	/**
@@ -385,7 +348,6 @@ public abstract class SionConnection {
 	 *
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true)
 	public abstract SionResponse execute();
 
 }

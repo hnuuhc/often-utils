@@ -1,6 +1,5 @@
 package org.haic.often.parser.csv;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeReference;
@@ -100,7 +99,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param <T>    返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(int i, @NotNull Function<Object, ? extends T> mapper) {
 		return mapper.apply(super.get(i));
 	}
@@ -113,7 +111,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param <T>  返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(int i, @NotNull TypeReference<T> type) {
 		return TypeUtil.convert(this.get(i), type);
 	}
@@ -126,7 +123,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param <T>       返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(int i, @NotNull Class<T> itemClass) {
 		return TypeUtil.convert(this.get(i), itemClass);
 	}
@@ -137,7 +133,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public boolean getBoolean(int i) {
 		return this.get(i, Boolean.class);
 	}
@@ -148,7 +143,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public byte getByte(int i) {
 		return this.get(i, Byte.class);
 	}
@@ -159,7 +153,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public short getShort(int i) {
 		return this.get(i, Short.class);
 	}
@@ -170,7 +163,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public int getInteger(int i) {
 		return this.get(i, Integer.class);
 	}
@@ -181,7 +173,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public long getLong(int i) {
 		return this.get(i, Long.class);
 	}
@@ -192,7 +183,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public float getFloat(int i) {
 		return this.get(i, Float.class);
 	}
@@ -203,7 +193,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public double getDouble(int i) {
 		return this.get(i, Double.class);
 	}
@@ -215,7 +204,6 @@ public class CSVNode extends ArrayList<String> {
 	 * @param <T>       数组泛型
 	 * @return 指定类型的数组
 	 */
-	@Contract(pure = true)
 	public <T> List<T> toList(@NotNull Class<T> itemClass) {
 		return TypeUtil.convertList(this, itemClass);
 	}

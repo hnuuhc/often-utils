@@ -1,6 +1,5 @@
 package org.haic.often.parser.json;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.parser.ParserStringBuilder;
@@ -105,7 +104,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param body JSON字符串
 	 * @return JSON对象
 	 */
-	@Contract(pure = true)
 	public static JSONObject parseObject(@NotNull String body) {
 		var builder = new ParserStringBuilder(body).strip();
 		var object = new JSONObject(builder);
@@ -119,7 +117,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param m Map数组
 	 * @return JSON对象
 	 */
-	@Contract(pure = true)
 	public static <K, V> JSONObject parseObject(@NotNull Map<? super K, ? super V> m) {
 		var object = new JSONObject();
 		m.forEach((key, value) -> object.put(String.valueOf(key), value));
@@ -166,7 +163,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public Object get(@NotNull String key) {
 		return JSONFormat.format(super.get(key));
 	}
@@ -178,7 +174,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public Object getOrDefault(@NotNull String key, @NotNull Object value) {
 		return JSONFormat.format(super.getOrDefault(key, value));
 	}
@@ -191,7 +186,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param <T>    返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(@NotNull String key, @NotNull Function<Object, ? extends T> mapper) {
 		return mapper.apply(this.get(key));
 	}
@@ -204,7 +198,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param <T>  返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(@NotNull String key, @NotNull TypeReference<T> type) {
 		return TypeUtil.convert(this.get(key), type);
 	}
@@ -217,7 +210,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param <T>       返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(@NotNull String key, @NotNull Class<T> itemClass) {
 		return TypeUtil.convert(this.get(key), itemClass);
 	}
@@ -230,7 +222,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param <T>       返回泛型
 	 * @return 数组
 	 */
-	@Contract(pure = true)
 	public <T> List<T> getList(@NotNull String key, @NotNull Class<T> itemClass) {
 		return TypeUtil.convertList(this.get(key), itemClass);
 	}
@@ -253,7 +244,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public String getString(@NotNull String key) {
 		return this.get(key, String.class);
 	}
@@ -265,7 +255,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public String getStringValue(@NotNull String key, String value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), String.class);
 	}
@@ -276,7 +265,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public boolean getBoolean(@NotNull String key) {
 		return this.get(key, Boolean.class);
 	}
@@ -288,7 +276,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public boolean getBooleanValue(@NotNull String key, boolean value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), Boolean.class);
 	}
@@ -299,7 +286,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public byte getByte(@NotNull String key) {
 		return this.get(key, Byte.class);
 	}
@@ -311,7 +297,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public byte getByteValue(@NotNull String key, byte value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), Byte.class);
 	}
@@ -322,7 +307,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public short getShort(@NotNull String key) {
 		return this.get(key, Short.class);
 	}
@@ -334,7 +318,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public short getShortValue(@NotNull String key, short value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), Short.class);
 	}
@@ -345,7 +328,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public int getInteger(@NotNull String key) {
 		return this.get(key, Integer.class);
 	}
@@ -357,7 +339,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public int getIntegerValue(@NotNull String key, int value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), Integer.class);
 	}
@@ -368,7 +349,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public long getLong(@NotNull String key) {
 		return this.get(key, Long.class);
 	}
@@ -380,7 +360,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public long getLongValue(@NotNull String key, long value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), Long.class);
 	}
@@ -391,7 +370,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public float getFloat(@NotNull String key) {
 		return this.get(key, Float.class);
 	}
@@ -403,7 +381,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public float getFloatValue(@NotNull String key, float value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), Float.class);
 	}
@@ -414,7 +391,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public double getDouble(@NotNull String key) {
 		return this.get(key, Double.class);
 	}
@@ -426,7 +402,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public double getDoubleValue(@NotNull String key, double value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), Double.class);
 	}
@@ -437,7 +412,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public JSONObject getJSONObject(@NotNull String key) {
 		return this.get(key, JSONObject.class);
 	}
@@ -449,7 +423,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public JSONObject getJSONObjectValue(@NotNull String key, JSONObject value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), JSONObject.class);
 	}
@@ -460,7 +433,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public JSONArray getJSONArray(@NotNull String key) {
 		return this.get(key, JSONArray.class);
 	}
@@ -472,7 +444,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param value 不存在对应键时返回该值
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public JSONArray getJSONArrayValue(@NotNull String key, JSONArray value) {
 		return TypeUtil.convert(this.getOrDefault(key, value), JSONArray.class);
 	}
@@ -486,7 +457,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param <V>        值泛型
 	 * @return Map数组
 	 */
-	@Contract(pure = true)
 	public <K, V> Map<K, V> toMap(@NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
 		var map = new HashMap<K, V>();
 		this.forEach((key, value) -> map.put(TypeUtil.convert(key, keyClass), TypeUtil.convert(value, valueClass)));
@@ -550,7 +520,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @return JSON字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public String toJSONString() {
 		return '{' + this.entrySet().stream().map(token -> '"' + StringUtil.chineseToUnicode(StringUtil.toEscape(token.getKey())) + "\":" + JSONFormat.toNetOutFormat(token.getValue())).collect(Collectors.joining(",")) + '}';
 	}
@@ -567,7 +536,6 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @return 格式化的JSON
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public String toString(int depth) {
 		return this.isEmpty() ? "{}" : '{' + this.entrySet().stream().map(token -> '\n' + "    ".repeat(depth + 1) + '"' + StringUtil.toEscape(token.getKey()) + "\":" + JSONFormat.toOutFormat(token.getValue(), depth)).collect(Collectors.joining(",")) + "\n" + "    ".repeat(depth) + '}';
 	}

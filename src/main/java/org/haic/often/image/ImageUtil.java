@@ -1,6 +1,5 @@
 package org.haic.often.image;
 
-import org.haic.often.Judge;
 import org.haic.often.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -96,7 +95,7 @@ public class ImageUtil {
 	private ImageUtil image(@NotNull BufferedImage image) {
 		this.src = image;
 		int imageType = image.getType();
-		this.imageType = Judge.isEmpty(imageType) ? this.imageType : imageType;
+		this.imageType = imageType == 0 ? this.imageType : imageType;
 		return this;
 	}
 

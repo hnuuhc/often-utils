@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Terminal;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.list.SafetyLinkedHashMap;
 import org.haic.often.util.SystemUtil;
@@ -58,7 +57,6 @@ public class Sion {
 	 *
 	 * @param url 下载链接
 	 */
-	@Contract(pure = true)
 	public static void download(@NotNull String url) {
 		download(url, new HashMap<>());
 	}
@@ -69,7 +67,6 @@ public class Sion {
 	 * @param url     下载链接
 	 * @param headers 请求头参数
 	 */
-	@Contract(pure = true)
 	public static void download(@NotNull String url, @NotNull Map<String, String> headers) {
 		if (url.startsWith("http") && !listTask.contains(url)) {
 			listTask.add(url);
@@ -93,7 +90,6 @@ public class Sion {
 	 *
 	 * @param retry 重试次数
 	 */
-	@Contract(pure = true)
 	public static void retry(int retry) {
 		Sion.retry = retry;
 	}
@@ -103,7 +99,6 @@ public class Sion {
 	 *
 	 * @param unlimit 启用无限重试, 默认false
 	 */
-	@Contract(pure = true)
 	public static void retry(boolean unlimit) {
 		Sion.unlimit = unlimit;
 	}
@@ -113,7 +108,6 @@ public class Sion {
 	 *
 	 * @param rename 布尔值
 	 */
-	@Contract(pure = true)
 	public static void rename(boolean rename) {
 		DEFAULT_RENAME = rename;
 	}
@@ -123,7 +117,6 @@ public class Sion {
 	 *
 	 * @param millis 最大监听间隔(毫秒)
 	 */
-	@Contract(pure = true)
 	public static void listen(int millis) {
 		MAX_LISTIN_INTERVAL = millis;
 	}
@@ -133,7 +126,6 @@ public class Sion {
 	 *
 	 * @param max 最大存储结果数量
 	 */
-	@Contract(pure = true)
 	public static void maxResult(int max) {
 		result.maxCapacity(max);
 	}
@@ -143,7 +135,6 @@ public class Sion {
 	 *
 	 * @param ipAddr 代理
 	 */
-	@Contract(pure = true)
 	public static void proxy(@NotNull String ipAddr) {
 		DEFAULT_PROXY = ipAddr;
 	}
@@ -153,7 +144,6 @@ public class Sion {
 	 *
 	 * @param folder 存放目录
 	 */
-	@Contract(pure = true)
 	public static void folder(@NotNull String folder) {
 		DEFAULT_FOLDER = new File(folder);
 	}
@@ -163,7 +153,6 @@ public class Sion {
 	 *
 	 * @return 所有的下载结果
 	 */
-	@Contract(pure = true)
 	public static Map<String, SionResponse> getResults() {
 		return result;
 	}
@@ -174,7 +163,6 @@ public class Sion {
 	 * @param url 下载链接
 	 * @return 下载结果
 	 */
-	@Contract(pure = true)
 	public static SionResponse getResult(@NotNull String url) {
 		return result.getOrDefault(url, null);
 	}
@@ -182,7 +170,6 @@ public class Sion {
 	/**
 	 * 控制台输出
 	 */
-	@Contract(pure = true)
 	private static void outPrint() {
 		if (isOutPrint) {
 			isOutPrint = false;
@@ -197,7 +184,6 @@ public class Sion {
 	 *
 	 * @param nThread 线程数量
 	 */
-	@Contract(pure = true)
 	public static void thread(int nThread) {
 		MAX_THREADS = nThread;
 	}
@@ -211,7 +197,6 @@ public class Sion {
 	 *
 	 * @param nThread 线程数量
 	 */
-	@Contract(pure = true)
 	public static void taskThread(int nThread) {
 		((ThreadPoolExecutor) pool).setCorePoolSize(MAX_TASK_THREADS = nThread);
 	}
@@ -221,7 +206,6 @@ public class Sion {
 	 *
 	 * @param outPrint 是否启用,默认关闭
 	 */
-	@Contract(pure = true)
 	public static void outPrint(boolean outPrint) {
 		Sion.outPrint = outPrint;
 		outPrint();
@@ -230,7 +214,6 @@ public class Sion {
 	/**
 	 * 如果线程是关闭的,将重启线程池
 	 */
-	@Contract(pure = true)
 	public static void reboot() {
 		if (pool.isShutdown()) {
 			pool = Executors.newFixedThreadPool(MAX_TASK_THREADS);
@@ -243,7 +226,6 @@ public class Sion {
 	 * <p>
 	 * 该方法会关闭线程池,如果之后还要添加任务,必须使用 {@link #reboot} 方法重建线程池
 	 */
-	@Contract(pure = true)
 	public static void waitEnd() {
 		ThreadUtil.waitEnd(pool);
 	}

@@ -1,6 +1,5 @@
 package org.haic.often.chrome.browser;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.io.File;
@@ -17,7 +16,6 @@ public abstract class Browser {
 	 * @param name 个人资料名称
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public abstract Browser setProfile(@NotNull String name);
 
 	/**
@@ -26,7 +24,6 @@ public abstract class Browser {
 	 * @param folder 文件夹路径
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public abstract Browser setTempDir(@NotNull String folder);
 
 	/**
@@ -34,7 +31,6 @@ public abstract class Browser {
 	 *
 	 * @return 全部数据
 	 */
-	@Contract(pure = true)
 	public abstract Map<String, Map<String, String>> getForAll();
 
 	/**
@@ -43,7 +39,6 @@ public abstract class Browser {
 	 * @param domain 域名
 	 * @return 指定域名的数据
 	 */
-	@Contract(pure = true)
 	public abstract Map<String, String> getForDomain(@NotNull String domain);
 
 }

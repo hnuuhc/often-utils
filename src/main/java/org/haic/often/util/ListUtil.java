@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.*;
@@ -22,7 +21,6 @@ public class ListUtil {
 	 * @param list 动态数组
 	 * @return 无排序的数组
 	 */
-	@Contract(pure = true)
 	public static <E> List<E> linkedHashSet(@NotNull Collection<E> list) {
 		return new ArrayList<>(new LinkedHashSet<>(list));
 	}
@@ -33,7 +31,6 @@ public class ListUtil {
 	 * @param list 动态数组
 	 * @return 排序后的数组
 	 */
-	@Contract(pure = true)
 	public static <E> List<E> treeSet(@NotNull Collection<E> list) {
 		return new ArrayList<>(new TreeSet<>(list));
 	}
@@ -44,7 +41,6 @@ public class ListUtil {
 	 * @param list 字符串数组
 	 * @return 排序后的数组
 	 */
-	@Contract(pure = true)
 	public static <E> List<E> hashSet(@NotNull Collection<E> list) {
 		return new ArrayList<>(new HashSet<>(list));
 	}
@@ -56,7 +52,6 @@ public class ListUtil {
 	 * @param <E>  泛型
 	 * @return 无排序的数组
 	 */
-	@Contract(pure = true)
 	public static <E> List<E> streamSet(@NotNull Collection<E> list) {
 		return streamSet(list.stream());
 	}
@@ -67,7 +62,6 @@ public class ListUtil {
 	 * @param list 动态数组流
 	 * @return 无排序的数组
 	 */
-	@Contract(pure = true)
 	public static <E> List<E> streamSet(@NotNull Stream<E> list) {
 		return list.distinct().collect(Collectors.toList());
 	}
@@ -79,7 +73,6 @@ public class ListUtil {
 	 * @return 数组
 	 */
 	@SafeVarargs
-	@Contract(pure = true)
 	public static <E> List<E> merge(Collection<E>... list) {
 		return Arrays.stream(list).flatMap(Collection::stream).collect(Collectors.toList());
 	}
@@ -91,7 +84,6 @@ public class ListUtil {
 	 * @return 无重复的数组
 	 */
 	@SafeVarargs
-	@Contract(pure = true)
 	public static <T> List<T> mergeSet(Collection<T>... list) {
 		return Arrays.stream(list).flatMap(Collection::stream).distinct().collect(Collectors.toList());
 	}
@@ -102,7 +94,6 @@ public class ListUtil {
 	 * @param list 动态数组
 	 * @return 无排序的数组
 	 */
-	@Contract(pure = true)
 	public static <E> List<E> sort(@NotNull Collection<E> list) {
 		return list.stream().sorted().collect(Collectors.toList());
 	}
@@ -114,7 +105,6 @@ public class ListUtil {
 	 * @param comparator 排序参数
 	 * @return 无排序的数组
 	 */
-	@Contract(pure = true)
 	public static <E> List<E> sort(@NotNull Collection<E> list, @NotNull Comparator<E> comparator) {
 		return list.stream().sorted(comparator).collect(Collectors.toList());
 	}

@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -40,7 +39,6 @@ public class Base16Util {
 	 * @return 字符串数据
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String data) {
 		return decode(data, StandardCharsets.UTF_8);
 	}
@@ -53,7 +51,6 @@ public class Base16Util {
 	 * @return 字符串数据
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String data, @NotNull String charsetName) {
 		return decode(data, Charset.forName(charsetName));
 	}
@@ -66,7 +63,6 @@ public class Base16Util {
 	 * @return 字符串数据
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String data, Charset charset) {
 		byte[] bts = new byte[data.length() / 2];
 		for (int i = 0; i < bts.length; i++) {

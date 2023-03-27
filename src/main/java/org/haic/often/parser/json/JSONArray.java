@@ -1,6 +1,5 @@
 package org.haic.often.parser.json;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.parser.ParserStringBuilder;
@@ -90,7 +89,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param body JSON字符串
 	 * @return JSON数组
 	 */
-	@Contract(pure = true)
 	public static JSONArray parseArray(@NotNull String body) {
 		var builder = new ParserStringBuilder(body).strip();
 		var object = new JSONArray(builder);
@@ -104,7 +102,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param list 数组
 	 * @return JSON数组
 	 */
-	@Contract(pure = true)
 	public static JSONArray parseArray(@NotNull Collection<?> list) {
 		return new JSONArray().fluentAddAll(list);
 	}
@@ -149,7 +146,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public Object get(int i) {
 		return JSONFormat.format(super.get(i));
 	}
@@ -162,7 +158,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param <T>    返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(int i, @NotNull Function<Object, ? extends T> mapper) {
 		return mapper.apply(this.get(i));
 	}
@@ -175,7 +170,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param <T>  返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(int i, @NotNull TypeReference<T> type) {
 		return TypeUtil.convert(this.get(i), type);
 	}
@@ -188,7 +182,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param <T>       返回泛型
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public <T> T get(int i, @NotNull Class<T> itemClass) {
 		return TypeUtil.convert(this.get(i), itemClass);
 	}
@@ -201,7 +194,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param <T>       返回泛型
 	 * @return 数组
 	 */
-	@Contract(pure = true)
 	public <T> List<T> getList(int i, @NotNull Class<T> itemClass) {
 		return TypeUtil.convertList(this.get(i), itemClass);
 	}
@@ -224,7 +216,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public String getString(int i) {
 		return this.get(i, String.class);
 	}
@@ -235,7 +226,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public boolean getBoolean(int i) {
 		return this.get(i, Boolean.class);
 	}
@@ -246,7 +236,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public byte getByte(int i) {
 		return this.get(i, Byte.class);
 	}
@@ -257,7 +246,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public short getShort(int i) {
 		return this.get(i, Short.class);
 	}
@@ -268,7 +256,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public int getInteger(int i) {
 		return this.get(i, Integer.class);
 	}
@@ -279,7 +266,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public long getLong(int i) {
 		return this.get(i, Long.class);
 	}
@@ -290,7 +276,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public float getFloat(int i) {
 		return this.get(i, Float.class);
 	}
@@ -301,7 +286,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public double getDouble(int i) {
 		return this.get(i, Double.class);
 	}
@@ -312,7 +296,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public JSONObject getJSONObject(int i) {
 		return this.get(i, JSONObject.class);
 	}
@@ -323,7 +306,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param i 要返回的元素的索引
 	 * @return 值
 	 */
-	@Contract(pure = true)
 	public JSONArray getJSONArray(int i) {
 		return this.get(i, JSONArray.class);
 	}
@@ -335,7 +317,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param <T>       数组泛型
 	 * @return 指定类型的数组
 	 */
-	@Contract(pure = true)
 	public <T> List<T> toList(@NotNull Class<T> itemClass) {
 		return TypeUtil.convertList(this, itemClass);
 	}
@@ -397,7 +378,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @return JSON字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public String toJSONString() {
 		return '[' + this.stream().map(JSONFormat::toNetOutFormat).collect(Collectors.joining(",")) + ']';
 	}
@@ -414,7 +394,6 @@ public class JSONArray extends ArrayList<Object> {
 	 * @return 格式化的标签
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public String toString(int depth) {
 		return this.isEmpty() ? "[]" : '[' + this.stream().map(token -> '\n' + "    ".repeat(depth + 1) + JSONFormat.toOutFormat(token, depth)).collect(Collectors.joining(",")) + "\n" + "    ".repeat(depth) + ']';
 	}

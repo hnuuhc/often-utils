@@ -1,8 +1,6 @@
 package org.haic.often.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NonNls;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.StringException;
@@ -38,7 +36,6 @@ public class StringUtil extends StringUtils {
 	 * @return Unicode字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String chineseToUnicode(@NotNull String str) {
 		var result = new StringBuilder();
 		for (int i = 0; i < str.length(); i++) {
@@ -241,7 +238,6 @@ public class StringUtil extends StringUtils {
 	 * @param replacement 替换的字符串
 	 * @return 替换后的字符串
 	 */
-	@Contract(pure = true)
 	public static String replaceLast(@NotNull String str, @NotNull @NonNls String regex, @NotNull String replacement) {
 		return str.replaceFirst("(?s)(.*)" + regex, "$1" + replacement);
 	}
@@ -254,12 +250,10 @@ public class StringUtil extends StringUtils {
 	 * @param split 分隔符
 	 * @return Map - name, value
 	 */
-	@Contract(pure = true)
 	public static Map<String, String> toMap(@NotNull String str, @NotNull String split) {
 		return lines(str, split).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1), (e1, e2) -> e2));
 	}
 
-	@Contract(pure = true)
 	public static Stream<String> lines(@NotNull String str, @NotNull String split) {
 		return Arrays.stream(str.split(split));
 	}
@@ -270,7 +264,6 @@ public class StringUtil extends StringUtils {
 	 * @param str 源字符串
 	 * @return Map - String String
 	 */
-	@Contract(pure = true)
 	public static Map<String, String> jsonToMap(@NotNull String str) {
 		return JSONObject.parseObject(str).toMap(String.class, String.class);
 	}
@@ -281,7 +274,6 @@ public class StringUtil extends StringUtils {
 	 * @param str JSONP格式字符串
 	 * @return JSON格式字符串
 	 */
-	@Contract(pure = true)
 	public static String jsonpToJson(@NotNull String str) {
 		if ((str = stripEnd(str.strip(), ";")).endsWith(")")) {
 			return str.substring(str.indexOf('(') + 1, str.length() - 1);
@@ -300,7 +292,6 @@ public class StringUtil extends StringUtils {
 	 * @param str JSONP格式字符串
 	 * @return JSONObject对象
 	 */
-	@Contract(pure = true)
 	public static JSONObject jsonpToJSONObject(@NotNull String str) {
 		return JSONObject.parseObject(jsonpToJson(str));
 	}
@@ -311,7 +302,6 @@ public class StringUtil extends StringUtils {
 	 * @param str JSONP格式字符串
 	 * @return JSONArray对象
 	 */
-	@Contract(pure = true)
 	public static JSONArray jsonpToJSONArray(@NotNull String str) {
 		return JSONArray.parseArray(jsonpToJson(str));
 	}
@@ -323,7 +313,6 @@ public class StringUtil extends StringUtils {
 	 * @param split 分隔符
 	 * @return Json String
 	 */
-	@Contract(pure = true)
 	public static String mapToJson(@NotNull String str, @NotNull String split) {
 		return JSONObject.parseObject(toMap(str, split)).toString();
 	}
@@ -336,7 +325,6 @@ public class StringUtil extends StringUtils {
 	 * @param str 字符串
 	 * @return 判断后结果
 	 */
-	@Contract(pure = true)
 	public static boolean isJson(@NotNull String str) {
 		return !str.isEmpty() && (((str = str.strip()).startsWith("{") && str.endsWith("}") || str.startsWith("[") && str.endsWith("]")));
 	}
@@ -346,7 +334,6 @@ public class StringUtil extends StringUtils {
 	 *
 	 * @return 随机邮箱
 	 */
-	@Contract(pure = true)
 	public static String randomEmail() {
 		return (RandomUtil.randomAlphanumeric(8, 16) + (char) 64 + RandomUtil.randomAlphabetic(4, 8) + (char) 46 + RandomUtil.randomAlphabetic(2, 4)).toLowerCase();
 	}
@@ -357,11 +344,10 @@ public class StringUtil extends StringUtils {
 	 * @param domain 域名
 	 * @return 指定域名的随机邮箱
 	 */
-	@Contract(pure = true)
 	public static String randomEmail(@NotNull String domain) {
-		domain = Judge.isEmpty(domain.indexOf(46)) ? domain.substring(1) : domain;
+		domain = domain.indexOf(46) == 0 ? domain.substring(1) : domain;
 		int count = StringUtil.countMatches(domain, (char) 46);
-		if (Judge.isEmpty(count)) {
+		if (count == 0) {
 			throw new StringException(domain + " not is domain");
 		}
 		String[] subdomain = domain.split("\\.");
@@ -373,7 +359,6 @@ public class StringUtil extends StringUtils {
 	 *
 	 * @return 随机手机号
 	 */
-	@Contract(pure = true)
 	public static String randomPhoneNumber() {
 		String[] identifier = { "134", "135", "136", "137", "138", "139", "150", "151", "152", "157", "158", "159", "182", "183", "184", "187", "188", "178", "147", "172", "198", "130", "131", "132", "145", "155", "156", "166", "171", "175", "176", "185", "186", "166", "133", "149", "153", "173", "177", "180", "181", "189", "199" };
 		return identifier[(int) (Math.random() * identifier.length)] + RandomUtil.randomNumeric(8);
@@ -386,7 +371,6 @@ public class StringUtil extends StringUtils {
 	 * @param regex 正则表达式
 	 * @return 匹配的字符串
 	 */
-	@Contract(pure = true)
 	public static String extract(@NotNull String str, @NotNull @NonNls String regex) {
 		String result = null;
 		Matcher matcher = Pattern.compile(regex).matcher(str);
@@ -403,7 +387,6 @@ public class StringUtil extends StringUtils {
 	 * @param regex 正则表达式
 	 * @return 匹配的字符串列表
 	 */
-	@Contract(pure = true)
 	public static List<String> extractList(@NotNull String str, @NotNull @NonNls String regex) {
 		List<String> result = new ArrayList<>();
 		Matcher matcher = Pattern.compile(regex).matcher(str);
@@ -420,7 +403,6 @@ public class StringUtil extends StringUtils {
 	 * @param regex 正则表达式
 	 * @return 匹配的字符串
 	 */
-	@Contract(pure = true)
 	public static String extractLast(@NotNull String str, @NotNull @NonNls String regex) {
 		String result = null;
 		Matcher matcher = Pattern.compile(regex).matcher(str);
@@ -437,7 +419,6 @@ public class StringUtil extends StringUtils {
 	 * @return 处理后的字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String filter(@NotNull String str) {
 		return filter(str, "");
 	}
@@ -450,7 +431,6 @@ public class StringUtil extends StringUtils {
 	 * @return 处理后的字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String filter(@NotNull String str, @NotNull String shift) {
 		return str.replaceAll("\\p{C}", shift);
 	}
@@ -462,7 +442,6 @@ public class StringUtil extends StringUtils {
 	 * @return 一般字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String unicodeStrToString(@NotNull String unicodeStr) {
 		final String regex = "\\\\u[a-f\\dA-F]{1,4}";
 		int count = 0;
@@ -488,7 +467,6 @@ public class StringUtil extends StringUtils {
 	 * @return Unicode字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String stringToUnicode(@NotNull String str) {
 		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < str.length(); i++) {
@@ -504,7 +482,6 @@ public class StringUtil extends StringUtils {
 	 * @return 一般字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String unicodeToString(@NotNull String unicode) {
 		StringBuilder result = new StringBuilder();
 		String[] hex = unicode.split("\\\\u");
@@ -521,7 +498,6 @@ public class StringUtil extends StringUtils {
 	 * @return utf8编码格式字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String utf8ByGBK(@NotNull String str) {
 		try {
 			return new String(str.getBytes("GBK"), StandardCharsets.UTF_8);
@@ -537,7 +513,6 @@ public class StringUtil extends StringUtils {
 	 * @return gbk编码格式字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String utf8ToGBK(@NotNull String str) {
 		try {
 			return new String(str.getBytes(StandardCharsets.UTF_8), "GBK");

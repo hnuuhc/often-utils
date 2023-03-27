@@ -1,6 +1,5 @@
 package org.haic.often.ffmpeg;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.List;
@@ -21,7 +20,6 @@ public abstract class Audio {
 	 * @param out   输出文件路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean merge(@NotNull String audio, @NotNull String out);
 
 	/**
@@ -31,7 +29,6 @@ public abstract class Audio {
 	 * @param out   输出文件路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean addAudio(@NotNull String audio, @NotNull String out);
 
 	/**
@@ -41,7 +38,6 @@ public abstract class Audio {
 	 * @param out   输出文件路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean addAudio(@NotNull List<String> audio, @NotNull String out);
 
 	/**
@@ -50,7 +46,6 @@ public abstract class Audio {
 	 * @param out 输出文件路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean transcoding(@NotNull String out);
 
 }

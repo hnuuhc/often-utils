@@ -1,6 +1,5 @@
 package org.haic.often.netdisc;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
@@ -43,7 +42,6 @@ public class LanZouYunPan {
 	 * @param passwd    访问密码
 	 * @return Map - 文件名, 文件ID链接
 	 */
-	@Contract(pure = true)
 	public static Map<String, String> getInfosAsPage(@NotNull String lanzouUrl, @NotNull String passwd) {
 		var infos = HttpsUtil.connect(lanzouUrl).get().parse().selectFirst("body script").toString();
 		infos = infos.substring(32, infos.indexOf("json") - 20).replaceAll("\t*　* *'*;*", "");
@@ -89,7 +87,6 @@ public class LanZouYunPan {
 	 * @param lanzouUrl 蓝奏URL
 	 * @return Map - 文件名, 文件ID链接
 	 */
-	@Contract(pure = true)
 	public static Map<String, String> getInfosAsPage(@NotNull String lanzouUrl) {
 		return getInfosAsPage(lanzouUrl, "");
 	}
@@ -102,7 +99,6 @@ public class LanZouYunPan {
 	 * @param passwd    访问密码
 	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
-	@Contract(pure = true)
 	public static Map<String, String> getStraightsAsPage(@NotNull String lanzouUrl, @NotNull String passwd) {
 		return getInfosAsPage(lanzouUrl, passwd).entrySet().parallelStream().collect(Collectors.toMap(Map.Entry::getKey, l -> getStraight(l.getValue())));
 	}
@@ -114,7 +110,6 @@ public class LanZouYunPan {
 	 * @param lanzouUrl 蓝奏URL
 	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
-	@Contract(pure = true)
 	public static Map<String, String> getStraightsAsPage(@NotNull String lanzouUrl) {
 		return getInfosAsPage(lanzouUrl).entrySet().parallelStream().collect(Collectors.toMap(Map.Entry::getKey, l -> getStraight(l.getValue())));
 	}
@@ -126,7 +121,6 @@ public class LanZouYunPan {
 	 * @param lanzouUrl 蓝奏云文件链接
 	 * @return 蓝奏云URL直链
 	 */
-	@Contract(pure = true)
 	public static String getStraight(@NotNull String lanzouUrl) {
 		var doc = HttpsUtil.connect(lanzouUrl).get().parse();
 		var downUrl = domain;
@@ -180,7 +174,6 @@ public class LanZouYunPan {
 	 * @param password  提取码
 	 * @return 蓝奏云URL直链
 	 */
-	@Contract(pure = true)
 	public static String getStraight(@NotNull String lanzouUrl, @NotNull String password) {
 		var fileInfo = HttpsUtil.connect(ajaxmUrl).requestBody(StringUtil.extract(HttpsUtil.connect(lanzouUrl).execute().body(), "action=.*&p=") + password).referrer(lanzouUrl).post().json();
 		var suffix = fileInfo.getString("url");
@@ -192,7 +185,6 @@ public class LanZouYunPan {
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static LanZouYunPan localLogin() {
 		return login(LocalCookie.home().getForDomain("pc.woozooo.com"));
 	}
@@ -203,7 +195,6 @@ public class LanZouYunPan {
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static LanZouYunPan localLogin(@NotNull String userHome) {
 		return login(LocalCookie.home(userHome).getForDomain("pc.woozooo.com"));
 	}
@@ -214,7 +205,6 @@ public class LanZouYunPan {
 	 * @param cookies cookies
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static LanZouYunPan login(@NotNull Map<String, String> cookies) {
 		return new LanZouYunPan(cookies);
 	}
@@ -224,7 +214,6 @@ public class LanZouYunPan {
 	 *
 	 * @return JSON类型数据, 包含了所有文件的信息
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> listRecycleBin() {
 		var lists = conn.url(mydiskUrl).requestBody("item=recycle&action=files").get().parse().select("table tr[class]");
 		return lists.size() == 1 && lists.text().contains("回收站为空") ? new ArrayList<>() : lists.stream().map(l -> {
@@ -244,7 +233,6 @@ public class LanZouYunPan {
 	 * @param fileInfo JSON格式配置参数,包含fileName,inputName,inputValue,可指定多个
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
-	@Contract(pure = true)
 	public int restore(@NotNull JSONObject... fileInfo) {
 		return restore(Arrays.asList(fileInfo));
 	}
@@ -255,7 +243,6 @@ public class LanZouYunPan {
 	 * @param fileInfoList JSON格式配置参数数组,包含fileName,inputName,inputValue
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
-	@Contract(pure = true)
 	public int restore(@NotNull List<JSONObject> fileInfoList) {
 		return conn.url(mydiskUrl).requestBody("item=recycle&task=restore_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + "=" + l.getString("inputValue")).collect(Collectors.joining("&"))).post().statusCode();
 	}
@@ -265,7 +252,6 @@ public class LanZouYunPan {
 	 *
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
-	@Contract(pure = true)
 	public int restoreAll() {
 		return conn.url(mydiskUrl).requestBody("item=recycle&task=restore_all&action=restore_all&formhash=a1c01e43&").post().statusCode();
 	}
@@ -275,7 +261,6 @@ public class LanZouYunPan {
 	 *
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
-	@Contract(pure = true)
 	public int clearRecycle() {
 		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_all&action=delete_all&formhash=a1c01e43&").post().statusCode();
 	}
@@ -286,7 +271,6 @@ public class LanZouYunPan {
 	 * @param fileInfo JSON格式配置参数,包含fileName,inputName,inputValue,可指定多个
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
-	@Contract(pure = true)
 	public int clearRecycle(@NotNull JSONObject... fileInfo) {
 		return clearRecycle(Arrays.asList(fileInfo));
 	}
@@ -297,7 +281,6 @@ public class LanZouYunPan {
 	 * @param fileInfoList JSON格式配置参数数组,包含fileName,inputName,inputValue
 	 * @return 操作返回的结果状态码, 200为成功
 	 */
-	@Contract(pure = true)
 	public int clearRecycle(@NotNull List<JSONObject> fileInfoList) {
 		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_complete_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + "=" + l.getString("inputValue")).collect(Collectors.joining("&"))).post().statusCode();
 	}
@@ -309,7 +292,6 @@ public class LanZouYunPan {
 	 * @param shareCode 修改后的分享密码
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject alterFolderOfShareCode(@NotNull String folderId, @NotNull String shareCode) {
 		return doupload("task=16&folder_id=" + folderId + "&shows=1&shownames=" + shareCode);
 	}
@@ -320,7 +302,6 @@ public class LanZouYunPan {
 	 * @param folderId 文件夹ID
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject closeFolderOfShareCode(@NotNull String folderId) {
 		return doupload("task=23&folder_id=" + folderId + "&shows=0&shownames=");
 	}
@@ -333,7 +314,6 @@ public class LanZouYunPan {
 	 * @param description 修改后的说明
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject alterFolderOfDescription(@NotNull String folderId, @NotNull String folderName, @NotNull String description) {
 		return doupload("task=4&folder_id=" + folderId + "&folder_name=" + folderName + "&folder_description=" + description);
 	}
@@ -345,7 +325,6 @@ public class LanZouYunPan {
 	 * @param shareCode 分享密码
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject alterFileOfShareCode(@NotNull String fileId, @NotNull String shareCode) {
 		return doupload("task=23&file_id=" + fileId + "&shows=1&shownames=" + shareCode);
 	}
@@ -356,7 +335,6 @@ public class LanZouYunPan {
 	 * @param fileId 文件ID
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject closeFileOfShareCode(@NotNull String fileId) {
 		return doupload("task=23&file_id=" + fileId + "&shows=0&shownames=");
 	}
@@ -368,7 +346,6 @@ public class LanZouYunPan {
 	 * @param fileName 修改后的文件名
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject rename(@NotNull String fileId, @NotNull String fileName) {
 		return doupload("task=46&file_id=" + fileId + "&typr=2&file_name=" + fileName);
 	}
@@ -379,7 +356,6 @@ public class LanZouYunPan {
 	 * @param folderId 待删除的文件夹ID
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject deleteFolder(@NotNull String folderId) {
 		return doupload("task=3&folder_id=" + folderId);
 	}
@@ -390,7 +366,6 @@ public class LanZouYunPan {
 	 * @param fileId 待删除的文件ID
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject deleteFile(@NotNull String fileId) {
 		return doupload("task=6&file_id=" + fileId);
 	}
@@ -402,7 +377,6 @@ public class LanZouYunPan {
 	 * @param fileId   待移动的文件ID
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject move(@NotNull String parentId, @NotNull String fileId) {
 		return doupload("task=20&folder_id=" + parentId + "&file_id=" + fileId);
 	}
@@ -414,7 +388,6 @@ public class LanZouYunPan {
 	 * @param folderName 文件夹名称
 	 * @return 返回的JSON数据, text项为创建的文件夹ID
 	 */
-	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String parentId, @NotNull String folderName) {
 		return createFolder(parentId, folderName, "");
 	}
@@ -427,7 +400,6 @@ public class LanZouYunPan {
 	 * @param description 文件夹说明
 	 * @return 返回的JSON数据, text项为创建的文件夹ID
 	 */
-	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String parentId, @NotNull String folderName, @NotNull String description) {
 		return doupload("task=2&parent_id=" + parentId + "&folder_name=" + folderName + "&folder_description" + description);
 	}
@@ -438,7 +410,6 @@ public class LanZouYunPan {
 	 * @param folderId 文件夹ID
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject getFolderInfo(@NotNull String folderId) {
 		return doupload("task=18&folder_id=" + folderId);
 	}
@@ -449,7 +420,6 @@ public class LanZouYunPan {
 	 * @param fileId 文件ID
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject getFileInfo(@NotNull String fileId) {
 		return doupload("task=22&file_id=" + fileId);
 	}
@@ -459,7 +429,6 @@ public class LanZouYunPan {
 	 *
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHome() {
 		return getInfosAsHomeOfFolder("-1");
 	}
@@ -470,7 +439,6 @@ public class LanZouYunPan {
 	 * @param folderId 文件夹ID,根目录为-1
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
 		List<JSONObject> infos = getFolderInfosAsHomeOfFolder(folderId);
 		infos.addAll(getFileInfosAsHomeOfFolder(folderId));
@@ -483,7 +451,6 @@ public class LanZouYunPan {
 	 * @param folderId 文件夹ID,根目录为-1
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getFileInfosAsHomeOfFolder(@NotNull String folderId) {
 		return doupload("task=5&pg=1&folder_id=" + folderId).getList("text", JSONObject.class);
 	}
@@ -494,7 +461,6 @@ public class LanZouYunPan {
 	 * @param folderId 文件夹ID,根目录为-1
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getFolderInfosAsHomeOfFolder(@NotNull String folderId) {
 		return doupload("task=47/&folder_id=" + folderId).getList("text", JSONObject.class);
 	}
@@ -505,7 +471,6 @@ public class LanZouYunPan {
 	 * @param body 请求数据
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	private JSONObject doupload(@NotNull String body) {
 		return conn.url(douploadUrl).requestBody(body).post().json();
 	}

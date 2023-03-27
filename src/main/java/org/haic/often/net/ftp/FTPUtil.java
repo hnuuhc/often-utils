@@ -6,7 +6,6 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.io.CopyStreamListener;
 import org.haic.often.Symbol;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.DownloadException;
 import org.haic.often.net.URIUtil;
@@ -32,17 +31,14 @@ public class FTPUtil {
 	private FTPUtil() {
 	}
 
-	@Contract(pure = true)
 	public static FTPConnection connect(@NotNull String host) {
 		return connect(host, 21);
 	}
 
-	@Contract(pure = true)
 	public static FTPConnection connect(@NotNull String host, int port) {
 		return connect(host, port, "anonymous", "");
 	}
 
-	@Contract(pure = true)
 	public static FTPConnection connect(@NotNull String host, int port, @NotNull String user, @NotNull String passwd) {
 		return new Connection(host, port, user, passwd);
 	}
@@ -64,13 +60,11 @@ public class FTPUtil {
 			ftpClient.setBufferSize(8192);
 		}
 
-		@Contract(pure = true)
 		public Connection localPassiveMode() {
 			ftpClient.enterLocalPassiveMode();
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection remotePassiveMode() {
 			try {
 				ftpClient.enterRemotePassiveMode();
@@ -80,30 +74,25 @@ public class FTPUtil {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection timeout(int millis) {
 			ftpClient.setConnectTimeout(millis);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection bufferSize(int bufferSize) {
 			ftpClient.setBufferSize(bufferSize);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection charset(@NotNull String charsetName) {
 			return charset(Charset.forName(charsetName));
 		}
 
-		@Contract(pure = true)
 		public Connection charset(@NotNull Charset charset) {
 			ftpClient.setCharset(charset);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection proxy(@NotNull String ipAddr) {
 			if (URIUtil.isIPv4Address(ipAddr)) {
 				int index = ipAddr.lastIndexOf(":");
@@ -115,12 +104,10 @@ public class FTPUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public Connection proxy(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
 		}
 
-		@Contract(pure = true)
 		public Connection proxy(@NotNull Proxy proxy) {
 			ftpClient.setProxy(proxy);
 			return this;
@@ -131,7 +118,6 @@ public class FTPUtil {
 		 *
 		 * @return Response
 		 */
-		@Contract(pure = true)
 		public FTPResponse execute() {
 			try {
 				ftpClient.connect(host, port);
@@ -155,7 +141,6 @@ public class FTPUtil {
 			status = ftpClient.getReplyCode();
 		}
 
-		@Contract(pure = true)
 		public void disconnect() {
 			if (ftpClient.isConnected()) {
 				try {
@@ -166,18 +151,15 @@ public class FTPUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public FTPResponse listener(@NotNull CopyStreamListener listener) {
 			ftpClient.setCopyStreamListener(listener);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public int statusCode() {
 			return status;
 		}
 
-		@Contract(pure = true)
 		public List<FTPFile> listFiles(@NotNull String remote) {
 			try {
 				return Arrays.stream(ftpClient.listFiles(remote)).collect(Collectors.toList());
@@ -186,7 +168,6 @@ public class FTPUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public int delete(@NotNull String remote) {
 			if (status != 200) {
 				return status;
@@ -203,7 +184,6 @@ public class FTPUtil {
 			return ftpClient.getReplyCode();
 		}
 
-		@Contract(pure = true)
 		public int rename(@NotNull String remoteIn, @NotNull String renameOut) {
 			if (status != 200) {
 				return status;

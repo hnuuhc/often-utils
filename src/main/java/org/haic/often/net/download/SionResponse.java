@@ -1,6 +1,5 @@
 package org.haic.often.net.download;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.Map;
@@ -19,7 +18,6 @@ public abstract class SionResponse {
 	 *
 	 * @return 当前下载的完成状态
 	 */
-	@Contract(pure = true)
 	public abstract int statusCode();
 
 	/**
@@ -27,7 +25,6 @@ public abstract class SionResponse {
 	 *
 	 * @return 文件名
 	 */
-	@Contract(pure = true)
 	public abstract String fileName();
 
 	/**
@@ -35,7 +32,6 @@ public abstract class SionResponse {
 	 *
 	 * @return 本地的文件路径
 	 */
-	@Contract(pure = true)
 	public abstract String filePath();
 
 	/**
@@ -43,7 +39,6 @@ public abstract class SionResponse {
 	 *
 	 * @return 文件大小
 	 */
-	@Contract(pure = true)
 	public abstract long fileSize();
 
 	/**
@@ -51,7 +46,6 @@ public abstract class SionResponse {
 	 *
 	 * @return 请求头值
 	 */
-	@Contract(pure = true)
 	public abstract String header(@NotNull String name);
 
 	/**
@@ -59,7 +53,6 @@ public abstract class SionResponse {
 	 *
 	 * @return 所有请求头
 	 */
-	@Contract(pure = true)
 	public abstract Map<String, String> headers();
 
 	/**
@@ -67,7 +60,6 @@ public abstract class SionResponse {
 	 *
 	 * @return cookie值
 	 */
-	@Contract(pure = true)
 	public abstract String cookie(@NotNull String name);
 
 	/**
@@ -75,7 +67,6 @@ public abstract class SionResponse {
 	 *
 	 * @return cookies
 	 */
-	@Contract(pure = true)
 	public abstract Map<String, String> cookies();
 
 	/**
@@ -85,7 +76,6 @@ public abstract class SionResponse {
 	 *
 	 * @return md5
 	 */
-	@Contract(pure = true)
 	public abstract String hash();
 
 	/**
@@ -93,7 +83,6 @@ public abstract class SionResponse {
 	 *
 	 * @return URL
 	 */
-	@Contract(pure = true)
 	public abstract String url();
 
 	/**
@@ -101,7 +90,6 @@ public abstract class SionResponse {
 	 *
 	 * @return 此连接, 用于连接
 	 */
-	@Contract(pure = true)
 	public abstract SionResponse restart();
 
 	/**
@@ -109,7 +97,6 @@ public abstract class SionResponse {
 	 *
 	 * @return 执行状态
 	 */
-	@Contract(pure = true)
 	public abstract boolean clear();
 
 	/**
@@ -117,6 +104,5 @@ public abstract class SionResponse {
 	 *
 	 * @return 执行状态
 	 */
-	@Contract(pure = true)
 	public abstract boolean delete();
 }

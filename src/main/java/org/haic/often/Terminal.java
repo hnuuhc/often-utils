@@ -1,6 +1,5 @@
 package org.haic.often;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.SystemUtil;
@@ -34,7 +33,6 @@ public class Terminal {
 	 *
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public static Terminal newTerminal() {
 		return new Terminal();
 	}
@@ -45,7 +43,6 @@ public class Terminal {
 	 * @param dos 待执行的命令
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public static Terminal command(@NotNull String... dos) {
 		return newTerminal().setCommand(dos);
 	}
@@ -56,7 +53,6 @@ public class Terminal {
 	 * @param dos 待执行的命令
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public static Terminal command(@NotNull List<String> dos) {
 		return newTerminal().setCommand(dos);
 	}
@@ -64,7 +60,6 @@ public class Terminal {
 	/**
 	 * 清理控制台输出
 	 */
-	@Contract(pure = true)
 	public static void cls() {
 		Terminal.command("cls").inheritIO();
 	}
@@ -75,7 +70,6 @@ public class Terminal {
 	 * @param dos 命令
 	 * @return 添加单引号后的命令
 	 */
-	@Contract(pure = true)
 	public static String quote(@NotNull String dos) {
 		return "'" + dos + "'";
 	}
@@ -86,7 +80,6 @@ public class Terminal {
 	 * @param dos 命令
 	 * @return 添加双号后的命令
 	 */
-	@Contract(pure = true)
 	public static String doubleQuote(@NotNull String dos) {
 		return "\"" + dos + "\"";
 	}
@@ -97,7 +90,6 @@ public class Terminal {
 	 * @param dos 待执行的命令
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public Terminal setCommand(@NotNull String... dos) {
 		return dos.length == 0 ? this : setCommand(Arrays.asList(dos));
 	}
@@ -108,7 +100,6 @@ public class Terminal {
 	 * @param dos 待执行的命令
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public Terminal setCommand(@NotNull List<String> dos) {
 		List<String> terminalCommand = new ArrayList<>();
 		terminalCommand.add(terminal);
@@ -124,7 +115,6 @@ public class Terminal {
 	 * @param terminal 终端
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public Terminal terminal(@NotNull String terminal) {
 		this.terminal = terminal;
 		return this;
@@ -136,7 +126,6 @@ public class Terminal {
 	 * @param charsetName 字符集编码名
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public Terminal charset(@NotNull String charsetName) {
 		charset(Charset.forName(charsetName));
 		return this;
@@ -148,7 +137,6 @@ public class Terminal {
 	 * @param charset 字符集编码
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public Terminal charset(@NotNull Charset charset) {
 		this.charset = charset;
 		return this;
@@ -160,7 +148,6 @@ public class Terminal {
 	 * @param directory 工作目录路径
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public Terminal directory(@NotNull String directory) {
 		return directory(new File(directory));
 	}
@@ -171,7 +158,6 @@ public class Terminal {
 	 * @param directory 工作目录
 	 * @return 此方法
 	 */
-	@Contract(pure = true)
 	public Terminal directory(@NotNull File directory) {
 		builder.directory(directory);
 		return this;
@@ -182,7 +168,6 @@ public class Terminal {
 	 *
 	 * @return 进程的退出值, 一般情况下, 0为正常终止
 	 */
-	@Contract(pure = true)
 	public int execute() {
 		int status = 1;
 		Process process;
@@ -202,7 +187,6 @@ public class Terminal {
 	 * @return 执行的信息
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public String read() {
 		String result = "";
 		Process process;

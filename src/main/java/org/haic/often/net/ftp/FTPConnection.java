@@ -1,6 +1,5 @@
 package org.haic.often.net.ftp;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.net.Proxy;
@@ -20,7 +19,6 @@ public abstract class FTPConnection {
 	 *
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection localPassiveMode();
 
 	/**
@@ -30,7 +28,6 @@ public abstract class FTPConnection {
 	 *
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection remotePassiveMode();
 
 	/**
@@ -40,7 +37,6 @@ public abstract class FTPConnection {
 	 * @param millis 超时连接或读取之前的毫秒数（千分之一秒）
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection timeout(int millis);
 
 	/**
@@ -49,7 +45,6 @@ public abstract class FTPConnection {
 	 * @param bufferSize 缓冲区大小
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection bufferSize(int bufferSize);
 
 	/**
@@ -58,7 +53,6 @@ public abstract class FTPConnection {
 	 * @param charsetName 字符集格式名称
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection charset(@NotNull String charsetName);
 
 	/**
@@ -67,7 +61,6 @@ public abstract class FTPConnection {
 	 * @param charset 字符集格式
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection charset(@NotNull Charset charset);
 
 	/**
@@ -77,7 +70,6 @@ public abstract class FTPConnection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection proxy(@NotNull String ipAddr);
 
 	/**
@@ -88,7 +80,6 @@ public abstract class FTPConnection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection proxy(@NotNull String host, int port);
 
 	/**
@@ -98,7 +89,6 @@ public abstract class FTPConnection {
 	 * @param proxy 要使用的代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract FTPConnection proxy(@NotNull Proxy proxy);
 
 	/**
@@ -106,7 +96,6 @@ public abstract class FTPConnection {
 	 *
 	 * @return Response
 	 */
-	@Contract(pure = true)
 	public abstract FTPResponse execute();
 
 }

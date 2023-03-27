@@ -1,7 +1,6 @@
 package org.haic.often.netdisc;
 
 import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalStorage;
 import org.haic.often.exception.YunPanException;
@@ -55,7 +54,6 @@ public class ALiYunPan {
 	 * @param shareUrl 分享链接
 	 * @return 文件信息列表
 	 */
-	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(String shareUrl) {
 		return shareUrl.contains("#") ? getInfosAsPage(shareUrl.substring(0, shareUrl.indexOf("#")), shareUrl.substring(shareUrl.indexOf('#') + 1)) : getInfosAsPage(shareUrl, "");
 	}
@@ -67,13 +65,11 @@ public class ALiYunPan {
 	 * @param sharePwd 提取码
 	 * @return 文件信息列表
 	 */
-	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		var shareId = shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
 		return getInfosAsPage(shareId, getShareToken(shareId, sharePwd), "root", "/");
 	}
 
-	@Contract(pure = true)
 	private static List<JSONObject> getInfosAsPage(@NotNull String shareId, @NotNull String shareToken, @NotNull String parentId, @NotNull String path) {
 		var filesInfo = new ArrayList<JSONObject>();
 		var data = new JSONObject();
@@ -100,7 +96,6 @@ public class ALiYunPan {
 	 * @param sharePwd 提取码
 	 * @return ShareToken
 	 */
-	@Contract(pure = true)
 	private static String getShareToken(String shareId, String sharePwd) {
 		var apiJson = new JSONObject();
 		apiJson.put("share_id", shareId);
@@ -113,7 +108,6 @@ public class ALiYunPan {
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static ALiYunPan localLogin() {
 		return login(JSONObject.parseObject(LocalStorage.home().getForDomain("www.aliyundrive.com").getOrDefault("token", "{}")).getString("access_token"));
 	}
@@ -124,7 +118,6 @@ public class ALiYunPan {
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static ALiYunPan localLogin(@NotNull String userHome) {
 		return login(JSONObject.parseObject(LocalStorage.home(userHome).getForDomain("www.aliyundrive.com").getOrDefault("token", "{}")).getString("access_token"));
 	}
@@ -135,7 +128,6 @@ public class ALiYunPan {
 	 * @param auth 身份识别信息,登录后,可在开发者本地存储(Local Storage)获取token项access_token值,或者在网络请求头中查找
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static ALiYunPan login(@NotNull String auth) {
 		return new ALiYunPan(auth);
 	}
@@ -146,7 +138,6 @@ public class ALiYunPan {
 	 * @param fileId 指定的文件或文件夹,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject clearRecycle(@NotNull String... fileId) {
 		return clearRecycle(Arrays.asList(fileId));
 	}
@@ -157,7 +148,6 @@ public class ALiYunPan {
 	 * @param fileIdList 指定的文件或文件夹ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject clearRecycle(@NotNull List<String> fileIdList) {
 		var data = new JSONObject().fluentPut("requests", fileIdList.stream().map(l -> new JSONObject() {{
 			put("body", new JSONObject() {{
@@ -178,7 +168,6 @@ public class ALiYunPan {
 	 * @param fileId 文件或文件夹ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject restore(@NotNull String... fileId) {
 		return restore(Arrays.asList(fileId));
 	}
@@ -189,7 +178,6 @@ public class ALiYunPan {
 	 * @param fileIdList 文件或文件夹ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject restore(@NotNull List<String> fileIdList) {
 		var data = new JSONObject().fluentPut("requests", fileIdList.stream().map(l -> new JSONObject() {{
 			put("body", new JSONObject() {{
@@ -209,7 +197,6 @@ public class ALiYunPan {
 	 *
 	 * @return 返回的JSON格式文件列表
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> listRecycleBin() {
 		var data = new JSONObject();
 		data.put("drive_id", userInfo.getString("default_drive_id"));
@@ -225,7 +212,6 @@ public class ALiYunPan {
 	 * @param fileId 文件ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject cancelCollect(@NotNull String... fileId) {
 		return cancelCollect(Arrays.asList(fileId));
 	}
@@ -236,7 +222,6 @@ public class ALiYunPan {
 	 * @param fileIdList 文件ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject cancelCollect(@NotNull List<String> fileIdList) {
 		var data = new JSONObject().fluentPut("requests", fileIdList.stream().map(l -> new JSONObject() {{
 			put("body", new JSONObject() {{
@@ -259,7 +244,6 @@ public class ALiYunPan {
 	 * @param fileId 文件ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject collect(@NotNull String... fileId) {
 		return collect(Arrays.asList(fileId));
 	}
@@ -270,7 +254,6 @@ public class ALiYunPan {
 	 * @param fileIdList 文件ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject collect(@NotNull List<String> fileIdList) {
 		var data = new JSONObject().fluentPut("requests", fileIdList.stream().map(l -> new JSONObject() {{
 			put("body", new JSONObject() {{
@@ -295,7 +278,6 @@ public class ALiYunPan {
 	 * @param fileId    文件ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject share(int day, @NotNull String shareCode, @NotNull String... fileId) {
 		return share(day, shareCode, Arrays.asList(fileId));
 	}
@@ -308,14 +290,13 @@ public class ALiYunPan {
 	 * @param fileIdList 文件ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject share(int day, @NotNull String shareCode, @NotNull List<String> fileIdList) {
 		var time = Calendar.getInstance();
 		time.add(Calendar.DAY_OF_MONTH, day);
 		var format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'.094Z'");
 		var data = new JSONObject() {{
 			put("drive_id", userInfo.getString("default_drive_id"));
-			put("expiration", Judge.isEmpty(day) ? "" : format.format(time.getTime()));
+			put("expiration", day == 0 ? "" : format.format(time.getTime()));
 			put("file_id_list", new JSONArray().fluentAddAll(fileIdList));
 			put("share_pwd", shareCode);
 			put("sync_to_homepage", false);
@@ -329,7 +310,6 @@ public class ALiYunPan {
 	 * @param fileId 文件或文件夹ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject delete(@NotNull String... fileId) {
 		return delete(Arrays.asList(fileId));
 	}
@@ -340,7 +320,6 @@ public class ALiYunPan {
 	 * @param fileIdList 文件或文件夹ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject delete(@NotNull List<String> fileIdList) {
 		var data = new JSONObject().fluentPut("requests", fileIdList.stream().map(l -> new JSONObject() {{
 			put("body", new JSONObject() {{
@@ -361,7 +340,6 @@ public class ALiYunPan {
 	 * @param fileId   文件或文件夹ID,可指定多个
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject move(@NotNull String parentId, @NotNull String... fileId) {
 		return move(parentId, Arrays.asList(fileId));
 	}
@@ -373,7 +351,6 @@ public class ALiYunPan {
 	 * @param fileIdList 文件或文件夹ID列表
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject move(@NotNull String parentId, @NotNull List<String> fileIdList) {
 		var data = new JSONObject().fluentPut("requests", fileIdList.stream().map(l -> new JSONObject() {{
 			put("body", new JSONObject() {{
@@ -396,7 +373,6 @@ public class ALiYunPan {
 	 * @param search 搜索数据
 	 * @return 返回的JSON格式文件列表
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> search(@NotNull String search) {
 		var data = new JSONObject();
 		data.put("drive_id", userInfo.getString("default_drive_id"));
@@ -413,7 +389,6 @@ public class ALiYunPan {
 	 * @param fileName     文件夹名称
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String parentFileId, @NotNull String fileName) {
 		var data = new JSONObject();
 		data.put("drive_id", userInfo.getString("default_drive_id"));
@@ -429,7 +404,6 @@ public class ALiYunPan {
 	 *
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHome() {
 		return getInfosAsHomeOfFolder("root");
 	}
@@ -440,7 +414,6 @@ public class ALiYunPan {
 	 * @param folderId 文件夹ID,"root"为根目录
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
 		var data = new JSONObject();
 		data.put("drive_id", userInfo.getString("default_drive_id"));
@@ -454,7 +427,6 @@ public class ALiYunPan {
 		return inquire(fileListUrl, data);
 	}
 
-	@Contract(pure = true)
 	private List<JSONObject> inquire(@NotNull String url, @NotNull JSONObject data) {
 		var infos = new JSONArray();
 		var info = conn.url(url).requestBody(data.toString()).post().json();
@@ -476,7 +448,6 @@ public class ALiYunPan {
 	 * @param shareUrl 分享链接
 	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getStraightsAsPage(@NotNull String shareUrl) {
 		return shareUrl.contains("#") ? getStraightsAsPage(shareUrl.substring(0, shareUrl.indexOf("#")), shareUrl.substring(shareUrl.indexOf('#') + 1)) : getStraightsAsPage(shareUrl, "");
 	}
@@ -490,7 +461,6 @@ public class ALiYunPan {
 	 * @param sharePwd 提取码
 	 * @return 列表 ( 文件路径 - 文件直链 )
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		var shareId = shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
 		var shareToken = getShareToken(shareId, sharePwd);
@@ -512,7 +482,6 @@ public class ALiYunPan {
 	 * @param fileid 文件ID
 	 * @return 文件直链
 	 */
-	@Contract(pure = true)
 	public String getStraight(@NotNull String fileid) {
 		var data = new JSONObject().fluentPut("drive_id", userInfo.getString("default_drive_id")).fluentPut("file_id", fileid);
 		return conn.url(downloadUrl).requestBody(data.toString()).post().json().getString("url");

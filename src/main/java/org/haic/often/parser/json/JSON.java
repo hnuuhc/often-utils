@@ -1,6 +1,5 @@
 package org.haic.often.parser.json;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.Collection;
@@ -41,7 +40,6 @@ public abstract class JSON {
 	 * @param body JSON字符串
 	 * @return JSON数组
 	 */
-	@Contract(pure = true)
 	public static JSONArray parseArray(@NotNull String body) {
 		return JSONArray.parseArray(body);
 	}
@@ -52,7 +50,6 @@ public abstract class JSON {
 	 * @param list 数组
 	 * @return JSON数组
 	 */
-	@Contract(pure = true)
 	public static JSONArray parseArray(@NotNull Collection<?> list) {
 		return JSONArray.parseArray(list);
 	}

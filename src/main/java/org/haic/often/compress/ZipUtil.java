@@ -4,7 +4,6 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.*;
 import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.ZipException;
 import org.haic.often.util.FileUtil;
@@ -66,24 +65,20 @@ public class ZipUtil {
 			params.setIncludeRootFolder(false); // 包含根文件夹
 		}
 
-		@Contract(pure = true)
 		public Zip origin(@NotNull String archive) {
 			return origin(new File(archive));
 		}
 
-		@Contract(pure = true)
 		public Zip origin(@NotNull File archive) {
 			this.archive = archive;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Zip archiveName(boolean archiveName) {
 			this.archiveName = archiveName;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Zip passwd(@NotNull String passwd) {
 			this.passwd = passwd.toCharArray();
 			params.setEncryptFiles(this.passwd.length != 0); // 设置文件加密
@@ -93,42 +88,35 @@ public class ZipUtil {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Zip includeRoot(boolean includeRoot) {
 			params.setIncludeRootFolder(includeRoot);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Zip method(@NotNull CompressionMethod method) {
 			this.method = method;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Zip level(@NotNull CompressionLevel level) {
 			this.level = level;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Zip charset(@NotNull Charset charset) {
 			this.charset = charset;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Zip charset(@NotNull String charsetName) {
 			this.charset = Charset.forName(charsetName);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public boolean deCompress(@NotNull String out) {
 			return deCompress(new File(out));
 		}
 
-		@Contract(pure = true)
 		public boolean deCompress(@NotNull File out) {
 			if (!archive.isFile()) throw new ZipException("Not found or not file " + archive);
 			if (out.isFile()) throw new ZipException("解压路径是一个文件");
@@ -149,12 +137,10 @@ public class ZipUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public boolean compress(@NotNull String origin) {
 			return compress(new File(origin));
 		}
 
-		@Contract(pure = true)
 		public boolean compress(@NotNull File origin) {
 			if (!origin.exists()) {
 				throw new ZipException("Not found " + origin);
@@ -177,7 +163,6 @@ public class ZipUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public boolean addStream(@NotNull InputStream inputStream, String entryName) {
 			try (ZipFile zipFile = new ZipFile(archive)) {
 				zipFile.setCharset(charset);
@@ -193,7 +178,6 @@ public class ZipUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public boolean addStream(@NotNull Map<String, InputStream> origin) {
 			try (ZipFile zipFile = new ZipFile(archive)) {
 				for (var entry : origin.entrySet()) {
@@ -212,7 +196,6 @@ public class ZipUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public boolean remove(@NotNull String origin) {
 			if (!archive.isFile()) {
 				throw new ZipException("Not found or not file " + archive);
@@ -225,7 +208,6 @@ public class ZipUtil {
 			return true;
 		}
 
-		@Contract(pure = true)
 		public boolean remove(@NotNull List<String> origin) {
 			if (!archive.isFile()) {
 				throw new ZipException("Not found or not file " + archive);

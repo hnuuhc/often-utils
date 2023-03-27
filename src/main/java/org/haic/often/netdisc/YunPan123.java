@@ -1,7 +1,5 @@
 package org.haic.often.netdisc;
 
-import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
@@ -46,7 +44,7 @@ public class YunPan123 {
 	private YunPan123(@NotNull String auth) {
 		conn.auth(auth);
 		var status = conn.url(userInfoUrl).execute().json();
-		if (!Judge.isEmpty(status.getInteger("code"))) {
+		if (status.getInteger("code") != 0) {
 			throw new YunPanException(status.getString("message"));
 		}
 	}
@@ -68,12 +66,10 @@ public class YunPan123 {
 	 * @param sharePwd 提取码
 	 * @return 包含文件信息的JSON数据格式列表
 	 */
-	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		return getInfosAsPage(shareUrl.substring(shareUrl.lastIndexOf("/") + 1), sharePwd, "0", 1, "/");
 	}
 
-	@Contract(pure = true)
 	private static List<JSONObject> getInfosAsPage(String key, String sharePwd, String parentId, int page, String path) {
 		var data = new HashMap<String, String>();
 		data.put("limit", "100");
@@ -96,7 +92,7 @@ public class YunPan123 {
 			}
 		}
 		int next = pageInfo.getInteger("Next");
-		if (!Judge.isMinusOne(next)) {
+		if (next != -1) {
 			filesInfo.addAll(getInfosAsPage(key, sharePwd, "0", page + 1, path));
 		}
 		return filesInfo;
@@ -109,7 +105,6 @@ public class YunPan123 {
 	 * @param sharePwd 提取码
 	 * @return Map - 文件名, 文件直链
 	 */
-	@Contract(pure = true)
 	public static String getStraightsAsPageOfBatch(@NotNull String shareUrl, @NotNull String sharePwd) {
 		var data = new JSONObject().fluentPut("ShareKey", shareUrl.substring(shareUrl.lastIndexOf("/") + 1)).fluentPut("fileIdList", getInfosAsPage(shareUrl, sharePwd).stream().map(l -> new JSONObject().fluentPut("fileId", l.getString("FileId"))).toList());
 		var url = HttpsUtil.connect(batchDownloadUrl).requestBody(data).post().json().getJSONObject("data").getString("DownloadUrl");
@@ -123,7 +118,6 @@ public class YunPan123 {
 	 * @param sharePwd 提取码
 	 * @return Map - 文件名(含路径), 文件直链
 	 */
-	@Contract(pure = true)
 	public static Map<String, String> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
 		var result = new HashMap<String, String>();
 		var shareKey = shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
@@ -146,7 +140,6 @@ public class YunPan123 {
 	 * @param shareUrl 分享URL
 	 * @return Map - 文件名(含路径), 文件直链
 	 */
-	@Contract(pure = true)
 	public static Map<String, String> getStraightsAsPage(@NotNull String shareUrl) {
 		return getStraightsAsPage(shareUrl, "");
 	}
@@ -156,7 +149,6 @@ public class YunPan123 {
 	 *
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static YunPan123 localLogin() {
 		return login(LocalCookie.home().getForDomain("www.123pan.com").getOrDefault("authorToken", null));
 	}
@@ -167,7 +159,6 @@ public class YunPan123 {
 	 * @param userHome 本地谷歌浏览器用户数据目录(User Data)
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static YunPan123 localLogin(@NotNull String userHome) {
 		return login(LocalCookie.home(userHome).getForDomain("www.123pan.com").getOrDefault("authorToken", null));
 	}
@@ -179,7 +170,6 @@ public class YunPan123 {
 	 * @param password 密码
 	 * @return 此链接, 用于身份验证的API操作
 	 */
-	@Contract(pure = true)
 	public static YunPan123 login(@NotNull String username, @NotNull String password) {
 		return new YunPan123(YunPanLogin.login(username, password));
 	}
@@ -190,7 +180,6 @@ public class YunPan123 {
 	 * @param auth 身份识别标识
 	 * @return 此链接, 用于API操作
 	 */
-	@Contract(pure = true)
 	public static YunPan123 login(@NotNull String auth) {
 		return new YunPan123(auth);
 	}
@@ -200,7 +189,6 @@ public class YunPan123 {
 	 *
 	 * @return List - JSON类型数据,包含了文件的所有信息
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> listRecycleBin() {
 		return getInfoListAsHome("0", "", true);
 	}
@@ -211,7 +199,6 @@ public class YunPan123 {
 	 * @param fileId 文件或文件夹ID,可指定多个
 	 * @return 操作返回的结果状态码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int restore(@NotNull String... fileId) {
 		return restore(Arrays.asList(fileId));
 	}
@@ -222,7 +209,6 @@ public class YunPan123 {
 	 * @param fileIdList 文件或文件夹ID列表
 	 * @return 操作返回的结果状态码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int restore(@NotNull List<String> fileIdList) {
 		var data = new JSONObject();
 		data.put("driveId", "0");
@@ -236,7 +222,6 @@ public class YunPan123 {
 	 *
 	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
 	 */
-	@Contract(pure = true)
 	public int clearRecycle() {
 		return conn.url(trashDeleteAllUrl).requestBody(new JSONObject().toString()).post().json().getInteger("code");
 	}
@@ -247,7 +232,6 @@ public class YunPan123 {
 	 * @param fileId 指定的文件或文件夹,可指定多个
 	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
 	 */
-	@Contract(pure = true)
 	public int clearRecycle(@NotNull String... fileId) {
 		return clearRecycle(Arrays.asList(fileId));
 	}
@@ -258,7 +242,6 @@ public class YunPan123 {
 	 * @param fileIdList 指定的文件或文件夹ID列表
 	 * @return 操作返回的结果状态码, 一般情况下, 0表示成功
 	 */
-	@Contract(pure = true)
 	public int clearRecycle(@NotNull List<String> fileIdList) {
 		return conn.url(fileDeleteUrl).requestBody(new JSONObject().fluentPut("fileIdList", fileIdList.stream().map(l -> new JSONObject().fluentPut("fileId", l)).toList()).toString()).post().json().getInteger("code");
 	}
@@ -269,7 +252,6 @@ public class YunPan123 {
 	 * @param shareId 分享ID,可指定多个
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int unShare(@NotNull String... shareId) {
 		return unShare(Arrays.asList(shareId));
 	}
@@ -280,7 +262,6 @@ public class YunPan123 {
 	 * @param shareIdList 分享ID列表
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int unShare(@NotNull List<String> shareIdList) {
 		return conn.url(shareDeleteUrl).requestBody(new JSONObject().fluentPut("driveId", "0").fluentPut("shareInfoList", shareIdList.stream().map(l -> new JSONObject().fluentPut("shareId", l)).toList()).toString()).post().json().getInteger("code");
 	}
@@ -290,7 +271,6 @@ public class YunPan123 {
 	 *
 	 * @return 文件列表信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> listShares() {
 		return listShares("");
 	}
@@ -301,7 +281,6 @@ public class YunPan123 {
 	 * @param search 搜索数据
 	 * @return 文件列表信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> listShares(@NotNull String search) {
 		return conn.url(shareListUrl).requestBody("driveId=0&limit=10000&next=0&orderBy=fileId&orderDirection=desc&SearchData=" + search).get().json().getJSONObject("data").getList("InfoList", JSONObject.class);
 	}
@@ -313,7 +292,6 @@ public class YunPan123 {
 	 * @param fileId    分享文件ID,如果存在多个,用','分割
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject share(@NotNull String shareName, @NotNull String fileId) {
 		return share(shareName, fileId, "", 1);
 	}
@@ -326,7 +304,6 @@ public class YunPan123 {
 	 * @param day       分享时间
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject share(@NotNull String shareName, @NotNull String fileId, int day) {
 		return share(shareName, fileId, "", day);
 	}
@@ -339,7 +316,6 @@ public class YunPan123 {
 	 * @param sharePwd  分享密码
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject share(@NotNull String shareName, @NotNull String fileId, @NotNull String sharePwd) {
 		return share(shareName, fileId, sharePwd, 1);
 	}
@@ -353,7 +329,6 @@ public class YunPan123 {
 	 * @param day       分享时间
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject share(@NotNull String shareName, @NotNull String fileId, @NotNull String sharePwd, int day) {
 		var time = Calendar.getInstance();
 		time.add(Calendar.DAY_OF_MONTH, day);
@@ -374,7 +349,6 @@ public class YunPan123 {
 	 * @param fileName 文件夹名称
 	 * @return 返回的JSON数据
 	 */
-	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String parentId, @NotNull String fileName) {
 		var data = new JSONObject();
 		data.put("driveId", "0");
@@ -395,7 +369,6 @@ public class YunPan123 {
 	 * @param fileName 重命名后的文件名
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int rename(@NotNull String fileId, @NotNull String fileName) {
 		var data = new JSONObject();
 		data.put("driveId", "0");
@@ -410,7 +383,6 @@ public class YunPan123 {
 	 * @param fileId 待删除的文件ID,可指定多个
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int delete(@NotNull String... fileId) {
 		return delete(List.of(fileId));
 	}
@@ -421,7 +393,6 @@ public class YunPan123 {
 	 * @param fileIdList 待删除的文件ID列表
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int delete(@NotNull List<String> fileIdList) {
 		var data = new JSONObject();
 		data.put("driveId", "0");
@@ -437,7 +408,6 @@ public class YunPan123 {
 	 * @param fileId   需要移动的文件ID,可指定多个
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int move(@NotNull String parentId, @NotNull String... fileId) {
 		return move(parentId, List.of(fileId));
 	}
@@ -449,7 +419,6 @@ public class YunPan123 {
 	 * @param fileIdList 需要移动的文件ID列表
 	 * @return 返回执行结果代码, 一般情况下, 0为成功
 	 */
-	@Contract(pure = true)
 	public int move(@NotNull String parentId, @NotNull List<String> fileIdList) {
 		var data = new JSONObject();
 		data.put("parentFileId", parentId);
@@ -462,7 +431,6 @@ public class YunPan123 {
 	 *
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHome() {
 		return getInfosAsHome("");
 	}
@@ -473,7 +441,6 @@ public class YunPan123 {
 	 * @param search 待搜索数据
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHome(@NotNull String search) {
 		return getInfosAsHomeOfFolder("0", search);
 	}
@@ -484,7 +451,6 @@ public class YunPan123 {
 	 * @param folderId 文件夹ID
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
 		return getInfosAsHomeOfFolder(folderId, "");
 	}
@@ -496,7 +462,6 @@ public class YunPan123 {
 	 * @param search   待搜索数据
 	 * @return 文件信息JSON数组
 	 */
-	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId, @NotNull String search) {
 		return getInfoListAsHome(folderId, search, false);
 	}
@@ -509,7 +474,6 @@ public class YunPan123 {
 	 * @param trashed 是否为垃圾站
 	 * @return 文件列表
 	 */
-	@Contract(pure = true)
 	private List<JSONObject> getInfoListAsHome(@NotNull String fileId, @NotNull String search, boolean trashed) {
 		var data = new HashMap<String, String>();
 		data.put("driveId", "0");
@@ -538,7 +502,6 @@ public class YunPan123 {
 	 * @param fileInfo 文件信息
 	 * @return 文件直链
 	 */
-	@Contract(pure = true)
 	public String getStraight(@NotNull JSONObject fileInfo) {
 		JSONObject data = new JSONObject();
 		data.put("type", fileInfo.getString("Type"));
@@ -560,7 +523,6 @@ public class YunPan123 {
 	 * @param fileInfo   JSON文件信息
 	 * @param folderPath 存放的文件夹路径
 	 */
-	@Contract(pure = true)
 	public void download(@NotNull JSONObject fileInfo, @NotNull String folderPath) {
 		SionDownload.connect(getStraight(fileInfo)).fileName(fileInfo.getString("FileName")).folder(folderPath + fileInfo.getString("Path")).execute();
 	}
@@ -571,7 +533,6 @@ public class YunPan123 {
 	 * @param fileInfos  JSON文件信息
 	 * @param folderPath 存放的文件夹路径
 	 */
-	@Contract(pure = true)
 	public void download(@NotNull List<JSONObject> fileInfos, @NotNull String folderPath) {
 		fileInfos.forEach(l -> download(l, folderPath));
 	}
@@ -587,7 +548,6 @@ public class YunPan123 {
 		 * @param password 密码
 		 * @return 此链接, 用于API操作
 		 */
-		@Contract(pure = true)
 		public static String login(@NotNull String username, @NotNull String password) {
 			return HttpsUtil.connect(signinUrl).requestBody(new JSONObject().fluentPut("passport", username).fluentPut("password", password).toString()).post().json().getJSONObject("data").getString("token");
 		}

@@ -1,6 +1,5 @@
 package org.haic.often.parser.xml;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 
@@ -50,7 +49,6 @@ public class XmlPath {
 	 * @return 查询结果
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public Elements select(String cssQuery) {
 		var es = new Elements(this.es);
 		for (var sb = new ParserStringBuilder(cssQuery); sb.stripLeading().pos() < sb.length(); sb.offset(1)) {

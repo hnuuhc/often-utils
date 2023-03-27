@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Symbol;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.function.StringFunction;
 
@@ -30,7 +29,6 @@ public abstract class HLSConnection {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection url(@NotNull String url);
 
 	/**
@@ -39,7 +37,6 @@ public abstract class HLSConnection {
 	 * @param src session文件路径
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection session(@NotNull String src);
 
 	/**
@@ -48,7 +45,6 @@ public abstract class HLSConnection {
 	 * @param file session文件
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection session(@NotNull File file);
 
 	/**
@@ -57,7 +53,6 @@ public abstract class HLSConnection {
 	 * @param keyDecrypt KEY解密函数
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection keyDecrypt(@NotNull StringFunction<String> keyDecrypt);
 
 	/**
@@ -66,7 +61,6 @@ public abstract class HLSConnection {
 	 * @param body m3u8文本
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection body(@NotNull String body);
 
 	/**
@@ -77,7 +71,6 @@ public abstract class HLSConnection {
 	 * @param iv   补码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection body(@NotNull String body, @NotNull String key, @NotNull String iv);
 
 	/**
@@ -90,7 +83,6 @@ public abstract class HLSConnection {
 	 * @param select 筛选条件
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection select(@NotNull Predicate<String> select);
 
 	/**
@@ -99,7 +91,6 @@ public abstract class HLSConnection {
 	 * @param userAgent 要使用的用户代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection userAgent(@NotNull String userAgent);
 
 	/**
@@ -108,7 +99,6 @@ public abstract class HLSConnection {
 	 * @param referrer 要使用的来源网址
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection referrer(@NotNull String referrer);
 
 	/**
@@ -118,7 +108,6 @@ public abstract class HLSConnection {
 	 * @param value 标头值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection header(@NotNull String name, @NotNull String value);
 
 	/**
@@ -127,7 +116,6 @@ public abstract class HLSConnection {
 	 * @param headers 标头名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection headers(@NotNull Map<String, String> headers);
 
 	/**
@@ -137,7 +125,6 @@ public abstract class HLSConnection {
 	 * @param value cookie 的值
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection cookie(@NotNull String name, @NotNull String value);
 
 	/**
@@ -146,7 +133,6 @@ public abstract class HLSConnection {
 	 * @param cookies 名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection cookies(@NotNull Map<String, String> cookies);
 
 	/**
@@ -155,7 +141,6 @@ public abstract class HLSConnection {
 	 * @param auth 授权码或身份识别标识
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection auth(@NotNull String auth);
 
 	/**
@@ -164,7 +149,6 @@ public abstract class HLSConnection {
 	 * @param nThread 线程最大值,非零或负数
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection thread(int nThread);
 
 	/**
@@ -175,7 +159,6 @@ public abstract class HLSConnection {
 	 * @param fileName 文件名
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection fileName(@NotNull String fileName);
 
 	/**
@@ -186,7 +169,6 @@ public abstract class HLSConnection {
 	 * @param rename 开启重命名
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection rename(boolean rename);
 
 	/**
@@ -195,7 +177,6 @@ public abstract class HLSConnection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public HLSConnection socks(@NotNull String ipAddr) {
 		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
@@ -213,7 +194,6 @@ public abstract class HLSConnection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection socks(@NotNull String host, int port);
 
 	/**
@@ -223,7 +203,6 @@ public abstract class HLSConnection {
 	 * @param ipAddr 代理地址 格式 - host:port
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public HLSConnection proxy(@NotNull String ipAddr) {
 		if (ipAddr.isEmpty()) return proxy(Proxy.NO_PROXY);
 		if (ipAddr.startsWith("[")) {
@@ -241,7 +220,6 @@ public abstract class HLSConnection {
 	 * @param port 代理端口
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection proxy(@NotNull String host, int port);
 
 	/**
@@ -250,7 +228,6 @@ public abstract class HLSConnection {
 	 * @param proxy 要使用的代理
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection proxy(@NotNull Proxy proxy);
 
 	/**
@@ -259,7 +236,6 @@ public abstract class HLSConnection {
 	 * @param exit 启用错误退出
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection failThrow(boolean exit);
 
 	/**
@@ -268,7 +244,6 @@ public abstract class HLSConnection {
 	 * @param retry 重试次数
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection retry(int retry);
 
 	/**
@@ -278,7 +253,6 @@ public abstract class HLSConnection {
 	 * @param millis 重试等待时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection retry(int retry, int millis);
 
 	/**
@@ -287,7 +261,6 @@ public abstract class HLSConnection {
 	 * @param unlimit 启用无限重试, 默认false
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection retry(boolean unlimit);
 
 	/**
@@ -297,7 +270,6 @@ public abstract class HLSConnection {
 	 * @param millis  重试等待时间(毫秒)
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection retry(boolean unlimit, int millis);
 
 	/**
@@ -306,7 +278,6 @@ public abstract class HLSConnection {
 	 * @param statusCode 状态码
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection retryStatusCodes(int... statusCode);
 
 	/**
@@ -315,7 +286,6 @@ public abstract class HLSConnection {
 	 * @param retryStatusCodes 状态码列表
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection retryStatusCodes(List<Integer> retryStatusCodes);
 
 	/**
@@ -324,7 +294,6 @@ public abstract class HLSConnection {
 	 * @param bufferSize 缓冲区大小
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection bufferSize(int bufferSize);
 
 	/**
@@ -333,7 +302,6 @@ public abstract class HLSConnection {
 	 * @param folder 存储路径
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection folder(@NotNull String folder);
 
 	/**
@@ -342,7 +310,6 @@ public abstract class HLSConnection {
 	 * @param folder 存储文件夹
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection folder(@NotNull File folder);
 
 	/**
@@ -351,7 +318,6 @@ public abstract class HLSConnection {
 	 * @param listener 监听器
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection listener(@NotNull HLSListener listener);
 
 	/**
@@ -361,7 +327,6 @@ public abstract class HLSConnection {
 	 * @param millis   监听频率(毫秒)
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public abstract HLSConnection listener(@NotNull HLSListener listener, int millis);
 
 	/**
@@ -371,7 +336,6 @@ public abstract class HLSConnection {
 	 *
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true)
 	public abstract SionResponse execute();
 
 }

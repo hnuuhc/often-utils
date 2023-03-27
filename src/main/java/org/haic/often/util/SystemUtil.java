@@ -1,7 +1,6 @@
 package org.haic.often.util;
 
 import org.haic.often.Terminal;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.awt.*;
@@ -89,7 +88,6 @@ public class SystemUtil {
 	 * @param folderPath 文件夹路径
 	 * @return 操作是否成功
 	 */
-	@Contract(pure = true)
 	public static boolean openDesktop(@NotNull String folderPath) {
 		File folder = new File(folderPath);
 		if (folder.isDirectory()) {
@@ -108,7 +106,6 @@ public class SystemUtil {
 	 *
 	 * @return 下载文件夹路径
 	 */
-	@Contract(pure = true)
 	public static String getDownloadsPath() {
 		return getDefaultDirectory("{374DE290-123F-4565-9164-39C4925E467B}");
 	}
@@ -118,7 +115,6 @@ public class SystemUtil {
 	 *
 	 * @return 文档文件夹路径
 	 */
-	@Contract(pure = true)
 	public static String getDocumentsPath() {
 		return getDefaultDirectory("{F42EE2D3-909F-4907-8871-4C22FC0BF756}");
 	}
@@ -128,7 +124,6 @@ public class SystemUtil {
 	 *
 	 * @return 图片文件夹路径
 	 */
-	@Contract(pure = true)
 	public static String getPicturesPath() {
 		return getDefaultDirectory("{0DDD015D-B06C-45D5-8C4C-F59713854639}");
 	}
@@ -138,7 +133,6 @@ public class SystemUtil {
 	 *
 	 * @return 音乐文件夹路径
 	 */
-	@Contract(pure = true)
 	public static String getMusicPath() {
 		return getDefaultDirectory("{A0C69A99-21C8-4671-8703-7934162FCF1D}");
 	}
@@ -148,7 +142,6 @@ public class SystemUtil {
 	 *
 	 * @return 视频文件夹路径
 	 */
-	@Contract(pure = true)
 	public static String getVideosPath() {
 		return getDefaultDirectory("{35286A68-3C57-41A1-BBB1-0EAE73D76C95}");
 	}
@@ -159,7 +152,6 @@ public class SystemUtil {
 	 * @param id 字符串项名称
 	 * @return 文件夹路径
 	 */
-	@Contract(pure = true)
 	private static String getDefaultDirectory(String id) {
 		String[] value = Terminal.command("REG", "QUERY", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v", id).read().split(" ");
 		String src = value[value.length - 1];

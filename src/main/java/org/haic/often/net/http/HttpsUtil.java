@@ -2,7 +2,6 @@ package org.haic.often.net.http;
 
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.IgnoreSSLSocket;
@@ -55,7 +54,6 @@ public class HttpsUtil {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static Connection connect(@NotNull String url) {
 		return new HttpConnection(url);
 	}
@@ -67,7 +65,6 @@ public class HttpsUtil {
 	 *
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static Connection newSession() {
 		return new HttpConnection("");
 	}
@@ -95,7 +92,6 @@ public class HttpsUtil {
 			initialization(url);
 		}
 
-		@Contract(pure = true)
 		private void initialization(@NotNull String url) {
 			header("accept", "text/html, application/json, application/xhtml+xml;q=0.9, */*;q=0.8");
 			header("accept-language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6");
@@ -103,7 +99,6 @@ public class HttpsUtil {
 			header("user-agent", UserAgent.chrome()).url(url);// 设置随机请求头;
 		}
 
-		@Contract(pure = true)
 		public Connection url(@NotNull String url) {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
 				throw new HttpException("Only http & https protocols supported : " + url);
@@ -124,7 +119,6 @@ public class HttpsUtil {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection newRequest() {
 			params = "";
 			file = null;
@@ -134,140 +128,116 @@ public class HttpsUtil {
 			return Judge.isEmpty(auth) ? this : auth(auth);
 		}
 
-		@Contract(pure = true)
 		public Connection sslSocketFactory(SSLContext sslSocket) {
 			sslSocketFactory = sslSocket.getSocketFactory();
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection userAgent(@NotNull String userAgent) {
 			return header("user-agent", userAgent);
 		}
 
-		@Contract(pure = true)
 		public Connection isPhone(boolean isPhone) {
 			return isPhone ? userAgent(UserAgent.chromeAsPhone()) : userAgent(UserAgent.chrome());
 		}
 
-		@Contract(pure = true)
 		public Connection followRedirects(boolean followRedirects) {
 			this.followRedirects = followRedirects;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection referrer(@NotNull String referrer) {
 			return header("referer", referrer);
 		}
 
-		@Contract(pure = true)
 		public Connection auth(@NotNull String auth) {
 			return header("authorization", (this.auth = auth.contains(" ") ? auth : "Bearer " + auth));
 		}
 
-		@Contract(pure = true)
 		public Connection timeout(int millis) {
 			this.timeout = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection contentType(@NotNull String type) {
 			return header("content-type", type);
 		}
 
-		@Contract(pure = true)
 		public Connection header(@NotNull String name, @NotNull String value) {
 			this.headers.put(name, value);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection headers(@NotNull Map<String, String> headers) {
 			this.headers.putAll(headers);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection setHeaders(@NotNull Map<String, String> headers) {
 			this.headers = new HashMap<>();
 			return headers(headers);
 		}
 
-		@Contract(pure = true)
 		public Connection removeHeader(@NotNull String key) {
 			this.headers.remove(key);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection cookie(@NotNull String name, @NotNull String value) {
 			cookies.put(name, value);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection cookies(@NotNull Map<String, String> cookies) {
 			cookies.entrySet().removeIf(entry -> entry.getValue() == null);
 			this.cookies.putAll(cookies);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection setCookies(@NotNull Map<String, String> cookies) {
 			this.cookies = new HashMap<>();
 			return cookies(cookies);
 		}
 
-		@Contract(pure = true)
 		public Connection removeCookie(@NotNull String name) {
 			this.cookies.remove(name);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> cookieStore() {
 			return cookies;
 		}
 
-		@Contract(pure = true)
 		public Connection data(@NotNull String key, @NotNull String value) {
 			params += (Judge.isEmpty(params) ? "" : "&") + key + "=" + URIUtil.encodeValue(value);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection data(@NotNull Map<String, String> params) {
 			this.params = params.entrySet().stream().filter(l -> l.getValue() != null).map(l -> l.getKey() + "=" + URIUtil.encodeValue(l.getValue())).collect(Collectors.joining("&"));
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection data(@NotNull InputStream in) {
 			file = Tuple.of("", in, "");
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection data(@NotNull InputStream in, @NotNull String mimiType) {
 			file = Tuple.of("", in, "");
 			return contentType(mimiType);
 		}
 
-		@Contract(pure = true)
 		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in) {
 			return data(key, key, in, "multipart/form-data");
 		}
 
-		@Contract(pure = true)
 		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream, @NotNull String mimiType) {
 			var boundary = UUID.randomUUID().toString();
 			file = Tuple.of("\r\n--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + fileName + "\"\r\ncontent-type: application/octet-stream; charset=utf-8\r\n\r\n", inputStream, "\r\n--" + boundary + "--\r\n");
 			return contentType(mimiType);
 		}
 
-		@Contract(pure = true)
 		public Connection requestBody(@NotNull Object body) {
 			if (body instanceof JSONObject json) {
 				this.params = json.toJSONString();
@@ -276,80 +246,67 @@ public class HttpsUtil {
 			return requestBody(String.valueOf(body));
 		}
 
-		@Contract(pure = true)
 		public Connection requestBody(@NotNull String body) {
 			this.params = body;
 			return StringUtil.isJson(body) ? contentType("application/json;charset=UTF-8") : contentType("application/x-www-form-urlencoded;charset=UTF-8");
 		}
 
-		@Contract(pure = true)
 		public Connection socks(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port)));
 		}
 
-		@Contract(pure = true)
 		public Connection proxy(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
 		}
 
-		@Contract(pure = true)
 		public Connection proxy(@NotNull Proxy proxy) {
 			this.proxy = proxy;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection method(@NotNull Method method) {
 			this.method = method;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection retry(int retry) {
 			this.retry = retry;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection retry(int retry, int millis) {
 			this.retry = retry;
 			this.MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection retry(boolean unlimit) {
 			this.unlimit = unlimit;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection retry(boolean unlimit, int millis) {
 			this.unlimit = unlimit;
 			this.MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection retryStatusCodes(int... statusCode) {
 			retryStatusCodes = Arrays.stream(statusCode).boxed().toList();
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection retryStatusCodes(List<Integer> retryStatusCodes) {
 			this.retryStatusCodes = retryStatusCodes;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public Connection failThrow(boolean exit) {
 			failThrow = exit;
 			return this;
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		public Response execute() {
 			var response = executeProgram(url, method, params);
 			int statusCode = response.statusCode();
@@ -370,7 +327,6 @@ public class HttpsUtil {
 		 * @return this
 		 */
 		@NotNull
-		@Contract(pure = true)
 		private Response executeProgram(@NotNull String requestUrl, @NotNull Method method, @NotNull String params) {
 			try {
 				HttpURLConnection conn;
@@ -437,7 +393,7 @@ public class HttpsUtil {
 			HttpURLConnection conn = (HttpURLConnection) URIUtil.getURL(url).openConnection(proxy);
 			conn.setRequestProperty("connection", "close");
 			conn.setRequestMethod(method.name()); // 请求方法
-			conn.setConnectTimeout(timeout < 10000 && !Judge.isEmpty(timeout) ? timeout : 10000); // 连接超时
+			conn.setConnectTimeout(timeout < 10000 && timeout != 0 ? timeout : 10000); // 连接超时
 			conn.setReadTimeout(timeout); // 读取超时
 			conn.setInstanceFollowRedirects(false); // 重定向,http和https之间无法遵守重定向
 			// https 忽略证书验证
@@ -472,12 +428,10 @@ public class HttpsUtil {
 			this.cookies = cookies;
 		}
 
-		@Contract(pure = true)
 		public String url() {
 			return conn.getURL().toExternalForm();
 		}
 
-		@Contract(pure = true)
 		public int statusCode() {
 			try {
 				return conn.getResponseCode();
@@ -486,7 +440,6 @@ public class HttpsUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public String statusMessage() {
 			try {
 				return conn.getResponseMessage();
@@ -495,27 +448,22 @@ public class HttpsUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public String contentType() {
 			return conn.getContentType();
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> headers() {
 			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> new String((l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-") && !v.isBlank()).map(v -> v.substring(0, v.indexOf(";"))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue())).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8), (e1, e2) -> e2)) : headers;
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> cookies() {
 			return cookies;
 		}
 
-		@Contract(pure = true)
 		public InputStream bodyStream() throws IOException {
 			return URIUtil.statusIsNormal(statusCode()) ? conn.getInputStream() : conn.getErrorStream();
 		}
 
-		@Contract(pure = true)
 		protected ByteArrayOutputStream bodyAsByteArray() {
 			if (this.body != null) return this.body;
 			try (InputStream in = bodyStream()) {

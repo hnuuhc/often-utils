@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.TypeException;
 import org.haic.often.parser.json.JSONArray;
@@ -81,7 +80,6 @@ public class TypeUtil {
 	 * @param <T>       返回类型
 	 * @return 转换后的数据
 	 */
-	@Contract(pure = true)
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(Object obj, @NotNull Class<T> itemClass) {
 		if (obj == null) return null;
@@ -187,7 +185,6 @@ public class TypeUtil {
 	 * @param <T>  返回类型
 	 * @return 转换后的类型
 	 */
-	@Contract(pure = true)
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> convertList(@NotNull Object obj, @NotNull Type type) {
 		return convertList(obj, (Class<T>) type);
@@ -201,7 +198,6 @@ public class TypeUtil {
 	 * @param <T>       返回参数类型
 	 * @return 转换后的类型
 	 */
-	@Contract(pure = true)
 	public static <T> List<T> convertList(@NotNull Object obj, @NotNull Class<T> itemClass) {
 		return convertList(obj, new ArrayList<>(), itemClass);
 	}
@@ -318,7 +314,6 @@ public class TypeUtil {
 	 * @param itemClass 基本类型
 	 * @return 对应的包装类型
 	 */
-	@Contract(pure = true)
 	public static Class<?> getBasicPackType(@NotNull Class<?> itemClass) {
 		if (itemClass == int.class) return Integer.class;
 		if (itemClass == long.class) return Long.class;
@@ -337,7 +332,6 @@ public class TypeUtil {
 	 * @param itemClass 类型
 	 * @return Constructor类型
 	 */
-	@Contract(pure = true)
 	public static Constructor<?> getConstructor(@NotNull Class<?> itemClass) {
 		return getConstructor(itemClass, "java.lang.String");
 	}
@@ -349,7 +343,6 @@ public class TypeUtil {
 	 * @param items     参数类型
 	 * @return Constructor类型
 	 */
-	@Contract(pure = true)
 	public static Constructor<?> getConstructor(@NotNull Class<?> itemClass, @NotNull String... items) {
 		Constructor<?> type = null;
 		items:

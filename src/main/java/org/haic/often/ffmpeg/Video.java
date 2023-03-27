@@ -1,6 +1,5 @@
 package org.haic.often.ffmpeg;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.List;
@@ -21,7 +20,6 @@ public abstract class Video {
 	 * @param out   文件输出路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean setAudio(@NotNull String audio, @NotNull String out);
 
 	/**
@@ -31,7 +29,6 @@ public abstract class Video {
 	 * @param out   文件输出路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean addAudio(@NotNull String audio, @NotNull String out);
 
 	/**
@@ -40,7 +37,6 @@ public abstract class Video {
 	 * @param out 文件输出路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean removeAudio(@NotNull String out);
 
 	/**
@@ -51,7 +47,6 @@ public abstract class Video {
 	 * @param out   文件输出路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean capture(@NotNull String start, int time, @NotNull String out);
 
 	/**
@@ -61,7 +56,6 @@ public abstract class Video {
 	 * @param out      文件输出路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean speed(float multiple, @NotNull String out);
 
 	/**
@@ -70,7 +64,6 @@ public abstract class Video {
 	 * @param out 文件输出路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean extractAudio(@NotNull String out);
 
 	/**
@@ -80,7 +73,6 @@ public abstract class Video {
 	 * @param out   文件输出路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean addVideo(@NotNull String video, @NotNull String out);
 
 	/**
@@ -90,7 +82,6 @@ public abstract class Video {
 	 * @param out   文件输出路径
 	 * @return 执行结果
 	 */
-	@Contract(pure = true)
 	public abstract boolean addVideo(@NotNull List<String> video, @NotNull String out);
 
 }

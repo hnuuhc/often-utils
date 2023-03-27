@@ -1,6 +1,5 @@
 package org.haic.often.parser.xml;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ public class Elements extends ArrayList<Element> {
 	 *
 	 * @return 第一个标签节点
 	 */
-	@Contract(pure = true)
 	public Element first() {
 		return this.isEmpty() ? null : super.get(0);
 	}
@@ -42,7 +40,6 @@ public class Elements extends ArrayList<Element> {
 	 * @return 所有文本内容
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public String text() {
 		return this.stream().map(XmlTree::text).filter(e -> !e.isEmpty()).collect(Collectors.joining("\n"));
 	}
@@ -53,7 +50,6 @@ public class Elements extends ArrayList<Element> {
 	 * @param cssQuery 查询规则
 	 * @return 查询结果
 	 */
-	@Contract(pure = true)
 	public Element selectFirst(String cssQuery) {
 		var result = select(cssQuery);
 		return result.isEmpty() ? null : result.get(0);
@@ -68,7 +64,6 @@ public class Elements extends ArrayList<Element> {
 	 * @return 查询结果
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public Elements select(String cssQuery) {
 		return new XmlPath(this).select(cssQuery);
 	}

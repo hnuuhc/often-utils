@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.DownloadException;
 import org.haic.often.net.MimeType;
@@ -48,7 +47,6 @@ public class SionDownload {
 	 *
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static SionConnection newSession() {
 		return new HttpConnection();
 	}
@@ -59,7 +57,6 @@ public class SionDownload {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static SionConnection connect(@NotNull String url) {
 		return newSession().alterUrl(url);
 	}
@@ -70,7 +67,6 @@ public class SionDownload {
 	 * @param src session文件路径
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static SionConnection session(@NotNull String src) {
 		return session(new File(src));
 	}
@@ -81,7 +77,6 @@ public class SionDownload {
 	 * @param file session文件
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static SionConnection session(@NotNull File file) {
 		return newSession().session(file);
 	}
@@ -96,67 +91,54 @@ public class SionDownload {
 			this.request = request;
 		}
 
-		@Contract(pure = true)
 		public int statusCode() {
 			return request.statusCode();
 		}
 
-		@Contract(pure = true)
 		public String fileName() {
 			return request.getStorage().getName();
 		}
 
-		@Contract(pure = true)
 		public String filePath() {
 			return request.getStorage().getAbsolutePath();
 		}
 
-		@Contract(pure = true)
 		public long fileSize() {
 			return request.getFileSize();
 		}
 
-		@Contract(pure = true)
 		public String header(@NotNull String name) {
 			return request.headers().get(name);
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> headers() {
 			return request.headers();
 		}
 
-		@Contract(pure = true)
 		public String cookie(@NotNull String name) {
 			return request.cookies().get(name);
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> cookies() {
 			return request.cookies();
 		}
 
-		@Contract(pure = true)
 		public String hash() {
 			return request.getHash();
 		}
 
-		@Contract(pure = true)
 		public String url() {
 			return request.getUrl();
 		}
 
-		@Contract(pure = true)
 		public SionResponse restart() {
 			return URIUtil.statusIsOK(statusCode()) ? this : conn.execute();
 		}
 
-		@Contract(pure = true)
 		public boolean clear() {
 			return new File(request.getStorage().getPath() + ".session").exists() && delete();
 		}
 
-		@Contract(pure = true)
 		public boolean delete() {
 			File storage = request.getStorage();
 			File session = new File(storage.getPath() + ".session");
@@ -202,7 +184,6 @@ public class SionDownload {
 		private HttpConnection() {
 		}
 
-		@Contract(pure = true)
 		public SionConnection url(@NotNull String url) {
 			request.setHash(this.hash = null);
 			fileName = null;
@@ -211,19 +192,16 @@ public class SionDownload {
 			return alterUrl(url);
 		}
 
-		@Contract(pure = true)
 		public SionConnection alterUrl(@NotNull String url) {
 			request.setUrl(this.url = url);
 			fileInfo.put("url", url);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection session(@NotNull String src) {
 			return session(new File(src));
 		}
 
-		@Contract(pure = true)
 		public SionConnection session(@NotNull File session) {
 			if (!session.getName().endsWith(SESSION_SUFFIX)) {
 				throw new DownloadException("Not is session file: " + session);
@@ -243,46 +221,38 @@ public class SionDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection userAgent(@NotNull String userAgent) {
 			return header("user-agent", userAgent);
 		}
 
-		@Contract(pure = true)
 		public SionConnection referrer(@NotNull String referrer) {
 			return header("referer", referrer);
 		}
 
-		@Contract(pure = true)
 		public SionConnection header(@NotNull String name, @NotNull String value) {
 			headers.put(name, value);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection headers(@NotNull Map<String, String> headers) {
 			this.headers.putAll(headers);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection cookie(@NotNull String name, @NotNull String value) {
 			cookies.put(name, value);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection cookies(@NotNull Map<String, String> cookies) {
 			this.cookies.putAll(cookies);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection auth(@NotNull String auth) {
 			return header("authorization", auth.startsWith("Bearer ") ? auth : "Bearer " + auth);
 		}
 
-		@Contract(pure = true)
 		public SionConnection thread(int nThread) {
 			if (nThread < 1) {
 				throw new DownloadException("thread Less than 1");
@@ -291,104 +261,87 @@ public class SionDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection fileSize(long fileSize) {
 			this.fileSize = fileSize;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection method(@NotNull SionMethod method) {
 			this.method = method;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection fileName(@NotNull String fileName) {
 			this.fileName = FileUtil.illegalFileName(URIUtil.decode(fileName));
 			FileUtil.fileNameValidity(fileName);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection rename(boolean rename) {
 			this.rename = rename;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection socks(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port)));
 		}
 
-		@Contract(pure = true)
 		public SionConnection proxy(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
 		}
 
-		@Contract(pure = true)
 		public SionConnection proxy(@NotNull Proxy proxy) {
 			this.proxy = proxy;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection failThrow(boolean exit) {
 			failThrow = exit;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection retry(int retry) {
 			MAX_RETRY = retry;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection retry(int retry, int millis) {
 			MAX_RETRY = retry;
 			MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection retry(boolean unlimit) {
 			this.unlimit = unlimit;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection retry(boolean unlimit, int millis) {
 			this.unlimit = unlimit;
 			MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection retryStatusCodes(int... statusCode) {
 			retryStatusCodes = Arrays.stream(statusCode).boxed().toList();
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection retryStatusCodes(List<Integer> retryStatusCodes) {
 			this.retryStatusCodes = retryStatusCodes;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection bufferSize(int bufferSize) {
 			DEFAULT_BUFFER_SIZE = bufferSize;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection hash(@NotNull String hash) {
 			request.setHash(this.hash = hash.toLowerCase());
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection valid(boolean valid) {
 			this.valid = valid;
 			return this;
@@ -399,23 +352,19 @@ public class SionDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection folder(@NotNull String folder) {
 			return folder(new File(folder));
 		}
 
-		@Contract(pure = true)
 		public SionConnection folder(@NotNull File folder) {
 			DEFAULT_FOLDER = folder;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionConnection listener(@NotNull SionListener listener) {
 			return listener(listener, 1000);
 		}
 
-		@Contract(pure = true)
 		public SionConnection listener(@NotNull SionListener listener, int millis) {
 			this.listener = () -> {
 				long schedule, rate = this.schedule.get();
@@ -429,12 +378,10 @@ public class SionDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionResponse execute() {
 			return execute(method);
 		}
 
-		@Contract(pure = true)
 		private SionResponse execute(@NotNull SionMethod method) {
 			initializationStatus(); // 初始化
 			int MAX_THREADS = this.MAX_THREADS; // 复制全局线程被篡改
@@ -502,7 +449,7 @@ public class SionDownload {
 
 					var contentLength = res.header("content-length"); // 获取文件大小
 					request.setFileSize(fileSize = contentLength == null ? fileSize : Long.parseLong(contentLength));
-					method = Judge.isEmpty(fileSize) ? SionMethod.FULL : method;// 如果文件大小获取失败或线程为1，使用全量下载模式
+					method = fileSize == 0 ? SionMethod.FULL : method;// 如果文件大小获取失败或线程为1，使用全量下载模式
 					request.setHash(hash = Judge.isEmpty(hash) ? URIUtil.getHash(request.headers()) : hash);  // 获取文件hash
 					// 创建并写入文件配置信息
 					fileInfo.put("fileName", fileName);
@@ -569,7 +516,6 @@ public class SionDownload {
 			return new HttpResponse(this, request.statusCode(HttpStatus.SC_OK));
 		}
 
-		@Contract(pure = true)
 		private void initializationStatus() {
 			schedule.set(0);
 			MAX_COMPLETED = 0;
@@ -582,7 +528,6 @@ public class SionDownload {
 		 * @param retry 重试次数
 		 * @return 下载并写入是否成功(状态码)
 		 */
-		@Contract(pure = true)
 		private int FULL(int retry) {
 			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + MAX_COMPLETED + "-").cookies(cookies).failThrow(failThrow).execute();
 			int statusCode = piece.statusCode();
@@ -596,7 +541,6 @@ public class SionDownload {
 		 * @param retry 重试次数
 		 * @return 下载并写入是否成功(状态码)
 		 */
-		@Contract(pure = true)
 		private int FULL(Response res, int retry) {
 			try (var in = res.bodyStream(); var out = new RandomAccessFile(storage, "rw")) {
 				out.seek(MAX_COMPLETED);
@@ -615,7 +559,6 @@ public class SionDownload {
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
 
-		@Contract(pure = true)
 		private int MULTITHREAD(int PIECE_COUNT, long PIECE_SIZE, int MAX_THREADS) {
 			var statusCodes = new AtomicInteger(HttpStatus.SC_OK);
 			var addCompleted = new AtomicBoolean(true);
@@ -654,7 +597,6 @@ public class SionDownload {
 		 * @param retry 重试次数
 		 * @return 下载并写入是否成功(状态码)
 		 */
-		@Contract(pure = true)
 		private int writePiece(long start, long flip, long end, int retry) {
 			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + flip + "-" + end).cookies(cookies).execute();
 			int statusCode = piece.statusCode();
@@ -671,13 +613,12 @@ public class SionDownload {
 		 * @param retry 重试次数
 		 * @return 下载并写入是否成功(状态码)
 		 */
-		@Contract(pure = true)
 		private int writePiece(long start, long flip, long end, Response piece, int retry) {
 			long count = 0;
 			try (var inputStream = piece.bodyStream(); var out = new RandomAccessFile(storage, "rw")) {
 				out.seek(flip);
 				var buffer = new byte[DEFAULT_BUFFER_SIZE];
-				for (int len; !Judge.isMinusOne(len = inputStream.read(buffer)); count += len, status.put(start, flip + count), schedule.addAndGet(len)) {
+				for (int len; (len = inputStream.read(buffer)) != -1; count += len, status.put(start, flip + count), schedule.addAndGet(len)) {
 					out.write(buffer, 0, len);
 				}
 				if (end - flip + 1 == count) return HttpStatus.SC_PARTIAL_CONTENT;

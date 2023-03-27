@@ -5,7 +5,6 @@ import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.apache.commons.logging.LogFactory;
 import org.haic.often.Judge;
 import org.haic.often.Symbol;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.Method;
@@ -55,7 +54,6 @@ public class HtmlUnitUtil {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static HtmlConnection connect(@NotNull String url) {
 		return new HttpConnection().url(url);
 	}
@@ -67,12 +65,10 @@ public class HtmlUnitUtil {
 	 *
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static HtmlConnection newSession() {
 		return new HttpConnection();
 	}
 
-	@Contract(pure = true)
 	private static WebClient createClient() {
 		// HtmlUnit 模拟浏览器,浏览器基本设置
 		WebClient webClient = new WebClient(BrowserVersion.CHROME);
@@ -109,7 +105,6 @@ public class HtmlUnitUtil {
 			initialization(new WebRequest(null));
 		}
 
-		@Contract(pure = true)
 		private HtmlConnection initialization(@NotNull WebRequest request) {
 			this.request = request;
 			header("accept", "text/html, application/json, application/xhtml+xml;q=0.9, */*;q=0.8");
@@ -118,7 +113,6 @@ public class HtmlUnitUtil {
 			return header("user-agent", UserAgent.chrome()); // 设置随机请求头
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection url(@NotNull String url) {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
 				throw new HttpException("Only http & https protocols supported : " + url);
@@ -127,109 +121,90 @@ public class HtmlUnitUtil {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection newRequest() {
 			initialization(new WebRequest(null)).cookies(cookies);
 			return Judge.isEmpty(auth) ? this : auth(auth);
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection userAgent(@NotNull String userAgent) {
 			return header("user-agent", userAgent);
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection isPhone(boolean isPhone) {
 			return isPhone ? userAgent(UserAgent.chromeAsPhone()) : userAgent(UserAgent.chrome());
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection followRedirects(boolean followRedirects) {
 			webClient.getOptions().setRedirectEnabled(followRedirects); // 是否启用重定向
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection referrer(@NotNull String referrer) {
 			return header("referer", referrer);
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection auth(@NotNull String auth) {
 			return header("authorization", (this.auth = auth.contains(" ") ? auth : "Bearer " + auth));
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection timeout(int millis) {
 			request.setTimeout(millis); // 设置连接超时时间
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection contentType(@NotNull String type) {
 			return header("content-type", type);
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection header(@NotNull String name, @NotNull String value) {
 			request.setAdditionalHeader(name, value);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection headers(@NotNull Map<String, String> headers) {
 			request.setAdditionalHeaders(headers);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection setHeaders(@NotNull Map<String, String> headers) {
 			request.getAdditionalHeaders().clear();
 			return headers(headers).cookies(cookies);
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection removeHeader(@NotNull String key) {
 			request.removeAdditionalHeader(key);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection cookie(@NotNull String name, @NotNull String value) {
 			return cookies(Map.of(name, value));
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection cookies(@NotNull Map<String, String> cookies) {
 			this.cookies.putAll(cookies);
 			return header("cookie", this.cookies.entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection setCookies(@NotNull Map<String, String> cookies) {
 			this.cookies = new HashMap<>();
 			return cookies(cookies);
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection removeCookie(@NotNull String name) {
 			this.cookies.remove(name);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection data(@NotNull String key, @NotNull String value) {
 			request.getRequestParameters().add(new NameValuePair(key, value));
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection data(@NotNull Map<String, String> params) {
 			request.setRequestParameters(params.entrySet().stream().map(l -> new NameValuePair(l.getKey(), l.getValue())).collect(Collectors.toList()));
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection requestBody(@NotNull Object body) {
 			method(Method.POST);
 			if (body instanceof JSONObject json) {
@@ -239,14 +214,12 @@ public class HtmlUnitUtil {
 			return requestBody(String.valueOf(body));
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection requestBody(@NotNull String body) {
 			method(Method.POST);
 			request.setRequestBody(body);
 			return StringUtil.isJson(body) ? contentType("application/json;charset=UTF-8") : contentType("application/x-www-form-urlencoded;charset=UTF-8");
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection socks(@NotNull String ipAddr) {
 			if (ipAddr.startsWith("[")) {
 				return socks(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
@@ -256,7 +229,6 @@ public class HtmlUnitUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection socks(@NotNull String host, int port) {
 			webClient.getOptions().setWebSocketEnabled(true); // WebSocket支持
 			webClient.getOptions().setProxyConfig(new ProxyConfig() {{
@@ -267,13 +239,11 @@ public class HtmlUnitUtil {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection socks(@NotNull String host, int port, @NotNull String username, @NotNull String password) {
 			((DefaultCredentialsProvider) webClient.getCredentialsProvider()).addCredentials(username, password);
 			return socks(host, port);
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection proxy(@NotNull String ipAddr) {
 			if (ipAddr.startsWith("[")) {
 				return proxy(ipAddr.substring(1, ipAddr.indexOf(Symbol.CLOSE_BRACKET)), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
@@ -283,7 +253,6 @@ public class HtmlUnitUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection proxy(@NotNull String host, int port) {
 			webClient.getOptions().setWebSocketEnabled(false); // WebSocket支持
 			webClient.getOptions().setProxyConfig(new ProxyConfig() {{
@@ -294,13 +263,11 @@ public class HtmlUnitUtil {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection proxy(@NotNull String host, int port, @NotNull String username, @NotNull String password) {
 			((DefaultCredentialsProvider) webClient.getCredentialsProvider()).addCredentials(username, password);
 			return proxy(host, port);
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection proxy(@NotNull Proxy proxy) {
 			String proxyText = proxy.toString();
 			if (proxyText.equals("DIRECT")) {
@@ -314,51 +281,43 @@ public class HtmlUnitUtil {
 			}
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection method(@NotNull Method method) {
 			request.setHttpMethod(HttpMethod.valueOf(method.name()));
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection failThrow(boolean exit) {
 			failThrow = exit;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection retry(int retry) {
 			this.retry = retry;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection retry(int retry, int millis) {
 			this.retry = retry;
 			this.MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection retry(boolean unlimit) {
 			this.unlimit = unlimit;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection retry(boolean unlimit, int millis) {
 			this.unlimit = unlimit;
 			this.MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection retryStatusCodes(int... statusCode) {
 			retryStatusCodes = Arrays.stream(statusCode).boxed().toList();
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection retryStatusCodes(List<Integer> retryStatusCodes) {
 			this.retryStatusCodes = retryStatusCodes;
 			return this;
@@ -370,28 +329,24 @@ public class HtmlUnitUtil {
 		 * @param enableCSS true启用 CSS 支持
 		 * @return 此链接, 用于链接
 		 */
-		@Contract(pure = true)
 		public HtmlConnection enableCSS(boolean enableCSS) {
 			webClient.getOptions().setCssEnabled(enableCSS);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection waitJSTime(int millis) {
-			webClient.getOptions().setJavaScriptEnabled(!Judge.isEmpty(millis)); // 是否启用JS
+			webClient.getOptions().setJavaScriptEnabled(millis != 0); // 是否启用JS
 			webClient.setJavaScriptTimeout(waitJSTime);
 			waitJSTime = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HtmlConnection close() {
 			webClient.close(); // 设置连接超时时间
 			return this;
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		public Response execute() {
 			var response = executeProgram(request);
 			int statusCode = response.statusCode();
@@ -408,7 +363,6 @@ public class HtmlUnitUtil {
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		private Response executeProgram(@NotNull WebRequest request) {
 			Response response;
 			try { // 获得页面
@@ -436,27 +390,22 @@ public class HtmlUnitUtil {
 			this.page = page;
 		}
 
-		@Contract(pure = true)
 		public String url() {
 			return page.getUrl().toExternalForm();
 		}
 
-		@Contract(pure = true)
 		public int statusCode() {
 			return page == null ? HttpStatus.SC_REQUEST_TIMEOUT : page.getWebResponse().getStatusCode();
 		}
 
-		@Contract(pure = true)
 		public String statusMessage() {
 			return page.getWebResponse().getStatusMessage();
 		}
 
-		@Contract(pure = true)
 		public String contentType() {
 			return page.getWebResponse().getStatusMessage();
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> headers() {
 			if (headers == null) {
 				Map<String, String> headers = new HashMap<>();
@@ -476,17 +425,14 @@ public class HtmlUnitUtil {
 			return headers;
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> cookies() {
 			return cookies = cookies == null ? page.getWebResponse().getResponseHeaders().stream().filter(l -> l.getName().equalsIgnoreCase("set-cookie")).filter(l -> !l.getValue().equals("-")).map(l -> l.getValue().substring(0, l.getValue().indexOf(";"))).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1), (e1, e2) -> e2)) : cookies;
 		}
 
-		@Contract(pure = true)
 		public InputStream bodyStream() throws IOException {
 			return page.getWebResponse().getContentAsStream();
 		}
 
-		@Contract(pure = true)
 		protected ByteArrayOutputStream bodyAsByteArray() {
 			if (this.body != null) return this.body;
 			try (InputStream in = bodyStream()) {

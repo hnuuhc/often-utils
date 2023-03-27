@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Judge;
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.AESException;
 import org.haic.often.exception.HLSDownloadException;
@@ -53,7 +52,6 @@ public class HLSDownload {
 	 *
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static HLSConnection newSession() {
 		return new HttpConnection();
 	}
@@ -64,7 +62,6 @@ public class HLSDownload {
 	 * @param url 要连接的 URL
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static HLSConnection connect(@NotNull String url) {
 		return newSession().url(url);
 	}
@@ -75,7 +72,6 @@ public class HLSDownload {
 	 * @param src session文件路径
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static HLSConnection session(@NotNull String src) {
 		return session(new File(src));
 	}
@@ -86,7 +82,6 @@ public class HLSDownload {
 	 * @param file session文件
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static HLSConnection session(@NotNull File file) {
 		return newSession().session(file);
 	}
@@ -97,7 +92,6 @@ public class HLSDownload {
 	 * @param body m3u8文本
 	 * @return 此连接，用于链接
 	 */
-	@Contract(pure = true)
 	public static HLSConnection body(@NotNull String body) {
 		return newSession().body(body);
 	}
@@ -112,67 +106,54 @@ public class HLSDownload {
 			this.request = request;
 		}
 
-		@Contract(pure = true)
 		public int statusCode() {
 			return request.statusCode();
 		}
 
-		@Contract(pure = true)
 		public String fileName() {
 			return request.getStorage().getName();
 		}
 
-		@Contract(pure = true)
 		public String filePath() {
 			return request.getStorage().getAbsolutePath();
 		}
 
-		@Contract(pure = true)
 		public long fileSize() {
 			return request.getFileSize();
 		}
 
-		@Contract(pure = true)
 		public String header(@NotNull String name) {
 			return request.headers().get(name);
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> headers() {
 			return request.headers();
 		}
 
-		@Contract(pure = true)
 		public String cookie(@NotNull String name) {
 			return request.cookies().get(name);
 		}
 
-		@Contract(pure = true)
 		public Map<String, String> cookies() {
 			return request.cookies();
 		}
 
-		@Contract(pure = true)
 		public String hash() {
 			return request.getHash();
 		}
 
-		@Contract(pure = true)
 		public String url() {
 			return request.getUrl();
 		}
 
-		@Contract(pure = true)
 		public SionResponse restart() {
 			return URIUtil.statusIsOK(statusCode()) ? this : conn.execute();
 		}
 
-		@Contract(pure = true)
 		public boolean clear() {
 			return new File(request.getStorage().getPath() + ".session").exists() && delete();
 		}
 
-		@Contract(pure = true)
 		public boolean delete() {
 			File storage = request.getStorage();
 			File session = new File(storage.getPath() + ".session");
@@ -217,7 +198,6 @@ public class HLSDownload {
 		private HttpConnection() {
 		}
 
-		@Contract(pure = true)
 		public HLSConnection url(@NotNull String url) {
 			request.setUrl(this.url = url);
 			fileInfo.put("url", url);
@@ -228,12 +208,10 @@ public class HLSDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection session(@NotNull String src) {
 			return session(new File(src));
 		}
 
-		@Contract(pure = true)
 		public HLSConnection session(@NotNull File session) {
 			if (!session.getName().endsWith(SESSION_SUFFIX)) {
 				throw new HLSDownloadException("Not is session file: " + session);
@@ -245,20 +223,17 @@ public class HLSDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection keyDecrypt(@NotNull StringFunction<String> keyDecrypt) {
 			this.keyDecrypt = keyDecrypt;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection body(@NotNull String body) {
 			this.body = body;
 			this.method = "BODY";
 			return body(body, "", "");
 		}
 
-		@Contract(pure = true)
 		public HLSConnection body(@NotNull String body, @NotNull String key, @NotNull String iv) {
 			this.body = body;
 			this.key = key;
@@ -267,52 +242,43 @@ public class HLSDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection select(@NotNull Predicate<String> select) {
 			this.select = select;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection userAgent(@NotNull String userAgent) {
 			return header("user-agent", userAgent);
 		}
 
-		@Contract(pure = true)
 		public HLSConnection referrer(@NotNull String referrer) {
 			return header("referer", referrer);
 		}
 
-		@Contract(pure = true)
 		public HLSConnection header(@NotNull String name, @NotNull String value) {
 			headers.put(name, value);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection headers(@NotNull Map<String, String> headers) {
 			this.headers.putAll(headers);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection cookie(@NotNull String name, @NotNull String value) {
 			cookies.put(name, value);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection cookies(@NotNull Map<String, String> cookies) {
 			this.cookies.putAll(cookies);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection auth(@NotNull String auth) {
 			return header("authorization", auth.startsWith("Bearer ") ? auth : "Bearer " + auth);
 		}
 
-		@Contract(pure = true)
 		public HLSConnection thread(int nThread) {
 			if (nThread < 1) {
 				throw new HLSDownloadException("thread Less than 1");
@@ -321,7 +287,6 @@ public class HLSDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection fileName(@NotNull String fileName) {
 			if (!fileName.contains(".")) {
 				throw new HLSDownloadException("文件名必须存在后缀 :" + fileName);
@@ -331,95 +296,79 @@ public class HLSDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection rename(boolean rename) {
 			this.rename = rename;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection socks(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port)));
 		}
 
-		@Contract(pure = true)
 		public HLSConnection proxy(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
 		}
 
-		@Contract(pure = true)
 		public HLSConnection proxy(@NotNull Proxy proxy) {
 			this.proxy = proxy;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection failThrow(boolean exit) {
 			this.failThrow = exit;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection retry(int retry) {
 			this.MAX_RETRY = retry;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection retry(int retry, int millis) {
 			this.MAX_RETRY = retry;
 			this.MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection retry(boolean unlimit) {
 			this.unlimit = unlimit;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection retry(boolean unlimit, int millis) {
 			this.unlimit = unlimit;
 			this.MILLISECONDS_SLEEP = millis;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection retryStatusCodes(int... statusCode) {
 			this.retryStatusCodes = Arrays.stream(statusCode).boxed().toList();
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection retryStatusCodes(List<Integer> retryStatusCodes) {
 			this.retryStatusCodes = retryStatusCodes;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection bufferSize(int bufferSize) {
 			DEFAULT_BUFFER_SIZE = bufferSize;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection folder(@NotNull String folder) {
 			return folder(new File(folder));
 		}
 
-		@Contract(pure = true)
 		public HLSConnection folder(@NotNull File folder) {
 			this.DEFAULT_FOLDER = folder;
 			return this;
 		}
 
-		@Contract(pure = true)
 		public HLSConnection listener(@NotNull HLSListener listener) {
 			return listener(listener, 1000);
 		}
 
-		@Contract(pure = true)
 		public HLSConnection listener(@NotNull HLSListener listener, int millis) {
 			this.listener = () -> {
 				long schedule, rate = 0;
@@ -433,12 +382,10 @@ public class HLSDownload {
 			return this;
 		}
 
-		@Contract(pure = true)
 		public SionResponse execute() {
 			return execute(method);
 		}
 
-		@Contract(pure = true)
 		private SionResponse execute(@NotNull String method) {
 			initializationStatus(); // 初始化进度
 			var conn = HttpsUtil.newSession().proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
@@ -646,21 +593,18 @@ public class HLSDownload {
 			return new HttpResponse(this, request.setFileSize(fileSize).statusCode(HttpStatus.SC_OK));
 		}
 
-		@Contract(pure = true)
 		private void initializationStatus() {
 			schedule.set(0);
 			site = 0;
 			status.clear();
 		}
 
-		@Contract(pure = true)
 		private int FULL(String url, long complete, int retry, File storage) {
 			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + complete + "-").cookies(cookies).failThrow(failThrow).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? FULL(url, piece, complete, retry, storage) : unlimit || retry > 0 ? FULL(url, complete, retry - 1, storage) : statusCode;
 		}
 
-		@Contract(pure = true)
 		private int FULL(String url, Response res, long complete, int retry, File storage) {
 			var length = res.header("content-length"); // 获取文件大小
 			long fileSize = length == null ? 0 : Long.parseLong(length);

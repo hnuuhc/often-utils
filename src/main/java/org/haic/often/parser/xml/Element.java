@@ -1,6 +1,5 @@
 package org.haic.often.parser.xml;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 
@@ -35,7 +34,6 @@ public class Element extends XmlTree {
 	 * @param cssQuery 查询规则
 	 * @return 查询结果
 	 */
-	@Contract(pure = true)
 	public Element selectFirst(@NotNull String cssQuery) {
 		var result = select(cssQuery);
 		return result.isEmpty() ? null : result.get(0);
@@ -50,7 +48,6 @@ public class Element extends XmlTree {
 	 * @return 查询结果
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public Elements select(@NotNull String cssQuery) {
 		return new XmlPath(this).select(cssQuery);
 	}

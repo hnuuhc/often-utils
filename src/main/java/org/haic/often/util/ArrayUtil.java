@@ -1,7 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.Contract;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +19,6 @@ public class ArrayUtil {
 	 * @param nums int类型静态数组
 	 * @return Integer类型动态数组
 	 */
-	@Contract(pure = true)
 	public static List<Integer> intToInteger(int[] nums) {
 		return Arrays.stream(nums).boxed().collect(Collectors.toList());
 	}

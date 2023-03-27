@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -24,7 +23,6 @@ public class Base64Util {
 	 * @return base64编码格式的字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String encode(@NotNull String data) {
 		return Base64.getEncoder().encodeToString(data.getBytes());
 	}
@@ -35,7 +33,6 @@ public class Base64Util {
 	 * @param data byte数组
 	 * @return base64编码格式数组
 	 */
-	@Contract(pure = true)
 	public static byte[] encode(byte[] data) {
 		return Base64.getEncoder().encode(data);
 	}
@@ -47,7 +44,6 @@ public class Base64Util {
 	 * @return 转换后的字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String data) {
 		return decode(data, StandardCharsets.UTF_8);
 	}
@@ -60,7 +56,6 @@ public class Base64Util {
 	 * @return 转换后的字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String data, @NotNull String charsetName) {
 		return decode(data, Charset.forName(charsetName));
 	}
@@ -73,7 +68,6 @@ public class Base64Util {
 	 * @return 转换后的字符串
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public static String decode(@NotNull String data, Charset charset) {
 		return new String(Base64.getDecoder().decode(data), charset);
 	}
@@ -84,7 +78,6 @@ public class Base64Util {
 	 * @param data base64编码格式数组
 	 * @return 解码后的数组
 	 */
-	@Contract(pure = true)
 	public static byte[] decode(byte[] data) {
 		return Base64.getDecoder().decode(data);
 	}
@@ -95,7 +88,6 @@ public class Base64Util {
 	 * @param str 需要判断的字符串
 	 * @return 判断结果
 	 */
-	@Contract(pure = true)
 	public static boolean isBase64(@NotNull String str) {
 		return Pattern.matches("^([A-Za-z\\d+/]{4})*([A-Za-z\\d+/]{4}|[A-Za-z\\d+/]{3}=|[A-Za-z\\d+/]{2}==)$", str);
 	}

@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 
 import java.io.*;
@@ -24,7 +23,6 @@ public class IOUtil {
 	 * @param inputStream InputStream
 	 * @return new InputStreamUtil
 	 */
-	@Contract(pure = true)
 	public static InputStreamUtil stream(@NotNull InputStream inputStream) {
 		return new InputStreamUtil(inputStream);
 	}
@@ -35,7 +33,6 @@ public class IOUtil {
 	 * @param inputStream BufferedInputStream
 	 * @return new InputStreamReaderUtil
 	 */
-	@Contract(pure = true)
 	public static BufferedInputStreamUtil stream(@NotNull BufferedInputStream inputStream) {
 		return new BufferedInputStreamUtil(inputStream);
 	}
@@ -46,7 +43,6 @@ public class IOUtil {
 	 * @param inputStream InputStreamReader
 	 * @return new InputStreamReaderUtil
 	 */
-	@Contract(pure = true)
 	public static InputStreamReaderUtil stream(@NotNull InputStreamReader inputStream) {
 		return new InputStreamReaderUtil(inputStream);
 	}
@@ -67,7 +63,6 @@ public class IOUtil {
 		 * @param charsetName 字符集编码名称
 		 * @return this
 		 */
-		@Contract(pure = true)
 		public abstract InputStreamBuilder charset(@NotNull String charsetName);
 
 		/**
@@ -76,7 +71,6 @@ public class IOUtil {
 		 * @param charset 字符集编码
 		 * @return this
 		 */
-		@Contract(pure = true)
 		public abstract InputStreamBuilder charset(@NotNull Charset charset);
 
 		/**
@@ -85,7 +79,6 @@ public class IOUtil {
 		 * @return 字符串文本
 		 */
 		@NotNull
-		@Contract(pure = true)
 		public abstract String read() throws IOException;
 
 		/**
@@ -94,7 +87,6 @@ public class IOUtil {
 		 * @return 按行分割的字符串列表
 		 */
 		@NotNull
-		@Contract(pure = true)
 		public abstract List<String> readAsLine() throws IOException;
 
 		/**
@@ -103,7 +95,6 @@ public class IOUtil {
 		 * @return ByteArrayOutputStream
 		 */
 		@NotNull
-		@Contract(pure = true)
 		public abstract ByteArrayOutputStream toByteArrayOutputStream() throws IOException;
 
 		/**
@@ -111,7 +102,6 @@ public class IOUtil {
 		 *
 		 * @return byte数组
 		 */
-		@Contract(pure = true)
 		public abstract byte[] toByteArray() throws IOException;
 
 	}
@@ -126,37 +116,31 @@ public class IOUtil {
 			this.stream = in;
 		}
 
-		@Contract(pure = true)
 		public InputStreamUtil charset(@NotNull String charsetName) {
 			this.charset = Charset.forName(charsetName);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public InputStreamUtil charset(@NotNull Charset charset) {
 			this.charset = charset;
 			return this;
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		public String read() throws IOException {
 			return toByteArrayOutputStream().toString(charset);
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		public List<String> readAsLine() throws IOException {
 			return stream(new InputStreamReader(stream, charset)).readAsLine();
 		}
 
-		@Contract(pure = true)
 		public byte[] toByteArray() throws IOException {
 			return toByteArrayOutputStream().toByteArray();
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		public ByteArrayOutputStream toByteArrayOutputStream() throws IOException {
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			stream.transferTo(result);
@@ -175,39 +159,33 @@ public class IOUtil {
 			this.stream = in;
 		}
 
-		@Contract(pure = true)
 		public BufferedInputStreamUtil charset(@NotNull String charsetName) {
 			this.charset = Charset.forName(charsetName);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public BufferedInputStreamUtil charset(@NotNull Charset charset) {
 			this.charset = charset;
 			return this;
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		public String read() throws IOException {
 			return toByteArrayOutputStream().toString(charset);
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		public List<String> readAsLine() throws IOException {
 			return stream(new InputStreamReader(stream, charset)).readAsLine();
 		}
 
 		@NotNull
-		@Contract(pure = true)
 		public ByteArrayOutputStream toByteArrayOutputStream() throws IOException {
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			stream.transferTo(result);
 			return result;
 		}
 
-		@Contract(pure = true)
 		public byte[] toByteArray() throws IOException {
 			return toByteArrayOutputStream().toByteArray();
 		}
@@ -230,7 +208,6 @@ public class IOUtil {
 		 * @return 字符串文本
 		 */
 		@NotNull
-		@Contract(pure = true)
 		public String read() throws IOException {
 			StringWriter result = new StringWriter();
 			stream.transferTo(result);
@@ -243,7 +220,6 @@ public class IOUtil {
 		 * @return 按行分割的字符串列表
 		 */
 		@NotNull
-		@Contract(pure = true)
 		public List<String> readAsLine() throws IOException {
 			List<String> result = new ArrayList<>();
 			BufferedReader bufferedReader = new BufferedReader(stream);
@@ -269,7 +245,6 @@ public class IOUtil {
 		 * @param charsetName 字符集编码名称
 		 * @return this
 		 */
-		@Contract(pure = true)
 		public abstract OutputStreamBuilder charset(@NotNull String charsetName);
 
 		/**
@@ -278,7 +253,6 @@ public class IOUtil {
 		 * @param charset 字符集编码
 		 * @return this
 		 */
-		@Contract(pure = true)
 		public abstract OutputStreamBuilder charset(@NotNull Charset charset);
 
 	}
@@ -291,13 +265,11 @@ public class IOUtil {
 			this.stream = stream;
 		}
 
-		@Contract(pure = true)
 		public OutputStreamUtil charset(@NotNull String charsetName) {
 			this.charset = Charset.forName(charsetName);
 			return this;
 		}
 
-		@Contract(pure = true)
 		public OutputStreamUtil charset(@NotNull Charset charset) {
 			this.charset = charset;
 			return this;
@@ -308,7 +280,6 @@ public class IOUtil {
 		 *
 		 * @param s 字符数据
 		 */
-		@Contract(pure = true)
 		public void write(String s) throws IOException {
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(stream, charset), 8192);
 			out.write(s); // 文件输出流用于将数据写入文件
