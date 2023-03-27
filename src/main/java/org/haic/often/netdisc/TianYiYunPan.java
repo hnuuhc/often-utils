@@ -6,11 +6,9 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
-import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
-import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.StringUtil;
@@ -53,9 +51,9 @@ public class TianYiYunPan {
 
 	private TianYiYunPan(@NotNull Map<String, String> cookies) {
 		conn.cookies(cookies).header("accept", "application/json;charset=UTF-8").url(loginUrl).execute(); // 获取会话cookie
-		Response res = conn.url(userInfoForPortalUrl).execute();
+		var res = conn.url(userInfoForPortalUrl).execute();
 		if (!URIUtil.statusIsOK(res.statusCode())) {
-			throw new YunPanException(JSONObject.parseObject(res.body()).getString("errorMsg"));
+			throw new YunPanException(res.json().getString("errorMsg"));
 		}
 	}
 
@@ -79,15 +77,15 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public static List<JSONObject> getInfoAsPage(@NotNull String url, @NotNull String shareCode) {
-		JSONObject info = getshareUrlInfo(url);
-		String shareId = info.getString("shareId");
-		Map<String, String> data = new HashMap<>();
+		var info = getshareUrlInfo(url);
+		var shareId = info.getString("shareId");
+		var data = new HashMap<String, String>();
 		data.put("fileId", info.getString("fileId"));
 		data.put("shareId", shareId);
 		data.put("isFolder", info.getString("isFolder"));
 		data.put("shareMode", info.getString("shareMode"));
 		data.put("accessCode", shareCode);
-		List<JSONObject> result = getInfoAsPage(data);
+		var result = getInfoAsPage(data);
 		result.forEach(l -> l.put("shareId", shareId));
 		return result;
 	}
@@ -118,14 +116,14 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	private static List<JSONObject> getInfoAsPage(@NotNull Map<String, String> data) {
-		Connection conn = HttpsUtil.connect(listShareDirUrl).header("accept", "application/json;charset=UTF-8");
-		JSONObject infos = JSONObject.parseObject(conn.data(data).execute().body()).getJSONObject("fileListAO");
+		var conn = HttpsUtil.connect(listShareDirUrl).header("accept", "application/json;charset=UTF-8");
+		var infos = conn.data(data).get().json().getJSONObject("fileListAO");
 		if (infos == null || Judge.isEmpty(infos.getInteger("count"))) {
 			return new ArrayList<>();
 		}
-		List<JSONObject> filesInfo = infos.getList("fileList", JSONObject.class);
-		Map<String, String> thisData = new HashMap<>(data);
-		for (JSONObject folderInfo : infos.getList("folderList", JSONObject.class)) {
+		var filesInfo = infos.getList("fileList", JSONObject.class);
+		var thisData = new HashMap<>(data);
+		for (var folderInfo : infos.getList("folderList", JSONObject.class)) {
 			thisData.put("fileId", folderInfo.getString("id"));
 			filesInfo.addAll(getInfoAsPage(thisData));
 		}
@@ -183,12 +181,12 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listShares() {
-		Map<String, String> data = new HashMap<>();
+		var data = new HashMap<String, String>();
 		data.put("pageNum", "1");
 		data.put("pageSize", "1");
 		data.put("shareType", "1");
-		data.put("pageSize", JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getString("recordCount"));
-		return JSONObject.parseObject(conn.url(listSharesUrl).data(data).execute().body()).getList("data", JSONObject.class);
+		data.put("pageSize", conn.url(listSharesUrl).data(data).get().json().getString("recordCount"));
+		return conn.url(listSharesUrl).data(data).get().json().getList("data", JSONObject.class);
 	}
 
 	/**
@@ -210,7 +208,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public int unShare(@NotNull List<String> shareIdList) {
-		return JSONObject.parseObject(conn.url(cancelShareUrl).requestBody("shareIdList=" + String.join(",", shareIdList) + "&cancelType=" + 1).execute().body()).getInteger("res_code");
+		return conn.url(cancelShareUrl).requestBody("shareIdList=" + String.join(",", shareIdList) + "&cancelType=" + 1).get().json().getInteger("res_code");
 	}
 
 	/**
@@ -223,7 +221,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject share(@NotNull String fileId, int time, int type) {
-		return JSONObject.parseObject(conn.url(createShareLinkUrl).requestBody("fileId=" + fileId + "&expireTime=" + time + "&shareType=" + type).execute().body());
+		return conn.url(createShareLinkUrl).requestBody("fileId=" + fileId + "&expireTime=" + time + "&shareType=" + type).get().json();
 	}
 
 	/**
@@ -233,17 +231,17 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listRecycleBin() {
-		Map<String, String> data = new HashMap<>();
+		var data = new HashMap<String, String>();
 		data.put("pageNum", "1");
 		data.put("pageSize", "30");
 		data.put("iconOption", "1");
 		data.put("family", "false");
 		Function<JSONObject, List<JSONObject>> list = l -> l.getJSONArray("fileList").fluentAddAll(l.getJSONArray("folderList")).toList(JSONObject.class);
-		JSONObject info = JSONObject.parseObject(conn.url(listRecycleBinFilesUrl).data(data).execute().body());
-		List<JSONObject> result = list.apply(info);
+		var info = conn.url(listRecycleBinFilesUrl).data(data).get().json();
+		var result = list.apply(info);
 		int page = (int) Math.ceil(info.getDouble("count") / 30);
 		for (int i = 2; i <= page; i++) {
-			info = JSONObject.parseObject(conn.data("pageNum", String.valueOf(i)).execute().body());
+			info = conn.data("pageNum", String.valueOf(i)).get().json();
 			result.addAll(list.apply(info));
 		}
 		return result;
@@ -312,7 +310,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public int renameFolder(@NotNull String folderId, String folderName) {
-		return JSONObject.parseObject(conn.url(renameFolderUrl).requestBody("folderId=" + folderId + "&destFolderName=" + folderName).execute().body()).getInteger("res_code");
+		return conn.url(renameFolderUrl).requestBody("folderId=" + folderId + "&destFolderName=" + folderName).get().json().getInteger("res_code");
 	}
 
 	/**
@@ -324,7 +322,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public int renameFile(@NotNull String fileId, String fileName) {
-		return JSONObject.parseObject(conn.url(renameFileUrl).requestBody("fileId=" + fileId + "&destFileName=" + fileName).execute().body()).getInteger("res_code");
+		return conn.url(renameFileUrl).requestBody("fileId=" + fileId + "&destFileName=" + fileName).get().json().getInteger("res_code");
 	}
 
 	/**
@@ -336,7 +334,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String parentId, String folderName) {
-		return JSONObject.parseObject(conn.url(createFolderUrl).requestBody("parentFolderId=" + parentId + "&folderName=" + folderName).execute().body());
+		return conn.url(createFolderUrl).requestBody("parentFolderId=" + parentId + "&folderName=" + folderName).get().json();
 	}
 
 	/**
@@ -418,9 +416,9 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public int batchTask(@NotNull String type, @NotNull List<JSONObject> filesInfo, @NotNull String folderId) {
-		JSONArray taskInfos = new JSONArray();
-		for (JSONObject fileInfo : filesInfo) {
-			JSONObject taskInfo = new JSONObject();
+		var taskInfos = new JSONArray();
+		for (var fileInfo : filesInfo) {
+			var taskInfo = new JSONObject();
 			taskInfo.put("fileName", fileInfo.getString("name"));
 			taskInfo.put("fileId", fileInfo.getString("id"));
 			taskInfos.add(taskInfo);
@@ -438,7 +436,7 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public int batchTask(@NotNull String type, @NotNull JSONObject fileInfo, @NotNull String folderId) {
-		JSONObject taskInfo = new JSONObject();
+		var taskInfo = new JSONObject();
 		taskInfo.put("fileName", fileInfo.getString("name"));
 		taskInfo.put("fileId", fileInfo.getString("id"));
 		return batchTask(type, new JSONArray().fluentAdd(taskInfo).toString(), folderId);
@@ -454,11 +452,11 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public int batchTask(@NotNull String type, @NotNull String taskInfos, @NotNull String folderId) {
-		Map<String, String> data = new HashMap<>();
+		var data = new HashMap<String, String>();
 		data.put("type", type);
 		data.put("taskInfos", taskInfos);
 		data.put("targetFolderId", folderId);
-		return JSONObject.parseObject(conn.url(createBatchTaskUrl).data(data).execute().body()).getInteger("res_code");
+		return conn.url(createBatchTaskUrl).data(data).get().json().getInteger("res_code");
 	}
 
 	/**
@@ -469,7 +467,6 @@ public class TianYiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
-
 		var data = new HashMap<String, String>();
 		data.put("pageSize", "1");
 		data.put("folderId", folderId);
@@ -648,8 +645,7 @@ public class TianYiYunPan {
 			data.put("clientType", clientType);
 			data.put("isOauth2", isOauth2);
 			data.put("paramId", paramId);
-			var res = conn.url(loginSubmitUrl).header("lt", lt).header("reqid", reqId).header("referer", encryptConfUrl).data(data).method(Method.POST).execute();
-			var info = JSONObject.parseObject(res.body());
+			var info = conn.url(loginSubmitUrl).header("lt", lt).header("reqid", reqId).header("referer", encryptConfUrl).data(data).post().json();
 			if (!info.getString("result").equals("0")) {
 				throw new YunPanException(info.getString("msg"));
 			}

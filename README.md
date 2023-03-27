@@ -110,8 +110,8 @@ JSON解析器
 ### 简单示例:
 
 ```
-JSONObject json = JSONObject.parseObject(String); // 构建JSON对象
-JSONArray json = JSONArray.parseArray(String); // 构建JSON数组
+var json = JSONObject.parseObject(String); // 构建JSON对象
+var json = JSONArray.parseArray(String); // 构建JSON数组
 json.select(".cc[0]",Class); // 位置索引
 ```
 

@@ -6,11 +6,9 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
-import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
-import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.Base64Util;
 import org.haic.often.util.RandomUtil;
@@ -48,18 +46,16 @@ public class HeCaiYunPan {
 
 	private HeCaiYunPan(@NotNull Map<String, String> cookies) {
 		conn.cookies(cookies).header("mcloud-channel", "1000101").header("mcloud-client", "10701").header("mcloud-route", "001");
-		String userInfo = cookies.get("userInfo");
+		var userInfo = cookies.get("userInfo");
 		if (userInfo == null) {
 			throw new YunPanException("登陆信息无效");
 		}
-		String protectRecordId = JSONObject.parseObject(userInfo).getJSONObject("extInfo").getString("protectRecordId");
+		var protectRecordId = JSONObject.parseObject(userInfo).getJSONObject("extInfo").getString("protectRecordId");
 		user.fluentPut("account", protectRecordId.substring(protectRecordId.length() - 25, protectRecordId.length() - 14)).put("accountType", 1);
-		JSONObject data = new JSONObject().fluentPut("qryUserExternInfoReq", new JSONObject() {{
+		var data = new JSONObject().fluentPut("qryUserExternInfoReq", new JSONObject() {{
 			put("commonAccountInfo", user);
 		}});
-		String requestBody = data.toString();
-		Response res = conn.url(qryUserExternInfoUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute();
-		JSONObject body = JSONObject.parseObject(res.body());
+		var body = conn.url(qryUserExternInfoUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json();
 		if (!body.getBoolean("success")) {
 			throw new YunPanException(body.getString("message"));
 		}
@@ -85,13 +81,13 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public static List<JSONObject> getInfosAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
-		String linkid = shareUrl.contains("?") ? shareUrl.substring(shareUrl.lastIndexOf("?") + 1) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
+		var linkid = shareUrl.contains("?") ? shareUrl.substring(shareUrl.lastIndexOf("?") + 1) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
 		return getInfosAsPage(linkid, sharePwd, "root", "");
 	}
 
 	public static List<JSONObject> getInfosAsPage(@NotNull String shareId, @NotNull String sharePwd, @NotNull String path, @NotNull String folderPath) {
-		List<JSONObject> result = new ArrayList<>();
-		Map<String, String> data = new HashMap<>();
+		var result = new ArrayList<JSONObject>();
+		var data = new HashMap<String, String>();
 		data.put("linkId", shareId);
 		data.put("path", path);
 		data.put("start", "1");
@@ -99,12 +95,12 @@ public class HeCaiYunPan {
 		data.put("sortType", "0");
 		data.put("sortDr", "1");
 		data.put("pass", sharePwd);
-		JSONObject outlinkInfo = JSONObject.parseObject(HttpsUtil.connect(outlinkInfoUrl).data(data).method(Method.POST).execute().body()).getJSONObject("data");
-		JSONObject caLst = outlinkInfo.getJSONObject("caLst");
+		var outlinkInfo = HttpsUtil.connect(outlinkInfoUrl).data(data).post().json().getJSONObject("data");
+		var caLst = outlinkInfo.getJSONObject("caLst");
 		if (caLst.getJSONObject("$").getInteger("length") > 0) {
 			caLst.getList("outLinkCaInfo", JSONObject.class).forEach(ca -> result.addAll(getInfosAsPage(shareId, sharePwd, ca.getString("path"), folderPath + "/" + ca.getString("caName"))));
 		}
-		JSONObject coLst = outlinkInfo.getJSONObject("coLst");
+		var coLst = outlinkInfo.getJSONObject("coLst");
 		if (coLst.getJSONObject("$").getInteger("length") > 0) {
 			result.addAll(coLst.getList("outLinkCoInfo", JSONObject.class).stream().map(l -> l.fluentPut("folderPath", folderPath)).toList());
 		}
@@ -144,10 +140,11 @@ public class HeCaiYunPan {
 	}
 
 	@Contract(pure = true)
-	private static String mcloudSign(String body) {
-		String key = RandomUtil.randomAlphanumeric(16);
-		String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-		String temstr = "";
+	private static String mcloudSign(JSONObject requestBody) {
+		var body = requestBody.toJSONString();
+		var key = RandomUtil.randomAlphanumeric(16);
+		var date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		var temstr = "";
 		if (!Judge.isEmpty(body)) {
 			char[] chars = URIUtil.encodeValue(body).replaceAll("\\+", "%20").replaceAll("%5F", "_").toCharArray();
 			Arrays.sort(chars);
@@ -217,7 +214,7 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> listRecycleBin() {
-		JSONObject data = new JSONObject().fluentPut("getVirDirInfoReq", new JSONObject() {{
+		var data = new JSONObject().fluentPut("getVirDirInfoReq", new JSONObject() {{
 			put("commonAccountInfo", user);
 			put("catalogIDList", new ArrayList<>() {{add("00019700101000000054");}});
 			put("endRange", Integer.MAX_VALUE);
@@ -225,8 +222,7 @@ public class HeCaiYunPan {
 			put("sortType", 0);
 			put("startRange", 1);
 		}});
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(virDirInfoUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getVirDirInfoRes").getList("virDirInfoList", JSONObject.class);
+		return conn.url(virDirInfoUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json().getJSONObject("data").getJSONObject("getVirDirInfoRes").getList("virDirInfoList", JSONObject.class);
 	}
 
 	/**
@@ -236,7 +232,7 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject listShares() {
-		JSONObject data = new JSONObject().fluentPut("getOutLinkLstReq", new JSONObject() {{
+		var data = new JSONObject().fluentPut("getOutLinkLstReq", new JSONObject() {{
 			put("commonAccountInfo", user);
 			put("bNum", 1);
 			put("eNum", Integer.MAX_VALUE);
@@ -245,8 +241,7 @@ public class HeCaiYunPan {
 			put("srt", 0);
 			put("srtDr", 0);
 		}});
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(outLinkListUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body());
+		return conn.url(outLinkListUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json();
 	}
 
 	/**
@@ -268,12 +263,11 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject unshare(@NotNull List<String> linkIdList) {
-		JSONObject data = new JSONObject().fluentPut("delOutLinkReq", new JSONObject() {{
+		var data = new JSONObject().fluentPut("delOutLinkReq", new JSONObject() {{
 			put("commonAccountInfo", user);
 			put("linkIDs", linkIdList);
 		}});
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(delOutLinkUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body());
+		return conn.url(delOutLinkUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json();
 	}
 
 	/**
@@ -297,7 +291,7 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject share(int day, @NotNull List<String> fileIdList) {
-		JSONObject data = new JSONObject().fluentPut("getOutLinkReq", new JSONObject() {{
+		var data = new JSONObject().fluentPut("getOutLinkReq", new JSONObject() {{
 			put("commonAccountInfo", user);
 			put("caIDLst", fileIdList);
 			put("coIDLst", empty);
@@ -308,8 +302,7 @@ public class HeCaiYunPan {
 			put("subLinkType", 0);
 			put("viewerLst", empty);
 		}});
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(outLinkUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body());
+		return conn.url(outLinkUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json();
 	}
 
 	/**
@@ -321,12 +314,11 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject rename(@NotNull String fileId, @NotNull String name) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("commonAccountInfo", user);
 		data.put("catalogID", fileId);
 		data.put("catalogName", name);
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(updateCatalogInfoUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body());
+		return conn.url(updateCatalogInfoUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json();
 	}
 
 	@Contract(pure = true)
@@ -387,7 +379,7 @@ public class HeCaiYunPan {
 
 	@Contract(pure = true)
 	private JSONObject batchOprTask(int actionType, int taskType, @NotNull List<String> fileIdList, @NotNull String newCatalogID) {
-		JSONObject data = new JSONObject().fluentPut("createBatchOprTaskReq", new JSONObject() {{
+		var data = new JSONObject().fluentPut("createBatchOprTaskReq", new JSONObject() {{
 			put("actionType", actionType);
 			put("commonAccountInfo", user);
 			put("taskInfo", new JSONObject() {{
@@ -397,8 +389,7 @@ public class HeCaiYunPan {
 			}});
 			put("taskType", taskType);
 		}});
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(createBatchOprTaskUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body());
+		return conn.url(createBatchOprTaskUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json();
 	}
 
 	/**
@@ -421,12 +412,11 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> search(@NotNull String search, @NotNull String id) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("commonAccountInfo", user);
 		data.put("conditions", "search_name:\"" + search + "\" and path:\"" + id + "\"");
 		data.put("showInfo", new JSONObject().fluentPut("sortInfos", "[]").fluentPut("startNum", 1).fluentPut("stopNum", 100));
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(fileSearchUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getList("rows", JSONObject.class);
+		return conn.url(fileSearchUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json().getJSONObject("data").getList("rows", JSONObject.class);
 	}
 
 	/**
@@ -438,13 +428,12 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public JSONObject createFolder(@NotNull String id, @NotNull String name) {
-		JSONObject data = new JSONObject().fluentPut("createCatalogExtReq", new JSONObject() {{
+		var data = new JSONObject().fluentPut("createCatalogExtReq", new JSONObject() {{
 			put("commonAccountInfo", user);
 			put("parentCatalogID", id);
 			put("newCatalogName", name);
 		}});
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(createCatalogExtUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body());
+		return conn.url(createCatalogExtUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json();
 	}
 
 	/**
@@ -465,7 +454,7 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public List<JSONObject> getInfosAsHomeOfFolder(@NotNull String folderId) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("catalogID", folderId);
 		data.put("catalogSortType", 0);
 		data.put("commonAccountInfo", user);
@@ -474,8 +463,7 @@ public class HeCaiYunPan {
 		data.put("filterType", 0);
 		data.put("sortDirection", 0);
 		data.put("startNumber", 1);
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(diskUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getDiskResult").getList("catalogList", JSONObject.class);
+		return conn.url(diskUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json().getJSONObject("data").getJSONObject("getDiskResult").getList("catalogList", JSONObject.class);
 	}
 
 	/**
@@ -506,7 +494,7 @@ public class HeCaiYunPan {
 	}
 
 	private List<JSONObject> getSortInfosAsHome(int type) {
-		JSONObject data = new JSONObject().fluentPut("getIndividualContentReq", new JSONObject() {{
+		var data = new JSONObject().fluentPut("getIndividualContentReq", new JSONObject() {{
 			put("commonAccountInfo", user);
 			put("contentType", type);
 			put("endNumber", Integer.MAX_VALUE);
@@ -514,8 +502,7 @@ public class HeCaiYunPan {
 			put("sortDirection", 1);
 			put("startNumber", 1);
 		}});
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(individualContentUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getJSONObject("getIndividualContentRsp").getList("contentList", JSONObject.class);
+		return conn.url(individualContentUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json().getJSONObject("data").getJSONObject("getIndividualContentRsp").getList("contentList", JSONObject.class);
 	}
 
 	/**
@@ -538,17 +525,17 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public Map<String, String> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
-		String linkid = shareUrl.contains("?") ? shareUrl.substring(shareUrl.lastIndexOf("?") + 1) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
-		Map<String, String> result = new HashMap<>();
-		List<JSONObject> infos = getInfosAsPage(linkid, sharePwd, "root", "");
-		for (JSONObject info : infos) {
-			String path = info.getString("path");
-			Map<String, String> data = new HashMap<>();
+		var linkid = shareUrl.contains("?") ? shareUrl.substring(shareUrl.lastIndexOf("?") + 1) : shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
+		var result = new HashMap<String, String>();
+		var infos = getInfosAsPage(linkid, sharePwd, "root", "");
+		var data = new HashMap<String, String>();
+		data.put("catalogIds", "");
+		data.put("isReturnCdnDownloadUrl", "1");
+		for (var info : infos) {
+			var path = info.getString("path");
 			data.put("linkId", linkid);
 			data.put("contentIds", path);
-			data.put("catalogIds", "");
-			data.put("isReturnCdnDownloadUrl", "1");
-			result.put(info.getString("folderPath") + "/" + info.getString("coName"), JSONObject.parseObject(HttpsUtil.connect(downloadUrl).data(data).method(Method.POST).execute().body()).getJSONObject("data").getString("redrUrl"));
+			result.put(info.getString("folderPath") + "/" + info.getString("coName"), HttpsUtil.connect(downloadUrl).data(data).post().json().getJSONObject("data").getString("redrUrl"));
 		}
 		return result;
 	}
@@ -561,14 +548,13 @@ public class HeCaiYunPan {
 	 */
 	@Contract(pure = true)
 	public String getStraight(@NotNull String fileid) {
-		JSONObject data = new JSONObject();
+		var data = new JSONObject();
 		data.put("commonAccountInfo", user);
 		data.put("contentID", fileid);
 		data.put("extInfo", new JSONObject().fluentPut("isReturnCdnDownloadUrl", "1"));
 		data.put("inline", 0);
 		data.put("operation", 0);
-		String requestBody = data.toString();
-		return JSONObject.parseObject(conn.url(downloadRequestUrl).header("mcloud-sign", mcloudSign(requestBody)).requestBody(requestBody).method(Method.POST).execute().body()).getJSONObject("data").getString("downloadURL");
+		return conn.url(downloadRequestUrl).header("mcloud-sign", mcloudSign(data)).requestBody(data).post().json().getJSONObject("data").getString("downloadURL");
 	}
 
 }

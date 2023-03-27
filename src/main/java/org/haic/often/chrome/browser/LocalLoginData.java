@@ -163,7 +163,7 @@ public class LocalLoginData {
 
 		@Contract(pure = true)
 		public Browser setProfile(@NotNull String name) {
-			storage = new File(new File(home, Judge.isEmpty(name) ? "Default" : JSONObject.parseObject(ReadWriteUtil.orgin(new File(home, "Local State")).read()).getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey()), "Login Data");
+			storage = new File(new File(home, Judge.isEmpty(name) ? "Default" : ReadWriteUtil.orgin(new File(home, "Local State")).readJSON().getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey()), "Login Data");
 			if (!storage.exists()) throw new RuntimeException("未找到 Login Data 文件");
 			return this;
 		}

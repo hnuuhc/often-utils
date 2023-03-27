@@ -3,7 +3,6 @@ package org.haic.often.net.aria2;
 import org.haic.often.Symbol;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
-import org.haic.often.net.Method;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
@@ -258,12 +257,12 @@ public class Aria2Util {
 
 		@Contract(pure = true)
 		public String post() {
-			return HttpsUtil.connect(aria2RpcUrl).requestBody(rpcSessionBody()).proxy(proxy).method(Method.POST).execute().body();
+			return HttpsUtil.connect(aria2RpcUrl).requestBody(rpcSessionBody()).proxy(proxy).post().body();
 		}
 
 		@Contract(pure = true)
 		private String rpcSessionBody() {
-			JSONArray sessionsJson = JSONArray.parseArray(Stream.concat(rpcUrlSession().stream(), rpcSession().stream()).toList());
+			var sessionsJson = JSONArray.parseArray(Stream.concat(rpcUrlSession().stream(), rpcSession().stream()).toList());
 			return sessionsJson.size() == 1 ? sessionsJson.getJSONObject(0).toString() : sessionsJson.toString();
 		}
 
@@ -274,10 +273,10 @@ public class Aria2Util {
 
 		@Contract(pure = true)
 		private JSONArray rpcUrlSession() {
-			JSONArray sessionsJson = new JSONArray();
+			var sessionsJson = new JSONArray();
 			for (var entry : listUrl.entrySet()) {
-				String url = entry.getKey();
-				Aria2Method method = url.endsWith(".torrent") || Base64Util.isBase64(url) ? Aria2Method.ADDTORRENT : url.endsWith(".xml") ? Aria2Method.ADDMETALINK : Aria2Method.ADDURI;
+				var url = entry.getKey();
+				var method = url.endsWith(".torrent") || Base64Util.isBase64(url) ? Aria2Method.ADDTORRENT : url.endsWith(".xml") ? Aria2Method.ADDMETALINK : Aria2Method.ADDURI;
 				sessionsJson.add(rpcSessionHead(method).fluentPut("params", new JSONArray().fluentAdd("token:" + token).fluentAdd(List.of(url)).fluentAdd(new HashMap<>() {{
 					putAll(rpcParams);
 					put("header", Stream.concat(rpcHeaders.entrySet().stream(), entry.getValue().entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2)).entrySet().stream().map(l -> l.getKey() + ":" + l.getValue()).toList());

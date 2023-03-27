@@ -228,7 +228,7 @@ public class SionDownload {
 			if (!session.getName().endsWith(SESSION_SUFFIX)) {
 				throw new DownloadException("Not is session file: " + session);
 			} else if (session.isFile()) { // 如果设置配置文件下载，并且配置文件存在，获取信息
-				fileInfo = JSONObject.parseObject(ReadWriteUtil.orgin(session).read());
+				fileInfo = ReadWriteUtil.orgin(session).readJSON();
 				request.setUrl(url = fileInfo.getString("url"));
 				request.setFileSize(fileSize = fileInfo.getLong("fileSize"));
 				request.setHash(hash = fileInfo.getString("hash"));

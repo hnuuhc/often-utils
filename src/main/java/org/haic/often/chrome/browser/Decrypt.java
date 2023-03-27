@@ -4,7 +4,6 @@ import org.haic.often.Judge;
 import org.haic.often.annotations.Contract;
 import org.haic.often.dpapi.WinDPAPI;
 import org.haic.often.function.StringFunction;
-import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.Base64Util;
 import org.haic.often.util.ReadWriteUtil;
 
@@ -31,7 +30,7 @@ public class Decrypt {
 	 */
 	@Contract(pure = true)
 	public static byte[] getEncryptedKey(File userHome) {
-		return JSONObject.parseObject(ReadWriteUtil.orgin(new File(userHome, "Local State")).read()).getJSONObject("os_crypt").getString("encrypted_key").getBytes();
+		return ReadWriteUtil.orgin(new File(userHome, "Local State")).readJSON().getJSONObject("os_crypt").getString("encrypted_key").getBytes();
 	}
 
 	/**

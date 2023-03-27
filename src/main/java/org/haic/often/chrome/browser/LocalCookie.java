@@ -171,7 +171,7 @@ public class LocalCookie {
 
 		@Contract(pure = true)
 		public Browser setProfile(@NotNull String name) {
-			File folder = new File(home, Judge.isEmpty(name) ? "Default" : JSONObject.parseObject(ReadWriteUtil.orgin(new File(home, "Local State")).read()).getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey());
+			File folder = new File(home, Judge.isEmpty(name) ? "Default" : ReadWriteUtil.orgin(new File(home, "Local State")).readJSON().getJSONObject("profile").getJSONObject("info_cache").entrySet().stream().filter(l -> ((JSONObject) l.getValue()).getString("shortcut_name").equals(name)).findFirst().orElseThrow().getKey());
 			storage = new File(folder, "Network\\Cookies"); // 新版本位置
 			storage = storage.exists() ? storage : new File(folder, "Cookies"); // 旧版本位置
 			if (!storage.exists()) throw new RuntimeException("未找到 Cookies 文件");

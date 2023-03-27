@@ -4,7 +4,6 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
-import org.haic.often.net.Method;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.parser.json.JSONObject;
@@ -258,7 +257,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public int restore(@NotNull List<JSONObject> fileInfoList) {
-		return conn.url(mydiskUrl).requestBody("item=recycle&task=restore_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + "=" + l.getString("inputValue")).collect(Collectors.joining("&"))).method(Method.POST).execute().statusCode();
+		return conn.url(mydiskUrl).requestBody("item=recycle&task=restore_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + "=" + l.getString("inputValue")).collect(Collectors.joining("&"))).post().statusCode();
 	}
 
 	/**
@@ -268,7 +267,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public int restoreAll() {
-		return conn.url(mydiskUrl).requestBody("item=recycle&task=restore_all&action=restore_all&formhash=a1c01e43&").method(Method.POST).execute().statusCode();
+		return conn.url(mydiskUrl).requestBody("item=recycle&task=restore_all&action=restore_all&formhash=a1c01e43&").post().statusCode();
 	}
 
 	/**
@@ -278,7 +277,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public int clearRecycle() {
-		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_all&action=delete_all&formhash=a1c01e43&").method(Method.POST).execute().statusCode();
+		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_all&action=delete_all&formhash=a1c01e43&").post().statusCode();
 	}
 
 	/**
@@ -300,7 +299,7 @@ public class LanZouYunPan {
 	 */
 	@Contract(pure = true)
 	public int clearRecycle(@NotNull List<JSONObject> fileInfoList) {
-		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_complete_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + "=" + l.getString("inputValue")).collect(Collectors.joining("&"))).method(Method.POST).execute().statusCode();
+		return conn.url(mydiskUrl).requestBody("item=recycle&task=delete_complete_recycle&action=files&formhash=a1c01e43&" + fileInfoList.stream().map(l -> l.getString("inputName") + "=" + l.getString("inputValue")).collect(Collectors.joining("&"))).post().statusCode();
 	}
 
 	/**

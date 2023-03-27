@@ -5,7 +5,6 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
-import org.haic.often.net.Method;
 import org.haic.often.net.download.SionDownload;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
@@ -46,7 +45,7 @@ public class YunPan123 {
 
 	private YunPan123(@NotNull String auth) {
 		conn.auth(auth);
-		JSONObject status = JSONObject.parseObject(conn.url(userInfoUrl).execute().body());
+		var status = conn.url(userInfoUrl).execute().json();
 		if (!Judge.isEmpty(status.getInteger("code"))) {
 			throw new YunPanException(status.getString("message"));
 		}
@@ -112,8 +111,8 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public static String getStraightsAsPageOfBatch(@NotNull String shareUrl, @NotNull String sharePwd) {
-		JSONObject data = new JSONObject().fluentPut("ShareKey", shareUrl.substring(shareUrl.lastIndexOf("/") + 1)).fluentPut("fileIdList", getInfosAsPage(shareUrl, sharePwd).stream().map(l -> new JSONObject().fluentPut("fileId", l.getString("FileId"))).toList());
-		String url = JSONObject.parseObject(HttpsUtil.connect(batchDownloadUrl).requestBody(data.toString()).method(Method.POST).execute().body()).getJSONObject("data").getString("DownloadUrl");
+		var data = new JSONObject().fluentPut("ShareKey", shareUrl.substring(shareUrl.lastIndexOf("/") + 1)).fluentPut("fileIdList", getInfosAsPage(shareUrl, sharePwd).stream().map(l -> new JSONObject().fluentPut("fileId", l.getString("FileId"))).toList());
+		var url = HttpsUtil.connect(batchDownloadUrl).requestBody(data).post().json().getJSONObject("data").getString("DownloadUrl");
 		return Base64Util.decode(url.substring(url.indexOf("=") + 1));
 	}
 
@@ -126,17 +125,16 @@ public class YunPan123 {
 	 */
 	@Contract(pure = true)
 	public static Map<String, String> getStraightsAsPage(@NotNull String shareUrl, @NotNull String sharePwd) {
-		Map<String, String> result = new HashMap<>();
-		Connection conn = HttpsUtil.newSession().method(Method.POST);
-		String shareKey = shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
-		for (JSONObject info : getInfosAsPage(shareUrl, sharePwd)) {
-			Map<String, String> data = new HashMap<>();
+		var result = new HashMap<String, String>();
+		var shareKey = shareUrl.substring(shareUrl.lastIndexOf("/") + 1);
+		for (var info : getInfosAsPage(shareUrl, sharePwd)) {
+			var data = new HashMap<String, String>();
 			data.put("Etag", info.getString("Etag"));
 			data.put("FileID", info.getString("FileId"));
 			data.put("S3keyFlag", info.getString("S3KeyFlag"));
 			data.put("ShareKey", shareKey);
 			data.put("Size", info.getString("Size"));
-			String url = JSONObject.parseObject(conn.url(downloadUrl).data(data).execute().body()).getJSONObject("data").getString("DownloadURL");
+			var url = HttpsUtil.connect(downloadUrl).data(data).post().json().getJSONObject("data").getString("DownloadURL");
 			result.put(info.getString("Path") + info.getString("FileName"), Base64Util.decode(url.substring(url.indexOf("=") + 1)));
 		}
 		return result;

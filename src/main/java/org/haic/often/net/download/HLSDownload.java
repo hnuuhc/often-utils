@@ -552,7 +552,7 @@ public class HLSDownload {
 					return execute("BODY");
 				}
 				case "FILE" -> {
-					fileInfo = JSONObject.parseObject(ReadWriteUtil.orgin(session).read());
+					fileInfo = ReadWriteUtil.orgin(session).readJSON();
 					request.setUrl(url = fileInfo.getString("url"));
 					fileName = fileInfo.getString("fileName");
 					headers = StringUtil.jsonToMap(fileInfo.getString("header"));

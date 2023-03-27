@@ -3,6 +3,10 @@ package org.haic.often.util;
 import org.haic.often.Judge;
 import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
+import org.haic.often.parser.json.JSON;
+import org.haic.often.parser.json.JSONArray;
+import org.haic.often.parser.json.JSONObject;
+import org.haic.often.parser.xml.Document;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -451,6 +455,39 @@ public class ReadWriteUtil {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	/**
+	 * 读取指定文件的内容
+	 *
+	 * @return json
+	 */
+	@Contract(pure = true)
+	public JSONObject readJSON() {
+		var str = read();
+		return str.isEmpty() ? null : JSON.parseObject(str);
+	}
+
+	/**
+	 * 读取指定文件的内容
+	 *
+	 * @return json
+	 */
+	@Contract(pure = true)
+	public JSONArray readJSONArray() {
+		var str = read();
+		return str.isEmpty() ? null : JSON.parseArray(str);
+	}
+
+	/**
+	 * 读取指定文件的内容
+	 *
+	 * @return Document
+	 */
+	@Contract(pure = true)
+	public Document readXML() {
+		var str = read();
+		return str.isEmpty() ? null : Document.parse(str);
 	}
 
 	/**

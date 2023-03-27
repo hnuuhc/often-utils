@@ -5,7 +5,6 @@ import org.haic.often.annotations.Contract;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalStorage;
 import org.haic.often.exception.YunPanException;
-import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
@@ -43,8 +42,8 @@ public class ALiYunPan {
 
 	private ALiYunPan(@NotNull String auth) {
 		conn.auth(auth);
-		var res = conn.url(userInfoUrl).requestBody("{}").method(Method.POST).execute();
-		userInfo = JSONObject.parseObject(res.body());
+		var res = conn.url(userInfoUrl).requestBody("{}").post();
+		userInfo = res.json();
 		if (!URIUtil.statusIsOK(res.statusCode())) {
 			throw new YunPanException(userInfo.getString("message"));
 		}
@@ -83,12 +82,12 @@ public class ALiYunPan {
 		data.put("fields", "*");
 		data.put("parent_file_id", parentId);
 		data.put("share_id", shareId);
-		var fileList = HttpsUtil.connect(fileListUrl).requestBody(data.toString()).header("x-share-token", shareToken).method(Method.POST).execute();
-		for (var fileInfo : JSONObject.parseObject(fileList.body()).getList("items", JSONObject.class)) {
-			if (fileInfo.getString("type").equals("folder")) {
-				filesInfo.addAll(getInfosAsPage(shareId, shareToken, fileInfo.getString("file_id"), path + fileInfo.getString("name") + "/"));
+		var items = HttpsUtil.connect(fileListUrl).requestBody(data.toString()).header("x-share-token", shareToken).post().json().getList("items", JSONObject.class);
+		for (var item : items) {
+			if (item.getString("type").equals("folder")) {
+				filesInfo.addAll(getInfosAsPage(shareId, shareToken, item.getString("file_id"), path + item.getString("name") + "/"));
 			} else {
-				filesInfo.add(fileInfo.fluentPut("path", path));
+				filesInfo.add(item.fluentPut("path", path));
 			}
 		}
 		return filesInfo;
