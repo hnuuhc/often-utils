@@ -1,6 +1,7 @@
 package org.haic.often.chrome.browser;
 
 import org.haic.often.annotations.NotNull;
+import org.haic.often.parser.json.JSONObject;
 
 import java.io.File;
 import java.util.Map;
@@ -31,7 +32,7 @@ public abstract class Browser {
 	 *
 	 * @return 全部数据
 	 */
-	public abstract Map<String, Map<String, String>> getForAll();
+	public abstract JSONObject getForAll();
 
 	/**
 	 * 获取并解密指定域名的数据

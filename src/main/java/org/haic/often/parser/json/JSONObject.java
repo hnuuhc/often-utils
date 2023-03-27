@@ -181,6 +181,17 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	/**
 	 * 获取名称对应键的值
 	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	public <T> T getOrDefault(@NotNull String key, @NotNull Object value, @NotNull Class<T> itemClass) {
+		return TypeUtil.convert(this.getOrDefault(key, value), itemClass);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
 	 * @param key    名称
 	 * @param mapper 函数式接口,用于指定转换类型
 	 * @param <T>    返回泛型

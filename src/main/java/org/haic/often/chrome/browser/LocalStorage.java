@@ -1,14 +1,21 @@
 package org.haic.often.chrome.browser;
 
-import com.protonail.leveldb.jna.*;
+import com.protonail.leveldb.jna.LevelDB;
+import com.protonail.leveldb.jna.LevelDBKeyValueIterator;
+import com.protonail.leveldb.jna.LevelDBOptions;
+import com.protonail.leveldb.jna.LevelDBReadOptions;
 import org.haic.often.Judge;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.URIUtil;
+import org.haic.often.parser.json.JSON;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.*;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -52,32 +59,6 @@ public class LocalStorage {
 		return new ChromeBrowser(home);
 	}
 
-	public static class Storage {
-
-		private final String domain;
-		private final String key;
-		private final String value;
-
-		private Storage(String domain, String key, String value) {
-			this.domain = domain;
-			this.key = key;
-			this.value = value;
-		}
-
-		public String getDomain() {
-			return domain;
-		}
-
-		public String getName() {
-			return key;
-		}
-
-		public String getValue() {
-			return value;
-		}
-
-	}
-
 	private static class ChromeBrowser extends Browser {
 
 		private File storageCopy = new File(SystemUtil.DEFAULT_TEMP_DIR, RandomUtil.randomAlphanumeric(32) + ".leveldb");
@@ -99,14 +80,14 @@ public class LocalStorage {
 			return this;
 		}
 
-		public Map<String, Map<String, String>> getForAll() {
-			Map<String, Map<String, String>> result = new HashMap<>();
-			Set<Storage> storages = processLevelDB(null);
-			for (Storage storage : storages) {
-				String domain = storage.getDomain();
-				Map<String, String> info = result.get(domain);
+		public JSONObject getForAll() {
+			var result = new JSONObject();
+			var storages = processLevelDB(null);
+			for (var storage : storages) {
+				var domain = storage.getDomain();
+				var info = result.getJSONObject(domain);
 				if (info == null) {
-					result.put(domain, new HashMap<>(Map.of(storage.getName(), storage.getValue())));
+					result.put(domain, JSON.of(storage.getName(), storage.getValue()));
 				} else {
 					info.put(storage.getName(), storage.getValue());
 				}
@@ -115,7 +96,7 @@ public class LocalStorage {
 		}
 
 		public Map<String, String> getForDomain(@NotNull String domain) {
-			return processLevelDB(domain).parallelStream().filter(l -> !Judge.isEmpty(l.getValue())).collect(Collectors.toMap(Storage::getName, Storage::getValue, (e1, e2) -> e2));
+			return processLevelDB(domain).parallelStream().collect(Collectors.toMap(Data::getName, Data::getValue, (e1, e2) -> e2));
 		}
 
 		/**
@@ -124,23 +105,23 @@ public class LocalStorage {
 		 * @param domainFilter domain
 		 * @return decrypted local storage
 		 */
-		private Set<Storage> processLevelDB(String domainFilter) {
+		private Set<Data> processLevelDB(String domainFilter) {
 			FileUtil.copyDirectory(storage, storageCopy);
-			Set<Storage> result = new HashSet<>();
-			try (LevelDB levelDB = new LevelDB(storageCopy.getPath(), new LevelDBOptions()); LevelDBKeyValueIterator iterator = new LevelDBKeyValueIterator(levelDB, new LevelDBReadOptions() {{
+			var result = new HashSet<Data>();
+			try (var levelDB = new LevelDB(storageCopy.getPath(), new LevelDBOptions()); var iterator = new LevelDBKeyValueIterator(levelDB, new LevelDBReadOptions() {{
 				setFillCache(false);// 遍历中swap出来的数据，不应该保存在memtable中
 				setSnapshot(levelDB.createSnapshot());
 			}})) {
 				while (iterator.hasNext()) {
-					KeyValuePair entry = iterator.next();
-					byte[] keyBytes = entry.getKey();
+					var entry = iterator.next();
+					var keyBytes = entry.getKey();
 					if (keyBytes[1] == 104) {
 						int index = StringUtil.search(keyBytes, (byte) 0);
-						String domain = URIUtil.getHost(Decrypt.levelDBDecode(Arrays.copyOfRange(keyBytes, 0, index)));
+						var domain = URIUtil.getHost(Decrypt.levelDBDecode(Arrays.copyOfRange(keyBytes, 0, index)));
 						if (!Judge.isEmpty(domainFilter) && !domain.contains(domainFilter)) {
 							continue;
 						}
-						result.add(new Storage(domain, Decrypt.levelDBDecode(Arrays.copyOfRange(keyBytes, index + 1, keyBytes.length)), Decrypt.levelDBDecode(entry.getValue())));
+						result.add(new Data(Decrypt.levelDBDecode(Arrays.copyOfRange(keyBytes, index + 1, keyBytes.length)), Decrypt.levelDBDecode(entry.getValue()), domain));
 					}
 				}
 			} finally {

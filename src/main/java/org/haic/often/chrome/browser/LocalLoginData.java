@@ -1,8 +1,9 @@
 package org.haic.often.chrome.browser;
 
 import org.haic.often.Judge;
-import org.haic.often.Symbol;
 import org.haic.often.annotations.NotNull;
+import org.haic.often.net.URIUtil;
+import org.haic.often.parser.json.JSON;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.RandomUtil;
@@ -10,11 +11,10 @@ import org.haic.often.util.ReadWriteUtil;
 import org.haic.often.util.SystemUtil;
 
 import java.io.File;
-import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -58,94 +58,6 @@ public class LocalLoginData {
 		return new ChromeBrowser(home);
 	}
 
-	public static abstract class LoginData {
-
-		protected String name;
-		protected byte[] value;
-		protected Date created;
-		protected String domain;
-		protected File loginData;
-
-		private LoginData(String name, byte[] value, Date created, String domain, File loginData) {
-			this.name = name;
-			this.value = value;
-			this.created = created;
-			this.domain = domain;
-			this.loginData = loginData;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public Date getCreated() {
-			return created;
-		}
-
-		public byte[] getValueBytes() {
-			return value;
-		}
-
-		public String getDomain() {
-			return domain;
-		}
-
-		public File getCookieStore() {
-			return loginData;
-		}
-
-		public String getValue() {
-			return new String(value);
-		}
-
-		public abstract boolean isDecrypted();
-
-	}
-
-	private static class DecryptedLoginData extends LoginData {
-
-		private final String decryptedValue;
-
-		private DecryptedLoginData(String name, byte[] encryptedValue, String decryptedValue, Date created, String domain, File loginData) {
-			super(name, encryptedValue, created, domain, loginData);
-			this.decryptedValue = decryptedValue;
-		}
-
-		@Override
-		public boolean isDecrypted() {
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "LoginData [name=" + name + ", value=" + decryptedValue + Symbol.CLOSE_BRACKET;
-		}
-
-		@Override
-		public String getValue() {
-			return decryptedValue;
-		}
-
-	}
-
-	private static class EncryptedLoginData extends LoginData {
-
-		public EncryptedLoginData(String name, byte[] encryptedValue, Date created, String domain, File cookieStore) {
-			super(name, encryptedValue, created, domain, cookieStore);
-		}
-
-		@Override
-		public boolean isDecrypted() {
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return "LoginData [name=" + name + " (encrypted)]";
-		}
-
-	}
-
 	private static class ChromeBrowser extends Browser {
 
 		private final byte[] encryptedKey;
@@ -169,14 +81,14 @@ public class LocalLoginData {
 			return this;
 		}
 
-		public Map<String, Map<String, String>> getForAll() {
-			Map<String, Map<String, String>> result = new HashMap<>();
-			Set<LoginData> loginDatas = processLoginData(null);
-			for (LoginData loginData : loginDatas) {
-				String domain = loginData.getDomain();
-				Map<String, String> info = result.get(domain);
+		public JSONObject getForAll() {
+			var result = new JSONObject();
+			var loginDatas = processLoginData(null);
+			for (var loginData : loginDatas) {
+				var domain = loginData.getDomain();
+				var info = result.getJSONObject(domain);
 				if (info == null) {
-					result.put(loginData.getDomain(), new HashMap<>(Map.of(loginData.getName(), loginData.getValue())));
+					result.put(loginData.getDomain(), JSON.of(loginData.getName(), loginData.getValue()));
 				} else {
 					info.put(loginData.getName(), loginData.getValue());
 				}
@@ -185,7 +97,7 @@ public class LocalLoginData {
 		}
 
 		public Map<String, String> getForDomain(@NotNull String domain) {
-			return processLoginData(domain).parallelStream().filter(l -> !Judge.isEmpty(l.getValue())).collect(Collectors.toMap(LoginData::getName, LoginData::getValue, (e1, e2) -> e2));
+			return processLoginData(domain).parallelStream().collect(Collectors.toMap(Data::getName, Data::getValue, (e1, e2) -> e2));
 		}
 
 		/**
@@ -194,38 +106,28 @@ public class LocalLoginData {
 		 * @param domainFilter domain
 		 * @return decrypted login data
 		 */
-		private Set<LoginData> processLoginData(String domainFilter) {
-			Set<LoginData> loginDatas = new HashSet<>();
-			try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {
+		private Set<Data> processLoginData(String domainFilter) {
+			var loginDataList = new HashSet<Data>();
+			try (var connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {
 				Class.forName("org.sqlite.JDBC"); // load the sqlite-JDBC driver using the current class loader
 				storageCopy.delete();
 				FileUtil.copyFile(storage, storageCopy);
-				Statement statement = connection.createStatement();
+				var statement = connection.createStatement();
 				statement.setQueryTimeout(30); // set timeout to 30 seconds
-				ResultSet result = Judge.isEmpty(domainFilter) ? statement.executeQuery("select * from logins") : statement.executeQuery("select * from logins where signon_realm like \"%" + domainFilter + "%\"");
+				var result = Judge.isEmpty(domainFilter) ? statement.executeQuery("select * from logins") : statement.executeQuery("select * from logins where signon_realm like \"%" + domainFilter + "%\"");
 				while (result.next()) {
-					String name = result.getString("username_value");
-					byte[] encryptedBytes = result.getBytes("password_value");
-					String domain = result.getString("signon_realm");
-					Date created = result.getDate("date_created");
-					loginDatas.add(decrypt(new EncryptedLoginData(name, encryptedBytes, created, domain, storage)));
+					var encryptedBytes = result.getBytes("password_value");
+					if (encryptedBytes.length == 0) continue;
+					var name = result.getString("username_value");
+					var domain = result.getString("signon_realm");
+					loginDataList.add(new Data(name, new String(Decrypt.DPAPIDecode(encryptedBytes, encryptedKey)), URIUtil.getHost(domain)));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally { // 删除备份
 				storageCopy.delete();
 			}
-			return loginDatas;
-		}
-
-		/**
-		 * Decrypts an encrypted login data
-		 *
-		 * @param encryptedLoginData encrypted login data
-		 * @return decrypted login data
-		 */
-		private DecryptedLoginData decrypt(@NotNull EncryptedLoginData encryptedLoginData) {
-			return new DecryptedLoginData(encryptedLoginData.getName(), encryptedLoginData.getValueBytes(), new String(Decrypt.DPAPIDecode(encryptedLoginData.value, encryptedKey)), encryptedLoginData.getCreated(), encryptedLoginData.getDomain(), encryptedLoginData.getCookieStore());
+			return loginDataList;
 		}
 
 	}

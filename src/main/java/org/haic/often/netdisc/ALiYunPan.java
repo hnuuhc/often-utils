@@ -109,7 +109,7 @@ public class ALiYunPan {
 	 * @return 此链接, 用于身份验证的API操作
 	 */
 	public static ALiYunPan localLogin() {
-		return login(JSONObject.parseObject(LocalStorage.home().getForDomain("www.aliyundrive.com").getOrDefault("token", "{}")).getString("access_token"));
+		return login(new JSONObject(LocalStorage.home().getForDomain("www.aliyundrive.com")).getOrDefault("token", "{}", JSONObject.class).getString("access_token"));
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class ALiYunPan {
 	 * @return 此链接, 用于身份验证的API操作
 	 */
 	public static ALiYunPan localLogin(@NotNull String userHome) {
-		return login(JSONObject.parseObject(LocalStorage.home(userHome).getForDomain("www.aliyundrive.com").getOrDefault("token", "{}")).getString("access_token"));
+		return login(new JSONObject(LocalStorage.home(userHome).getForDomain("www.aliyundrive.com")).getOrDefault("token", "{}", JSONObject.class).getString("access_token"));
 	}
 
 	/**

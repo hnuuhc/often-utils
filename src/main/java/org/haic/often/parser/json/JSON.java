@@ -14,6 +14,10 @@ import java.util.Map;
  */
 public abstract class JSON {
 
+	public static JSONObject of(String k, Object v) {
+		return new JSONObject().fluentPut(k, v);
+	}
+
 	/**
 	 * 解析并获取JSON对象
 	 *
