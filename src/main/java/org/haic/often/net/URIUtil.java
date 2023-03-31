@@ -551,6 +551,10 @@ public class URIUtil {
 			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
+			} else if (Character.UnicodeScript.of(c) == Character.UnicodeScript.HAN) { // 中文
+				for (var b : String.valueOf(c).getBytes()) {
+					sb.append("%").append(Integer.toHexString((char) b).substring(2).toUpperCase());
+				}
 			} else if (safetyChar.test(c)) {
 				sb.append(s.charAt(i));
 			} else {
