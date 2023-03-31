@@ -407,8 +407,7 @@ public class URIUtil {
 	public static String getFileNameForDisposition(@NotNull String disposition) {
 		String fileName = disposition.substring(disposition.lastIndexOf("filename"));
 		fileName = fileName.substring(fileName.indexOf("=") + 1).replaceAll("\"", "");
-		fileName = decode(fileName.contains("'") ? fileName.substring(fileName.lastIndexOf("'") + 1) : fileName);
-		return fileName.replaceAll("\\+", " ");
+		return decode(fileName.contains("'") ? fileName.substring(fileName.lastIndexOf("'") + 1) : fileName);
 	}
 
 	/**
@@ -486,7 +485,7 @@ public class URIUtil {
 	 */
 	@NotNull
 	public static String decode(@NotNull String s, @NotNull Charset charset) {
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		var bytes = new ByteArrayOutputStream();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
 			boolean isByte = false;
@@ -495,7 +494,9 @@ public class URIUtil {
 				isByte = true;
 				i += 2;
 			}
-			if (isByte) {
+			if (c == '+') {
+				bytes.write(' ');
+			} else if (isByte) {
 				bytes.write(c);
 			} else {
 				bytes.writeBytes(String.valueOf(c).getBytes());
