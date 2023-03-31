@@ -27,8 +27,8 @@ import java.util.function.Predicate;
  */
 public class URIUtil {
 
-	private static final Predicate<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(c.toString());
-	private static final Predicate<Character> safetyChar = Character::isLetterOrDigit;
+	private static final Predicate<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(String.valueOf(c));
+	private static final Predicate<Character> safetyChar = c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 	private static final Predicate<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
 
 	/**
@@ -512,7 +512,7 @@ public class URIUtil {
 	 */
 	@NotNull
 	public static String encode(@NotNull String s) {
-		StringBuilder sb = new StringBuilder(s.length());
+		var sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
 			if (c == ' ') {
@@ -520,14 +520,17 @@ public class URIUtil {
 			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
-			} else if (Character.UnicodeScript.of(c) == Character.UnicodeScript.HAN) { // 中文
-				for (var b : String.valueOf(c).getBytes()) {
-					sb.append("%").append(Integer.toHexString((char) b).substring(2).toUpperCase());
-				}
 			} else if (safetyChar.test(c) || specialSafetyChar.test(c)) {
-				sb.append(s.charAt(i));
+				sb.append(c);
 			} else {
-				sb.append("%").append(Integer.toHexString(c).toUpperCase());
+				@SuppressWarnings("DuplicatedCode") var bytes = String.valueOf(c).getBytes();
+				if (bytes.length == 1) {
+					sb.append("%").append(Integer.toHexString(c).toUpperCase());
+				} else {
+					for (var b : bytes) {
+						sb.append("%").append(Integer.toHexString((char) b).substring(2).toUpperCase());
+					}
+				}
 			}
 		}
 		return sb.toString();
@@ -543,7 +546,7 @@ public class URIUtil {
 	 */
 	@NotNull
 	public static String encodeValue(@NotNull String s) {
-		StringBuilder sb = new StringBuilder(s.length());
+		var sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
 			if (c == ' ') {
@@ -551,14 +554,17 @@ public class URIUtil {
 			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
-			} else if (Character.UnicodeScript.of(c) == Character.UnicodeScript.HAN) { // 中文
-				for (var b : String.valueOf(c).getBytes()) {
-					sb.append("%").append(Integer.toHexString((char) b).substring(2).toUpperCase());
-				}
 			} else if (safetyChar.test(c)) {
-				sb.append(s.charAt(i));
+				sb.append(c);
 			} else {
-				sb.append("%").append(Integer.toHexString(c).toUpperCase());
+				var bytes = String.valueOf(c).getBytes();
+				if (bytes.length == 1) {
+					sb.append("%").append(Integer.toHexString(c).toUpperCase());
+				} else {
+					for (var b : bytes) {
+						sb.append("%").append(Integer.toHexString((char) b).substring(2).toUpperCase());
+					}
+				}
 			}
 		}
 		return sb.toString();
