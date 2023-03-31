@@ -341,9 +341,9 @@ public class HttpsUtil {
 						conn.setUseCaches(false); // POST请求不能使用缓存（POST不能被缓存）
 						conn.setDoOutput(true); // 设置是否向HttpUrlConnction输出，因为这个是POST请求，参数要放在http正文内，因此需要设为true，默认情况下是false
 						conn.setDoInput(true); // 设置是否向HttpUrlConnection读入，默认情况下是true
-						try (DataOutputStream output = new DataOutputStream(conn.getOutputStream())) {
+						try (var output = new DataOutputStream(conn.getOutputStream())) {
 							if (!Judge.isEmpty(params)) {
-								output.writeBytes(params); // 发送请求参数
+								output.write(params.getBytes()); // 发送请求参数
 							}
 							if (file != null) { // 发送文件
 								output.writeBytes(file.first());
@@ -367,10 +367,10 @@ public class HttpsUtil {
 				}
 				conn.disconnect();
 				// 维护cookies
-				Map<String, List<String>> headerFields = conn.getHeaderFields();
-				List<String> cookies = headerFields.getOrDefault("Set-Cookie", headerFields.get("set-cookie"));
+				var headerFields = conn.getHeaderFields();
+				var cookies = headerFields.getOrDefault("Set-Cookie", headerFields.get("set-cookie"));
 				cookies(cookies == null ? new HashMap<>() : cookies.stream().filter(l -> !l.equals("-") && !l.isBlank()).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1, l.indexOf(";")), (e1, e2) -> e2)));
-				Response res = new HttpResponse(conn, this.cookies);
+				var res = new HttpResponse(conn, this.cookies);
 
 				String redirectUrl; // 修复重定向
 				if (followRedirects && URIUtil.statusIsNormal(res.statusCode()) && !Judge.isEmpty(redirectUrl = res.header("location"))) {
@@ -390,7 +390,7 @@ public class HttpsUtil {
 		 * @throws IOException 如果发生 I/O 异常
 		 */
 		private HttpURLConnection connection(@NotNull String url) throws IOException {
-			HttpURLConnection conn = (HttpURLConnection) URIUtil.getURL(url).openConnection(proxy);
+			var conn = (HttpURLConnection) URIUtil.getURL(url).openConnection(proxy);
 			conn.setRequestProperty("connection", "close");
 			conn.setRequestMethod(method.name()); // 请求方法
 			conn.setConnectTimeout(timeout < 10000 && timeout != 0 ? timeout : 10000); // 连接超时
