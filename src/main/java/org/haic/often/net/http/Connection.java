@@ -2,6 +2,7 @@ package org.haic.often.net.http;
 
 import org.haic.often.annotations.NotNull;
 import org.haic.often.net.Method;
+import org.haic.often.util.StringUtil;
 
 import javax.net.ssl.SSLContext;
 import java.io.InputStream;
@@ -180,7 +181,7 @@ public abstract class Connection {
 	 * @return 此连接，用于链接
 	 */
 	public Connection cookies(@NotNull String cookies) {
-		return header("cookie", cookies);
+		return cookies(StringUtil.toMap(cookies, ";"));
 	}
 
 	/**

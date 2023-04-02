@@ -251,7 +251,7 @@ public class StringUtil extends StringUtils {
 	 * @return Map - name, value
 	 */
 	public static Map<String, String> toMap(@NotNull String str, @NotNull String split) {
-		return lines(str, split).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1), (e1, e2) -> e2));
+		return lines(str, split).map(String::strip).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1), (e1, e2) -> e2));
 	}
 
 	public static Stream<String> lines(@NotNull String str, @NotNull String split) {

@@ -401,12 +401,15 @@ public class HttpsUtil {
 				((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
 				((HttpsURLConnection) conn).setHostnameVerifier((arg0, arg1) -> true);
 			}
+
+			// 设置cookie
+			conn.setRequestProperty("cookie", cookies.entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
+
 			// 设置通用的请求属性
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());
 			}
-			// 设置cookies
-			conn.setRequestProperty("cookie", cookies.entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
+
 			return conn;
 		}
 
