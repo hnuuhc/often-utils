@@ -85,7 +85,7 @@ public class HttpsUtil {
 		private Map<String, String> headers = new HashMap<>(); // 请求头
 		private Map<String, String> cookies = new HashMap<>(); // cookies
 		private List<Integer> retryStatusCodes = new ArrayList<>();
-		private ThreeTuple<String, InputStream, String> file;
+		private ThreeTuple<String, String, InputStream> file;
 		private SSLSocketFactory sslSocketFactory = IgnoreSSLSocket.IgnoreSSLContext().getSocketFactory();
 
 		private HttpConnection(@NotNull String url) {
@@ -218,24 +218,11 @@ public class HttpsUtil {
 			return this;
 		}
 
-		public Connection data(@NotNull InputStream in) {
-			file = Tuple.of("", in, "");
-			return this;
-		}
-
-		public Connection data(@NotNull InputStream in, @NotNull String mimiType) {
-			file = Tuple.of("", in, "");
-			return contentType(mimiType);
-		}
-
-		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in) {
-			return data(key, fileName, in, "multipart/form-data");
-		}
-
-		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream, @NotNull String mimiType) {
+		public Connection data(@NotNull String key, @NotNull String name, @NotNull InputStream in) {
 			var boundary = UUID.randomUUID().toString();
-			file = Tuple.of("\r\n--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + fileName + "\"\r\ncontent-type: application/octet-stream; charset=utf-8\r\n\r\n", inputStream, "\r\n--" + boundary + "--\r\n");
-			return contentType(mimiType);
+			var head = "--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + name + "\"\r\n" + "content-type: application/octet-stream\r\n\r\n";
+			file = Tuple.of(boundary, head, in);
+			return contentType("multipart/form-data; boundary=" + boundary);
 		}
 
 		public Connection requestBody(@NotNull Object body) {
@@ -342,16 +329,27 @@ public class HttpsUtil {
 						conn.setDoOutput(true); // 设置是否向HttpUrlConnction输出，因为这个是POST请求，参数要放在http正文内，因此需要设为true，默认情况下是false
 						conn.setDoInput(true); // 设置是否向HttpUrlConnection读入，默认情况下是true
 						try (var output = new DataOutputStream(conn.getOutputStream())) {
-							if (!Judge.isEmpty(params)) {
-								output.write(params.getBytes()); // 发送请求参数
-							}
 							if (file != null) { // 发送文件
-								output.writeBytes(file.first());
+								var boundary = file.first();
+								var sb = new StringBuilder();
+								var data = StringUtil.toMap(params, "&");
+								for (var b : data.entrySet()) {
+									var value = b.getValue();
+									if (!Judge.isEmpty(value)) {
+										sb.append("--").append(boundary).append("\r\n");
+										sb.append("content-disposition: form-data; name=\"").append(b.getKey()).append("\"\r\n\r\n");
+										sb.append(value).append("\r\n");
+									}
+								}
+								output.writeBytes(sb.toString());
+								output.writeBytes(file.second());
 								//noinspection resource
-								file.second().transferTo(output);
-								output.writeBytes(file.third());
+								file.third().transferTo(output);
+								output.writeBytes("\r\n--" + boundary + "--\r\n");
 								file = null; // 删除流,防止复用
 								removeHeader("content-type");
+							} else {
+								output.write(params.getBytes()); // 发送请求参数
 							}
 							output.flush(); // flush输出流的缓冲
 						} catch (IOException e) {
@@ -469,9 +467,9 @@ public class HttpsUtil {
 
 		protected ByteArrayOutputStream bodyAsByteArray() {
 			if (this.body != null) return this.body;
-			try (InputStream in = bodyStream()) {
+			try (var in = bodyStream()) {
 				var encoding = header("content-encoding");
-				InputStream body = "gzip".equals(encoding) ? new GZIPInputStream(in) : "deflate".equals(encoding) ? new InflaterInputStream(in, new Inflater(true)) : "br".equals(encoding) ? new BrotliInputStream(in) : in;
+				var body = "gzip".equals(encoding) ? new GZIPInputStream(in) : "deflate".equals(encoding) ? new InflaterInputStream(in, new Inflater(true)) : "br".equals(encoding) ? new BrotliInputStream(in) : in;
 				return this.body = IOUtil.stream(body).toByteArrayOutputStream();
 			} catch (Exception e) {
 				return null;
