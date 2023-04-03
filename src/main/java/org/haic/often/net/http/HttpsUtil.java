@@ -229,7 +229,7 @@ public class HttpsUtil {
 		}
 
 		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream in) {
-			return data(key, key, in, "multipart/form-data");
+			return data(key, fileName, in, "multipart/form-data");
 		}
 
 		public Connection data(@NotNull String key, @NotNull String fileName, @NotNull InputStream inputStream, @NotNull String mimiType) {
