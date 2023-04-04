@@ -11,6 +11,8 @@ import org.haic.often.parser.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +30,26 @@ import java.util.stream.Stream;
  * @since 2021/3/27 15:12
  */
 public class StringUtil extends StringUtils {
+
+	/**
+	 * 将字符串转换为md5值
+	 *
+	 * @param text 字符串
+	 * @return md5值
+	 */
+	public static String getMd5(String text) {
+		var builder = new StringBuilder();
+		try {
+			var md5 = MessageDigest.getInstance("MD5");
+			var bytes = md5.digest(text.getBytes(StandardCharsets.UTF_8));
+			for (byte b : bytes) {
+				builder.append(Integer.toHexString((0x000000FF & b) | 0xFFFFFF00).substring(6));
+			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return builder.toString();
+	}
 
 	/**
 	 * 字符串转换unicode
@@ -254,6 +276,13 @@ public class StringUtil extends StringUtils {
 		return lines(str, split).map(String::strip).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1), (e1, e2) -> e2));
 	}
 
+	/**
+	 * 将字符串按指定分隔符分割
+	 *
+	 * @param str   字符串
+	 * @param split 分隔符
+	 * @return 流
+	 */
 	public static Stream<String> lines(@NotNull String str, @NotNull String split) {
 		return Arrays.stream(str.split(split));
 	}

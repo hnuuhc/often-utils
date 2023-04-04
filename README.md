@@ -16,7 +16,7 @@ mvn clean install
 <dependency>
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.16</version>
+    <version>1.2.17</version>
 </dependency>
 ```
 
