@@ -24,10 +24,10 @@ public class JSONFormat {
 	public static Object format(Object value) {
 		if (value == null) return null;
 		if (value instanceof String s) {
-			if (s.equals("null")) return null;
-			return StringUtil.toEscape(s);
+			return s.equals("null") ? null : s;
 		} else if (value instanceof StringBuilder || value instanceof StringBuffer) {
-			return format(value.toString());
+			var s = value.toString();
+			return s.equals("null") ? null : s;
 		} else if (value instanceof JSONArray || value instanceof JSONObject || value instanceof Number || value instanceof Boolean) {
 			return value;
 		} else if (value instanceof Collection<?> c) {
@@ -47,7 +47,7 @@ public class JSONFormat {
 	 * @param value 值
 	 * @return 处理后的文本
 	 */
-	public static String toNetOutFormat(Object value) {
+	public static String toJSONFormat(Object value) {
 		if (value == null) return "null";
 		if (value instanceof String s) {
 			if (s.equals("null")) return "null";

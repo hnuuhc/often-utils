@@ -379,7 +379,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	@NotNull
 	public String toJSONString() {
-		return '[' + this.stream().map(JSONFormat::toNetOutFormat).collect(Collectors.joining(",")) + ']';
+		return '[' + this.stream().map(JSONFormat::toJSONFormat).collect(Collectors.joining(",")) + ']';
 	}
 
 	@Override

@@ -532,7 +532,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	@NotNull
 	public String toJSONString() {
-		return '{' + this.entrySet().stream().map(token -> '"' + StringUtil.chineseToUnicode(StringUtil.toEscape(token.getKey())) + "\":" + JSONFormat.toNetOutFormat(token.getValue())).collect(Collectors.joining(",")) + '}';
+		return '{' + this.entrySet().stream().map(token -> '"' + StringUtil.chineseToUnicode(StringUtil.toEscape(token.getKey())) + "\":" + JSONFormat.toJSONFormat(token.getValue())).collect(Collectors.joining(",")) + '}';
 	}
 
 	@Override

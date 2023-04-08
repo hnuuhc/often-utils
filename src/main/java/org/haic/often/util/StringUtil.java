@@ -126,7 +126,7 @@ public class StringUtil extends StringUtils {
 	 * @return 处理后的字符串
 	 */
 	public static String toEscape(@NotNull String body) {
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		char[] chars = body.toCharArray();
 		for (char c : chars) {
 			switch (c) {
