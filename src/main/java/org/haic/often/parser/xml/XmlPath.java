@@ -74,6 +74,8 @@ public class XmlPath {
 						if (c == '[') {
 							attrs = sb.intercept(']');
 							break;
+						} else if (c == ' ') {
+							break;
 						}
 						css.append(c);
 						sb.offset(1);
