@@ -6,7 +6,7 @@
 
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.18</version>
+    <version>1.2.19</version>
     <description>Java network common tools</description>
     <name>often-utils</name>
 
@@ -19,7 +19,7 @@
         <often.version>${project.version}</often.version>
 
         <!-- Java版本 -->
-        <java.version>19</java.version>
+        <java.version>20</java.version>
 
         <!-- Maven插件版本 -->
         <maven.source.version>3.2.1</maven.source.version>
