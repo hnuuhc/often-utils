@@ -6,8 +6,6 @@ import org.haic.often.util.StringUtil;
 
 import javax.net.ssl.SSLContext;
 import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
@@ -228,7 +226,7 @@ public abstract class Connection {
 	 * @return 此连接，用于链接
 	 */
 	public abstract Connection data(@NotNull Map<String, String> params);
-	
+
 	/**
 	 * 添加输入流作为请求数据参数，对于 GET 没有效果，但对于 POST 这将上传输入流
 	 * <p>
@@ -304,14 +302,7 @@ public abstract class Connection {
 	 * @param password 密码
 	 * @return 此连接，用于链接
 	 */
-	public Connection socks(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
-		Authenticator.setDefault(new Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(user, password.toCharArray());
-			}
-		});
-		return socks(host, port);
-	}
+	public abstract Connection socks(@NotNull String host, int port, @NotNull String user, @NotNull String password);
 
 	/**
 	 * 连接代理（ @NotNull  Proxy 代理）
@@ -353,14 +344,7 @@ public abstract class Connection {
 	 * @param password 密码
 	 * @return 此连接，用于链接
 	 */
-	public Connection proxy(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
-		Authenticator.setDefault(new Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(user, password.toCharArray());
-			}
-		});
-		return proxy(host, port);
-	}
+	public abstract Connection proxy(@NotNull String host, int port, @NotNull String user, @NotNull String password);
 
 	/**
 	 * 连接代理（ @NotNull  Proxy 代理）<br/>

@@ -17,7 +17,7 @@ public class IgnoreSSLSocket {
 	 *
 	 * @return SSLContext
 	 */
-	public static SSLContext IgnoreSSLContext() {
+	public static SSLContext ignoreSSLContext() {
 		TrustManager[] tm = { new MyX509TrustManager() };
 		SSLContext ctx = null;
 		try {

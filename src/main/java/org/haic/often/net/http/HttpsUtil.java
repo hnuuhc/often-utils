@@ -11,6 +11,7 @@ import org.haic.often.net.UserAgent;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.tuple.Tuple;
 import org.haic.often.tuple.record.ThreeTuple;
+import org.haic.often.util.Base64Util;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
@@ -86,7 +87,7 @@ public class HttpsUtil {
 		private Map<String, String> cookies = new HashMap<>(); // cookies
 		private List<Integer> retryStatusCodes = new ArrayList<>();
 		private ThreeTuple<String, String, InputStream> file;
-		private SSLSocketFactory sslSocketFactory = IgnoreSSLSocket.IgnoreSSLContext().getSocketFactory();
+		private SSLSocketFactory sslSocketFactory = IgnoreSSLSocket.ignoreSSLContext().getSocketFactory();
 
 		private HttpConnection(@NotNull String url) {
 			initialization(url);
@@ -242,8 +243,16 @@ public class HttpsUtil {
 			return proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port)));
 		}
 
+		public Connection socks(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
+			return header("Proxy-Authenticator", "Basic " + Base64Util.encode(user + ":" + password)).socks(host, port);
+		}
+
 		public Connection proxy(@NotNull String host, int port) {
 			return proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
+		}
+
+		public Connection proxy(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
+			return header("Proxy-Authenticator", "Basic " + Base64Util.encode(user + ":" + password)).proxy(host, port);
 		}
 
 		public Connection proxy(@NotNull Proxy proxy) {
@@ -396,6 +405,9 @@ public class HttpsUtil {
 			conn.setInstanceFollowRedirects(false); // 重定向,http和https之间无法遵守重定向
 			// https 忽略证书验证
 			if (url.startsWith("https")) { // 在握手期间，如果 URL 的主机名和服务器的标识主机名不匹配，则验证机制可以回调此接口的实现程序来确定是否应该允许此连接。
+				if (headers.containsKey("Proxy-Authenticator")) {
+					throw new IllegalArgumentException("无法完成HTTPS协议请求的代理身份验证");
+				}
 				((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
 				((HttpsURLConnection) conn).setHostnameVerifier((arg0, arg1) -> true);
 			}
