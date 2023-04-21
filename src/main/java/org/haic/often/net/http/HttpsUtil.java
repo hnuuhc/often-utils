@@ -11,7 +11,6 @@ import org.haic.often.net.UserAgent;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.tuple.Tuple;
 import org.haic.often.tuple.record.ThreeTuple;
-import org.haic.often.util.Base64Util;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
@@ -23,9 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -82,6 +79,8 @@ public class HttpsUtil {
 		private boolean failThrow; // 错误异常
 		private boolean followRedirects = true; // 重定向
 		private Proxy proxy = Proxy.NO_PROXY; // 代理
+		private String proxyUser;
+		private String proxyPwd;
 		private Method method = Method.GET;
 		private Map<String, String> headers = new HashMap<>(); // 请求头
 		private Map<String, String> cookies = new HashMap<>(); // cookies
@@ -244,7 +243,9 @@ public class HttpsUtil {
 		}
 
 		public Connection socks(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
-			return header("Proxy-Authenticator", "Basic " + Base64Util.encode(user + ":" + password)).socks(host, port);
+			this.proxyUser = user;
+			this.proxyPwd = password;
+			return socks(host, port);
 		}
 
 		public Connection proxy(@NotNull String host, int port) {
@@ -252,7 +253,9 @@ public class HttpsUtil {
 		}
 
 		public Connection proxy(@NotNull String host, int port, @NotNull String user, @NotNull String password) {
-			return header("Proxy-Authenticator", "Basic " + Base64Util.encode(user + ":" + password)).proxy(host, port);
+			this.proxyUser = user;
+			this.proxyPwd = password;
+			return proxy(host, port);
 		}
 
 		public Connection proxy(@NotNull Proxy proxy) {
@@ -324,8 +327,8 @@ public class HttpsUtil {
 		 */
 		@NotNull
 		private Response executeProgram(@NotNull String requestUrl, @NotNull Method method, @NotNull String params) {
+			HttpURLConnection conn = null;
 			try {
-				HttpURLConnection conn;
 				switch (method) {
 					case GET -> {
 						conn = connection(Judge.isEmpty(params) ? requestUrl : requestUrl + (requestUrl.contains("?") ? "&" : "?") + params);
@@ -372,7 +375,7 @@ public class HttpsUtil {
 					}
 					default -> throw new HttpException("Unknown mode");
 				}
-				conn.disconnect();
+				// conn.disconnect();
 				// 维护cookies
 				var headerFields = conn.getHeaderFields();
 				var cookies = headerFields.getOrDefault("Set-Cookie", headerFields.get("set-cookie"));
@@ -385,7 +388,7 @@ public class HttpsUtil {
 				}
 				return res;
 			} catch (IOException e) {
-				return new HttpResponse(null, cookies);
+				return new HttpResponse(conn, cookies);
 			}
 		}
 
@@ -397,20 +400,33 @@ public class HttpsUtil {
 		 * @throws IOException 如果发生 I/O 异常
 		 */
 		private HttpURLConnection connection(@NotNull String url) throws IOException {
-			var conn = (HttpURLConnection) URIUtil.getURL(url).openConnection(proxy);
+			var thisURL = URIUtil.createURL(url);
+			HttpURLConnection conn;
+			if (Judge.isEmpty(proxyUser) || Judge.isEmpty(proxyPwd)) {
+				conn = (HttpURLConnection) thisURL.openConnection(proxy);
+				// https 忽略证书验证
+				if (url.startsWith("https")) { // 在握手期间，如果 URL 的主机名和服务器的标识主机名不匹配，则验证机制可以回调此接口的实现程序来确定是否应该允许此连接。
+					((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
+					((HttpsURLConnection) conn).setHostnameVerifier((arg0, arg1) -> true);
+				}
+			} else {
+				if (thisURL.getProtocol().equals("http")) {
+					conn = (HttpURLConnection) thisURL.openConnection(proxy);
+					var auth = new Authenticator() {
+						public PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(proxyUser, proxyPwd.toCharArray());
+						}
+					};
+					conn.setAuthenticator(auth);
+				} else {
+					conn = new ProxiedHttpsConnection(thisURL, proxy.address(), proxyUser, proxyPwd);
+				}
+			}
 			conn.setRequestProperty("connection", "close");
 			conn.setRequestMethod(method.name()); // 请求方法
 			conn.setConnectTimeout(timeout < 10000 && timeout != 0 ? timeout : 10000); // 连接超时
 			conn.setReadTimeout(timeout); // 读取超时
 			conn.setInstanceFollowRedirects(false); // 重定向,http和https之间无法遵守重定向
-			// https 忽略证书验证
-			if (url.startsWith("https")) { // 在握手期间，如果 URL 的主机名和服务器的标识主机名不匹配，则验证机制可以回调此接口的实现程序来确定是否应该允许此连接。
-				if (headers.containsKey("Proxy-Authenticator")) {
-					throw new IllegalArgumentException("无法完成HTTPS协议请求的代理身份验证");
-				}
-				((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
-				((HttpsURLConnection) conn).setHostnameVerifier((arg0, arg1) -> true);
-			}
 
 			// 设置cookie
 			conn.setRequestProperty("cookie", cookies.entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));

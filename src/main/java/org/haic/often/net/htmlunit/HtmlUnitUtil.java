@@ -116,7 +116,7 @@ public class HtmlUnitUtil {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
 				throw new HttpException("Only http & https protocols supported : " + url);
 			}
-			request.setUrl(URIUtil.getURL(url));
+			request.setUrl(URIUtil.createURL(url));
 			return this;
 		}
 

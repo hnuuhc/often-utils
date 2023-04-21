@@ -197,7 +197,7 @@ public class URIUtil {
 	 * @param url URL
 	 * @return URI对象
 	 */
-	public static URI getURI(@NotNull String url) {
+	public static URI createURI(@NotNull String url) {
 		URI uri = null;
 		try {
 			uri = new URI(url);
@@ -213,11 +213,11 @@ public class URIUtil {
 	 * @param url URL
 	 * @return URL对象
 	 */
-	public static URL getURL(@NotNull String url) {
+	public static URL createURL(@NotNull String url) {
 		URL uri = null;
 		try {
-			uri = new URL(url);
-		} catch (MalformedURLException e) {
+			uri = new URI(url).toURL();
+		} catch (MalformedURLException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 		return uri;
@@ -231,7 +231,7 @@ public class URIUtil {
 	 */
 	@NotNull
 	public static String getHost(@NotNull String url) {
-		return getURI(url).getHost();
+		return createURI(url).getHost();
 	}
 
 	/**
