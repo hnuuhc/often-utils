@@ -72,6 +72,17 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 	private boolean afterwritten = false;
 
 	@Override
+	public InputStream getErrorStream() {
+		try {
+			afterRead();
+			return new BufferedInputStream(new SocketInputStream(socket, new DataInputStream(socket.getInputStream())));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
 	public InputStream getInputStream() throws IOException {
 		afterRead();
 		return new BufferedInputStream(new SocketInputStream(socket, new DataInputStream(socket.getInputStream())));
