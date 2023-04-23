@@ -1,6 +1,5 @@
 package org.haic.often.net.http;
 
-import org.apache.commons.net.io.SocketInputStream;
 import org.haic.often.net.URIUtil;
 import org.haic.often.util.Base64Util;
 
@@ -63,7 +62,7 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 
 			@Override
 			public void close() throws IOException {
-				afterWrite();
+				socket.close();
 			}
 
 		};
@@ -74,8 +73,7 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 	@Override
 	public InputStream getErrorStream() {
 		try {
-			afterRead();
-			return new BufferedInputStream(new SocketInputStream(socket, new DataInputStream(socket.getInputStream())));
+			return getInputStream();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -85,7 +83,7 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 	@Override
 	public InputStream getInputStream() throws IOException {
 		afterRead();
-		return new BufferedInputStream(new SocketInputStream(socket, new DataInputStream(socket.getInputStream())));
+		return new BufferedInputStream(new DataInputStream(socket.getInputStream()));
 	}
 
 	@Override
@@ -163,10 +161,12 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 
 		readStatus();
 
-		if (!URIUtil.statusIsOK(statusCode)) {
+		if (URIUtil.statusIsOK(statusCode)) {
+			statusCode = 0; // 重置状态,否则代理连接可能超时,仍然返回200
+		} else {
 			socket.close();
 			afterReader = true;
-			return;
+			throw new IOException("代理服务器连接失败");
 		}
 
 		SSLSocket s = (SSLSocket) ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(socket, url.getHost(), url.getPort(), true);
@@ -279,7 +279,7 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 		socket.getOutputStream().write(String.valueOf(0).getBytes());
 		socket.getOutputStream().write(NEWLINE);
 		socket.getOutputStream().write(NEWLINE);
-
+		socket.getOutputStream().flush();
 	}
 
 	@Override

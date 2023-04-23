@@ -216,4 +216,9 @@ public abstract class Response {
 	 */
 	protected abstract ByteArrayOutputStream bodyAsByteArray();
 
+	/**
+	 * 关闭当前会话,如果不获取返回数据,例:{@link #body()},则会导致socket通信堆积,对于一些服务器可能导致429错误
+	 */
+	public abstract void close();
+
 }

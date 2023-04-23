@@ -442,6 +442,10 @@ public class HtmlUnitUtil {
 			return this.body;
 		}
 
+		public void close() {
+			page.cleanUp();
+		}
+
 	}
 
 }

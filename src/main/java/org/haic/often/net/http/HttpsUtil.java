@@ -375,7 +375,7 @@ public class HttpsUtil {
 					}
 					default -> throw new HttpException("Unknown mode");
 				}
-				// conn.disconnect();
+
 				// 维护cookies
 				var headerFields = conn.getHeaderFields();
 				var cookies = headerFields.getOrDefault("Set-Cookie", headerFields.get("set-cookie"));
@@ -384,6 +384,7 @@ public class HttpsUtil {
 
 				String redirectUrl; // 修复重定向
 				if (followRedirects && URIUtil.statusIsNormal(res.statusCode()) && !Judge.isEmpty(redirectUrl = res.header("location"))) {
+					conn.disconnect();
 					return executeProgram(URIUtil.toAbsoluteUrl(requestUrl, redirectUrl), Method.GET, "");  // 跳转修正为GET
 				}
 				return res;
@@ -463,7 +464,8 @@ public class HttpsUtil {
 
 		public int statusCode() {
 			try {
-				return conn.getResponseCode();
+				var statusCode = conn.getResponseCode();
+				return statusCode == 0 ? HttpStatus.SC_REQUEST_TIMEOUT : statusCode;
 			} catch (Exception e) {
 				return HttpStatus.SC_REQUEST_TIMEOUT;
 			}
@@ -498,9 +500,19 @@ public class HttpsUtil {
 			try (var in = bodyStream()) {
 				var encoding = header("content-encoding");
 				var body = "gzip".equals(encoding) ? new GZIPInputStream(in) : "deflate".equals(encoding) ? new InflaterInputStream(in, new Inflater(true)) : "br".equals(encoding) ? new BrotliInputStream(in) : in;
-				return this.body = IOUtil.stream(body).toByteArrayOutputStream();
+				this.body = IOUtil.stream(body).toByteArrayOutputStream();
+				conn.disconnect();
+				return this.body;
 			} catch (Exception e) {
 				return null;
+			}
+		}
+
+		public void close() {
+			try {
+				conn.disconnect();
+			} catch (Exception e) {
+				//
 			}
 		}
 

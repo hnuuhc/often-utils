@@ -562,6 +562,14 @@ public class HttpClientUtil {
 			}
 		}
 
+		public void close() {
+			try {
+				res.close();
+			} catch (Exception e) {
+				//
+			}
+		}
+
 	}
 
 }
