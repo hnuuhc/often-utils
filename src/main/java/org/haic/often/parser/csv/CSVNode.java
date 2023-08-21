@@ -5,6 +5,8 @@ import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,7 +39,6 @@ public class CSVNode extends ArrayList<String> {
 							if (next == '"') {
 								sb.append(next);
 							} else if (next == ',') {
-								this.add(sb.toString());
 								break;
 							} else if (next == '\r') {
 								this.add(sb.toString());
@@ -50,12 +51,12 @@ public class CSVNode extends ArrayList<String> {
 								throw new IllegalStateException("索引 " + node.pos() + " 处期待值不为 '\"' 或 ','");
 							}
 						} else {
-							this.add(sb.toString());
 							break;
 						}
 					} else {
 						sb.append(n);
 					}
+					this.add(sb.toString());
 				}
 			} else {
 				while (node.isNoOutBounds()) {
@@ -72,7 +73,6 @@ public class CSVNode extends ArrayList<String> {
 							throw new IllegalStateException("索引 " + node.pos() + " 处期待值不为 '\"'");
 						}
 					} else if (n == ',') {
-						this.add(sb.toString());
 						break;
 					} else if (n == '\r') {
 						this.add(sb.toString());
@@ -86,6 +86,7 @@ public class CSVNode extends ArrayList<String> {
 					}
 					node.offset(1);
 				}
+				this.add(sb.toString());
 			}
 			node.offset(1);
 		}
@@ -198,6 +199,26 @@ public class CSVNode extends ArrayList<String> {
 	}
 
 	/**
+	 * 获取对应索引的值
+	 *
+	 * @param i 要返回的元素的索引
+	 * @return 值
+	 */
+	public BigDecimal getBigDecimal(int i) {
+		return this.get(i, BigDecimal.class);
+	}
+
+	/**
+	 * 获取对应索引的值
+	 *
+	 * @param i 要返回的元素的索引
+	 * @return 值
+	 */
+	public BigInteger getBigInteger(int i) {
+		return this.get(i, BigInteger.class);
+	}
+
+	/**
 	 * 转换为指定类型数组
 	 *
 	 * @param itemClass 指定类型
@@ -232,7 +253,10 @@ public class CSVNode extends ArrayList<String> {
 
 	@Override
 	public String toString() {
-		return this.stream().map(l -> '"' + l.replaceAll("\"", "\"\"") + '"').collect(Collectors.joining(","));
+		return this.stream().map(e -> {
+			var t = e.replaceAll("\"", "\"\"");
+			return e.contains(",") ? '"' + t + '"' : t;
+		}).collect(Collectors.joining(","));
 	}
 
 }

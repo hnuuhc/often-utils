@@ -106,7 +106,7 @@ public class HtmlUnitUtil {
 
 		private HtmlConnection initialization(@NotNull WebRequest request) {
 			this.request = request;
-			header("accept", "text/html, application/json, application/xhtml+xml;q=0.9, */*;q=0.8");
+			header("accept", "application/json, text/html;q=0.9, application/xhtml+xml;q=0.8, */*;q=0.7");
 			header("accept-language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6");
 			header("accept-encoding", "gzip, deflate, br"); // 允许压缩gzip,br-Brotli
 			return header("user-agent", UserAgent.chrome()); // 设置随机请求头

@@ -600,7 +600,7 @@ public class HLSDownload {
 		}
 
 		private int FULL(String url, long complete, int retry, File storage) {
-			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + complete + "-").cookies(cookies).failThrow(failThrow).execute();
+			var piece = HttpsUtil.connect(url).proxy(proxy).headers(headers).header("range", "bytes=" + complete + "-").cookies(cookies).failThrow(failThrow).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? FULL(url, piece, complete, retry, storage) : unlimit || retry > 0 ? FULL(url, complete, retry - 1, storage) : statusCode;
 		}

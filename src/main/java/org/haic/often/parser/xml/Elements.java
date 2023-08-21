@@ -41,7 +41,7 @@ public class Elements extends ArrayList<Element> {
 	 */
 	@NotNull
 	public String text() {
-		return this.stream().map(XmlTree::text).filter(e -> !e.isEmpty()).collect(Collectors.joining("\n"));
+		return this.stream().map(XmlTree::text).filter(e -> !e.isEmpty()).collect(Collectors.joining(" "));
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package org.haic.often.list;
+package org.haic.often.util;
 
 import java.io.Serial;
 import java.util.Collection;

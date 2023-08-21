@@ -1,5 +1,7 @@
 package org.haic.often.logger;
 
+import org.haic.often.util.ExceptionStack;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
@@ -96,12 +98,20 @@ public final class Logger {
 		this.log(Level.DEBUG, format, args);
 	}
 
+	public void debug(Exception e, Object... args) {
+		debug(ExceptionStack.getExceptionStack(e), args);
+	}
+
 	public boolean isInfoEnabled() {
 		return this.isEnabled(Level.INFO);
 	}
 
 	public void info(String format, Object... args) {
 		this.log(Level.INFO, format, args);
+	}
+
+	public void info(Exception e, Object... args) {
+		info(ExceptionStack.getExceptionStack(e), args);
 	}
 
 	public boolean isWarnEnabled() {
@@ -112,12 +122,20 @@ public final class Logger {
 		this.log(Level.WARN, format, args);
 	}
 
+	public void warn(Exception e, Object... args) {
+		warn(ExceptionStack.getExceptionStack(e), args);
+	}
+
 	public boolean isErrorEnabled() {
 		return this.isEnabled(Level.ERROR);
 	}
 
 	public void error(String format, Object... args) {
 		this.log(Level.ERROR, format, args);
+	}
+
+	public void error(Exception e, Object... args) {
+		error(ExceptionStack.getExceptionStack(e), args);
 	}
 
 }

@@ -8,6 +8,8 @@ import org.haic.often.parser.xml.XmlChilds;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -308,6 +310,26 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	public JSONArray getJSONArray(int i) {
 		return this.get(i, JSONArray.class);
+	}
+
+	/**
+	 * 获取对应索引的值
+	 *
+	 * @param i 要返回的元素的索引
+	 * @return 值
+	 */
+	public BigDecimal getBigDecimal(int i) {
+		return this.get(i, BigDecimal.class);
+	}
+
+	/**
+	 * 获取对应索引的值
+	 *
+	 * @param i 要返回的元素的索引
+	 * @return 值
+	 */
+	public BigInteger getBigInteger(int i) {
+		return this.get(i, BigInteger.class);
 	}
 
 	/**

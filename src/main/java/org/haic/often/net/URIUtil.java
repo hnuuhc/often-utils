@@ -29,7 +29,7 @@ public class URIUtil {
 
 	private static final Predicate<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(String.valueOf(c));
 	private static final Predicate<Character> safetyChar = c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
-	private static final Predicate<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isUpperCase(c);
+	private static final Predicate<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isLetter(c);
 
 	/**
 	 * 获取相对网址的绝对网址链接
@@ -494,7 +494,7 @@ public class URIUtil {
 				isByte = true;
 				i += 2;
 			}
-			if (c == '+') {
+			if (c == ' ' || c == '+') {
 				bytes.write(' ');
 			} else if (isByte) {
 				bytes.write(c);
@@ -524,9 +524,12 @@ public class URIUtil {
 			} else if (safetyChar.test(c) || specialSafetyChar.test(c)) {
 				sb.append(c);
 			} else {
-				@SuppressWarnings("DuplicatedCode") var bytes = String.valueOf(c).getBytes();
+				var bytes = String.valueOf(c).getBytes();
 				if (bytes.length == 1) {
-					sb.append("%").append(Integer.toHexString(c).toUpperCase());
+					sb.append("%");
+					var hex = Integer.toHexString(bytes[0]).toUpperCase();
+					if (hex.length() == 1) sb.append("0");
+					sb.append(hex);
 				} else {
 					for (var b : bytes) {
 						sb.append("%").append(Integer.toHexString((char) b).substring(2).toUpperCase());
@@ -560,7 +563,10 @@ public class URIUtil {
 			} else {
 				var bytes = String.valueOf(c).getBytes();
 				if (bytes.length == 1) {
-					sb.append("%").append(Integer.toHexString(c).toUpperCase());
+					sb.append("%");
+					var hex = Integer.toHexString(bytes[0]).toUpperCase();
+					if (hex.length() == 1) sb.append("0");
+					sb.append(hex);
 				} else {
 					for (var b : bytes) {
 						sb.append("%").append(Integer.toHexString((char) b).substring(2).toUpperCase());

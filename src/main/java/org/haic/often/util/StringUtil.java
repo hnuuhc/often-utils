@@ -1,6 +1,5 @@
 package org.haic.often.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.haic.often.annotations.NonNls;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.StringException;
@@ -29,7 +28,26 @@ import java.util.stream.Stream;
  * @version 1.0
  * @since 2021/3/27 15:12
  */
-public class StringUtil extends StringUtils {
+public class StringUtil {
+
+	/**
+	 * 判断字符串是否为整形数字
+	 *
+	 * @param str 字符串
+	 * @return 判断结果
+	 */
+	public static boolean isDigit(String str) {
+		if (null == str || str.length() == 0) return false;
+
+		for (int i = str.length(); --i >= 0; ) {
+			int c = str.charAt(i);
+			if (c < 48 || c > 57) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * 将字符串转换为md5值
@@ -111,7 +129,7 @@ public class StringUtil extends StringUtils {
 	 * @since 3.0 Changed signature from isBlank(String) to isBlank(CharSequence)
 	 */
 	public static boolean isBlank(final CharSequence cs) {
-		int strLen = length(cs);
+		int strLen = cs.length();
 		if (strLen == 0) return true;
 		for (int i = 0; i < strLen; i++) {
 			if (!Character.isWhitespace(cs.charAt(i))) return false;
@@ -132,6 +150,7 @@ public class StringUtil extends StringUtils {
 			switch (c) {
 				case '\\' -> sb.append("\\\\");
 				case '"' -> sb.append("\\\"");
+				case '\t' -> sb.append("\\t");
 				case '\r' -> sb.append("\\r");
 				case '\n' -> sb.append("\\n");
 				default -> sb.append(c);
@@ -316,6 +335,89 @@ public class StringUtil extends StringUtils {
 	}
 
 	/**
+	 * <p>Strips any of a set of characters from the start and end of a String.
+	 * This is similar to {@link String#trim()} but allows the characters
+	 * to be stripped to be controlled.</p>
+	 *
+	 * <p>A {@code null} input String returns {@code null}.
+	 * An empty string ("") input returns the empty string.</p>
+	 *
+	 * @param str        the String to remove characters from, may be null
+	 * @param stripChars the characters to remove, null treated as whitespace
+	 * @return the stripped String, {@code null} if null String input
+	 */
+	public static String strip(String str, final String stripChars) {
+		str = stripStart(str, stripChars);
+		return stripEnd(str, stripChars);
+	}
+
+	/**
+	 * <p>Strips any of a set of characters from the start of a String.</p>
+	 *
+	 * <p>A {@code null} input String returns {@code null}.
+	 * An empty string ("") input returns the empty string.</p>
+	 *
+	 * <p>If the stripChars String is {@code null}, whitespace is
+	 * stripped as defined by {@link Character#isWhitespace(char)}.</p>
+	 *
+	 * @param str        the String to remove characters from, may be null
+	 * @param stripChars the characters to remove, null treated as whitespace
+	 * @return the stripped String, {@code null} if null String input
+	 */
+	public static String stripStart(final String str, final String stripChars) {
+		final int strLen = str.length();
+		if (strLen == 0) {
+			return str;
+		}
+		int start = 0;
+		if (stripChars == null) {
+			while (start != strLen && Character.isWhitespace(str.charAt(start))) {
+				start++;
+			}
+		} else if (stripChars.isEmpty()) {
+			return str;
+		} else {
+			while (start != strLen && stripChars.indexOf(str.charAt(start)) != -1) {
+				start++;
+			}
+		}
+		return str.substring(start);
+	}
+
+	/**
+	 * <p>Strips any of a set of characters from the end of a String.</p>
+	 *
+	 * <p>A {@code null} input String returns {@code null}.
+	 * An empty string ("") input returns the empty string.</p>
+	 *
+	 * <p>If the stripChars String is {@code null}, whitespace is
+	 * stripped as defined by {@link Character#isWhitespace(char)}.</p>
+	 *
+	 * @param str        the String to remove characters from, may be null
+	 * @param stripChars the set of characters to remove, null treated as whitespace
+	 * @return the stripped String, {@code null} if null String input
+	 */
+	public static String stripEnd(final String str, final String stripChars) {
+		int end = str.length();
+		if (end == 0) {
+			return str;
+		}
+
+		if (stripChars == null) {
+			while (end != 0 && Character.isWhitespace(str.charAt(end - 1))) {
+				end--;
+			}
+		} else if (stripChars.isEmpty()) {
+			return str;
+		} else {
+			while (end != 0 && stripChars.indexOf(str.charAt(end - 1)) != -1) {
+				end--;
+			}
+		}
+		return str.substring(0, end);
+	}
+
+	/**
 	 * JSONP格式字符串转换为JSONObject
 	 *
 	 * @param str JSONP格式字符串
@@ -375,12 +477,34 @@ public class StringUtil extends StringUtils {
 	 */
 	public static String randomEmail(@NotNull String domain) {
 		domain = domain.indexOf(46) == 0 ? domain.substring(1) : domain;
-		int count = StringUtil.countMatches(domain, (char) 46);
+		int count = countMatches(domain, (char) 46);
 		if (count == 0) {
 			throw new StringException(domain + " not is domain");
 		}
 		String[] subdomain = domain.split("\\.");
 		return (RandomUtil.randomAlphanumeric(8, 16) + (char) 64 + subdomain[subdomain.length - 2] + (char) 46 + subdomain[subdomain.length - 1]).toLowerCase();
+	}
+
+	/**
+	 * Counts how many times the char appears in the given string.
+	 * A null or empty ("") String input returns 0.
+	 *
+	 * @param str the CharSequence to check, may be null
+	 * @param ch  the char to count
+	 * @return the number of occurrences, 0 if the CharSequence is null
+	 */
+	public static int countMatches(final CharSequence str, final char ch) {
+		if (str.isEmpty()) {
+			return 0;
+		}
+		int count = 0;
+		// We could also call str.toCharArray() for faster look ups but that would generate more garbage.
+		for (int i = 0; i < str.length(); i++) {
+			if (ch == str.charAt(i)) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	/**

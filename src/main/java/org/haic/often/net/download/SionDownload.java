@@ -529,7 +529,7 @@ public class SionDownload {
 		 * @return 下载并写入是否成功(状态码)
 		 */
 		private int FULL(int retry) {
-			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + MAX_COMPLETED + "-").cookies(cookies).failThrow(failThrow).execute();
+			var piece = HttpsUtil.connect(url).proxy(proxy).headers(headers).header("range", "bytes=" + MAX_COMPLETED + "-").cookies(cookies).failThrow(failThrow).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? FULL(piece, retry) : unlimit || retry > 0 ? FULL(retry - 1) : statusCode;
 		}
@@ -598,7 +598,7 @@ public class SionDownload {
 		 * @return 下载并写入是否成功(状态码)
 		 */
 		private int writePiece(long start, long flip, long end, int retry) {
-			var piece = HttpsUtil.connect(url).timeout(0).proxy(proxy).headers(headers).header("range", "bytes=" + flip + "-" + end).cookies(cookies).execute();
+			var piece = HttpsUtil.connect(url).proxy(proxy).headers(headers).header("range", "bytes=" + flip + "-" + end).cookies(cookies).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? writePiece(start, flip, end, piece, retry) : unlimit || retry > 0 ? writePiece(start, flip, end, retry - 1) : statusCode;
 		}

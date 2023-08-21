@@ -8,7 +8,8 @@ import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 
-import java.util.HashMap;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,7 +176,8 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @return 值
 	 */
 	public Object getOrDefault(@NotNull String key, @NotNull Object value) {
-		return JSONFormat.format(super.getOrDefault(key, value));
+		var this_value = super.get(key);
+		return JSONFormat.format(this_value == null ? value : this_value);
 	}
 
 	/**
@@ -423,6 +425,48 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param key 名称
 	 * @return 值
 	 */
+	public BigDecimal getBigDecimal(@NotNull String key) {
+		return this.get(key, BigDecimal.class);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	public BigDecimal getBigDecimalValue(@NotNull String key, double value) {
+		return TypeUtil.convert(this.getOrDefault(key, value), BigDecimal.class);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
+	public BigInteger getBigInteger(@NotNull String key) {
+		return this.get(key, BigInteger.class);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key   名称
+	 * @param value 不存在对应键时返回该值
+	 * @return 值
+	 */
+	public BigInteger getBigIntegerValue(@NotNull String key, double value) {
+		return TypeUtil.convert(this.getOrDefault(key, value), BigInteger.class);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key 名称
+	 * @return 值
+	 */
 	public JSONObject getJSONObject(@NotNull String key) {
 		return this.get(key, JSONObject.class);
 	}
@@ -469,7 +513,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @return Map数组
 	 */
 	public <K, V> Map<K, V> toMap(@NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
-		var map = new HashMap<K, V>();
+		var map = new LinkedHashMap<K, V>();
 		this.forEach((key, value) -> map.put(TypeUtil.convert(key, keyClass), TypeUtil.convert(value, valueClass)));
 		return map;
 	}

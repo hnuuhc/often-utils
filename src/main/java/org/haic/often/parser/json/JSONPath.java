@@ -89,7 +89,7 @@ public class JSONPath {
 					//noinspection StatementWithEmptyBody
 					while (cssQuery.charAt(index) != '.' && cssQuery.charAt(index) != '[' && ++index < cssQuery.length()) {}
 					var key = cssQuery.substring(off, index--);
-					result = ((Map<?, ?>) result).get(key);
+					result = TypeUtil.convertMap(result, Object.class, Object.class).get(key);
 				}
 				case '[' -> {
 					FourFunction<Object, Integer, Integer, Boolean, Object> filter = (obj, i, end, non) -> {

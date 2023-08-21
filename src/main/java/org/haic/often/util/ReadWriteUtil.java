@@ -129,7 +129,7 @@ public class ReadWriteUtil {
 		File parent = source.getParentFile();
 		if (parent != null) FileUtil.createFolder(parent);
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), DEFAULT_BUFFER_SIZE)) {
-			outStream.write(String.join(StringUtil.LF, lists) + StringUtil.LF); // 文件输出流用于将数据写入文件
+			outStream.write(String.join("\n", lists) + "\n"); // 文件输出流用于将数据写入文件
 			outStream.flush();
 			return true;
 		} catch (IOException e) {
@@ -195,7 +195,7 @@ public class ReadWriteUtil {
 	 * @return 写入是否成功
 	 */
 	public boolean write(@NotNull List<String> lists) {
-		return write(lists, StringUtil.SPACE);
+		return write(lists, " ");
 	}
 
 	/**

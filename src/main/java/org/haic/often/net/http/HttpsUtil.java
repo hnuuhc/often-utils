@@ -23,7 +23,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -74,7 +73,7 @@ public class HttpsUtil {
 		private String params = ""; // 表格请求参数
 		private int retry; // 请求异常重试次数
 		private int MILLISECONDS_SLEEP; // 重试等待时间
-		private int timeout = 10000; // 超时时间
+		private int timeout; // 超时时间
 		private boolean unlimit;// 请求异常无限重试
 		private boolean failThrow; // 错误异常
 		private boolean followRedirects = true; // 重定向
@@ -93,7 +92,7 @@ public class HttpsUtil {
 		}
 
 		private void initialization(@NotNull String url) {
-			header("accept", "text/html, application/json, application/xhtml+xml;q=0.9, */*;q=0.8");
+			header("accept", "application/json, text/html;q=0.9, application/xhtml+xml;q=0.8, */*;q=0.7");
 			header("accept-language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6");
 			header("accept-encoding", "gzip, deflate, br"); // 允许压缩gzip,br-Brotli
 			header("user-agent", UserAgent.chrome()).url(url);// 设置随机请求头;
@@ -220,7 +219,7 @@ public class HttpsUtil {
 
 		public Connection data(@NotNull String key, @NotNull String name, @NotNull InputStream in) {
 			var boundary = UUID.randomUUID().toString();
-			var head = "--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + name + "\"\r\n" + "content-type: application/octet-stream\r\n\r\n";
+			var head = "--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + URIUtil.encode(name) + "\"\r\n" + "content-type: application/octet-stream\r\n\r\n";
 			file = Tuple.of(boundary, head, in);
 			return contentType("multipart/form-data; boundary=" + boundary);
 		}
@@ -235,7 +234,7 @@ public class HttpsUtil {
 
 		public Connection requestBody(@NotNull String body) {
 			this.params = body;
-			return StringUtil.isJson(body) ? contentType("application/json;charset=UTF-8") : contentType("application/x-www-form-urlencoded;charset=UTF-8");
+			return StringUtil.isJson(body) ? contentType("application/json;charset=UTF-8") : contentType("multipart/form-data;charset=UTF-8");
 		}
 
 		public Connection socks(@NotNull String host, int port) {
@@ -375,18 +374,15 @@ public class HttpsUtil {
 					}
 					default -> throw new HttpException("Unknown mode");
 				}
-
-				// 维护cookies
-				var headerFields = conn.getHeaderFields();
-				var cookies = headerFields.getOrDefault("Set-Cookie", headerFields.get("set-cookie"));
-				cookies(cookies == null ? new HashMap<>() : cookies.stream().filter(l -> !l.equals("-") && !l.isBlank()).collect(Collectors.toMap(l -> l.substring(0, l.indexOf("=")), l -> l.substring(l.indexOf("=") + 1, l.indexOf(";")), (e1, e2) -> e2)));
 				var res = new HttpResponse(conn, this.cookies);
+				res.headers(); // 维护cookies
 
 				String redirectUrl; // 修复重定向
 				if (followRedirects && URIUtil.statusIsNormal(res.statusCode()) && !Judge.isEmpty(redirectUrl = res.header("location"))) {
 					conn.disconnect();
 					return executeProgram(URIUtil.toAbsoluteUrl(requestUrl, redirectUrl), Method.GET, "");  // 跳转修正为GET
 				}
+
 				return res;
 			} catch (IOException e) {
 				return new HttpResponse(conn, cookies);
@@ -425,7 +421,7 @@ public class HttpsUtil {
 			}
 			conn.setRequestProperty("connection", "close");
 			conn.setRequestMethod(method.name()); // 请求方法
-			conn.setConnectTimeout(timeout < 10000 && timeout != 0 ? timeout : 10000); // 连接超时
+			conn.setConnectTimeout(10000); // 连接超时
 			conn.setReadTimeout(timeout); // 读取超时
 			conn.setInstanceFollowRedirects(false); // 重定向,http和https之间无法遵守重定向
 
@@ -465,7 +461,7 @@ public class HttpsUtil {
 		public int statusCode() {
 			try {
 				var statusCode = conn.getResponseCode();
-				return statusCode == 0 ? HttpStatus.SC_REQUEST_TIMEOUT : statusCode;
+				return statusCode == 0 || statusCode == -1 ? HttpStatus.SC_REQUEST_TIMEOUT : statusCode;
 			} catch (Exception e) {
 				return HttpStatus.SC_REQUEST_TIMEOUT;
 			}
@@ -484,7 +480,24 @@ public class HttpsUtil {
 		}
 
 		public Map<String, String> headers() {
-			return headers == null ? headers = conn.getHeaderFields().entrySet().stream().filter(l -> l.getKey() != null).collect(Collectors.toMap(l -> l.getKey().toLowerCase(), l -> new String((l.getKey().equalsIgnoreCase("set-cookie") ? l.getValue().stream().filter(v -> !v.equals("-") && !v.isBlank()).map(v -> v.substring(0, v.indexOf(";"))).collect(Collectors.joining("; ")) : String.join("; ", l.getValue())).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8), (e1, e2) -> e2)) : headers;
+			if (headers == null) {
+				headers = new HashMap<>();
+				for (var header : conn.getHeaderFields().entrySet()) {
+					var key = header.getKey();
+					if (key == null) continue;
+					key = key.toLowerCase();
+					var value = header.getValue().stream().filter(e -> !e.equals("-") && !e.isBlank()).toList();
+					if (value.isEmpty()) continue;
+					if (key.equals("set-cookie")) {
+						var values = String.join("; ", value.stream().map(e -> e.substring(0, e.indexOf(";"))).toList());
+						headers.put(key, values);
+						cookies.putAll(StringUtil.toMap(values, "; "));
+					} else {
+						headers.put(key, String.join("; ", value));
+					}
+				}
+			}
+			return headers;
 		}
 
 		public Map<String, String> cookies() {
@@ -509,11 +522,7 @@ public class HttpsUtil {
 		}
 
 		public void close() {
-			try {
-				conn.disconnect();
-			} catch (Exception e) {
-				//
-			}
+			conn.disconnect();
 		}
 
 	}

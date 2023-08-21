@@ -24,13 +24,13 @@ public class TagAttrs extends HashMap<String, String> {
 			if (node.charAt() == '/' && node.charAt(node.pos() + 1) == '>') return;
 			var key = new StringBuilder();
 			for (var ck = node.charAt(); ck != '='; ck = node.offset(1).charAt()) {
-				if (node.charAt() == ' ') {
+				if (node.charAt() == ' ' || node.charAt() == '/' || node.charAt() == '>') {
 					this.put(key.toString(), null);
 					continue node;
 				}
 				key.append(ck);
 			}
-			switch (node.offset(1).charAt()) {
+			switch (node.offset(1).stripLeading().charAt()) {
 				case '"', '\'' -> this.put(key.toString(), node.intercept());
 				case '&' -> {
 					if (node.startsWith("&quot;")) {

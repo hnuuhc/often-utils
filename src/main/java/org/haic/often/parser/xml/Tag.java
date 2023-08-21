@@ -78,7 +78,7 @@ public class Tag {
 	 * @return 属性值
 	 */
 	public String attr(@NotNull String key) {
-		return attrs.get(key);
+		return Document.unescape(attrs.get(key));
 	}
 
 	/**

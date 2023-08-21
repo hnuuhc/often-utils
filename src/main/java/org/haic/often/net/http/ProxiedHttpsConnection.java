@@ -2,6 +2,7 @@ package org.haic.often.net.http;
 
 import org.haic.often.net.URIUtil;
 import org.haic.often.util.Base64Util;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -37,7 +38,7 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 		afterWrite();
 		return new FilterOutputStream(socket.getOutputStream()) {
 			@Override
-			public void write(byte[] b, int off, int len) throws IOException {
+			public void write(@NotNull byte[] b, int off, int len) throws IOException {
 				out.write(String.valueOf(len).getBytes());
 				out.write(NEWLINE);
 				out.write(b, off, len);
@@ -45,7 +46,7 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 			}
 
 			@Override
-			public void write(byte[] b) throws IOException {
+			public void write(@NotNull byte[] b) throws IOException {
 				out.write(String.valueOf(b.length).getBytes());
 				out.write(NEWLINE);
 				out.write(b);
@@ -276,6 +277,7 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 	private void afterWrite() throws IOException {
 		if (afterwritten) return;
 		afterwritten = true;
+		if (socket.isClosed()) return;
 		socket.getOutputStream().write(String.valueOf(0).getBytes());
 		socket.getOutputStream().write(NEWLINE);
 		socket.getOutputStream().write(NEWLINE);
@@ -286,8 +288,8 @@ public class ProxiedHttpsConnection extends HttpURLConnection {
 	public void disconnect() {
 		try {
 			afterWrite();
-		} catch (IOException e) {
-			e.printStackTrace();
+			socket.close();
+		} catch (IOException ignored) {
 		}
 	}
 

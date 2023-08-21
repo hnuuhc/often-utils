@@ -26,6 +26,14 @@ import java.util.stream.Collectors;
  */
 public class LocalLoginData {
 
+	static {
+		try {
+			Class.forName("org.sqlite.JDBC"); // load the sqlite-JDBC driver using the current class loader
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private LocalLoginData() {
 	}
 
@@ -109,7 +117,6 @@ public class LocalLoginData {
 		private Set<Data> processLoginData(String domainFilter) {
 			var loginDataList = new HashSet<Data>();
 			try (var connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {
-				Class.forName("org.sqlite.JDBC"); // load the sqlite-JDBC driver using the current class loader
 				storageCopy.delete();
 				FileUtil.copyFile(storage, storageCopy);
 				var statement = connection.createStatement();

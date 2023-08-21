@@ -34,7 +34,7 @@ public class ThreadUtil {
 	 *
 	 * @param millis 线程等待时间 (毫秒)
 	 */
-	public static void waitThread(int millis) {
+	public static void waitThread(long millis) {
 		try { // 程序等待
 			TimeUnit.MILLISECONDS.sleep(millis);
 		} catch (InterruptedException e) {

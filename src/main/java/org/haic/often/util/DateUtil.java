@@ -13,6 +13,56 @@ import java.util.Date;
  */
 public class DateUtil {
 
+	public static long gap(long t1, long t2) {
+		return (DateUtil.zeroPointsCalendar(t1).getTimeInMillis() - DateUtil.zeroPointsCalendar(t2).getTimeInMillis()) / (24 * 60 * 60 * 1000);
+	}
+
+	/**
+	 * 获取今天0点的日历
+	 *
+	 * @return 0点的日历
+	 */
+	public static Calendar zeroPointsCalendar() {
+		var calendar = Calendar.getInstance();  //得到日历
+		calendar.set(Calendar.HOUR_OF_DAY, 0); // 时
+		calendar.set(Calendar.MINUTE, 0);  // 分
+		calendar.set(Calendar.SECOND, 0); // 秒
+		calendar.set(Calendar.MILLISECOND, 0); // 毫秒
+		return calendar;
+	}
+
+	/**
+	 * 获取指定日期0点的日历
+	 *
+	 * @param date 日期
+	 * @return 0点的日历
+	 */
+	public static Calendar zeroPointsCalendar(Date date) {
+		var calendar = Calendar.getInstance();  //得到日历
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 0); // 时
+		calendar.set(Calendar.MINUTE, 0);  // 分
+		calendar.set(Calendar.SECOND, 0); // 秒
+		calendar.set(Calendar.MILLISECOND, 0); // 毫秒
+		return calendar;
+	}
+
+	/**
+	 * 获取指定日期0点的日历
+	 *
+	 * @param timestamp 时间戳
+	 * @return 0点的日历
+	 */
+	public static Calendar zeroPointsCalendar(long timestamp) {
+		var calendar = Calendar.getInstance();  //得到日历
+		calendar.setTimeInMillis(timestamp);
+		calendar.set(Calendar.HOUR_OF_DAY, 0); // 时
+		calendar.set(Calendar.MINUTE, 0);  // 分
+		calendar.set(Calendar.SECOND, 0); // 秒
+		calendar.set(Calendar.MILLISECOND, 0); // 毫秒
+		return calendar;
+	}
+
 	/**
 	 * 判断time是否在from，to之内
 	 *
@@ -22,11 +72,11 @@ public class DateUtil {
 	 * @return 判断结果
 	 */
 	public static boolean belongCalendar(Date time, Date from, Date to) {
-		Calendar date = Calendar.getInstance();
+		var date = Calendar.getInstance();
 		date.setTime(time);
-		Calendar after = Calendar.getInstance();
+		var after = Calendar.getInstance();
 		after.setTime(from);
-		Calendar before = Calendar.getInstance();
+		var before = Calendar.getInstance();
 		before.setTime(to);
 		return date.after(after) && date.before(before);
 	}
@@ -40,7 +90,7 @@ public class DateUtil {
 	 * @return 判断结果
 	 */
 	public static boolean belongDate(Date time, Date now, int n) {
-		Calendar calendar = Calendar.getInstance();  //得到日历
+		var calendar = Calendar.getInstance();  //得到日历
 		calendar.setTime(now);//把当前时间赋给日历
 		calendar.add(Calendar.DAY_OF_MONTH, n);
 		return calendar.getTime().getTime() < time.getTime();
@@ -129,7 +179,7 @@ public class DateUtil {
 	 * @return 判断结果
 	 */
 	public static boolean isThisWeek(Date time) {
-		Calendar calendar = Calendar.getInstance();
+		var calendar = Calendar.getInstance();
 		int currentWeek = calendar.get(Calendar.WEEK_OF_YEAR);
 		calendar.setTime(time);
 		int paramWeek = calendar.get(Calendar.WEEK_OF_YEAR);
@@ -157,7 +207,7 @@ public class DateUtil {
 	}
 
 	private static boolean isThisTime(Date time, String pattern) {
-		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		var sdf = new SimpleDateFormat(pattern);
 		return sdf.format(time).equals(sdf.format(new Date()));
 	}
 

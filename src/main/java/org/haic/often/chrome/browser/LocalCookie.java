@@ -25,6 +25,14 @@ import java.util.stream.Collectors;
  */
 public class LocalCookie {
 
+	static {
+		try {
+			Class.forName("org.sqlite.JDBC"); // load the sqlite-JDBC driver using the current class loader
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private LocalCookie() {
 	}
 
@@ -100,7 +108,7 @@ public class LocalCookie {
 		}
 
 		public Map<String, String> getForDomain(@NotNull String domain) {
-			return processCookies(domain).parallelStream().collect(Collectors.toMap(Data::getName, Data::getValue, (e1, e2) -> e2));
+			return processCookies(domain).parallelStream().collect(Collectors.toMap(Data::getName, Data::getValue, (e1, e2) -> e1));
 		}
 
 		/**
@@ -112,7 +120,6 @@ public class LocalCookie {
 		private Set<Data> processCookies(String domainFilter) {
 			var cookies = new HashSet<Data>();
 			try (var connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {
-				Class.forName("org.sqlite.JDBC");  // load the sqlite-JDBC driver using the current class loader
 				storageCopy.delete();
 				FileUtil.copyFile(storage, storageCopy);
 				var statement = connection.createStatement();

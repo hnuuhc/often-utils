@@ -97,10 +97,10 @@ public abstract class Connection {
 	public abstract Connection auth(@NotNull String auth);
 
 	/**
-	 * 设置连接超时时间，连接超时（ int millis）<br/>
-	 * 默认超时为 10000 毫秒，超时为零被视为无限超时<br/>
+	 * 设置读取超时时间，读取超时（ int millis）<br/>
+	 * 默认读取超时为 0 毫秒，超时为零被视为无限超时<br/>
 	 *
-	 * @param millis 超时连接或读取之前的毫秒数（千分之一秒）
+	 * @param millis 读取超时之前的毫秒数（千分之一秒）
 	 * @return 此连接，用于链接
 	 */
 	public abstract Connection timeout(int millis);
@@ -279,8 +279,14 @@ public abstract class Connection {
 		if (ipAddr.startsWith("[")) {
 			return socks(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 		} else {
-			int index = ipAddr.lastIndexOf(":");
-			return socks(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
+			var spilt = ipAddr.split("@");
+			var split2 = spilt[0].split(":");
+			if (spilt.length == 1) {
+				return socks(split2[0], Integer.parseInt(split2[1]));
+			} else {
+				var split3 = spilt[1].split(":");
+				return socks(split2[0], Integer.parseInt(split2[1]), split3[0], split3[1]);
+			}
 		}
 	}
 
@@ -319,8 +325,14 @@ public abstract class Connection {
 		if (ipAddr.startsWith("[")) {
 			return proxy(ipAddr.substring(1, ipAddr.indexOf(']')), Integer.parseInt(ipAddr.substring(ipAddr.lastIndexOf(":") + 1)));
 		} else {
-			int index = ipAddr.lastIndexOf(":");
-			return proxy(ipAddr.substring(0, index), Integer.parseInt(ipAddr.substring(index + 1)));
+			var spilt = ipAddr.split("@");
+			var split2 = spilt[0].split(":");
+			if (spilt.length == 1) {
+				return proxy(split2[0], Integer.parseInt(split2[1]));
+			} else {
+				var split3 = spilt[1].split(":");
+				return proxy(split2[0], Integer.parseInt(split2[1]), split3[0], split3[1]);
+			}
 		}
 	}
 

@@ -15,36 +15,30 @@ import java.security.cert.X509Certificate;
 public class MyX509TrustManager extends X509ExtendedTrustManager {
 	@Override
 	public void checkClientTrusted(X509Certificate[] arg0, String arg1) {
-
 	}
 
 	@Override
 	public void checkServerTrusted(X509Certificate[] arg0, String arg1) {
-
 	}
 
 	@Override
 	public X509Certificate[] getAcceptedIssuers() {
-		return null;
+		return new X509Certificate[0];
 	}
 
 	@Override
 	public void checkClientTrusted(X509Certificate[] arg0, String arg1, Socket arg2) {
-
 	}
 
 	@Override
 	public void checkClientTrusted(X509Certificate[] arg0, String arg1, SSLEngine arg2) {
-
 	}
 
 	@Override
 	public void checkServerTrusted(X509Certificate[] arg0, String arg1, Socket arg2) {
-
 	}
 
 	@Override
 	public void checkServerTrusted(X509Certificate[] arg0, String arg1, SSLEngine arg2) {
-
 	}
 }

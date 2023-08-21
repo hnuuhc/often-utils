@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--suppress VulnerableLibrariesLocal -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.22</version>
+    <version>1.2.24</version>
     <description>Java network common tools</description>
     <name>often-utils</name>
 
@@ -19,7 +20,7 @@
         <often.version>${project.version}</often.version>
 
         <!-- Java版本 -->
-        <java.version>19</java.version>
+        <java.version>20</java.version>
 
         <!-- Maven插件版本 -->
         <maven.source.version>3.2.1</maven.source.version>
@@ -131,6 +132,11 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.40.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>5.0.0-alpha.11</version>
         </dependency>
     </dependencies>
 

@@ -3,6 +3,7 @@ package org.haic.often.net.http;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.URIUtil;
+import org.haic.often.parser.csv.CSV;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
@@ -142,6 +143,15 @@ public abstract class Response {
 			charset = StandardCharsets.UTF_8;
 		}
 		return charset;
+	}
+
+	/**
+	 * 读取响应的正文并将其解析为CSV,如果连接超时或IO异常会返回null
+	 *
+	 * @return 已解析的CSV
+	 */
+	public CSV csv() {
+		return parse(CSV.class);
 	}
 
 	/**
