@@ -110,9 +110,25 @@ JSON解析器
 ### 简单示例:
 
 ```
-var json = JSONObject.parseObject(String); // 构建JSON对象
-var json = JSONArray.parseArray(String); // 构建JSON数组
-json.select(".cc[0]",Class); // 位置索引
+    var json = JSONObject.parseObject(String); // 构建JSON对象
+    var json = JSONArray.parseArray(String); // 构建JSON数组
+    json.select(".cc[0]",Class); // 位置索引
+
+    // SpringBoot注册JsonParam注解
+	@Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+		resolvers.add(0, new JsonParamAnnotationResolver());
+	}
+
+	@Bean
+	@Order(1)
+	public FilterRegistrationBean<Filter> inputStreamWrapperFilterRegistration() {
+		var registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(new InputStreamWrapperFilter());
+		registrationBean.setName("inputStreamWrapperFilter");
+		registrationBean.addUrlPatterns("/*");
+		return registrationBean;
+	}
 ```
 
 文件读写工具类
