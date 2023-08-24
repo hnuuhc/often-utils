@@ -79,7 +79,7 @@ public class OKHttpUtil {
 		private Map<String, String> cookies = new HashMap<>(); // 请求头
 		private List<Integer> retryStatusCodes = new ArrayList<>();
 
-		private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder().readTimeout(0, TimeUnit.SECONDS).sslSocketFactory(IgnoreSSLSocket.ignoreSSLContext().getSocketFactory(), new MyX509TrustManager());
+		private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(0, TimeUnit.SECONDS).sslSocketFactory(IgnoreSSLSocket.ignoreSSLContext().getSocketFactory(), new MyX509TrustManager());
 
 		private MultipartBody.Builder file;
 

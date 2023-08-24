@@ -184,11 +184,36 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * 获取名称对应键的值
 	 *
 	 * @param key   名称
-	 * @param value 不存在对应键时返回该值
+	 * @param value 不存在对应键时获取另一个键值
+	 * @return 值
+	 */
+	public Object getOrOther(@NotNull String key, @NotNull String value) {
+		var this_value = super.get(key);
+		return JSONFormat.format(this_value == null ? super.get(value) : this_value);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key       名称
+	 * @param value     不存在对应键时返回该值
+	 * @param itemClass 待转换等待类型
 	 * @return 值
 	 */
 	public <T> T getOrDefault(@NotNull String key, @NotNull Object value, @NotNull Class<T> itemClass) {
 		return TypeUtil.convert(this.getOrDefault(key, value), itemClass);
+	}
+
+	/**
+	 * 获取名称对应键的值
+	 *
+	 * @param key       名称
+	 * @param value     不存在对应键时获取另一个键值
+	 * @param itemClass 待转换等待类型
+	 * @return 值
+	 */
+	public <T> T getOrOther(@NotNull String key, @NotNull String value, @NotNull Class<T> itemClass) {
+		return TypeUtil.convert(this.getOrOther(key, value), itemClass);
 	}
 
 	/**
