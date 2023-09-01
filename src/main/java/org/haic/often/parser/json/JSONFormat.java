@@ -37,7 +37,7 @@ public class JSONFormat {
 		} else if (value.getClass().isArray()) {
 			return JSONArray.parseArray(Arrays.asList((Object[]) value));
 		} else {
-			return StringUtil.toEscape(String.valueOf(value));
+			return value;
 		}
 	}
 
