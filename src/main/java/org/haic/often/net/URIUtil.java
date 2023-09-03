@@ -14,6 +14,7 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -25,11 +26,23 @@ import java.util.function.Predicate;
  * @version 1.0
  * @since 2020/2/18 17:13
  */
+@SuppressWarnings("DuplicatedCode")
 public class URIUtil {
 
 	private static final Predicate<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(String.valueOf(c));
 	private static final Predicate<Character> safetyChar = c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 	private static final Predicate<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isLetter(c);
+
+	/**
+	 * 提取链接中的参数
+	 *
+	 * @param url 链接
+	 * @return 键值参数
+	 */
+	public static Map<String, String> getParams(String url) {
+		var index = url.indexOf("?");
+		return index == -1 ? new HashMap<>() : StringUtil.toMap(url.substring(index + 1), "&");
+	}
 
 	/**
 	 * 获取相对网址的绝对网址链接
