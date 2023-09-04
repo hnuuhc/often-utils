@@ -31,6 +31,19 @@ import java.util.stream.Stream;
 public class StringUtil {
 
 	/**
+	 * 提取指定两个字符串之间的文本
+	 *
+	 * @param str   字符串
+	 * @param start 起始位置字符串
+	 * @param end   结束位置字符串
+	 * @return 提取结果, 可能为null
+	 */
+	public static String between(String str, String start, String end) {
+		var extract = extract(str, start + ".*" + end);
+		return extract == null ? null : extract.substring(start.length(), extract.length() - end.length());
+	}
+
+	/**
 	 * 判断字符串是否为整形数字
 	 *
 	 * @param str 字符串
