@@ -72,9 +72,27 @@ public class StringUtil {
 		var builder = new StringBuilder();
 		try {
 			var md5 = MessageDigest.getInstance("MD5");
-			var bytes = md5.digest(text.getBytes(StandardCharsets.UTF_8));
+			var bytes = md5.digest(text.getBytes());
 			for (byte b : bytes) {
 				builder.append(Integer.toHexString((0x000000FF & b) | 0xFFFFFF00).substring(6));
+			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return builder.toString();
+	}
+
+	public static String getSha1(String text) {
+		var builder = new StringBuilder();
+		try {
+			var sha1 = MessageDigest.getInstance("SHA1");
+			var digests = sha1.digest(text.getBytes());
+			for (byte digest : digests) {
+				int halfbyte = (digest >>> 4) & 0x0F;
+				for (int i = 0; i < 2; i++) {
+					builder.append(halfbyte <= 9 ? (char) ('0' + halfbyte) : (char) ('a' + halfbyte - 10));
+					halfbyte = digest & 0x0F;
+				}
 			}
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();

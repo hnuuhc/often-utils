@@ -99,7 +99,19 @@ public class OKHttpUtil {
 			if (!(url = url.strip()).isEmpty() && !url.startsWith("http")) {
 				throw new HttpException("Only http & https protocols supported : " + url);
 			}
+			if ((url = url.contains("#") ? url.substring(0, url.indexOf("#")) : url).contains("?")) {
+				if (url.endsWith("?")) {
+					url = url.substring(0, url.length() - 1);
+				} else {
+					int index = url.indexOf("?");
+					url = url.substring(0, index + 1) + StringUtil.lines(url.substring(index + 1), "&").map(key -> {
+						int keyIndex = key.indexOf("=");
+						return key.substring(0, keyIndex + 1) + URIUtil.encodeValue(key.substring(keyIndex + 1));
+					}).collect(Collectors.joining("&"));
+				}
+			}
 			this.url = url;
+			params = "";
 			return this;
 		}
 

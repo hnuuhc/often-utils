@@ -139,7 +139,7 @@ public class HeCaiYunPan {
 		var date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 		var temstr = "";
 		if (!Judge.isEmpty(body)) {
-			char[] chars = URIUtil.encodeValue(body).replaceAll("\\+", "%20").replaceAll("%5F", "_").toCharArray();
+			var chars = URIUtil.encodeValue(body).replaceAll("\\+", "%20").replaceAll("%5F", "_").toCharArray();
 			Arrays.sort(chars);
 			temstr = new String(chars);
 		}

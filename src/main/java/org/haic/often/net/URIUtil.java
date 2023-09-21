@@ -507,7 +507,7 @@ public class URIUtil {
 				isByte = true;
 				i += 2;
 			}
-			if (c == ' ' || c == '+') {
+			if (c == '+') {
 				bytes.write(' ');
 			} else if (isByte) {
 				bytes.write(c);
