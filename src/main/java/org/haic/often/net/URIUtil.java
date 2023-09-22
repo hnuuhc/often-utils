@@ -507,9 +507,7 @@ public class URIUtil {
 				isByte = true;
 				i += 2;
 			}
-			if (c == '+') {
-				bytes.write(' ');
-			} else if (isByte) {
+			if (isByte) {
 				bytes.write(c);
 			} else {
 				bytes.writeBytes(String.valueOf(c).getBytes());
@@ -529,9 +527,7 @@ public class URIUtil {
 		var sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			if (c == ' ') {
-				sb.append("+");
-			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
+			if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
 			} else if (safetyChar.test(c) || specialSafetyChar.test(c)) {
@@ -566,9 +562,7 @@ public class URIUtil {
 		var sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			if (c == ' ') {
-				sb.append("+");
-			} else if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
+			if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
 			} else if (safetyChar.test(c)) {
