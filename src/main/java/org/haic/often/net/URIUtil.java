@@ -30,8 +30,7 @@ import java.util.function.Predicate;
 public class URIUtil {
 
 	private static final Predicate<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(String.valueOf(c));
-	private static final Predicate<Character> safetyChar = c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
-	private static final Predicate<Character> isDigit16Char = c -> Character.isDigit(c) || Character.isLetter(c);
+	private static final Predicate<Character> safetyChar = c -> (c >= 'A' && c <= 'z') || (c >= '0' && c <= '9');
 
 	/**
 	 * 提取链接中的参数
@@ -456,7 +455,7 @@ public class URIUtil {
 		if (s.length() != 0) {
 			for (int i = 0; i < s.length(); i++) {
 				char c = s.charAt(i);
-				if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
+				if (c == '%' && i + 2 < s.length() && safetyChar.test(s.charAt(i + 1)) && safetyChar.test(s.charAt(i + 2))) {
 					i += 2;
 					continue;
 				}
@@ -502,7 +501,7 @@ public class URIUtil {
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
 			boolean isByte = false;
-			while (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
+			while (c == '%' && i + 2 < s.length() && safetyChar.test(s.charAt(i + 1)) && safetyChar.test(s.charAt(i + 2))) {
 				c = (char) Integer.parseInt(s, i + 1, i + 3, 16);
 				isByte = true;
 				i += 2;
@@ -527,7 +526,7 @@ public class URIUtil {
 		var sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
+			if (c == '%' && i + 2 < s.length() && safetyChar.test(s.charAt(i + 1)) && safetyChar.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
 			} else if (safetyChar.test(c) || specialSafetyChar.test(c)) {
@@ -562,7 +561,7 @@ public class URIUtil {
 		var sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			if (c == '%' && i + 2 < s.length() && isDigit16Char.test(s.charAt(i + 1)) && isDigit16Char.test(s.charAt(i + 2))) {
+			if (c == '%' && i + 2 < s.length() && safetyChar.test(s.charAt(i + 1)) && safetyChar.test(s.charAt(i + 2))) {
 				sb.append(s, i, i + 3);
 				i += 2;
 			} else if (safetyChar.test(c)) {
