@@ -10,9 +10,7 @@ import org.haic.often.util.TypeUtil;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -541,6 +539,76 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 		var map = new LinkedHashMap<K, V>();
 		this.forEach((key, value) -> map.put(TypeUtil.convert(key, keyClass), TypeUtil.convert(value, valueClass)));
 		return map;
+	}
+
+	/**
+	 * 获取排序后的JSONOject对象
+	 *
+	 * @param comparator 排序规则
+	 * @return 排序后的JSONOject对象
+	 */
+	public JSONObject sort(@NotNull Comparator<Map.Entry<String, JSONObject>> comparator) {
+		var thisList = new ArrayList<>(this.toMap(String.class, JSONObject.class).entrySet());
+		thisList.sort(comparator);
+		var result = new JSONObject();
+		for (var info : thisList) result.put(info.getKey(), info.getValue());
+		return result;
+	}
+
+	/**
+	 * 获取排序后的JSONOject对象
+	 *
+	 * @param comparator 排序规则
+	 * @param limit      返回前N个数据
+	 * @return 排序后的JSONOject对象
+	 */
+	public JSONObject sort(@NotNull Comparator<Map.Entry<String, JSONObject>> comparator, int limit) {
+		var thisList = new ArrayList<>(this.toMap(String.class, JSONObject.class).entrySet());
+		thisList.sort(comparator);
+		var result = new JSONObject();
+		for (var info : thisList.stream().limit(limit).toList()) result.put(info.getKey(), info.getValue());
+		return result;
+	}
+
+	/**
+	 * 获取排序后的JSONOject对象
+	 *
+	 * @param comparator 排序规则
+	 * @param fromIndex  子列表的低端点（含）
+	 * @param toIndex    子列表的高端点（不包括）
+	 * @return 排序后的JSONOject对象
+	 */
+	public JSONObject sort(@NotNull Comparator<Map.Entry<String, JSONObject>> comparator, int fromIndex, int toIndex) {
+		var thisList = new ArrayList<>(this.toMap(String.class, JSONObject.class).entrySet());
+		thisList.sort(comparator);
+		var result = new JSONObject();
+		for (var info : thisList.subList(fromIndex, toIndex)) result.put(info.getKey(), info.getValue());
+		return result;
+	}
+
+	/**
+	 * 返回此列表中指定的fromIndex （包含）和toIndex （不包含）之间的部分的视图。
+	 * <p>
+	 * （如果fromIndex和toIndex相等，则返回的列表为空。）返回的列表受此列表支持，因此返回列表中的非结构性更改会反映在此列表中，反之亦然。
+	 * <p>
+	 * 返回的列表支持所有可选列表操作。
+	 * <p>
+	 * 此方法消除了对显式范围操作（数组通常存在的类型）的需要。通过传递子列表视图而不是整个列表，任何需要列表的操作都可以用作范围操作。例如，以下惯用法从列表中删除一系列元素：
+	 * list.subList(from, to).clear();
+	 * <p>
+	 * 可以为indexOf(Object)和lastIndexOf(Object)构建类似的习惯用法，并且Collections类中的所有算法都可以应用于子列表。
+	 * <p>
+	 * 如果支持列表（即此列表）以除返回列表之外的任何方式进行结构修改，则此方法返回的列表的语义将变得不确定。
+	 * <p>
+	 * （结构修改是那些改变此列表大小的修改，或者以其他方式扰乱它，以致正在进行的迭代可能会产生不正确的结果。）
+	 *
+	 * @param fromIndex 子列表的低端点（含）
+	 * @param toIndex   子列表的高端点（不包括）
+	 * @return 此列表中指定范围的视图
+	 */
+	public JSONObject subList(int fromIndex, int toIndex) {
+		var thisList = new ArrayList<>(this.toMap(String.class, JSONObject.class).entrySet());
+		return new JSONObject(thisList.subList(fromIndex, toIndex).stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
 	/**

@@ -1,9 +1,10 @@
-package org.haic.often.parser.json;
+package org.haic.often.annotations.json;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import org.haic.often.annotations.JsonParam;
+import org.haic.often.exception.MissJSONParametersException;
+import org.haic.often.exception.TypeException;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.TypeUtil;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
@@ -31,14 +32,21 @@ public class JsonParamAnnotationResolver implements HandlerMethodArgumentResolve
 
 	@Override
 	public Object resolveArgument(@Nullable MethodParameter parameter, ModelAndViewContainer modelAndViewContainer, @Nullable NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) {
-		try {
-			assert parameter != null;
-			var jsonParam = parameter.getParameterAnnotation(JsonParam.class);
-			assert jsonParam != null;
-			return TypeUtil.convert(RequestBodyScope.get(jsonParam.value()), parameter.getParameterType());
-		} catch (Exception e) {
-			throw new IllegalArgumentException(e);
+		assert parameter != null;
+		var param = parameter.getParameterAnnotation(JsonParam.class);
+		assert param != null;
+		var value = TypeUtil.convert(RequestBodyScope.get(param.value()), parameter.getParameterType());
+		var exist = param.exist();
+		if (exist.length > 0) {
+			if (value instanceof JSONObject json) {
+				for (var key : exist) {
+					if (json.get(key) == null) throw new MissJSONParametersException("缺少参数");
+				}
+			} else {
+				throw new TypeException("参数不为JSON类型");
+			}
 		}
+		return value;
 	}
 
 	/**
@@ -46,7 +54,7 @@ public class JsonParamAnnotationResolver implements HandlerMethodArgumentResolve
 	 */
 	public static JavaType getJavaType(Type type, Class<?> contextClass) {
 		//MAPPER这个可以使用ObjectMapperUtils中ObjectMapper
-		TypeFactory typeFactory = objectMapper.getTypeFactory();
+		var typeFactory = objectMapper.getTypeFactory();
 		//这种是处理public <T extends User> T testEnvV3(@JsonParam("users") List<T> user) 这种类型。
 		return typeFactory.constructType(GenericTypeResolver.resolveType(type, contextClass));
 	}

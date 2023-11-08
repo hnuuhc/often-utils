@@ -24,9 +24,12 @@ public class TagAttrs extends HashMap<String, String> {
 			if (node.charAt() == '/' && node.charAt(node.pos() + 1) == '>') return;
 			var key = new StringBuilder();
 			for (var ck = node.charAt(); ck != '='; ck = node.offset(1).charAt()) {
-				if (node.charAt() == ' ' || node.charAt() == '/' || node.charAt() == '>') {
+				if (node.charAt() == ' ' || node.charAt() == '/') {
 					this.put(key.toString(), null);
 					continue node;
+				} else if (node.charAt() == '>') { // 最后一个属性退出循环,防止指针加一
+					this.put(key.toString(), null);
+					break node;
 				}
 				key.append(ck);
 			}

@@ -1,12 +1,12 @@
-package org.haic.often.parser.json;
+package org.haic.often.annotations.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.haic.often.Judge;
+import org.haic.often.exception.JSONException;
 import org.haic.often.util.IOUtil;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.IOException;
 import java.util.Map;
 
 import static com.fasterxml.jackson.databind.type.TypeFactory.defaultInstance;
@@ -37,7 +37,7 @@ public class RequestBodyScope {
 		try (var input = request.getInputStream()) {
 			return fromJson(IOUtil.stream(input).read());
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new JSONException(e);
 		}
 	}
 
@@ -49,8 +49,8 @@ public class RequestBodyScope {
 		try {
 			//json串转化为特定格式的Map对象
 			return MAPPER.readValue(json, defaultInstance().constructMapType(Map.class, String.class, Object.class));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new JSONException(e);
 		}
 	}
 

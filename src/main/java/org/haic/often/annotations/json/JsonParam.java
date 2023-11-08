@@ -1,4 +1,4 @@
-package org.haic.often.annotations;
+package org.haic.often.annotations.json;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.web.bind.annotation.ValueConstants;
@@ -15,6 +15,8 @@ public @interface JsonParam {
 	@AliasFor("name") String value() default "";
 
 	@AliasFor("value") String name() default "";
+
+	String[] exist() default {};
 
 	boolean required() default true;
 
