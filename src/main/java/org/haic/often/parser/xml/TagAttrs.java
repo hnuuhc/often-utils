@@ -38,7 +38,11 @@ public class TagAttrs extends HashMap<String, String> {
 				case '&' -> {
 					if (node.startsWith("&quot;")) {
 						int index = node.offset(6).indexOf("&quot;");
-						this.put(key.toString(), node.offset(6).substring(node.pos(), index));
+						this.put(key.toString(), node.substring(node.pos(), index));
+						node.offset(6);
+					} else if (node.startsWith("&#34;")) {
+						int index = node.offset(5).indexOf("&#34;");
+						this.put(key.toString(), node.substring(node.pos(), index));
 						node.offset(5);
 					} else {
 						throw new IllegalArgumentException("在索引 " + node.pos() + " 处存在未知意义符号");
