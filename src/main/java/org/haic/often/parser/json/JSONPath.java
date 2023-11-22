@@ -83,6 +83,7 @@ public class JSONPath {
 	public <T> T select(@NotNull String cssQuery, Class<T> clazz) {
 		Object result = this.json;
 		for (int index = 0; index < cssQuery.length(); index++) {
+			if (result == null) return null;
 			switch (cssQuery.charAt(index)) {
 				case '.' -> {
 					int off = ++index;
