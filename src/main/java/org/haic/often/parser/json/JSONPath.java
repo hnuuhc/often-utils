@@ -98,7 +98,6 @@ public class JSONPath {
 						Function<Predicate<Map<String, Integer>>, Object> mapIntCompare = predicate -> TypeUtil.convertList(as, Map.class).stream().map(l -> TypeUtil.convert(l, new TypeReference<Map<String, Integer>>() {})).filter(predicate).collect(Collectors.toList());
 						Function<Predicate<Map<String, Boolean>>, Object> mapBoolCompare = predicate -> TypeUtil.convertList(as, Map.class).stream().map(l -> TypeUtil.convert(l, new TypeReference<Map<String, Boolean>>() {})).filter(predicate).collect(Collectors.toList());
 						Function<Predicate<Map<String, String>>, Object> mapStringCompare = predicate -> TypeUtil.convertList(as, Map.class).stream().map(l -> TypeUtil.convert(l, new TypeReference<Map<String, String>>() {})).filter(predicate).collect(Collectors.toList());
-
 						switch (cssQuery.charAt(i)) {
 							case '<' -> {
 								int a = cssQuery.charAt(++i) == '=' ? Integer.parseInt(cssQuery.substring(++i, end)) + 1 : Integer.parseInt(cssQuery.substring(i, end));
@@ -246,12 +245,18 @@ public class JSONPath {
 					} else if (cssQuery.charAt(index) == '@') {
 						result = filter.apply(result, ++index, index = cssQuery.indexOf("]", index), false);
 					} else if (cssQuery.charAt(index) == '\'') {
-						var key = cssQuery.substring(++index, index = cssQuery.indexOf("'", index) + 1);
+						var key = cssQuery.substring(++index, index = cssQuery.indexOf("'", index));
+						index++;
 						result = ((Map<?, ?>) result).get(key);
 					} else {
-						Validate.isTrue(result instanceof Collection, "上次查询结果不为数组");
 						var key = Integer.parseInt(cssQuery.substring(index, index = cssQuery.indexOf("]", index)));
-						result = ((List<?>) result).get(key);
+						if (result instanceof Collection<?> c) {
+							result = c.toArray()[key];
+						} else if (result instanceof Object[] c) {
+							result = c[key];
+						} else {
+							throw new IllegalArgumentException("上次查询结果不为数组");
+						}
 					}
 				}
 				case '|' -> {
