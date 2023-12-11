@@ -255,7 +255,7 @@ public class JSONPath {
 						} else if (result instanceof Object[] c) {
 							result = c[key];
 						} else {
-							throw new IllegalArgumentException("上次查询结果不为数组");
+							result = TypeUtil.convert(result, JSONArray.class).get(key);
 						}
 					}
 				}
