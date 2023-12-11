@@ -88,9 +88,19 @@ public class ParserStringBuilder {
 		return intercept(charAt());
 	}
 
+	public String interceptNoEscape() {
+		return interceptNoEscape(charAt());
+	}
+
 	public String intercept(char eof) {
 		var sb = new StringBuilder();
 		for (char c = body.charAt(++index); c != eof; c = body.charAt(++index)) sb.append(c == '\\' ? interceptChar() : c);
+		return sb.toString();
+	}
+
+	public String interceptNoEscape(char eof) {
+		var sb = new StringBuilder();
+		for (char c = body.charAt(++index); c != eof; c = body.charAt(++index)) sb.append(c);
 		return sb.toString();
 	}
 
@@ -100,6 +110,16 @@ public class ParserStringBuilder {
 			var c = body.charAt(index);
 			if (c == eof) break;
 			sb.append(c == '\\' ? interceptChar() : c);
+		}
+		return sb.toString();
+	}
+
+	public String interceptOrEofNoEscape(char eof) {
+		var sb = new StringBuilder();
+		while (++index < length) {
+			var c = body.charAt(index);
+			if (c == eof) break;
+			sb.append(c);
 		}
 		return sb.toString();
 	}

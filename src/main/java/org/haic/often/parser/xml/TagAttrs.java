@@ -34,7 +34,7 @@ public class TagAttrs extends HashMap<String, String> {
 				key.append(ck);
 			}
 			switch (node.offset(1).stripLeading().charAt()) {
-				case '"', '\'' -> this.put(key.toString(), node.intercept());
+				case '"', '\'' -> this.put(key.toString(), node.interceptNoEscape());
 				case '&' -> {
 					if (node.startsWith("&quot;")) {
 						int index = node.offset(6).indexOf("&quot;");
