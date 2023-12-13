@@ -117,7 +117,9 @@ public class LocalStorage {
 					var keyBytes = entry.getKey();
 					if (keyBytes[1] == 104) {
 						int index = StringUtil.search(keyBytes, (byte) 0);
-						var domain = URIUtil.getHost(Decrypt.levelDBDecode(Arrays.copyOfRange(keyBytes, 0, index)));
+						var decrypt = Decrypt.levelDBDecode(Arrays.copyOfRange(keyBytes, 0, index));
+						if (decrypt.contains("^0")) continue;
+						var domain = URIUtil.getHost(decrypt);
 						if (!Judge.isEmpty(domainFilter) && !domain.contains(domainFilter)) {
 							continue;
 						}
