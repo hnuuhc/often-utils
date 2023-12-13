@@ -4,6 +4,7 @@ import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +48,11 @@ public class TagAttrs extends HashMap<String, String> {
 					} else {
 						throw new IllegalArgumentException("在索引 " + node.pos() + " 处存在未知意义符号");
 					}
+				}
+				default -> {
+					var value = node.intercept(List.of(' ', '/', '>'));
+					if (node.charAt() == '>') node.offset(-1);
+					this.put(key.toString(), value);
 				}
 			}
 		}

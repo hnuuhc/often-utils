@@ -3,6 +3,8 @@ package org.haic.often.parser;
 import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 
+import java.util.List;
+
 /**
  * 用于存储StringBuilder和位置下标
  *
@@ -95,6 +97,12 @@ public class ParserStringBuilder {
 	public String intercept(char eof) {
 		var sb = new StringBuilder();
 		for (char c = body.charAt(++index); c != eof; c = body.charAt(++index)) sb.append(c == '\\' ? interceptChar() : c);
+		return sb.toString();
+	}
+
+	public String intercept(List<Character> eofs) {
+		var sb = new StringBuilder();
+		for (char c = body.charAt(index); !eofs.contains(c); c = body.charAt(++index)) sb.append(c == '\\' ? interceptChar() : c);
 		return sb.toString();
 	}
 
