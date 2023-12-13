@@ -51,7 +51,7 @@ public class TagAttrs extends HashMap<String, String> {
 				}
 				default -> {
 					var value = node.intercept(List.of(' ', '/', '>'));
-					if (node.charAt() == '>') node.offset(-1);
+					node.offset(-1); // 循环后会自动加一会导致越界
 					this.put(key.toString(), value);
 				}
 			}
