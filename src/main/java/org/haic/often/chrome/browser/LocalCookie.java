@@ -125,7 +125,7 @@ public class LocalCookie {
 				if (Files.isReadable(storage.toPath())) {
 					FileUtil.copyFile(storage, storageCopy);
 				} else { // 新版浏览器对文件占用锁定,必须将其解锁才能复制,目前没有解决办法
-					throw new RuntimeException("文件被浏览器锁定,无法复制");
+					throw new RuntimeException("文件被浏览器锁定,无法复制(临时解决办法,任务管理器关闭所有浏览器进程,在快捷方式中,添加打开参数: --disable-features=LockProfileCookieDatabase)");
 				}
 				var statement = connection.createStatement();
 				statement.setQueryTimeout(30); // set timeout to 30 seconds
