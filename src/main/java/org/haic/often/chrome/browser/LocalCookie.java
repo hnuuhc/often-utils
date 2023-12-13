@@ -10,6 +10,7 @@ import org.haic.often.util.ReadWriteUtil;
 import org.haic.often.util.SystemUtil;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.sql.DriverManager;
 import java.util.HashSet;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class LocalCookie {
 			encryptedKey = Decrypt.getEncryptedKey(this.home = home);
 			var folder = new File(home, "Default");
 			storage = new File(folder, "Network\\Cookies"); // 新版本位置
-			storage = storage.exists() ? storage : new File(folder, "Cookies"); // 旧版本位置
+			if (!storage.exists()) storage = new File(folder, "Cookies"); // 旧版本位置
 			if (!storage.exists()) throw new RuntimeException("未找到 Cookies 文件");
 		}
 
@@ -121,7 +122,11 @@ public class LocalCookie {
 			var cookies = new HashSet<Data>();
 			try (var connection = DriverManager.getConnection("jdbc:sqlite:" + storageCopy.getAbsolutePath())) {
 				storageCopy.delete();
-				FileUtil.copyFile(storage, storageCopy);
+				if (Files.isReadable(storage.toPath())) {
+					FileUtil.copyFile(storage, storageCopy);
+				} else { // 新版浏览器对文件占用锁定,必须将其解锁才能复制,目前没有解决办法
+					throw new RuntimeException("文件被浏览器锁定,无法复制");
+				}
 				var statement = connection.createStatement();
 				statement.setQueryTimeout(30); // set timeout to 30 seconds
 				var result = Judge.isEmpty(domainFilter) ? statement.executeQuery("select * from cookies") : statement.executeQuery("select * from cookies where host_key like \"%" + domainFilter + "%\"");
