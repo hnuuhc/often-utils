@@ -365,19 +365,15 @@ public class TypeUtil {
 	 * @return 类或接口对象
 	 */
 	public static Class<?> getRawType(Type type) {
-		if (type instanceof Class<?> classType) {
-			return classType;
-		} else if (type instanceof ParameterizedType parameterizedType) {
-			return (Class<?>) parameterizedType.getRawType();
-		} else if (type instanceof GenericArrayType genericArrayType) {
-			return Array.newInstance(getRawType(genericArrayType.getGenericComponentType()), 0).getClass();
-		} else if (type instanceof TypeVariable) {
-			return Object.class;
-		} else if (type instanceof WildcardType wildcardType) {
-			return getRawType(wildcardType.getUpperBounds()[0]);
-		} else {
-			throw new IllegalArgumentException("Expected a Class, ParameterizedType or GenericArrayType, but <" + type + "> is of type " + (type == null ? "null" : type.getClass().getName()));
-		}
+		return switch (type) {
+			case Class<?> classType -> classType;
+			case ParameterizedType parameterizedType -> (Class<?>) parameterizedType.getRawType();
+			case GenericArrayType genericArrayType -> Array.newInstance(getRawType(genericArrayType.getGenericComponentType()), 0).getClass();
+			case TypeVariable<?> ignored -> Object.class;
+			case WildcardType wildcardType -> getRawType(wildcardType.getUpperBounds()[0]);
+			case null, default ->
+					throw new IllegalArgumentException("Expected a Class, ParameterizedType or GenericArrayType, but <" + type + "> is of type " + (type == null ? "null" : type.getClass().getName()));
+		};
 	}
 
 }
