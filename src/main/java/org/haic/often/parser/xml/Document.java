@@ -168,7 +168,8 @@ public class Document extends Element {
 	 * @param s 待反转义字符串
 	 * @return 反转义后的字符串
 	 */
-	public static String unescape(@NotNull String s) {
+	public static String unescape(String s) {
+		if (s == null) return null;
 		var sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			if (s.charAt(i) == '&') {
