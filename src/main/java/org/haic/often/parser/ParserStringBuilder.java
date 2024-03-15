@@ -160,6 +160,15 @@ public class ParserStringBuilder {
 		return stripLeading().stripTrailing();
 	}
 
+	public ParserStringBuilder stripnote() {
+		this.stripLeading();
+		while (this.startsWith("//")) {
+			if (this.startsWith("//")) while (index < length && body.charAt(index) != '\n') index++;
+			this.stripLeading();
+		}
+		return this;
+	}
+
 	public ParserStringBuilder stripLeading() {
 		while (index < length && Character.isWhitespace(body.charAt(index))) index++; // 跳过空格
 		return this;

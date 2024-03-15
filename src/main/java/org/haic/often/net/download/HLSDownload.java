@@ -459,8 +459,8 @@ public class HLSDownload {
 					if (Judge.isEmpty(fileName)) {
 						fileName = url.substring(url.lastIndexOf("/") + 1);
 						fileName = URIUtil.decode(fileName.contains("?") ? fileName.substring(0, fileName.indexOf("?")) : fileName);
-						fileName = fileName.substring(0, fileName.lastIndexOf(".") + 1) + "mp4";
 						fileName = FileUtil.illegalFileName(fileName); // 文件名排除非法字符
+						fileName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".") + 1) + "mp4" : fileName + ".mp4";
 						FileUtil.fileNameValidity(fileName);
 					}
 					// 获取待下载文件和配置文件对象
@@ -563,7 +563,7 @@ public class HLSDownload {
 						} else { // AES/CBC/PKCS7Padding解密
 							var cipher = Cipher.getInstance("AES/CBC/NoPadding");
 							var keySpec = new SecretKeySpec(key.getBytes(), "AES");
-							var ivSpec = new IvParameterSpec(iv.substring(0, 16).getBytes());
+							var ivSpec = new IvParameterSpec(iv.isEmpty() ? new byte[16] : iv.substring(0, 16).getBytes());
 							cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
 							for (int i = 0; i < links.size(); i++) {
 								var file = new File(folder, i + ".ts");
@@ -577,6 +577,7 @@ public class HLSDownload {
 						session.delete(); // 删除会话信息文件
 						folder.delete(); // 删除文件夹
 					} catch (Exception e) {
+						e.printStackTrace();
 						throw new AESException(e);
 					}
 				} catch (IOException e) {

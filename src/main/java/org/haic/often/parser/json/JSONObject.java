@@ -34,7 +34,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 */
 	public JSONObject(@NotNull ParserStringBuilder body) {
 		if (body.charAt() != '{') throw new JSONException("位置 " + body.pos() + " 处格式错误期望值不为'{'");
-		if (body.offset(1).stripLeading().charAt() == '}') return;
+		if (body.offset(1).stripnote().charAt() == '}') return;
 		while (body.isNoOutBounds()) {
 			if (body.charAt() == ':') throw new JSONException("位置 " + body.pos() + " 处不存在键");
 			String key;
@@ -51,8 +51,8 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					key = keySb.toString();
 				}
 			}
-			if (body.stripLeading().charAt() != ':') throw new JSONException("位置 " + body.pos() + " 处期望值不为':'");
-			body.offset(1).stripLeading();
+			if (body.stripnote().charAt() != ':') throw new JSONException("位置 " + body.pos() + " 处期望值不为':'");
+			body.offset(1).stripnote();
 			switch (body.charAt()) {
 				case '"', '\'' -> this.put(key, body.intercept());
 				case '{' -> this.put(key, new JSONObject(body));
@@ -90,9 +90,9 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 				}
 				default -> throw new JSONException("位置 " + body.pos() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 			}
-			if (body.offset(1).stripLeading().charAt() == '}') return;
+			if (body.offset(1).stripnote().charAt() == '}') return;
 			if (body.charAt() != ',') throw new JSONException("位置 " + body.pos() + " 处期望值不为分隔符','");
-			body.offset(1).stripLeading();
+			body.offset(1).stripnote();
 		}
 		throw new JSONException("数据未封闭");
 	}

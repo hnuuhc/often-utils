@@ -34,7 +34,7 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	public JSONArray(@NotNull ParserStringBuilder body) {
 		if (body.charAt() == '[') {
-			if (body.offset(1).stripLeading().charAt() == ']') return;
+			if (body.offset(1).stripnote().charAt() == ']') return;
 			while (body.isNoOutBounds()) {
 				switch (body.charAt()) {
 					case '"', '\'' -> this.add(body.intercept());
@@ -73,9 +73,9 @@ public class JSONArray extends ArrayList<Object> {
 					}
 					default -> throw new JSONException("位置 " + body.pos() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 				}
-				if (body.offset(1).stripLeading().charAt() == ']') return;
+				if (body.offset(1).stripnote().charAt() == ']') return;
 				if (body.charAt() != ',') throw new JSONException("位置 " + body.pos() + " 处期望值不为分隔符','");
-				body.offset(1).stripLeading();
+				body.offset(1).stripnote();
 			}
 			throw new JSONException("数据未封闭");
 		} else if (body.charAt(body.pos()) == '{') {
