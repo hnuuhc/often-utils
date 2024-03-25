@@ -234,3 +234,9 @@ TianYiYunPan.login(username,password).getInfoAsHome(); // 获取主页文件列�
 
 YunPan123.login(auth).getStraight(fileInfo); // 根据JSON配置获取直链
 ```
+
+## 鸣谢
+
+感谢[**JetBrains**](https://www.jetbrains.com/zh-cn/community/opensource/#support)提供的开源开发许可证，JetBrains 通过为核心项目贡献者免费提供一套一流的开发者工具来支持非商业开源项目。
+
+[<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/zh-cn/community/opensource/#support)
