@@ -43,11 +43,11 @@ public class ParserStringBuilder {
 		return length;
 	}
 
-	public int pos() {
+	public int site() {
 		return index;
 	}
 
-	public ParserStringBuilder pos(int index) {
+	public ParserStringBuilder site(int index) {
 		this.index = index;
 		return this;
 	}
@@ -163,7 +163,8 @@ public class ParserStringBuilder {
 	public ParserStringBuilder stripnote() {
 		this.stripLeading();
 		while (this.startsWith("//")) {
-			if (this.startsWith("//")) while (index < length && body.charAt(index) != '\n') index++;
+			index += 2;
+			while (index < length && body.charAt(index) != '\n') index++;
 			this.stripLeading();
 		}
 		return this;

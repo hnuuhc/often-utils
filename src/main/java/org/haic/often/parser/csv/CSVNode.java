@@ -42,13 +42,13 @@ public class CSVNode extends ArrayList<String> {
 								break;
 							} else if (next == '\r') {
 								this.add(sb.toString());
-								if (node.charAt(node.pos() + 1) == '\n') node.offset(1);
+								if (node.charAt(node.site() + 1) == '\n') node.offset(1);
 								return;
 							} else if (next == '\n') {
 								this.add(sb.toString());
 								return;
 							} else {
-								throw new IllegalStateException("索引 " + node.pos() + " 处期待值不为 '\"' 或 ','");
+								throw new IllegalStateException("索引 " + node.site() + " 处期待值不为 '\"' 或 ','");
 							}
 						} else {
 							break;
@@ -67,16 +67,16 @@ public class CSVNode extends ArrayList<String> {
 							if (next == '"') {
 								sb.append(next);
 							} else {
-								throw new IllegalStateException("索引 " + node.pos() + " 处期待值不为 '\"'");
+								throw new IllegalStateException("索引 " + node.site() + " 处期待值不为 '\"'");
 							}
 						} else {
-							throw new IllegalStateException("索引 " + node.pos() + " 处期待值不为 '\"'");
+							throw new IllegalStateException("索引 " + node.site() + " 处期待值不为 '\"'");
 						}
 					} else if (n == ',') {
 						break;
 					} else if (n == '\r') {
 						this.add(sb.toString());
-						if (node.charAt(node.pos() + 1) == '\n') node.offset(1);
+						if (node.charAt(node.site() + 1) == '\n') node.offset(1);
 						return;
 					} else if (n == '\n') {
 						this.add(sb.toString());

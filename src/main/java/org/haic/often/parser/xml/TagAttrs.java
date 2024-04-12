@@ -22,7 +22,7 @@ public class TagAttrs extends HashMap<String, String> {
 		node:
 		for (var c = node.offset(1).stripLeading().charAt(); c != '>'; c = node.offset(1).stripLeading().charAt()) {
 			if (c == '<') return;
-			if (node.charAt() == '/' && node.charAt(node.pos() + 1) == '>') return;
+			if (node.charAt() == '/' && node.charAt(node.site() + 1) == '>') return;
 			var key = new StringBuilder();
 			for (var ck = node.charAt(); ck != '='; ck = node.offset(1).charAt()) {
 				if (node.charAt() == ' ' || node.charAt() == '/') {
@@ -39,14 +39,14 @@ public class TagAttrs extends HashMap<String, String> {
 				case '&' -> {
 					if (node.startsWith("&quot;")) {
 						int index = node.offset(6).indexOf("&quot;");
-						this.put(key.toString(), node.substring(node.pos(), index));
+						this.put(key.toString(), node.substring(node.site(), index));
 						node.offset(6);
 					} else if (node.startsWith("&#34;")) {
 						int index = node.offset(5).indexOf("&#34;");
-						this.put(key.toString(), node.substring(node.pos(), index));
+						this.put(key.toString(), node.substring(node.site(), index));
 						node.offset(5);
 					} else {
-						throw new IllegalArgumentException("在索引 " + node.pos() + " 处存在未知意义符号");
+						throw new IllegalArgumentException("在索引 " + node.site() + " 处存在未知意义符号");
 					}
 				}
 				default -> {

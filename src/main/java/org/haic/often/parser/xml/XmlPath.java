@@ -51,7 +51,7 @@ public class XmlPath {
 	@NotNull
 	public Elements select(String cssQuery) {
 		var es = new Elements(this.es);
-		for (var sb = new ParserStringBuilder(cssQuery); sb.stripLeading().pos() < sb.length(); sb.offset(1)) {
+		for (var sb = new ParserStringBuilder(cssQuery); sb.stripLeading().site() < sb.length(); sb.offset(1)) {
 			switch (sb.charAt()) {
 				case '.' -> {
 					var value = sb.interceptOrEof(' ');

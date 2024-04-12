@@ -28,15 +28,15 @@ public class Tag {
 		if (node.offset(1).charAt() == '/' || node.charAt() == '!') return; // 结束标签和注释
 		var name = new StringBuilder();
 		for (var c = node.charAt(); c != '>'; c = node.offset(1).charAt()) {
-			if (c == '/' && node.charAt(node.pos() + 1) == '>') {
-				var e = node.charAt(node.pos() + 1);
+			if (c == '/' && node.charAt(node.site() + 1) == '>') {
+				var e = node.charAt(node.site() + 1);
 				if (e == '>' || (e == ' ' && node.stripLeading().charAt() == '>')) {
 					this.isClose = true;
 					this.attrs = new TagAttrs();
 					node.offset(1);
 					break;
 				}
-				throw new IllegalArgumentException("在索引 " + node.pos() + " 处存在未知意义 '/' 符号");
+				throw new IllegalArgumentException("在索引 " + node.site() + " 处存在未知意义 '/' 符号");
 			}
 			if (c == ' ') {
 				this.attrs = new TagAttrs(node);

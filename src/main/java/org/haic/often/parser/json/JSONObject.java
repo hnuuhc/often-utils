@@ -33,10 +33,10 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param body 字符串
 	 */
 	public JSONObject(@NotNull ParserStringBuilder body) {
-		if (body.charAt() != '{') throw new JSONException("位置 " + body.pos() + " 处格式错误期望值不为'{'");
+		if (body.charAt() != '{') throw new JSONException("位置 " + body.site() + " 处格式错误期望值不为'{'");
 		if (body.offset(1).stripnote().charAt() == '}') return;
 		while (body.isNoOutBounds()) {
-			if (body.charAt() == ':') throw new JSONException("位置 " + body.pos() + " 处不存在键");
+			if (body.charAt() == ':') throw new JSONException("位置 " + body.site() + " 处不存在键");
 			String key;
 			switch (body.charAt()) {
 				case '"', '\'' -> {
@@ -51,7 +51,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					key = keySb.toString();
 				}
 			}
-			if (body.stripnote().charAt() != ':') throw new JSONException("位置 " + body.pos() + " 处期望值不为':'");
+			if (body.stripnote().charAt() != ':') throw new JSONException("位置 " + body.site() + " 处期望值不为':'");
 			body.offset(1).stripnote();
 			switch (body.charAt()) {
 				case '"', '\'' -> this.put(key, body.intercept());
@@ -59,17 +59,17 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 				case '[' -> this.put(key, new JSONArray(body));
 				case 'n' -> {
 					if (body.startsWith("null")) this.put(key, null);
-					else throw new JSONException("位置 " + body.pos() + " 处期望值不为'null'");
+					else throw new JSONException("位置 " + body.site() + " 处期望值不为'null'");
 					body.offset(3);
 				}
 				case 't' -> {
 					if (body.startsWith("true")) this.put(key, true);
-					else throw new JSONException("位置 " + body.pos() + " 处期望值不为'true'");
+					else throw new JSONException("位置 " + body.site() + " 处期望值不为'true'");
 					body.offset(3);
 				}
 				case 'f' -> {
 					if (body.startsWith("false")) this.put(key, false);
-					else throw new JSONException("位置 " + body.pos() + " 处期望值不为'false'");
+					else throw new JSONException("位置 " + body.site() + " 处期望值不为'false'");
 					body.offset(4);
 				}
 				case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
@@ -88,10 +88,10 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					this.put(key, new JSONNumber(value.toString()));
 					body.offset(-1); // 修正索引
 				}
-				default -> throw new JSONException("位置 " + body.pos() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
+				default -> throw new JSONException("位置 " + body.site() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 			}
 			if (body.offset(1).stripnote().charAt() == '}') return;
-			if (body.charAt() != ',') throw new JSONException("位置 " + body.pos() + " 处期望值不为分隔符','");
+			if (body.charAt() != ',') throw new JSONException("位置 " + body.site() + " 处期望值不为分隔符','");
 			body.offset(1).stripnote();
 		}
 		throw new JSONException("数据未封闭");
@@ -106,7 +106,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	public static JSONObject parseObject(@NotNull String body) {
 		var builder = new ParserStringBuilder(body).strip();
 		var object = new JSONObject(builder);
-		if (builder.pos() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
+		if (builder.site() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
 		return object;
 	}
 
