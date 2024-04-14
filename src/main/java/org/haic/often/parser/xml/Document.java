@@ -36,7 +36,7 @@ public class Document extends Element {
 	public static Document parse(String body, boolean isHtml) {
 		if (body == null) return null;
 		var sb = new ParserStringBuilder(body).strip();
-		if (sb.startsWith("\uFEFF")) sb.offset(1); // 去除特殊符号
+		if (sb.startsWith("\uFEFF")) sb.offset(1).stripLeading(); // 去除特殊符号
 		while (sb.startsWith("<!--")) sb.site(sb.indexOf("-->", sb.site() + 4) + 3); // 去除注释
 		if (sb.stripLeading().startsWith("<!")) {
 			var typeTail = sb.indexOf(">", sb.site() + 2) + 1;
