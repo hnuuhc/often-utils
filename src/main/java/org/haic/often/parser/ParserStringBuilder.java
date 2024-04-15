@@ -185,8 +185,9 @@ public class ParserStringBuilder {
 	}
 
 	public ParserStringBuilder stripnote(@NotNull String s) {
+		var len = s.length();
 		while (this.stripLeading().startsWith(s)) {
-			index += 2;
+			index += len;
 			while (index < length && body.charAt(index) != '\n') index++;
 		}
 		return this;
