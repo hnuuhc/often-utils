@@ -1,8 +1,7 @@
 package org.haic.often.chrome.browser;
 
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
-import org.haic.often.parser.json.JSON;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.RandomUtil;
@@ -100,7 +99,7 @@ public class LocalCookie {
 				var domain = cookie.getDomain();
 				var info = result.getJSONObject(domain);
 				if (info == null) {
-					result.put(cookie.getDomain(), JSON.of(cookie.getName(), cookie.getValue()));
+					result.put(cookie.getDomain(), JSONObject.of(cookie.getName(), cookie.getValue()));
 				} else {
 					info.put(cookie.getName(), cookie.getValue());
 				}

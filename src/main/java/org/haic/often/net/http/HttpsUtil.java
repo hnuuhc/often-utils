@@ -2,7 +2,7 @@ package org.haic.often.net.http;
 
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;

@@ -2,7 +2,7 @@ package org.haic.often.net.ftp;
 
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.io.CopyStreamListener;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 

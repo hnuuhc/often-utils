@@ -1,7 +1,7 @@
 package org.haic.often.ffmpeg;
 
 import org.haic.often.Terminal;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.ReadWriteUtil;
 

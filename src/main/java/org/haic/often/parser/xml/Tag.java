@@ -1,6 +1,6 @@
 package org.haic.often.parser.xml;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 
 import java.util.Map;

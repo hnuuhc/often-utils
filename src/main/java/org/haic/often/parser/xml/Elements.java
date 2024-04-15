@@ -1,6 +1,6 @@
 package org.haic.often.parser.xml;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.function.Predicate;

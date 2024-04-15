@@ -1,6 +1,6 @@
 package org.haic.often.logger;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.StringJoiner;
 

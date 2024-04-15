@@ -5,7 +5,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.io.CopyStreamListener;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.DownloadException;
 import org.haic.often.net.URIUtil;
 import org.haic.often.util.FileUtil;

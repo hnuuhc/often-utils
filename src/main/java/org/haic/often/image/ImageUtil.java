@@ -1,6 +1,6 @@
 package org.haic.often.image;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -1,6 +1,6 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.charset.Charset;

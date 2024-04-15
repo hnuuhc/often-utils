@@ -1,11 +1,12 @@
 package org.haic.often.parser.json;
 
-import org.haic.often.annotations.NotNull;
+import org.haic.often.exception.JSONException;
 import org.haic.often.function.FourFunction;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
 import org.haic.often.util.Validate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
@@ -24,7 +25,12 @@ public class JSONPath {
 	private final Object json;
 
 	public JSONPath(@NotNull String json) {
-		this.json = new ParserStringBuilder(json).stripLeading().charAt() == '[' ? JSONArray.parseArray(json) : JSONObject.parseObject(json);
+		var body = new ParserStringBuilder(json).stripjsonnote();
+		switch (body.charAt()) {
+			case '[' -> this.json = new JSONArray(body);
+			case '{' -> this.json = new JSONObject(body);
+			default -> throw new JSONException("不为JSON数据类型");
+		}
 	}
 
 	public JSONPath(JSONObject json) {

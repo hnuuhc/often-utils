@@ -2,7 +2,7 @@ package org.haic.often.compress;
 
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;

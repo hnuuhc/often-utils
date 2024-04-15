@@ -4,7 +4,7 @@ import okhttp3.*;
 import okio.BufferedSink;
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.*;
 import org.haic.often.parser.json.JSONObject;

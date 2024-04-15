@@ -1,9 +1,8 @@
 package org.haic.often.chrome.browser;
 
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.net.URIUtil;
-import org.haic.often.parser.json.JSON;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.FileUtil;
 import org.haic.often.util.RandomUtil;
@@ -96,7 +95,7 @@ public class LocalLoginData {
 				var domain = loginData.getDomain();
 				var info = result.getJSONObject(domain);
 				if (info == null) {
-					result.put(loginData.getDomain(), JSON.of(loginData.getName(), loginData.getValue()));
+					result.put(loginData.getDomain(), JSONObject.of(loginData.getName(), loginData.getValue()));
 				} else {
 					info.put(loginData.getName(), loginData.getValue());
 				}

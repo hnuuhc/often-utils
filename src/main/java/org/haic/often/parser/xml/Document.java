@@ -1,7 +1,7 @@
 package org.haic.often.parser.xml;
 
-import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 这是一个html和xml解析器,使用方法为 Document doc = Document.parse(String)
@@ -97,8 +97,11 @@ public class Document extends Element {
 				continue;
 			}
 
-			if (node.charAt() == '!') { // 去除注释
-				node.site(node.indexOf("-->", tagHeadIndex + 3) + 2);
+			if (node.charAt() == '!') { // 注释
+				var notestart = tagHeadIndex + 4;
+				var noteend = node.indexOf("-->", notestart);
+				tree.addChild(new XmlNote(node.substring(notestart, noteend).strip()));
+				node.site(noteend + 2);
 				continue;
 			}
 

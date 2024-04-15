@@ -1,12 +1,12 @@
 package org.haic.often.parser.json;
 
-import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.parser.xml.Element;
 import org.haic.often.parser.xml.XmlChilds;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -25,6 +25,10 @@ public class JSONArray extends ArrayList<Object> {
 
 	public JSONArray() {super();}
 
+	public JSONArray(@NotNull String s) {
+		this(new ParserStringBuilder(s));
+	}
+
 	public JSONArray(Collection<?> c) {super(c);}
 
 	/**
@@ -33,9 +37,9 @@ public class JSONArray extends ArrayList<Object> {
 	 * @param body 字符串
 	 */
 	public JSONArray(@NotNull ParserStringBuilder body) {
-		if (body.charAt() == '[') {
-			if (body.offset(1).stripnote().charAt() == ']') return;
-			while (body.isNoOutBounds()) {
+		if (body.stripjsonnote().charAt() == '[') {
+			while (body.offset(1).stripjsonnote().isNoOutBounds()) {
+				if (body.charAt() == ']') return;
 				switch (body.charAt()) {
 					case '"', '\'' -> this.add(body.intercept());
 					case '{' -> this.add(new JSONObject(body));
@@ -55,27 +59,54 @@ public class JSONArray extends ArrayList<Object> {
 						else throw new JSONException("位置 " + body.site() + " 处期望值不为'false'");
 						body.offset(4);
 					}
-					case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+					case 'I' -> {
+						if (body.startsWith("Infinity")) this.add(new JSONNumber("Infinity"));
+						else throw new JSONException("位置 " + body.site() + " 处期望值不为'Infinity'");
+						body.offset(7);
+					}
+					case 'N' -> {
+						if (body.startsWith("NaN")) this.add(new JSONNumber("NaN"));
+						else throw new JSONException("位置 " + body.site() + " 处期望值不为'NaN'");
+						body.offset(2);
+					}
+					case '+', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.' -> {
 						var value = new StringBuilder();
-						do {
-							value.append(body.charAt());
-						} while (Character.isDigit(body.offset(1).charAt()) || body.charAt() == '.');
-						if (body.charAt() == 'e' || body.charAt() == 'E') { // 自然数
-							value.append('e');
-							if (body.offset(1).charAt() == '+') {
-								value.append('+');
-								body.offset(1);
+						if (body.startsWith("-Infinity")) {
+							value.append("-Infinity");
+							body.offset(9);
+						} else if (body.startsWith("0x")) {
+							value.append("0x");
+							body.offset(2);
+							whileint16:
+							do {
+								value.append(body.charAt());
+								switch (body.offset(1).charAt()) {
+									case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' -> {}
+									default -> {break whileint16;}
+								}
+							} while (true);
+						} else {
+							do {
+								value.append(body.charAt());
+							} while (Character.isDigit(body.offset(1).charAt()) || body.charAt() == '.');
+							switch (body.charAt()) {
+								case 'e', 'E' -> {
+									value.append('e');
+									if (body.offset(1).charAt() == '+') {
+										value.append('+');
+										body.offset(1);
+									}
+									do value.append(body.charAt()); while (Character.isDigit(body.offset(1).charAt()));
+								}
 							}
-							do value.append(body.charAt()); while (Character.isDigit(body.offset(1).charAt()));
 						}
 						this.add(new JSONNumber(value.toString()));
 						body.offset(-1); // 修正索引
 					}
 					default -> throw new JSONException("位置 " + body.site() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
 				}
-				if (body.offset(1).stripnote().charAt() == ']') return;
+				if (body.offset(1).stripjsonnote().charAt() == ']') return;
 				if (body.charAt() != ',') throw new JSONException("位置 " + body.site() + " 处期望值不为分隔符','");
-				body.offset(1).stripnote();
 			}
 			throw new JSONException("数据未封闭");
 		} else if (body.charAt(body.site()) == '{') {
@@ -85,6 +116,10 @@ public class JSONArray extends ArrayList<Object> {
 		}
 	}
 
+	public static JSONArray of(Object... args) {
+		return new JSONArray().fluentAddAll(List.of(args));
+	}
+
 	/**
 	 * 解析并获取JSON数组
 	 *
@@ -92,10 +127,8 @@ public class JSONArray extends ArrayList<Object> {
 	 * @return JSON数组
 	 */
 	public static JSONArray parseArray(@NotNull String body) {
-		var builder = new ParserStringBuilder(body).strip();
-		var object = new JSONArray(builder);
-		if (builder.site() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
-		return object;
+		// if (builder.site() + 1 != builder.length()) throw new JSONException("格式错误,在封闭符号之后仍然存在数据");
+		return new JSONArray(new ParserStringBuilder(body));
 	}
 
 	/**

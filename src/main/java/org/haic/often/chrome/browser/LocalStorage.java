@@ -5,9 +5,8 @@ import com.protonail.leveldb.jna.LevelDBKeyValueIterator;
 import com.protonail.leveldb.jna.LevelDBOptions;
 import com.protonail.leveldb.jna.LevelDBReadOptions;
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.net.URIUtil;
-import org.haic.often.parser.json.JSON;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.*;
 
@@ -87,7 +86,7 @@ public class LocalStorage {
 				var domain = storage.getDomain();
 				var info = result.getJSONObject(domain);
 				if (info == null) {
-					result.put(domain, JSON.of(storage.getName(), storage.getValue()));
+					result.put(domain, JSONObject.of(storage.getName(), storage.getValue()));
 				} else {
 					info.put(storage.getName(), storage.getValue());
 				}

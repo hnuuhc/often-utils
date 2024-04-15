@@ -1,6 +1,6 @@
 package org.haic.often.function;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -41,7 +41,7 @@ public interface ThreeFunction<A, B, C, R> {
 	 *              composed function
 	 * @param after the function to apply after this function is applied
 	 * @return a composed function that first applies this function and then
-	 * 		applies the {@code after} function
+	 * applies the {@code after} function
 	 * @throws NullPointerException if after is null
 	 */
 	default <V> ThreeFunction<A, B, C, V> andThen(@NotNull Function<? super R, ? extends V> after) {

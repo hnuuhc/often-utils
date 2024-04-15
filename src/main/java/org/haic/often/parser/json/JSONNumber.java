@@ -1,6 +1,6 @@
 package org.haic.often.parser.json;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 针对JSON数据中的未知类型数字实现的包装类,内部仅存储数字字符串

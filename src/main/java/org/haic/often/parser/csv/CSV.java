@@ -1,6 +1,6 @@
 package org.haic.often.parser.csv;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;

@@ -1,6 +1,6 @@
 package org.haic.often.chrome.browser;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.parser.json.JSONObject;
 
 import java.io.File;

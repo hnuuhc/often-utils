@@ -1,7 +1,7 @@
 package org.haic.often.netdisc;
 
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalStorage;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.URIUtil;

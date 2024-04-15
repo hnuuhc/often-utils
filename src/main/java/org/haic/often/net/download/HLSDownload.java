@@ -1,7 +1,7 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.AESException;
 import org.haic.often.exception.HLSDownloadException;
 import org.haic.often.function.StringFunction;

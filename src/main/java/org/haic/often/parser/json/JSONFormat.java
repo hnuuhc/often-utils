@@ -113,10 +113,10 @@ public class JSONFormat {
 			return toOutFormat(value.toString(), depth);
 		} else if (value instanceof Number || value instanceof Boolean) {
 			return value.toString();
-		} else if (value instanceof JSONArray) {
-			return ((JSONArray) value).toString(depth + 1);
-		} else if (value instanceof JSONObject) {
-			return ((JSONObject) value).toString(depth + 1);
+		} else if (value instanceof JSONArray json) {
+			return json.toString(depth + 1);
+		} else if (value instanceof JSONObject json) {
+			return json.toString(depth + 1);
 		} else if (value instanceof Collection<?> c) {
 			return JSONArray.parseArray(c).toString(depth + 1);
 		} else if (value instanceof Map<?, ?> m) {

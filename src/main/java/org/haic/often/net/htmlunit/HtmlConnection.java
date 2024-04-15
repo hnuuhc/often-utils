@@ -1,6 +1,6 @@
 package org.haic.often.net.htmlunit;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.net.Method;
 import org.haic.often.net.http.Response;
 

@@ -1,6 +1,6 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.TypeException;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;

@@ -1,6 +1,6 @@
 package org.haic.often;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.SystemUtil;
 

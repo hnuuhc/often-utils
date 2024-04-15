@@ -1,6 +1,6 @@
 package org.haic.often.net.ftp;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.Proxy;
 import java.nio.charset.Charset;

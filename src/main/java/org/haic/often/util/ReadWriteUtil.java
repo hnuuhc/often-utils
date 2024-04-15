@@ -1,7 +1,6 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.NotNull;
-import org.haic.often.parser.json.JSON;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
@@ -435,7 +434,7 @@ public class ReadWriteUtil {
 	 */
 	public JSONObject readJSON() {
 		var str = read();
-		return str.isEmpty() ? null : JSON.parseObject(str);
+		return str.isEmpty() ? null : JSONObject.parseObject(str);
 	}
 
 	/**
@@ -445,7 +444,7 @@ public class ReadWriteUtil {
 	 */
 	public JSONArray readJSONArray() {
 		var str = read();
-		return str.isEmpty() ? null : JSON.parseArray(str);
+		return str.isEmpty() ? null : JSONArray.parseArray(str);
 	}
 
 	/**

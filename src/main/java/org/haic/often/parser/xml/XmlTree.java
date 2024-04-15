@@ -1,9 +1,9 @@
 package org.haic.often.parser.xml;
 
-import org.haic.often.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -34,6 +34,17 @@ public class XmlTree extends Tag {
 	protected XmlTree(XmlTree parent, @NotNull ParserStringBuilder node) {
 		super(node);
 		this.parent = parent;
+	}
+
+	/**
+	 * 添加一个子节点
+	 *
+	 * @param child 子节点
+	 * @return 当前节点
+	 */
+	public XmlTree addChild(@NotNull XmlNote child) {
+		this.childs.add(child);
+		return this;
 	}
 
 	/**

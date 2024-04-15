@@ -1,6 +1,6 @@
 package org.haic.often.ffmpeg;
 
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 

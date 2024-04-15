@@ -1,7 +1,7 @@
 package org.haic.often.parser;
 
-import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.JSONException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -147,6 +147,7 @@ public class ParserStringBuilder {
 			case '&' -> {return '&';}
 			case '0' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 8);}
 			case 'x' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 16);}
+			case '\n' -> {return '\n';} // 兼容json5
 			default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
 		}
 	}
@@ -160,12 +161,33 @@ public class ParserStringBuilder {
 		return stripLeading().stripTrailing();
 	}
 
+	public ParserStringBuilder stripjsonnote() {
+		while (true) {
+			var nonote = true;
+			if (this.stripLeading().startsWith("/*")) {
+				var end = this.indexOf("*/", index += 2);
+				if (end == -1) throw new JSONException("注释不存在结束符号");
+				index = end + 2;
+				nonote = false;
+			}
+			if (this.stripLeading().startsWith("//")) {
+				index += 2;
+				while (index < length && this.charAt() != '\n') index++;
+				nonote = false;
+			}
+			if (nonote) break;
+		}
+		return this;
+	}
+
 	public ParserStringBuilder stripnote() {
-		this.stripLeading();
-		while (this.startsWith("//")) {
+		return stripnote("//");
+	}
+
+	public ParserStringBuilder stripnote(@NotNull String s) {
+		while (this.stripLeading().startsWith(s)) {
 			index += 2;
 			while (index < length && body.charAt(index) != '\n') index++;
-			this.stripLeading();
 		}
 		return this;
 	}

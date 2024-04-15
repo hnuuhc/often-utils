@@ -4,7 +4,7 @@ import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.apache.commons.logging.LogFactory;
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;

@@ -1,7 +1,7 @@
 package org.haic.often.util;
 
 import org.haic.often.Terminal;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.File;

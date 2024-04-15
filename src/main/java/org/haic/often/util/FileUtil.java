@@ -2,7 +2,7 @@ package org.haic.often.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.haic.often.Judge;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.StringException;
 
 import javax.swing.filechooser.FileSystemView;

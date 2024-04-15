@@ -1,11 +1,11 @@
 package org.haic.often.util;
 
-import org.haic.often.annotations.NonNls;
-import org.haic.often.annotations.NotNull;
 import org.haic.often.exception.StringException;
 import org.haic.often.function.ByteFunction;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;

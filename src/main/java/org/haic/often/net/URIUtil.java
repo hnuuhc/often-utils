@@ -2,7 +2,7 @@ package org.haic.often.net;
 
 import org.apache.http.HttpStatus;
 import org.haic.often.Terminal;
-import org.haic.often.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.util.Base64Util;
 import org.haic.often.util.ListUtil;
