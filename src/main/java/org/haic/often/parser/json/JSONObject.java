@@ -37,10 +37,10 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @param body 字符串
 	 */
 	public JSONObject(@NotNull ParserStringBuilder body) {
-		if (body.stripjsonnote().charAt() != '{') throw new JSONException("位置 " + body.site() + " 处格式错误期望值不为'{'");
+		if (body.stripjsonnote().charAt() != '{') throw new JSONException(body);
 		while (body.offset(1).stripjsonnote().isNoOutBounds()) {
 			if (body.charAt() == '}') return;
-			if (body.charAt() == ':') throw new JSONException("位置 " + body.site() + " 处不存在键");
+			if (body.charAt() == ':') throw new JSONException(body);
 			String key;
 			switch (body.charAt()) {
 				case '"', '\'' -> {
@@ -55,7 +55,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					key = keySb.toString();
 				}
 			}
-			if (body.stripjsonnote().charAt() != ':') throw new JSONException("位置 " + body.site() + " 处期望值不为':'");
+			if (body.stripjsonnote().charAt() != ':') throw new JSONException(body);
 			body.offset(1).stripjsonnote();
 			switch (body.charAt()) {
 				case '"', '\'' -> this.put(key, body.intercept());
@@ -63,27 +63,27 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 				case '[' -> this.put(key, new JSONArray(body));
 				case 'n' -> {
 					if (body.startsWith("null")) this.put(key, null);
-					else throw new JSONException("位置 " + body.site() + " 处期望值不为'null'");
+					else throw new JSONException(body);
 					body.offset(3);
 				}
 				case 't' -> {
 					if (body.startsWith("true")) this.put(key, true);
-					else throw new JSONException("位置 " + body.site() + " 处期望值不为'true'");
+					else throw new JSONException(body);
 					body.offset(3);
 				}
 				case 'f' -> {
 					if (body.startsWith("false")) this.put(key, false);
-					else throw new JSONException("位置 " + body.site() + " 处期望值不为'false'");
+					else throw new JSONException(body);
 					body.offset(4);
 				}
 				case 'I' -> {
 					if (body.startsWith("Infinity")) this.put(key, new JSONNumber("Infinity"));
-					else throw new JSONException("位置 " + body.site() + " 处期望值不为'Infinity'");
+					else throw new JSONException(body);
 					body.offset(7);
 				}
 				case 'N' -> {
 					if (body.startsWith("NaN")) this.put(key, new JSONNumber("NaN"));
-					else throw new JSONException("位置 " + body.site() + " 处期望值不为'NaN'");
+					else throw new JSONException(body);
 					body.offset(2);
 				}
 				case '+', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.' -> {
@@ -120,10 +120,10 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 					this.put(key, new JSONNumber(value.toString()));
 					body.offset(-1); // 修正索引
 				}
-				default -> throw new JSONException("位置 " + body.site() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
+				default -> throw new JSONException(body);
 			}
 			if (body.offset(1).stripjsonnote().charAt() == '}') return;
-			if (body.charAt() != ',') throw new JSONException("位置 " + body.site() + " 处期望值不为分隔符','");
+			if (body.charAt() != ',') throw new JSONException(body);
 		}
 		throw new JSONException("数据未封闭");
 	}

@@ -46,27 +46,27 @@ public class JSONArray extends ArrayList<Object> {
 					case '[' -> this.add(new JSONArray(body));
 					case 'n' -> {
 						if (body.startsWith("null")) this.add(null);
-						else throw new JSONException("位置 " + body.site() + " 处期望值不为'null'");
+						else throw new JSONException(body);
 						body.offset(3);
 					}
 					case 't' -> {
 						if (body.startsWith("true")) this.add(true);
-						else throw new JSONException("位置 " + body.site() + " 处期望值不为'true'");
+						else throw new JSONException(body);
 						body.offset(3);
 					}
 					case 'f' -> {
 						if (body.startsWith("false")) this.add(false);
-						else throw new JSONException("位置 " + body.site() + " 处期望值不为'false'");
+						else throw new JSONException(body);
 						body.offset(4);
 					}
 					case 'I' -> {
 						if (body.startsWith("Infinity")) this.add(new JSONNumber("Infinity"));
-						else throw new JSONException("位置 " + body.site() + " 处期望值不为'Infinity'");
+						else throw new JSONException(body);
 						body.offset(7);
 					}
 					case 'N' -> {
 						if (body.startsWith("NaN")) this.add(new JSONNumber("NaN"));
-						else throw new JSONException("位置 " + body.site() + " 处期望值不为'NaN'");
+						else throw new JSONException(body);
 						body.offset(2);
 					}
 					case '+', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.' -> {
@@ -103,16 +103,16 @@ public class JSONArray extends ArrayList<Object> {
 						this.add(new JSONNumber(value.toString()));
 						body.offset(-1); // 修正索引
 					}
-					default -> throw new JSONException("位置 " + body.site() + " 处期望值不为'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '['");
+					default -> throw new JSONException(body);
 				}
 				if (body.offset(1).stripjsonnote().charAt() == ']') return;
-				if (body.charAt() != ',') throw new JSONException("位置 " + body.site() + " 处期望值不为分隔符','");
+				if (body.charAt() != ',') throw new JSONException(body);
 			}
 			throw new JSONException("数据未封闭");
 		} else if (body.charAt(body.site()) == '{') {
 			this.add(new JSONObject(body));
 		} else {
-			throw new JSONException("位置 " + body.site() + " 处格式错误期望值不为'['或'{'");
+			throw new JSONException(body);
 		}
 	}
 
