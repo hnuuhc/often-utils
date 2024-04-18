@@ -2,7 +2,6 @@ package org.haic.often.net.http;
 
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
@@ -14,6 +13,7 @@ import org.haic.often.tuple.record.ThreeTuple;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -113,7 +113,7 @@ public class HttpsUtil {
 					}).collect(Collectors.joining("&"));
 				}
 			}
-			this.url = url;
+			this.referrer(URIUtil.getDomain(this.url = url));
 			params = "";
 			return this;
 		}

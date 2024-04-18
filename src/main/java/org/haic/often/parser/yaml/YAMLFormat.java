@@ -1,5 +1,7 @@
 package org.haic.often.parser.yaml;
 
+import org.haic.often.parser.json.JSONArray;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.StringUtil;
 
 import java.util.Arrays;
@@ -30,6 +32,10 @@ public class YAMLFormat {
 			return " " + StringUtil.toEscape(value.toString());
 		} else if (value instanceof Number || value instanceof Boolean) {
 			return " " + value;
+		} else if (value instanceof JSONArray json) {
+			return " " + json;
+		} else if (value instanceof JSONObject json) {
+			return " " + json;
 		} else if (value instanceof YAMLArray yaml) {
 			return "\n" + yaml.toString(depth + 1);
 		} else if (value instanceof YAMLObject yaml) {

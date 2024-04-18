@@ -2,6 +2,8 @@ package org.haic.often.parser.yaml;
 
 import org.haic.often.exception.YAMLException;
 import org.haic.often.parser.ParserStringBuilder;
+import org.haic.often.parser.json.JSONArray;
+import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
@@ -47,20 +49,30 @@ public class YAMLObject extends LinkedHashMap<String, Object> {
 			var key = Yaml.deserialization(keysb.toString());
 			body.offset(1);
 			if (body.charAt() == ' ') {
-				var value = new StringBuilder();
+				var valuesb = new StringBuilder();
 				for (var c = body.offset(1).charAt(); c != '\n'; c = body.offset(1).charAt()) {
 					if (c == '#') {
 						body.site(body.indexOf("\n"));
 						break;
 					}
-					value.append(c);
+					valuesb.append(c);
 				}
 
-				value.trimToSize();
-				if (value.isEmpty()) {
-					var nextdepth = Yaml.indentation(body.offset(1));
-					this.put(key, body.charAt(body.site() + nextdepth) == '-' ? new YAMLArray(body, nextdepth) : new YAMLObject(body, nextdepth));
-				} else this.put(key, Yaml.deserialization(value.toString()));
+				valuesb.trimToSize();
+				var value = valuesb.toString();
+
+				switch (value) {
+					case "" -> {
+						var nextdepth = Yaml.indentation(body.offset(1));
+						this.put(key, body.charAt(body.site() + nextdepth) == '-' ? new YAMLArray(body, nextdepth) : new YAMLObject(body, nextdepth));
+					}
+					case "|" -> throw new YAMLException("暂未实现多行字符串解析");
+					default -> {
+						if (value.startsWith("{")) this.put(key, new JSONObject(value));
+						else if (value.startsWith("[")) this.put(key, new JSONArray(value));
+						else this.put(key, Yaml.deserialization(value));
+					}
+				}
 			} else if (body.charAt() == '\n') {
 				var nextdepth = Yaml.indentation(body.offset(1));
 				this.put(key, body.charAt(body.site() + nextdepth) == '-' ? new YAMLArray(body, nextdepth) : new YAMLObject(body, nextdepth));

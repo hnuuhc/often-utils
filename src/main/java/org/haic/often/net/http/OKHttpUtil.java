@@ -4,13 +4,13 @@ import okhttp3.*;
 import okio.BufferedSink;
 import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.*;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.SSLContext;
@@ -110,7 +110,7 @@ public class OKHttpUtil {
 					}).collect(Collectors.joining("&"));
 				}
 			}
-			this.url = url;
+			this.referrer(URIUtil.getDomain(this.url = url));
 			params = "";
 			return this;
 		}
