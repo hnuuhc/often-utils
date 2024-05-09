@@ -388,6 +388,18 @@ public class JSONArray extends ArrayList<Object> {
 	}
 
 	/**
+	 * 添加元素并返回自身
+	 *
+	 * @param index 插入位置
+	 * @param obj   待添加的元素
+	 * @return 自身
+	 */
+	public JSONArray fluentAdd(int index, Object obj) {
+		super.add(index, obj);
+		return this;
+	}
+
+	/**
 	 * 添加数组所有元素并返回自身
 	 *
 	 * @param c 数组
@@ -395,6 +407,18 @@ public class JSONArray extends ArrayList<Object> {
 	 */
 	public JSONArray fluentAddAll(Collection<?> c) {
 		super.addAll(c);
+		return this;
+	}
+
+	/**
+	 * 添加数组所有元素并返回自身
+	 *
+	 * @param index 插入位置
+	 * @param c     数组
+	 * @return 自身
+	 */
+	public JSONArray fluentAddAll(int index, Collection<?> c) {
+		super.addAll(index, c);
 		return this;
 	}
 

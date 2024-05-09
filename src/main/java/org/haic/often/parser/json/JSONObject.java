@@ -640,7 +640,7 @@ public class JSONObject extends LinkedHashMap<String, Object> {
 	 * @return 此列表中指定范围的视图
 	 */
 	public JSONObject subList(int fromIndex, int toIndex) {
-		var thisList = new ArrayList<>(this.toMap(String.class, JSONObject.class).entrySet());
+		var thisList = new ArrayList<>(this.entrySet());
 		return new JSONObject(thisList.subList(fromIndex, toIndex).stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
