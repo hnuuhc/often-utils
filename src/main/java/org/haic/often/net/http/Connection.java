@@ -1,12 +1,13 @@
 package org.haic.often.net.http;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.net.Method;
 import org.haic.often.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLContext;
 import java.io.InputStream;
 import java.net.Proxy;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,8 @@ import java.util.Map;
  * @since 2022/3/16 10:35
  */
 public abstract class Connection {
+
+	protected CookieStore cookieStore = new CookieStore();
 
 	/**
 	 * 设置要获取的请求 URL，协议必须是 HTTP 或 HTTPS
@@ -201,13 +204,41 @@ public abstract class Connection {
 	public abstract Connection removeCookie(@NotNull String name);
 
 	/**
-	 * CookieStore  - Map < String , String >
-	 * <p>
-	 * 获取此 Connection 使用的 cookie 存储。
+	 * 获取此 Connection 当前域名的 Cookie
+	 *
+	 * @return Map < String , String >
+	 */
+	public abstract Map<String, String> cookies();
+
+	/**
+	 * 设置此 Connection 的 Cookie 存储
+	 *
+	 * @param cookieStore 域名
+	 * @return Map < String , String >
+	 */
+	public Connection cookieStore(CookieStore cookieStore) {
+		this.cookieStore = cookieStore;
+		return this;
+	}
+
+	/**
+	 * 获取此 Connection 指定域名的 Cookie
+	 *
+	 * @param host 域名
+	 * @return Map < String , String >
+	 */
+	public Map<String, String> cookieStore(String host) {
+		return cookieStore().computeIfAbsent(host, k -> new HashMap<>());
+	}
+
+	/**
+	 * 获取此 Connection 使用的 cookie 存储
 	 *
 	 * @return cookieStore
 	 */
-	public abstract Map<String, String> cookieStore();
+	public CookieStore cookieStore() {
+		return cookieStore;
+	}
 
 	/**
 	 * 连接数据（ 字符串 键、 字符串 值）<br/>

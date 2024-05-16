@@ -68,6 +68,7 @@ public class HttpsUtil {
 
 	private static class HttpConnection extends Connection {
 
+		private String host;
 		private String url; // URL
 		private String auth; // 身份识别标识
 		private String params = ""; // 表格请求参数
@@ -82,7 +83,6 @@ public class HttpsUtil {
 		private String proxyPwd;
 		private Method method = Method.GET;
 		private Map<String, String> headers = new HashMap<>(); // 请求头
-		private Map<String, String> cookies = new HashMap<>(); // cookies
 		private List<Integer> retryStatusCodes = new ArrayList<>();
 		private ThreeTuple<String, String, InputStream> file;
 		private SSLSocketFactory sslSocketFactory = IgnoreSSLSocket.ignoreSSLContext().getSocketFactory();
@@ -114,7 +114,9 @@ public class HttpsUtil {
 						}).collect(Collectors.joining("&"));
 					}
 				}
-				this.referrer(URIUtil.getDomain(this.url = url));
+				host = URIUtil.getHost(this.url = url);
+				this.referrer(URIUtil.getDomain(url));
+				if (!cookieStore.containsKey(host)) cookieStore.put(host, new HashMap<>());
 			}
 			params = "";
 			return this;
@@ -185,28 +187,30 @@ public class HttpsUtil {
 		}
 
 		public Connection cookie(@NotNull String name, @NotNull String value) {
-			cookies.put(name, value);
+			if (host == null) throw new RuntimeException("未指定目标网址");
+			cookieStore(host).put(name, value);
 			return this;
 		}
 
 		public Connection cookies(@NotNull Map<String, String> cookies) {
 			cookies.entrySet().removeIf(entry -> entry.getValue() == null);
-			this.cookies.putAll(cookies);
+			cookieStore(host).putAll(cookies);
 			return this;
 		}
 
 		public Connection setCookies(@NotNull Map<String, String> cookies) {
-			this.cookies = new HashMap<>();
-			return cookies(cookies);
-		}
-
-		public Connection removeCookie(@NotNull String name) {
-			this.cookies.remove(name);
+			cookieStore().put(host, cookies);
 			return this;
 		}
 
-		public Map<String, String> cookieStore() {
-			return cookies;
+		public Connection removeCookie(@NotNull String name) {
+			cookieStore(host).remove(name);
+			return this;
+		}
+
+		public Map<String, String> cookies() {
+			if (host == null) throw new RuntimeException("当前网址为空,无法获取Cookie");
+			return cookieStore(host);
 		}
 
 		public Connection data(@NotNull String key, @NotNull String value) {
@@ -328,6 +332,7 @@ public class HttpsUtil {
 		 */
 		@NotNull
 		private Response executeProgram(@NotNull String requestUrl, @NotNull Method method, @NotNull String params) {
+			var cookies = cookieStore(host);
 			HttpURLConnection conn = null;
 			try {
 				switch (method) {
@@ -376,7 +381,7 @@ public class HttpsUtil {
 					}
 					default -> throw new HttpException("Unknown mode");
 				}
-				var res = new HttpResponse(conn, this.cookies);
+				var res = new HttpResponse(conn, cookies);
 				res.headers(); // 维护cookies
 
 				String redirectUrl; // 修复重定向
@@ -428,7 +433,7 @@ public class HttpsUtil {
 			conn.setInstanceFollowRedirects(false); // 重定向,http和https之间无法遵守重定向
 
 			// 设置cookie
-			conn.setRequestProperty("cookie", cookies.entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
+			conn.setRequestProperty("cookie", cookieStore(host).entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
 
 			// 设置通用的请求属性
 			for (Map.Entry<String, String> entry : headers.entrySet()) {

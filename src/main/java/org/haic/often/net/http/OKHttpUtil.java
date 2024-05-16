@@ -64,6 +64,7 @@ public class OKHttpUtil {
 
 	private static class HttpConnection extends Connection {
 
+		private String host;
 		private String url;
 		private String auth;
 
@@ -76,7 +77,6 @@ public class OKHttpUtil {
 
 		private Method method = Method.GET;
 		private Map<String, String> headers = new HashMap<>(); // 请求头
-		private Map<String, String> cookies = new HashMap<>(); // 请求头
 		private List<Integer> retryStatusCodes = new ArrayList<>();
 
 		private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(0, TimeUnit.SECONDS).sslSocketFactory(IgnoreSSLSocket.ignoreSSLContext().getSocketFactory(), new MyX509TrustManager());
@@ -111,7 +111,9 @@ public class OKHttpUtil {
 						}).collect(Collectors.joining("&"));
 					}
 				}
-				this.referrer(URIUtil.getDomain(this.url = url));
+				host = URIUtil.getHost(this.url = url);
+				this.referrer(URIUtil.getDomain(url));
+				if (!cookieStore.containsKey(host)) cookieStore.put(host, new HashMap<>());
 			}
 			params = "";
 			return this;
@@ -182,27 +184,30 @@ public class OKHttpUtil {
 		}
 
 		public Connection cookie(@NotNull String name, @NotNull String value) {
-			this.cookies.put(name, value);
+			if (host == null) throw new RuntimeException("未指定目标网址");
+			cookieStore(host).put(name, value);
 			return this;
 		}
 
 		public Connection cookies(@NotNull Map<String, String> cookies) {
-			this.cookies.putAll(cookies);
+			cookies.entrySet().removeIf(entry -> entry.getValue() == null);
+			cookieStore(host).putAll(cookies);
 			return this;
 		}
 
 		public Connection setCookies(@NotNull Map<String, String> cookies) {
-			this.cookies = new HashMap<>();
-			return cookies(cookies);
-		}
-
-		public Connection removeCookie(@NotNull String name) {
-			this.cookies.remove(name);
+			cookieStore().put(host, cookies);
 			return this;
 		}
 
-		public Map<String, String> cookieStore() {
-			return cookies;
+		public Connection removeCookie(@NotNull String name) {
+			cookieStore(host).remove(name);
+			return this;
+		}
+
+		public Map<String, String> cookies() {
+			if (host == null) throw new RuntimeException("当前网址为空,无法获取Cookie");
+			return cookieStore(host);
 		}
 
 		public Connection data(@NotNull String key, @NotNull String value) {
@@ -315,7 +320,7 @@ public class OKHttpUtil {
 
 			var requestBuilder = new Request.Builder();
 			// 设置cookies
-			requestBuilder.header("cookie", cookies.entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
+			requestBuilder.header("cookie", cookieStore(host).entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
 			// 设置headers
 			headers.forEach(requestBuilder::header);
 
@@ -344,12 +349,13 @@ public class OKHttpUtil {
 		}
 
 		private Response executeProgram(OkHttpClient client, Request request) {
+			var cookies = cookieStore(host);
 			try {
-				var response = new HttpResponse(client.newCall(request).execute());
-				cookies(response.cookies()); // 维护cookies
+				var response = new HttpResponse(client.newCall(request).execute(), cookies);
+				response.headers(); // 维护cookies
 				return response;
 			} catch (Exception e) {
-				return new HttpResponse(null);
+				return new HttpResponse(null, cookies);
 			}
 		}
 	}
@@ -390,8 +396,9 @@ public class OKHttpUtil {
 
 		private final okhttp3.Response res;
 
-		private HttpResponse(okhttp3.Response res) {
+		private HttpResponse(okhttp3.Response res, Map<String, String> cookies) {
 			this.res = res;
+			this.cookies = cookies;
 		}
 
 		public String url() {
@@ -412,7 +419,7 @@ public class OKHttpUtil {
 
 		public Map<String, String> headers() {
 			if (headers == null) {
-				var headers = new HashMap<String, String>();
+				headers = new HashMap<>();
 				for (var header : res.headers()) {
 					var name = header.getFirst().toLowerCase();
 					var value = header.getSecond();
@@ -421,21 +428,18 @@ public class OKHttpUtil {
 							var cookie = headers.get(name);
 							value = value.substring(0, value.indexOf(";"));
 							headers.put(name, cookie == null ? value : cookie + "; " + value);
+							var ck = value.split("=");
+							cookies.put(ck[0], ck[1]);
 						} else {
 							headers.put(name, value);
 						}
 					}
 				}
-				this.headers = headers;
 			}
 			return headers;
 		}
 
 		public Map<String, String> cookies() {
-			if (cookies == null) {
-				var cookies = headers().get("set-cookie");
-				this.cookies = cookies == null ? new HashMap<>() : StringUtil.toMap(cookies, ";");
-			}
 			return cookies;
 		}
 
