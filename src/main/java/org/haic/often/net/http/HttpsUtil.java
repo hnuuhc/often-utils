@@ -23,7 +23,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
@@ -68,22 +70,15 @@ public class HttpsUtil {
 
 	private static class HttpConnection extends Connection {
 
-		private String host;
-		private String url; // URL
-		private String auth; // 身份识别标识
 		private String params = ""; // 表格请求参数
-		private int retry; // 请求异常重试次数
-		private int MILLISECONDS_SLEEP; // 重试等待时间
+
 		private int timeout; // 超时时间
-		private boolean unlimit;// 请求异常无限重试
-		private boolean failThrow; // 错误异常
+
 		private boolean followRedirects = true; // 重定向
 		private Proxy proxy = Proxy.NO_PROXY; // 代理
 		private String proxyUser;
 		private String proxyPwd;
-		private Method method = Method.GET;
-		private Map<String, String> headers = new HashMap<>(); // 请求头
-		private List<Integer> retryStatusCodes = new ArrayList<>();
+
 		private ThreeTuple<String, String, InputStream> file;
 		private SSLSocketFactory sslSocketFactory = IgnoreSSLSocket.ignoreSSLContext().getSocketFactory();
 
@@ -117,6 +112,10 @@ public class HttpsUtil {
 				host = URIUtil.getHost(this.url = url);
 				this.referrer(URIUtil.getDomain(url));
 				if (!cookieStore.containsKey(host)) cookieStore.put(host, new HashMap<>());
+				if (sni != null) { // 域前置
+					header("host", host);
+					this.url = url.replace(host, sni);
+				}
 			}
 			params = "";
 			return this;
@@ -136,81 +135,14 @@ public class HttpsUtil {
 			return this;
 		}
 
-		public Connection userAgent(@NotNull String userAgent) {
-			return header("user-agent", userAgent);
-		}
-
-		public Connection isPhone(boolean isPhone) {
-			return isPhone ? userAgent(UserAgent.chromeAsPhone()) : userAgent(UserAgent.chrome());
-		}
-
 		public Connection followRedirects(boolean followRedirects) {
 			this.followRedirects = followRedirects;
 			return this;
 		}
 
-		public Connection referrer(@NotNull String referrer) {
-			return header("referer", referrer);
-		}
-
-		public Connection auth(@NotNull String auth) {
-			return header("authorization", (this.auth = auth.contains(" ") ? auth : "Bearer " + auth));
-		}
-
 		public Connection timeout(int millis) {
 			this.timeout = millis;
 			return this;
-		}
-
-		public Connection contentType(@NotNull String type) {
-			return header("content-type", type);
-		}
-
-		public Connection header(@NotNull String name, @NotNull String value) {
-			this.headers.put(name, value);
-			return this;
-		}
-
-		public Connection headers(@NotNull Map<String, String> headers) {
-			this.headers.putAll(headers);
-			return this;
-		}
-
-		public Connection setHeaders(@NotNull Map<String, String> headers) {
-			this.headers = new HashMap<>();
-			return headers(headers);
-		}
-
-		public Connection removeHeader(@NotNull String key) {
-			this.headers.remove(key);
-			return this;
-		}
-
-		public Connection cookie(@NotNull String name, @NotNull String value) {
-			if (host == null) throw new RuntimeException("未指定目标网址");
-			cookieStore(host).put(name, value);
-			return this;
-		}
-
-		public Connection cookies(@NotNull Map<String, String> cookies) {
-			cookies.entrySet().removeIf(entry -> entry.getValue() == null);
-			cookieStore(host).putAll(cookies);
-			return this;
-		}
-
-		public Connection setCookies(@NotNull Map<String, String> cookies) {
-			cookieStore().put(host, cookies);
-			return this;
-		}
-
-		public Connection removeCookie(@NotNull String name) {
-			cookieStore(host).remove(name);
-			return this;
-		}
-
-		public Map<String, String> cookies() {
-			if (host == null) throw new RuntimeException("当前网址为空,无法获取Cookie");
-			return cookieStore(host);
 		}
 
 		public Connection data(@NotNull String key, @NotNull String value) {
@@ -265,48 +197,6 @@ public class HttpsUtil {
 
 		public Connection proxy(@NotNull Proxy proxy) {
 			this.proxy = proxy;
-			return this;
-		}
-
-		public Connection method(@NotNull Method method) {
-			this.method = method;
-			return this;
-		}
-
-		public Connection retry(int retry) {
-			this.retry = retry;
-			return this;
-		}
-
-		public Connection retry(int retry, int millis) {
-			this.retry = retry;
-			this.MILLISECONDS_SLEEP = millis;
-			return this;
-		}
-
-		public Connection retry(boolean unlimit) {
-			this.unlimit = unlimit;
-			return this;
-		}
-
-		public Connection retry(boolean unlimit, int millis) {
-			this.unlimit = unlimit;
-			this.MILLISECONDS_SLEEP = millis;
-			return this;
-		}
-
-		public Connection retryStatusCodes(int... statusCode) {
-			retryStatusCodes = Arrays.stream(statusCode).boxed().toList();
-			return this;
-		}
-
-		public Connection retryStatusCodes(List<Integer> retryStatusCodes) {
-			this.retryStatusCodes = retryStatusCodes;
-			return this;
-		}
-
-		public Connection failThrow(boolean exit) {
-			failThrow = exit;
 			return this;
 		}
 

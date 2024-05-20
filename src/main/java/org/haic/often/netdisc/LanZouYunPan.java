@@ -1,12 +1,12 @@
 package org.haic.often.netdisc;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,10 +25,11 @@ public class LanZouYunPan {
 	private static final String douploadUrl = "https://pc.woozooo.com/doupload.php";
 	private static final String mydiskUrl = "https://pc.woozooo.com/mydisk.php";
 
-	private final Connection conn = HttpsUtil.newSession();
+	private final Connection conn = HttpsUtil.newSession().url(domain);
 
 	private LanZouYunPan(Map<String, String> cookies) {
-		conn.cookies(cookies);
+		conn.cookieStore().put("www.lanzoui.com", cookies);
+		conn.cookieStore().put("pc.woozooo.com", cookies);
 		if (conn.url(mydiskUrl).get().parse().selectFirst("div[class='mydisk_bar']") == null) {
 			throw new YunPanException("登陆信息无效,请检查cookies是否正确");
 		}

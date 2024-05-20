@@ -1,12 +1,12 @@
 package org.haic.often.netdisc;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.chrome.browser.LocalCookie;
 import org.haic.often.exception.YunPanException;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.Connection;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.parser.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +21,8 @@ import java.util.Map;
  * @since 2022/9/13 23:59
  */
 public class KuaKeYunPan {
+
+	private static final String domain = "https://drive.quark.cn";
 
 	private static final String sortUrl = "https://drive.quark.cn/1/clouddrive/file/sort?pr=ucpro&fr=pc&_size=2147483647&pdir_fid=";
 	private static final String flushUrl = "https://drive.quark.cn/1/clouddrive/auth/pc/flush?pr=ucpro&fr=pc";
@@ -38,7 +40,7 @@ public class KuaKeYunPan {
 	private final Connection conn = HttpsUtil.newSession();
 
 	private KuaKeYunPan(Map<String, String> cookies) {
-		conn.cookies(cookies);
+		conn.cookieStore().put(URIUtil.getHost(domain), cookies);
 		var loginInfo = conn.url(flushUrl).get().json();
 		if (!URIUtil.statusIsOK(loginInfo.getInteger("status"))) {
 			throw new YunPanException(loginInfo.getString("message"));

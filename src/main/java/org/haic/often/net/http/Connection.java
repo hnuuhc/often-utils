@@ -1,15 +1,14 @@
 package org.haic.often.net.http;
 
 import org.haic.often.net.Method;
+import org.haic.often.net.UserAgent;
 import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLContext;
 import java.io.InputStream;
 import java.net.Proxy;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Connection 接口是一个方便的 HTTP 客户端和会话对象，用于从 Web 获取内容，并将它们解析为 Documents。
@@ -22,7 +21,19 @@ import java.util.Map;
  */
 public abstract class Connection {
 
+	protected String url; // URL
+	protected String host;
+	protected String auth;
+	protected String sni; // URL
+	protected Method method = Method.GET;
+	protected Map<String, String> headers = new HashMap<>();
 	protected CookieStore cookieStore = new CookieStore();
+
+	protected int retry; // 请求异常重试次数
+	protected int MILLISECONDS_SLEEP; // 重试等待时间
+	protected boolean unlimit;// 请求异常无限重试
+	protected boolean failThrow; // 错误异常
+	protected List<Integer> retryStatusCodes = new ArrayList<>();
 
 	/**
 	 * 设置要获取的请求 URL，协议必须是 HTTP 或 HTTPS
@@ -57,7 +68,9 @@ public abstract class Connection {
 	 * @param userAgent 要使用的用户代理
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection userAgent(@NotNull String userAgent);
+	public Connection userAgent(@NotNull String userAgent) {
+		return header("user-agent", userAgent);
+	}
 
 	/**
 	 * 添加请求头user-agent，以移动端方式访问页面
@@ -65,7 +78,9 @@ public abstract class Connection {
 	 * @param isPhone true or false
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection isPhone(boolean isPhone);
+	public Connection isPhone(boolean isPhone) {
+		return isPhone ? userAgent(UserAgent.chromeAsPhone()) : userAgent(UserAgent.chrome());
+	}
 
 	/**
 	 * 连接followRedirects （布尔followRedirects）<br/>
@@ -83,7 +98,9 @@ public abstract class Connection {
 	 * @param referrer 要使用的来源网址
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection referrer(@NotNull String referrer);
+	public Connection referrer(@NotNull String referrer) {
+		return header("referer", referrer);
+	}
 
 	/**
 	 * 设置授权码或身份识别标识
@@ -97,7 +114,9 @@ public abstract class Connection {
 	 * @param auth 授权码或身份识别标识
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection auth(@NotNull String auth);
+	public Connection auth(@NotNull String auth) {
+		return header("authorization", (this.auth = auth.contains(" ") ? auth : "Bearer " + auth));
+	}
 
 	/**
 	 * 设置读取超时时间，读取超时（ int millis）<br/>
@@ -114,7 +133,9 @@ public abstract class Connection {
 	 * @param type 请求类型
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection contentType(@NotNull String type);
+	public Connection contentType(@NotNull String type) {
+		return header("content-type", type);
+	}
 
 	/**
 	 * 连接头（ 字符串 名称， 字符串 值）<br/>
@@ -124,7 +145,10 @@ public abstract class Connection {
 	 * @param value 标头值
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection header(@NotNull String name, @NotNull String value);
+	public Connection header(@NotNull String name, @NotNull String value) {
+		this.headers.put(name, value);
+		return this;
+	}
 
 	/**
 	 * 连接头（ Map  < String  , String  > 头）
@@ -134,7 +158,10 @@ public abstract class Connection {
 	 * @param headers 标头名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection headers(@NotNull Map<String, String> headers);
+	public Connection headers(@NotNull Map<String, String> headers) {
+		this.headers.putAll(headers);
+		return this;
+	}
 
 	/**
 	 * 连接头（ Map  < String  , String  > 头）
@@ -144,7 +171,10 @@ public abstract class Connection {
 	 * @param headers 标头名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection setHeaders(@NotNull Map<String, String> headers);
+	public Connection setHeaders(@NotNull Map<String, String> headers) {
+		this.headers = new HashMap<>();
+		return headers(headers);
+	}
 
 	/**
 	 * 删除在此请求/响应中设置 header。
@@ -152,7 +182,10 @@ public abstract class Connection {
 	 * @param key header的键
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection removeHeader(@NotNull String key);
+	public Connection removeHeader(@NotNull String key) {
+		this.headers.remove(key);
+		return this;
+	}
 
 	/**
 	 * 设置要在请求中发送的 cookie
@@ -161,7 +194,11 @@ public abstract class Connection {
 	 * @param value cookie 的值
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection cookie(@NotNull String name, @NotNull String value);
+	public Connection cookie(@NotNull String name, @NotNull String value) {
+		if (host == null) throw new RuntimeException("未指定目标网址");
+		cookieStore(host).put(name, value);
+		return this;
+	}
 
 	/**
 	 * 连接 cookies （ Map < String  , String  >cookies）
@@ -171,7 +208,12 @@ public abstract class Connection {
 	 * @param cookies 名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection cookies(@NotNull Map<String, String> cookies);
+	public Connection cookies(@NotNull Map<String, String> cookies) {
+		if (host == null) throw new RuntimeException("未指定目标网址");
+		cookies.entrySet().removeIf(entry -> entry.getValue() == null);
+		cookieStore(host).putAll(cookies);
+		return this;
+	}
 
 	/**
 	 * 连接 cookies
@@ -193,7 +235,11 @@ public abstract class Connection {
 	 * @param cookies 名称映射 -> 值对
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection setCookies(@NotNull Map<String, String> cookies);
+	public Connection setCookies(@NotNull Map<String, String> cookies) {
+		if (host == null) throw new RuntimeException("未指定目标网址");
+		cookieStore().put(host, cookies);
+		return this;
+	}
 
 	/**
 	 * 删除在此请求/响应中设置 cookie。
@@ -201,14 +247,21 @@ public abstract class Connection {
 	 * @param name cookie的名称
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection removeCookie(@NotNull String name);
+	public Connection removeCookie(@NotNull String name) {
+		if (host == null) throw new RuntimeException("未指定目标网址");
+		cookieStore(host).remove(name);
+		return this;
+	}
 
 	/**
 	 * 获取此 Connection 当前域名的 Cookie
 	 *
 	 * @return Map < String , String >
 	 */
-	public abstract Map<String, String> cookies();
+	public Map<String, String> cookies() {
+		if (host == null) throw new RuntimeException("当前网址为空,无法获取Cookie");
+		return cookieStore(host);
+	}
 
 	/**
 	 * 设置此 Connection 的 Cookie 存储
@@ -405,7 +458,22 @@ public abstract class Connection {
 	 * @param method HTTP 请求方法
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection method(@NotNull Method method);
+	public Connection method(@NotNull Method method) {
+		this.method = method;
+		return this;
+	}
+
+	/**
+	 * 对于某些国家和地区对网站封锁,采用域前置绕过
+	 *
+	 * @param sni 前置域名(host)
+	 * @return 此连接，用于链接
+	 */
+	public Connection sni(String sni) {
+		this.sni = sni;
+		if (url != null) url(url);
+		return this;
+	}
 
 	/**
 	 * 在请求超时或者指定状态码发生时，进行重试，重试超过次数或者状态码正常返回
@@ -413,7 +481,10 @@ public abstract class Connection {
 	 * @param retry 重试次数
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection retry(int retry);
+	public Connection retry(int retry) {
+		this.retry = retry;
+		return this;
+	}
 
 	/**
 	 * 在请求超时或者指定状态码发生时，进行重试，重试超过次数或者状态码正常返回
@@ -422,7 +493,11 @@ public abstract class Connection {
 	 * @param millis 重试等待时间(毫秒)
 	 * @return this
 	 */
-	public abstract Connection retry(int retry, int millis);
+	public Connection retry(int retry, int millis) {
+		this.retry = retry;
+		this.MILLISECONDS_SLEEP = millis;
+		return this;
+	}
 
 	/**
 	 * 在请求超时或者指定状态码发生时，无限进行重试，直至状态码正常返回
@@ -430,7 +505,10 @@ public abstract class Connection {
 	 * @param unlimit 启用无限重试, 默认false
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection retry(boolean unlimit);
+	public Connection retry(boolean unlimit) {
+		this.unlimit = unlimit;
+		return this;
+	}
 
 	/**
 	 * 在请求超时或者指定状态码发生时，无限进行重试，直至状态码正常返回
@@ -439,7 +517,11 @@ public abstract class Connection {
 	 * @param millis  重试等待时间(毫秒)
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection retry(boolean unlimit, int millis);
+	public Connection retry(boolean unlimit, int millis) {
+		this.unlimit = unlimit;
+		this.MILLISECONDS_SLEEP = millis;
+		return this;
+	}
 
 	/**
 	 * 额外指定错误状态码码，在指定状态发生时，也进行重试，可指定多个
@@ -447,7 +529,10 @@ public abstract class Connection {
 	 * @param statusCode 状态码
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection retryStatusCodes(int... statusCode);
+	public Connection retryStatusCodes(int... statusCode) {
+		retryStatusCodes = Arrays.stream(statusCode).boxed().toList();
+		return this;
+	}
 
 	/**
 	 * 额外指定错误状态码码，在指定状态发生时，也进行重试，可指定多个
@@ -455,7 +540,10 @@ public abstract class Connection {
 	 * @param retryStatusCodes 状态码列表
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection retryStatusCodes(List<Integer> retryStatusCodes);
+	public Connection retryStatusCodes(List<Integer> retryStatusCodes) {
+		this.retryStatusCodes = retryStatusCodes;
+		return this;
+	}
 
 	/**
 	 * 在状态码不为200+或300+时，抛出执行异常，并获取一些参数，一般用于调试<br/>
@@ -464,7 +552,10 @@ public abstract class Connection {
 	 * @param exit 启用错误退出
 	 * @return 此连接，用于链接
 	 */
-	public abstract Connection failThrow(boolean exit);
+	public Connection failThrow(boolean exit) {
+		this.failThrow = exit;
+		return this;
+	}
 
 	/**
 	 * 将请求作为 GET 执行，并解析结果
