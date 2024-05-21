@@ -67,7 +67,7 @@ public class OKHttpUtil {
 
 		private String params = ""; // 请求参数
 
-		private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(0, TimeUnit.SECONDS).sslSocketFactory(IgnoreSSLSocket.ignoreSSLContext().getSocketFactory(), new MyX509TrustManager());
+		private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(0, TimeUnit.SECONDS).sslSocketFactory(IgnoreSSLSocket.ignoreSSLContext().getSocketFactory(), new MyX509TrustManager()).hostnameVerifier((arg0, arg1) -> true);
 
 		private MultipartBody.Builder file;
 

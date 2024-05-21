@@ -42,6 +42,7 @@ public class HttpsUtil {
 
 	static {
 		System.setProperty("http.keepAlive", "false"); // 关闭长连接复用,防止流阻塞
+		System.setProperty("sun.net.http.allowRestrictedHeaders", "true"); // 允许使用不安全请求头
 	}
 
 	private HttpsUtil() {
@@ -324,7 +325,7 @@ public class HttpsUtil {
 
 			// 设置cookie
 			conn.setRequestProperty("cookie", cookieStore(host).entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
-
+			
 			// 设置通用的请求属性
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());
