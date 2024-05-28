@@ -257,11 +257,16 @@ public class JSONPath {
 					} else {
 						var key = Integer.parseInt(cssQuery.substring(index, index = cssQuery.indexOf("]", index)));
 						if (result instanceof Collection<?> c) {
-							result = c.toArray()[key];
+							var array = c.toArray();
+							if (array.length == 0) return null;
+							result = array[key];
 						} else if (result instanceof Object[] c) {
+							if (c.length == 0) return null;
 							result = c[key];
 						} else {
-							result = TypeUtil.convert(result, JSONArray.class).get(key);
+							var array = TypeUtil.convert(result, JSONArray.class);
+							if (array.isEmpty()) return null;
+							result = array.get(key);
 						}
 					}
 				}
