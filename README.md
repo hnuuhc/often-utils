@@ -81,8 +81,6 @@ Aria2Util.connect("127.0.0.1", 6800)  //地址以及端口
 
 #### HttpsUtil - 用于http请求
 
-#### HtmlUnitUtil - 用于获取动态页面
-
 ### 简单示例:
 
 ```

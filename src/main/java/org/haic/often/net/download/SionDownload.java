@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Judge;
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.DownloadException;
 import org.haic.often.net.MimeType;
 import org.haic.often.net.URIUtil;
@@ -11,6 +10,7 @@ import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.thread.ConsumerThread;
 import org.haic.often.util.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -245,6 +245,7 @@ public class SionDownload {
 		}
 
 		public SionConnection cookies(@NotNull Map<String, String> cookies) {
+			cookies.entrySet().removeIf(entry -> entry.getValue() == null);
 			this.cookies.putAll(cookies);
 			return this;
 		}
@@ -400,7 +401,7 @@ public class SionDownload {
 					ReadWriteUtil.orgin(session).append(false).write(fileInfo.toString());  // 重置配置文件
 				}
 				case FULL, PIECE, MULTITHREAD, MANDATORY -> {    // 获取文件信息
-					var res = HttpsUtil.connect(url).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
+					var res = HttpsUtil.connect(url).removeHeader("referer").proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
 					// 获取URL连接状态
 					int statusCode = res.statusCode();
 					if (!URIUtil.statusIsOK(statusCode)) {
@@ -442,6 +443,8 @@ public class SionDownload {
 								}
 							} while (storage.exists());
 							request.setStorage(storage); // 配置信息文件
+						} else if (valid && !Judge.isEmpty(hash) && !hash.equals(FileUtil.getMD5(storage))) {
+							storage.delete(); // 会话配置被删除且效验文件不匹配时重新下载
 						} else {
 							return new HttpResponse(this, request.statusCode(HttpStatus.SC_OK));
 						}
@@ -529,7 +532,7 @@ public class SionDownload {
 		 * @return 下载并写入是否成功(状态码)
 		 */
 		private int FULL(int retry) {
-			var piece = HttpsUtil.connect(url).proxy(proxy).headers(headers).header("range", "bytes=" + MAX_COMPLETED + "-").cookies(cookies).failThrow(failThrow).execute();
+			var piece = HttpsUtil.connect(url).removeHeader("referer").proxy(proxy).headers(headers).header("range", "bytes=" + MAX_COMPLETED + "-").cookies(cookies).failThrow(failThrow).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? FULL(piece, retry) : unlimit || retry > 0 ? FULL(retry - 1) : statusCode;
 		}
@@ -598,7 +601,7 @@ public class SionDownload {
 		 * @return 下载并写入是否成功(状态码)
 		 */
 		private int writePiece(long start, long flip, long end, int retry) {
-			var piece = HttpsUtil.connect(url).proxy(proxy).headers(headers).header("range", "bytes=" + flip + "-" + end).cookies(cookies).execute();
+			var piece = HttpsUtil.connect(url).removeHeader("referer").proxy(proxy).headers(headers).header("range", "bytes=" + flip + "-" + end).cookies(cookies).execute();
 			int statusCode = piece.statusCode();
 			return URIUtil.statusIsOK(statusCode) ? writePiece(start, flip, end, piece, retry) : unlimit || retry > 0 ? writePiece(start, flip, end, retry - 1) : statusCode;
 		}

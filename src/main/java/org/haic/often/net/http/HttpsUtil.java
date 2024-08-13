@@ -99,6 +99,7 @@ public class HttpsUtil {
 				if (!url.startsWith("http")) {
 					throw new HttpException("Only http & https protocols supported : " + url);
 				}
+
 				if ((url = url.contains("#") ? url.substring(0, url.indexOf("#")) : url).contains("?")) {
 					if (url.endsWith("?")) {
 						url = url.substring(0, url.length() - 1);
@@ -110,6 +111,7 @@ public class HttpsUtil {
 						}).collect(Collectors.joining("&"));
 					}
 				}
+
 				host = URIUtil.getHost(this.url = url);
 				this.referrer(URIUtil.getDomain(url));
 				if (!cookieStore.containsKey(host)) cookieStore.put(host, new HashMap<>());
@@ -325,7 +327,7 @@ public class HttpsUtil {
 
 			// 设置cookie
 			conn.setRequestProperty("cookie", cookieStore(host).entrySet().stream().map(l -> l.getKey() + "=" + l.getValue()).collect(Collectors.joining("; ")));
-			
+
 			// 设置通用的请求属性
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());

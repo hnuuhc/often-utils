@@ -1,10 +1,10 @@
 package org.haic.often.util;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.TypeException;
 import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -230,7 +230,7 @@ public class TypeUtil {
 	 * @param <T>       返回参数类型
 	 * @return 转换后的类型
 	 */
-	public static <T> List<T> convertList(@NotNull Object obj, @NotNull List<T> list, @NotNull Class<T> itemClass) {
+	public static <T> List<T> convertList(Object obj, @NotNull List<T> list, @NotNull Class<T> itemClass) {
 		if (obj == null) return null;
 		var objs = obj instanceof Collection<?> c ? c.toArray() : obj instanceof Object[] os ? os : JSONArray.parseArray(String.valueOf(obj)).toArray();
 		for (Object o : objs) list.add(TypeUtil.convert(o, itemClass));
@@ -283,7 +283,7 @@ public class TypeUtil {
 	 * @param <V>        返回参数类型
 	 * @return 转换后的类型
 	 */
-	public static <K, V> Map<K, V> convertMap(@NotNull Object obj, @NotNull Map<K, V> m, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
+	public static <K, V> Map<K, V> convertMap(Object obj, @NotNull Map<K, V> m, @NotNull Class<K> keyClass, @NotNull Class<V> valueClass) {
 		if (obj == null) return null;
 		var objs = obj instanceof Map<?, ?> map ? map : JSONObject.parseObject(String.valueOf(obj));
 		for (var entry : objs.entrySet()) m.put(TypeUtil.convert(entry.getKey(), keyClass), TypeUtil.convert(entry.getValue(), valueClass));

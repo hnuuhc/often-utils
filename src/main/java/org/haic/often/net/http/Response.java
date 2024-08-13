@@ -1,6 +1,5 @@
 package org.haic.often.net.http;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.URIUtil;
 import org.haic.often.parser.csv.CSV;
@@ -8,6 +7,7 @@ import org.haic.often.parser.json.JSONArray;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.util.TypeUtil;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.ByteArrayOutputStream;
@@ -129,8 +129,10 @@ public abstract class Response {
 		if (charset == null) {
 			if (headers().containsKey("content-type")) {
 				var type = headers().get("content-type");
-				if (type.contains(";")) return charset = Charset.forName(type.substring(type.lastIndexOf("=") + 1));
-				else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
+				if (type.contains(";")) {
+					var charset = type.substring(type.lastIndexOf("=") + 1);
+					return this.charset = Charset.forName(charset.endsWith(";") ? charset.substring(0, charset.length() - 1) : charset);
+				} else if (type.contains("html")) { // 网页为html且未在连接类型中获取字符集编码格式
 					if (bodyAsByteArray() == null) throw new HttpException("解析字符集编码时出错,未能获取网页数据");
 					var metas = Document.parse(body.toString(StandardCharsets.UTF_8)).select("@head @meta");
 					var meta = metas.stream().filter(e -> e.containsAttr("charset")).findFirst().orElse(null);

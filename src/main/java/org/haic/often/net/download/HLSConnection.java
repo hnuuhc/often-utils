@@ -1,7 +1,8 @@
 package org.haic.often.net.download;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.function.StringFunction;
+import org.haic.often.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.net.Proxy;
@@ -133,6 +134,18 @@ public abstract class HLSConnection {
 	 * @return 此连接，用于链接
 	 */
 	public abstract HLSConnection cookies(@NotNull Map<String, String> cookies);
+
+	/**
+	 * 连接 cookies （ Map < String  , String  >cookies）
+	 * <p>
+	 * 将每个提供的 cookie 添加到请求中
+	 *
+	 * @param cookies 名称映射 -> 值对
+	 * @return 此连接，用于链接
+	 */
+	public HLSConnection cookies(@NotNull String cookies) {
+		return cookies(StringUtil.toMap(cookies, ";"));
+	}
 
 	/**
 	 * 设置授权码或身份识别标识<br/> 有些服务器不使用cookie验证身份,使用authorization进行验证<br/> 一般信息在cookie或local Storage中存储

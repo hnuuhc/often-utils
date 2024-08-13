@@ -2,11 +2,11 @@ package org.haic.often.net;
 
 import org.apache.http.HttpStatus;
 import org.haic.often.Terminal;
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.net.http.HttpsUtil;
 import org.haic.often.util.Base64Util;
 import org.haic.often.util.ListUtil;
 import org.haic.often.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 @SuppressWarnings("DuplicatedCode")
 public class URIUtil {
 
+	private static final Predicate<Character> specialSimpleSafetyChar = c -> "!$'()*+,:;=@-._~".contains(String.valueOf(c));
 	private static final Predicate<Character> specialSafetyChar = c -> "!#$&'()*+,/:;=?@-._~".contains(String.valueOf(c));
 	private static final Predicate<Character> safetyChar = c -> (c >= 'A' && c <= 'z') || (c >= '0' && c <= '9');
 
@@ -243,7 +244,7 @@ public class URIUtil {
 	 */
 	@NotNull
 	public static String getHost(@NotNull String url) {
-		return createURI(url).getHost();
+		return url.split("/")[2];
 	}
 
 	/**
@@ -565,6 +566,8 @@ public class URIUtil {
 				sb.append(s, i, i + 3);
 				i += 2;
 			} else if (safetyChar.test(c)) {
+				sb.append(c);
+			} else if (specialSimpleSafetyChar.test(c)) {
 				sb.append(c);
 			} else {
 				var bytes = String.valueOf(c).getBytes();
