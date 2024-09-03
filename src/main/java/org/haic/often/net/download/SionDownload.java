@@ -99,6 +99,10 @@ public class SionDownload {
 			return request.getStorage().getName();
 		}
 
+		public File file() {
+			return request.getStorage();
+		}
+
 		public String filePath() {
 			return request.getStorage().getAbsolutePath();
 		}

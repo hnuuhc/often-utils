@@ -1,7 +1,6 @@
 package org.haic.often.net.download;
 
 import org.haic.often.Judge;
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.exception.AESException;
 import org.haic.often.exception.HLSDownloadException;
 import org.haic.often.function.StringFunction;
@@ -12,6 +11,7 @@ import org.haic.often.net.http.Response;
 import org.haic.often.parser.json.JSONObject;
 import org.haic.often.thread.ConsumerThread;
 import org.haic.often.util.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -112,6 +112,10 @@ public class HLSDownload {
 
 		public String fileName() {
 			return request.getStorage().getName();
+		}
+
+		public File file() {
+			return request.getStorage();
 		}
 
 		public String filePath() {

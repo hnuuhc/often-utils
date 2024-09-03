@@ -115,7 +115,8 @@ public class Document extends Element {
 						}
 					}
 					// 自闭合标签
-					case "hr", "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "feflood", "feblend", "feoffset", "fegaussianblur", "fecomposite", "fecolormatrix", "lineargradient", "radialgradient" -> {
+					case "hr", "br", "input", "meta", "link", "img", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "feflood", "feblend", "feoffset",
+						 "fegaussianblur", "fecomposite", "fecolormatrix", "lineargradient", "radialgradient" -> {
 						tree.addChild(child.close(true));
 						continue;
 					}
@@ -177,7 +178,7 @@ public class Document extends Element {
 		for (int i = 0; i < s.length(); i++) {
 			if (s.charAt(i) == '&') {
 				int index = s.indexOf(";", i + 1);
-				if (index == -1) return sb.append(s.substring(i + 1)).toString();
+				if (index == -1) return sb.append(s.substring(i)).toString();
 				var escape = s.substring(i, (i = index) + 1);
 				try {
 					sb.append(HtmlEscape.unescape(escape));

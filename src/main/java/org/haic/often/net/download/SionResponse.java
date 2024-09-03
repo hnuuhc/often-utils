@@ -2,6 +2,7 @@ package org.haic.often.net.download;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -26,6 +27,13 @@ public abstract class SionResponse {
 	 * @return 文件名
 	 */
 	public abstract String fileName();
+
+	/**
+	 * 获取当前下载的存储在本地的文件对象
+	 *
+	 * @return 本地的文件对象
+	 */
+	public abstract File file();
 
 	/**
 	 * 获取当前下载的存储在本地的文件路径
