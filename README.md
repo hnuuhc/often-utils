@@ -16,7 +16,7 @@ mvn clean install
 <dependency>
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
-    <version>1.2.23</version>
+    <version>1.2.28</version>
 </dependency>
 ```
 
@@ -74,12 +74,7 @@ Aria2Util.connect("127.0.0.1", 6800)  //地址以及端口
 1.对一些常用的网络工具进行包装,开箱即食,代码风格一致,参数可直接相互使用  
 2.在发送网络错误时可以重试  
 3.对一些类增加scoks代理支持  
-4.其中HtmlUnitUtil可运行JS代码,默认可运行JS最大1秒,由waitJSTime方法修改  
-5.默认配置已经可以应对大部分网站,无需设置过多参数
-
-### 网络工具:
-
-#### HttpsUtil - 用于http请求
+4.默认配置已经可以应对大部分网站,无需设置过多参数
 
 ### 简单示例:
 
@@ -111,22 +106,6 @@ JSON解析器
     var json = JSONObject.parseObject(String); // 构建JSON对象
     var json = JSONArray.parseArray(String); // 构建JSON数组
     json.select(".cc[0]",Class); // 位置索引
-
-    // SpringBoot注册JsonParam注解
-	@Override
-	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-		resolvers.add(0, new JsonParamAnnotationResolver());
-	}
-
-	@Bean
-	@Order(1)
-	public FilterRegistrationBean<Filter> inputStreamWrapperFilterRegistration() {
-		var registrationBean = new FilterRegistrationBean<>();
-		registrationBean.setFilter(new InputStreamWrapperFilter());
-		registrationBean.setName("inputStreamWrapperFilter");
-		registrationBean.addUrlPatterns("/*");
-		return registrationBean;
-	}
 ```
 
 文件读写工具类
@@ -166,26 +145,6 @@ ZipUtil.origin(file).charset("GBK").deCompress(folder); // 文件解压
 
 ```
 
-谷歌浏览器工具类
--------------
-
-### 说明:
-
-1.一键获取本地浏览器的数据,理论上chromium内核都支持  
-2.home()方法,默认win版edge用户路径,其它浏览器添加参数,路径至User Data目录
-
-### 简单示例:
-
-```
-// 获取本地浏览器cookie   
-Map<String, String> cookies = LocalCookie.home().getForDomain("pixiv.net");
-// 获取LoginData(账号和密码)  
-Map<String, String> loginDatas = LocalLoginData.home().getForDomain("pixiv.net");
-// 获取 Local Storage  
-Map<String, String> storages = LocalStorage.home().getForDomain("pixiv.net");
-
-```
-
 参数化多线程
 ----------
 
@@ -210,31 +169,8 @@ for (int i = 0; i < 10; i++) {
 ThreadUtil.waitEnd(executor); // 等待线程结束
 ```
 
-常用网盘API
-----------
-
-### 说明:
-
-1.支持网盘: 天翼云盘,阿里云盘,蓝奏云盘,123云盘,夸克网盘,和彩云(中国移动云盘)   
-2.为保证兼容性,降低复杂度,均以传递JSON数据操作
-
-### 简单示例:
-
-类: TianYiYunPan - 天翼云盘  
-类: ALiYunPan - 阿里云盘  
-类: LanZouYunPan - 蓝奏云盘  
-类: YunPan123 - 123云盘  
-类: KuaKeYunPan - 夸克网盘  
-类: HeCaiYunPan - 和彩云(中国移动云盘)
-
-```
-TianYiYunPan.login(username,password).getInfoAsHome(); // 获取主页文件列表信息
-
-YunPan123.login(auth).getStraight(fileInfo); // 根据JSON配置获取直链
-```
-
 ## 鸣谢
 
 感谢[**JetBrains**](https://www.jetbrains.com/zh-cn/community/opensource/#support)提供的开源开发许可证，JetBrains 通过为核心项目贡献者免费提供一套一流的开发者工具来支持非商业开源项目。
 
-[<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/zh-cn/community/opensource/#support)
+[<img src="https://www.jetbrains.com/icon.svg" width="200"/>](https://www.jetbrains.com/zh-cn/community/opensource/#support)

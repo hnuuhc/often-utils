@@ -1,14 +1,13 @@
 package org.haic.often;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.SystemUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +21,6 @@ import java.util.List;
 public class Terminal {
 
 	private Charset charset = SystemUtil.DEFAULT_CHARSET; // 字符集格式
-	private String terminal = "cmd"; // 默认终端
 	private final ProcessBuilder builder = new ProcessBuilder().redirectErrorStream(true);
 
 	private Terminal() {
@@ -55,13 +53,6 @@ public class Terminal {
 	 */
 	public static Terminal command(@NotNull List<String> dos) {
 		return newTerminal().setCommand(dos);
-	}
-
-	/**
-	 * 清理控制台输出
-	 */
-	public static void cls() {
-		Terminal.command("cls").inheritIO();
 	}
 
 	/**
@@ -101,22 +92,7 @@ public class Terminal {
 	 * @return 此方法
 	 */
 	public Terminal setCommand(@NotNull List<String> dos) {
-		List<String> terminalCommand = new ArrayList<>();
-		terminalCommand.add(terminal);
-		terminalCommand.add("/c");
-		terminalCommand.addAll(dos);
-		builder.command(terminalCommand);
-		return this;
-	}
-
-	/**
-	 * 设置执行命令时使用的终端
-	 *
-	 * @param terminal 终端
-	 * @return 此方法
-	 */
-	public Terminal terminal(@NotNull String terminal) {
-		this.terminal = terminal;
+		builder.command(dos);
 		return this;
 	}
 

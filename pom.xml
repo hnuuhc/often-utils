@@ -4,12 +4,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.4</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
+
     <groupId>io.github.hnuuhc</groupId>
     <artifactId>often-utils</artifactId>
     <version>1.2.28</version>
@@ -106,58 +101,24 @@
         </profile>
     </profiles>
 
-
     <dependencies>
-        <!-- htmlunit -->
-        <!--suppress VulnerableLibrariesLocal -->
+        <!-- hash加密 -->
         <dependency>
-            <groupId>net.sourceforge.htmlunit</groupId>
-            <artifactId>htmlunit</artifactId>
-            <version>2.70.0</version>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.17.1</version>
         </dependency>
-        <!-- 压缩文件项目 -->
+        <!-- br解码 -->
         <dependency>
-            <groupId>net.lingala.zip4j</groupId>
-            <artifactId>zip4j</artifactId>
-            <version>2.11.5</version>
+            <groupId>org.brotli</groupId>
+            <artifactId>dec</artifactId>
+            <version>0.1.2</version>
         </dependency>
-        <!-- LevelDB 数据库 -->
-        <dependency>
-            <groupId>com.wavesplatform.leveldb-jna</groupId>
-            <artifactId>leveldb-jna-core</artifactId>
-            <version>1.23.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wavesplatform.leveldb-jna</groupId>
-            <artifactId>leveldb-jna-native</artifactId>
-            <version>1.23.1</version>
-        </dependency>
-        <!-- JDBC 数据库 -->
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.45.0.0</version>
-        </dependency>
+        <!-- okhttp -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>5.0.0-alpha.12</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

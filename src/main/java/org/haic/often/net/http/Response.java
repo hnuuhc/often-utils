@@ -8,7 +8,6 @@ import org.haic.often.parser.json.JSONObject;
 import org.haic.often.parser.xml.Document;
 import org.haic.often.util.TypeUtil;
 import org.jetbrains.annotations.NotNull;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -182,15 +181,6 @@ public abstract class Response {
 	 */
 	public Document xml() {
 		return parse(Document.class);
-	}
-
-	/**
-	 * 读取响应的正文并将其解析为Yaml,如果连接超时或IO异常会返回null
-	 *
-	 * @return 已解析的Yaml
-	 */
-	public Yaml yaml() {
-		return parse(Yaml.class);
 	}
 
 	/**
