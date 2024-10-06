@@ -1,9 +1,9 @@
 package org.haic.often.parser.csv;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +65,7 @@ public class CSV extends ArrayList<CSVNode> {
 	 * @param <T>    返回泛型
 	 * @return 值
 	 */
-	public <T> T get(@NotNull int y, int x, @NotNull Function<Object, ? extends T> mapper) {
+	public <T> T get(int y, int x, @NotNull Function<Object, ? extends T> mapper) {
 		return this.get(y).get(x, mapper);
 	}
 

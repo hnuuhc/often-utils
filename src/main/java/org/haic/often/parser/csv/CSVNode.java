@@ -1,9 +1,10 @@
 package org.haic.often.parser.csv;
 
-import org.jetbrains.annotations.NotNull;
 import org.haic.often.parser.ParserStringBuilder;
+import org.haic.often.util.StringUtil;
 import org.haic.often.util.TypeReference;
 import org.haic.often.util.TypeUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -254,7 +255,7 @@ public class CSVNode extends ArrayList<String> {
 	@Override
 	public String toString() {
 		return this.stream().map(e -> {
-			var t = e.replaceAll("\"", "\"\"");
+			var t = StringUtil.toEscape(e.replaceAll("\"", "\"\""));
 			return e.contains(",") ? '"' + t + '"' : t;
 		}).collect(Collectors.joining(","));
 	}
