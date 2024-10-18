@@ -392,7 +392,6 @@ public class HLSDownload {
 
 		private SionResponse execute(@NotNull String method) {
 			initializationStatus(); // 初始化进度
-			var conn = HttpsUtil.newSession().proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
 			File storage;
 			switch (method) {
 				case "BODY" -> {
@@ -430,7 +429,8 @@ public class HLSDownload {
 							throw new HLSDownloadException("未知的解密方法: " + encryptMethod);
 						}
 						var keyUrl = URIUtil.toAbsoluteUrl(url, StringUtil.strip(extKey[1].substring(4), "\""));
-						var res = conn.url(keyUrl).execute();
+						var conn = HttpsUtil.connect(keyUrl).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
+						var res = conn.execute();
 						int statusCode = res.statusCode();
 						if (!URIUtil.statusIsOK(statusCode)) {
 							return new HttpResponse(this, request.statusCode(statusCode));
@@ -493,7 +493,7 @@ public class HLSDownload {
 						}
 					}
 
-					var res = conn.url(url).execute();
+					var res = HttpsUtil.connect(url).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
 					int statusCode = res.statusCode();
 					if (!URIUtil.statusIsOK(statusCode)) {
 						return new HttpResponse(this, request.statusCode(statusCode));
