@@ -62,16 +62,22 @@ public abstract class HLSConnection {
 	 * @return 此连接，用于链接
 	 */
 	public abstract HLSConnection body(@NotNull String body);
-
+	
 	/**
-	 * 获取新的Download对象并设置m3u8内容<br/> 配置文件 -> 包含待下载文件的下载信息的文件
+	 * 设置用于解密的key参数
 	 *
-	 * @param body m3u8文本
-	 * @param key  解密KEY
-	 * @param iv   补码
+	 * @param key key
 	 * @return 此连接，用于链接
 	 */
-	public abstract HLSConnection body(@NotNull String body, @NotNull String key, @NotNull String iv);
+	public abstract HLSConnection key(@NotNull String key);
+
+	/**
+	 * 设置用于解密的iv参数
+	 *
+	 * @param iv iv
+	 * @return 此连接，用于链接
+	 */
+	public abstract HLSConnection iv(@NotNull String iv);
 
 	/**
 	 * M3U8参数中可能存在多个来源,通过截取段设置筛选条件,默认为选择第一个

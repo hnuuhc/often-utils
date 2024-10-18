@@ -235,14 +235,16 @@ public class HLSDownload {
 		public HLSConnection body(@NotNull String body) {
 			this.body = body;
 			this.method = "BODY";
-			return body(body, "", "");
+			return this;
 		}
 
-		public HLSConnection body(@NotNull String body, @NotNull String key, @NotNull String iv) {
-			this.body = body;
-			this.key = key;
+		public HLSConnection key(@NotNull String key) {
+			this.key = keyDecrypt.apply(key);
+			return this;
+		}
+
+		public HLSConnection iv(@NotNull String iv) {
 			this.iv = iv;
-			this.method = "BODY";
 			return this;
 		}
 
@@ -293,7 +295,7 @@ public class HLSDownload {
 
 		public HLSConnection fileName(@NotNull String fileName) {
 			if (!fileName.contains(".")) {
-				throw new HLSDownloadException("文件名必须存在后缀 :" + fileName);
+				throw new HLSDownloadException("文件名必须存在后缀: " + fileName);
 			}
 			this.fileName = FileUtil.illegalFileName(URIUtil.decode(fileName));
 			FileUtil.fileNameValidity(fileName);
@@ -425,21 +427,34 @@ public class HLSDownload {
 					if (keyInfo != null) {
 						var extKey = keyInfo.substring(11).split(",");
 						var encryptMethod = extKey[0].substring(7);
-						if (!encryptMethod.contains("AES")) {
-							throw new HLSDownloadException("未知的解密方法: " + encryptMethod);
+
+						for (var ext : extKey) {
+							var entry = ext.split("=");
+							switch (entry[0]) {
+								case "METHO" -> {
+									if (!encryptMethod.contains("AES") && !encryptMethod.equals("QINIU-PROTECTION-10")) {
+										throw new HLSDownloadException("未知的解密方法: " + encryptMethod);
+									}
+								}
+								case "URI" -> {
+									var keyUrl = URIUtil.toAbsoluteUrl(url, StringUtil.strip(entry[1], "\""));
+									//noinspection DuplicatedCode
+									var res = HttpsUtil.connect(keyUrl).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
+									int statusCode = res.statusCode();
+									if (!URIUtil.statusIsOK(statusCode)) {
+										return new HttpResponse(this, request.statusCode(statusCode));
+									}
+									request.headers(res.headers()).cookies(res.cookies());
+									key = keyDecrypt.apply(res.body()); // key解密
+								}
+								case "KEY" -> key = keyDecrypt.apply(entry[1]);
+								case "IV" -> iv = entry[1].startsWith("0x") ? entry[1].substring(2) : entry[1];
+							}
 						}
-						var keyUrl = URIUtil.toAbsoluteUrl(url, StringUtil.strip(extKey[1].substring(4), "\""));
-						var conn = HttpsUtil.connect(keyUrl).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow);
-						var res = conn.execute();
-						int statusCode = res.statusCode();
-						if (!URIUtil.statusIsOK(statusCode)) {
-							return new HttpResponse(this, request.statusCode(statusCode));
-						}
-						request.headers(res.headers()).cookies(res.cookies());
-						key = keyDecrypt.apply(res.body()); // key解密
+
 						// 效验key格式是否正确
 						if (key.length() != 16 && key.length() != 24 && key.length() != 32) {
-							throw new HLSDownloadException("KEY长度不正确: " + key);
+							throw new HLSDownloadException("KEY长度为" + key.length() + "不正确: " + key);
 						} else if (!key.matches("^[0-9a-zA-Z]+$")) {
 							throw new HLSDownloadException("KEY存在非法字符,可能被加密: " + key);
 						}
@@ -493,11 +508,13 @@ public class HLSDownload {
 						}
 					}
 
+					//noinspection DuplicatedCode
 					var res = HttpsUtil.connect(url).proxy(proxy).headers(headers).cookies(cookies).retry(MAX_RETRY, MILLISECONDS_SLEEP).retry(unlimit).retryStatusCodes(retryStatusCodes).failThrow(failThrow).execute();
 					int statusCode = res.statusCode();
 					if (!URIUtil.statusIsOK(statusCode)) {
 						return new HttpResponse(this, request.statusCode(statusCode));
 					}
+
 					request.headers(res.headers()).cookies(res.cookies());
 					this.body = res.body();
 					return execute("BODY");
@@ -564,24 +581,22 @@ public class HLSDownload {
 								fileSize += data.length;
 								file.delete();
 							}
-						} else { // AES/CBC/PKCS7Padding解密
-							var cipher = Cipher.getInstance("AES/CBC/NoPadding");
-							var keySpec = new SecretKeySpec(key.getBytes(), "AES");
-							var ivSpec = new IvParameterSpec(iv.isEmpty() ? new byte[16] : iv.substring(0, 16).getBytes());
+						} else { // AES/CBC/PKCS7Padding解密,PKCS5Padding兼容
+							var cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+							var keySpec = new SecretKeySpec(AESUtil.decodeHex(key), "AES");
+							var ivSpec = new IvParameterSpec(iv.isEmpty() ? new byte[16] : AESUtil.decodeHex(iv));
 							cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
 							for (int i = 0; i < links.size(); i++) {
 								var file = new File(folder, i + ".ts");
 								var data = cipher.doFinal(ReadWriteUtil.orgin(file).readBytes());
-								int replenish = data.length - data[data.length - 1];  // 获取去除填充参数的实际长度
-								out.write(data, 0, replenish);
-								fileSize += replenish;
+								out.write(data, 0, data.length);
+								fileSize += data.length;
 								file.delete();
 							}
 						}
 						session.delete(); // 删除会话信息文件
 						folder.delete(); // 删除文件夹
 					} catch (Exception e) {
-						e.printStackTrace();
 						throw new AESException(e);
 					}
 				} catch (IOException e) {

@@ -23,6 +23,18 @@ public class AESUtil {
 	}
 
 	/**
+	 * 加密
+	 *
+	 * @param data 待加密明文数据
+	 * @param key  加密密码
+	 * @param iv   加密向量（偏移量）
+	 * @return 加密值
+	 */
+	public static byte[] encrypt(byte[] data, String key, String iv) {
+		return aes(data, decodeHex(key), decodeHex(iv), Cipher.ENCRYPT_MODE);
+	}
+
+	/**
 	 * 解密
 	 *
 	 * @param data 加密后的数据
@@ -32,6 +44,18 @@ public class AESUtil {
 	 */
 	public static byte[] decrypt(String data, String key, String iv) {
 		return aes(data.getBytes(), decodeHex(key), decodeHex(iv), Cipher.DECRYPT_MODE);
+	}
+
+	/**
+	 * 解密
+	 *
+	 * @param data 加密后的数据
+	 * @param key  解密密码
+	 * @param iv   解密向量（偏移量）
+	 * @return 解密值
+	 */
+	public static byte[] decrypt(byte[] data, String key, String iv) {
+		return aes(data, decodeHex(key), decodeHex(iv), Cipher.DECRYPT_MODE);
 	}
 
 	/**
@@ -79,7 +103,7 @@ public class AESUtil {
 	/**
 	 * Hex解码.
 	 */
-	private static byte[] decodeHex(String input) {
+	public static byte[] decodeHex(String input) {
 		try {
 			return decodeHex(input.toCharArray());
 		} catch (Exception e) {
