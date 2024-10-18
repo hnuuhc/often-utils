@@ -453,13 +453,11 @@ public class HLSDownload {
 						}
 
 						// 效验key格式是否正确
-						if (key.length() != 16 && key.length() != 24 && key.length() != 32) {
-							throw new HLSDownloadException("KEY长度为" + key.length() + "不正确: " + key);
-						} else if (!key.matches("^[0-9a-zA-Z]+$")) {
-							throw new HLSDownloadException("KEY存在非法字符,可能被加密: " + key);
-						}
-						if (extKey.length == 3) {
-							iv = extKey[2].substring(3);
+						switch (key.length()) {
+							case 16, 24, 32 -> {
+								if (!key.matches("^[0-9a-zA-Z]+$")) throw new HLSDownloadException("KEY存在非法字符,可能被加密: " + key);
+							}
+							default -> throw new HLSDownloadException("KEY长度为" + key.length() + "不正确: " + key);
 						}
 					}
 					links = info.stream().filter(l -> !l.startsWith("#")).map(l -> URIUtil.toAbsoluteUrl(url, l)).toList();
