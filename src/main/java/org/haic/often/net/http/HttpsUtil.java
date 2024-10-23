@@ -7,7 +7,6 @@ import org.haic.often.net.IgnoreSSLSocket;
 import org.haic.often.net.Method;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
-import org.haic.often.parser.json.JSONObject;
 import org.haic.often.tuple.Tuple;
 import org.haic.often.tuple.record.ThreeTuple;
 import org.haic.often.util.IOUtil;
@@ -70,8 +69,6 @@ public class HttpsUtil {
     }
 
     private static class HttpConnection extends Connection {
-
-        private String params = ""; // 表格请求参数
 
         private int timeout; // 超时时间
 
@@ -147,34 +144,11 @@ public class HttpsUtil {
             return this;
         }
 
-        public Connection data(@NotNull String key, @NotNull String value) {
-            params += (Judge.isEmpty(params) ? "" : "&") + key + "=" + URIUtil.encodeValue(value);
-            return this;
-        }
-
-        public Connection data(@NotNull Map<String, String> params) {
-            this.params = params.entrySet().stream().filter(l -> l.getValue() != null).map(l -> l.getKey() + "=" + URIUtil.encodeValue(l.getValue())).collect(Collectors.joining("&"));
-            return this;
-        }
-
         public Connection data(@NotNull String key, @NotNull String name, @NotNull InputStream in) {
             var boundary = UUID.randomUUID().toString();
             var head = "--" + boundary + "\r\n" + "content-disposition: form-data; name=\"" + key + "\"; filename=\"" + URIUtil.encode(name) + "\"\r\n" + "content-type: application/octet-stream\r\n\r\n";
             file = Tuple.of(boundary, head, in);
             return contentType("multipart/form-data; boundary=" + boundary);
-        }
-
-        public Connection requestBody(@NotNull Object body) {
-            if (body instanceof JSONObject json) {
-                this.params = json.toJSONString();
-                return contentType("application/json;charset=UTF-8");
-            }
-            return requestBody(String.valueOf(body));
-        }
-
-        public Connection requestBody(@NotNull String body) {
-            this.params = body;
-            return StringUtil.isJson(body) ? contentType("application/json;charset=UTF-8") : contentType("multipart/form-data;charset=UTF-8");
         }
 
         public Connection socks(@NotNull String host, int port) {

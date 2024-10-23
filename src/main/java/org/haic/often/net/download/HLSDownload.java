@@ -3,7 +3,6 @@ package org.haic.often.net.download;
 import org.haic.often.Judge;
 import org.haic.often.exception.AESException;
 import org.haic.often.exception.HLSDownloadException;
-import org.haic.often.function.StringFunction;
 import org.haic.often.net.URIUtil;
 import org.haic.often.net.http.HttpStatus;
 import org.haic.often.net.http.HttpsUtil;
@@ -27,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -172,7 +172,7 @@ public class HLSDownload {
         private final String SESSION_SUFFIX = ".hlsion";
         private int DEFAULT_BUFFER_SIZE = 8192;
         private String body;
-        private String key = "";
+        private byte[] key = new byte[0];
         private String iv = "";
         private int MILLISECONDS_SLEEP; // 重试等待时间
         private int MAX_RETRY; // 请求异常重试次数
@@ -184,7 +184,7 @@ public class HLSDownload {
         private File session; // 配置信息文件
         private File DEFAULT_FOLDER = SystemUtil.DEFAULT_DOWNLOAD_FOLDER; // 存储目录
         private List<Integer> retryStatusCodes = new ArrayList<>();
-        private StringFunction<String> keyDecrypt = key -> key;
+        private Function<byte[], byte[]> keyDecrypt = key -> key;
         private Predicate<String> select = l -> true;
 
         private Map<String, String> headers = new HashMap<>(); // headers
@@ -206,7 +206,7 @@ public class HLSDownload {
             request.setUrl(this.url = url);
             fileInfo.put("url", url);
             fileName = null;
-            key = "";
+            key = new byte[0];
             iv = "";
             method = "FULL";
             return this;
@@ -227,7 +227,7 @@ public class HLSDownload {
             return this;
         }
 
-        public HLSConnection keyDecrypt(@NotNull StringFunction<String> keyDecrypt) {
+        public HLSConnection keyDecrypt(@NotNull Function<byte[], byte[]> keyDecrypt) {
             this.keyDecrypt = keyDecrypt;
             return this;
         }
@@ -238,7 +238,7 @@ public class HLSDownload {
             return this;
         }
 
-        public HLSConnection key(@NotNull String key) {
+        public HLSConnection key(@NotNull byte[] key) {
             this.key = keyDecrypt.apply(key);
             return this;
         }
@@ -446,19 +446,18 @@ public class HLSDownload {
                                         return new HttpResponse(this, request.statusCode(statusCode));
                                     }
                                     request.headers(res.headers()).cookies(res.cookies());
-                                    key = keyDecrypt.apply(res.body()); // key解密
+                                    key = keyDecrypt.apply(res.bodyAsBytes()); // key解密
                                 }
-                                case "KEY" -> key = keyDecrypt.apply(entry[1]);
+                                case "KEY" -> key = keyDecrypt.apply(entry[1].getBytes());
                                 case "IV" -> iv = entry[1].startsWith("0x") ? entry[1].substring(2) : entry[1];
                             }
                         }
 
                         // 效验key格式是否正确
-                        switch (key.length()) {
-                            case 16, 24, 32 -> {
-                                if (!key.matches("^[0-9a-zA-Z]+$")) throw new HLSDownloadException("KEY存在非法字符,可能被加密: " + key);
-                            }
-                            default -> throw new HLSDownloadException("KEY长度为" + key.length() + "不正确: " + key);
+                        switch (key.length) {
+                            case 16 -> {}
+                            case 24, 32 -> key = AESUtil.decodeHex(new String(key));
+                            default -> throw new HLSDownloadException("KEY长度为" + key.length + "不正确: " + new String(key));
                         }
                     }
                     links = info.stream().filter(l -> !l.startsWith("#")).map(l -> URIUtil.toAbsoluteUrl(url, l)).toList();
@@ -523,7 +522,9 @@ public class HLSDownload {
                     fileName = fileInfo.getString("fileName");
                     headers = StringUtil.jsonToMap(fileInfo.getString("header"));
                     cookies = StringUtil.jsonToMap(fileInfo.getString("cookie"));
-                    key = fileInfo.getString("key");
+                    var key = fileInfo.getList("key", byte.class);
+                    this.key = new byte[key.size()];
+                    for (var i = 0; i < key.size(); i++) this.key[i] = key.get(i);
                     iv = fileInfo.getString("iv");
                     links = fileInfo.getList("data", String.class);
                     storage = new File(DEFAULT_FOLDER, fileName);
@@ -571,7 +572,7 @@ public class HLSDownload {
             if (URIUtil.statusIsOK(statusCodes.get())) { // 验证下载状态
                 try (var out = new FileOutputStream(storage)) {
                     try {
-                        if (key.isEmpty()) {
+                        if (key.length == 0) {
                             for (int i = 0; i < links.size(); i++) {
                                 var file = new File(folder, i + ".ts");
                                 var data = ReadWriteUtil.orgin(file).readBytes();
@@ -581,7 +582,7 @@ public class HLSDownload {
                             }
                         } else { // AES/CBC/PKCS7Padding解密,PKCS5Padding兼容
                             var cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                            var keySpec = new SecretKeySpec(AESUtil.decodeHex(key), "AES");
+                            var keySpec = new SecretKeySpec(key, "AES");
                             var ivSpec = new IvParameterSpec(iv.isEmpty() ? new byte[16] : AESUtil.decodeHex(iv));
                             cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
                             for (int i = 0; i < links.size(); i++) {

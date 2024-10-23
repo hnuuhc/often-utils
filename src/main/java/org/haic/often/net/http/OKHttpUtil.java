@@ -6,7 +6,6 @@ import org.brotli.dec.BrotliInputStream;
 import org.haic.often.Judge;
 import org.haic.often.exception.HttpException;
 import org.haic.often.net.*;
-import org.haic.often.parser.json.JSONObject;
 import org.haic.often.util.IOUtil;
 import org.haic.often.util.StringUtil;
 import org.haic.often.util.ThreadUtil;
@@ -64,8 +63,6 @@ public class OKHttpUtil {
     }
 
     private static class HttpConnection extends Connection {
-
-        private String params = ""; // 请求参数
 
         private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(0, TimeUnit.SECONDS).sslSocketFactory(IgnoreSSLSocket.ignoreSSLContext().getSocketFactory(), new MyX509TrustManager()).hostnameVerifier((arg0, arg1) -> true);
 
@@ -134,38 +131,10 @@ public class OKHttpUtil {
             return this;
         }
 
-        public Connection removeHeader(@NotNull String key) {
-            this.headers.remove(key);
-            return this;
-        }
-
-        public Connection data(@NotNull String key, @NotNull String value) {
-            params += (Judge.isEmpty(params) ? "" : "&") + key + "=" + URIUtil.encodeValue(value);
-            return this;
-        }
-
-        public Connection data(@NotNull Map<String, String> params) {
-            this.params = params.entrySet().stream().filter(l -> l.getValue() != null).map(l -> l.getKey() + "=" + URIUtil.encodeValue(l.getValue())).collect(Collectors.joining("&"));
-            return this;
-        }
-
         public Connection data(@NotNull String key, @NotNull String name, @NotNull InputStream in) {
             file = new MultipartBody.Builder().setType(MultipartBody.FORM);
             file.addFormDataPart(key, name, new FileRequestBody(in, MediaType.Companion.parse("multipart/form-data")));
             return this;
-        }
-
-        public Connection requestBody(@NotNull Object body) {
-            if (body instanceof JSONObject json) {
-                this.params = json.toJSONString();
-                return contentType("application/json;charset=UTF-8");
-            }
-            return requestBody(String.valueOf(body));
-        }
-
-        public Connection requestBody(@NotNull String body) {
-            this.params = body;
-            return StringUtil.isJson(body) ? contentType("application/json;charset=UTF-8") : contentType("multipart/form-data;charset=UTF-8");
         }
 
         public Connection socks(@NotNull String host, int port) {

@@ -1,7 +1,11 @@
 package org.haic.often.net.http;
 
+import org.haic.often.Judge;
 import org.haic.often.net.Method;
+import org.haic.often.net.URIUtil;
 import org.haic.often.net.UserAgent;
+import org.haic.often.parser.json.JSONObject;
+import org.haic.often.parser.xml.Element;
 import org.haic.often.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +13,7 @@ import javax.net.ssl.SSLContext;
 import java.io.InputStream;
 import java.net.Proxy;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Connection 接口是一个方便的 HTTP 客户端和会话对象，用于从 Web 获取内容，并将它们解析为 Documents。
@@ -34,6 +39,8 @@ public abstract class Connection {
     protected boolean unlimit;// 请求异常无限重试
     protected boolean failThrow; // 错误异常
     protected List<Integer> retryStatusCodes = new ArrayList<>();
+
+    protected String params = ""; // 请求参数
 
     /**
      * 设置要获取的请求 URL，协议必须是 HTTP 或 HTTPS
@@ -266,7 +273,15 @@ public abstract class Connection {
      * @param value 数据值
      * @return 此连接，用于链接
      */
-    public abstract Connection data(@NotNull String key, @NotNull String value);
+    public Connection data(@NotNull String key, @NotNull String value) {
+        if (this.headers.get("content-type").equals("application/x-www-form-urlencoded;charset=UTF-8")) {
+            params += (Judge.isEmpty(params) ? "" : "&") + URIUtil.encodeValue(key) + "=" + URIUtil.encodeValue(value);
+            return this;
+        } else {
+            params = URIUtil.encodeValue(key) + "=" + URIUtil.encodeValue(value);
+            return contentType("application/x-www-form-urlencoded;charset=UTF-8");
+        }
+    }
 
     /**
      * 根据所有提供的数据设置全新的请求数据参数
@@ -274,7 +289,10 @@ public abstract class Connection {
      * @param params 数据参数
      * @return 此连接，用于链接
      */
-    public abstract Connection data(@NotNull Map<String, String> params);
+    public Connection data(@NotNull Map<String, String> params) {
+        this.params = params.entrySet().stream().filter(l -> l.getValue() != null).map(l -> URIUtil.encodeValue(l.getKey()) + "=" + URIUtil.encodeValue(l.getValue())).collect(Collectors.joining("&"));
+        return contentType("application/x-www-form-urlencoded;charset=UTF-8");
+    }
 
     /**
      * 添加输入流作为请求数据参数，对于 GET 没有效果，但对于 POST 这将上传输入流
@@ -298,22 +316,31 @@ public abstract class Connection {
 
     /**
      * 设置 POST（或 PUT）请求正文<br/>
-     * 此方法首先调用 String.valueOf(x) 以获取打印对象的字符串值,用以调用 {@link #requestBody(String)}
      *
      * @param body 请求正文
      * @return 此连接，用于链接
      */
-    public abstract Connection requestBody(@NotNull Object body);
-
-    /**
-     * 设置 POST（或 PUT）请求正文<br/>
-     * 当服务器需要一个普通请求正文，而不是一组 URL 编码形式的键/值对时很有用<br/>
-     * 一般为JSON格式,若不是则作为普通数据发送
-     *
-     * @param body 请求正文
-     * @return 此连接，用于链接
-     */
-    public abstract Connection requestBody(@NotNull String body);
+    public Connection requestBody(@NotNull Object body) {
+        switch (body) {
+            case JSONObject json -> {
+                this.params = json.toJSONString();
+                return contentType("application/json;charset=UTF-8");
+            }
+            case Map<?, ?> map -> {
+                this.params = map.entrySet().stream().filter(l -> l.getValue() != null).map(l -> URIUtil.encodeValue(l.getKey().toString()) + "=" + URIUtil.encodeValue(l.getValue().toString())).collect(Collectors.joining("&"));
+                return contentType("application/x-www-form-urlencoded;charset=UTF-8");
+            }
+            case Element element -> {
+                this.params = element.toString();
+                return contentType("application/xml;charset=UTF-8");
+            }
+            default -> {
+                this.params = body.toString();
+                removeHeader("content-type"); // RAW
+                return this;
+            }
+        }
+    }
 
     /**
      * 设置用于此请求的 SOCKS 代理
