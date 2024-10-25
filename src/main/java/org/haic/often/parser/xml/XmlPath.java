@@ -95,7 +95,7 @@ public class XmlPath {
                                         es = es.select(e -> !e.name().equals(name) && e.containsAttr(attr));
                                     }
                                 } else {
-                                    var key = attr.substring(0, indexAttr);
+                                    @SuppressWarnings("DuplicatedCode") var key = attr.substring(0, indexAttr);
                                     var value = attr.charAt(attr.length() - 1) == '\'' || attr.charAt(attr.length() - 1) == '"' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
                                     if (key.endsWith("!")) {
                                         var thisKey = key.substring(0, key.length() - 1);
@@ -121,8 +121,8 @@ public class XmlPath {
                                         es = es.select(e -> e.name().equals(name) && e.containsAttr(attr));
                                     }
                                 } else {
-                                    var key = attr.substring(0, indexAttr);
-                                    var value = attr.charAt(attr.length() - 1) == '\'' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
+                                    @SuppressWarnings("DuplicatedCode") var key = attr.substring(0, indexAttr);
+                                    var value = attr.charAt(attr.length() - 1) == '\'' || attr.charAt(attr.length() - 1) == '"' ? attr.substring(indexAttr + 2, attr.length() - 1) : attr.substring(indexAttr + 1);
                                     if (key.endsWith("!")) {
                                         var thisKey = key.substring(0, key.length() - 1);
                                         es = es.select(e -> e.name().equals(name) && e.containsAttr(thisKey) && !value.equals(e.attr(thisKey)));
