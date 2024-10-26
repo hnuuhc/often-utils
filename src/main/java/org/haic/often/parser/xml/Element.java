@@ -49,7 +49,7 @@ public class Element extends XmlTree {
      */
     @NotNull
     public Elements select(@NotNull String cssQuery) {
-        return new XmlPath(this).select(cssQuery);
+        return new XmlPath(this.childElements()).select(cssQuery);
     }
 
     /**
