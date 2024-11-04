@@ -63,8 +63,7 @@ public class XmlPath {
                 }
                 case '@' -> {
                     var value = sb.interceptOrEof(' ');
-                    if (es.size() != 1) throw new IllegalStateException("参数 " + value + " 错误,查询对象不为Element类型");
-                    es = es.get(0).childElements().stream().filter(l -> l.name().equals(value)).collect(Collectors.toCollection(Elements::new));
+                    es = es.stream().filter(l -> l.name().equals(value)).collect(Collectors.toCollection(Elements::new));
                 }
                 default -> {
                     var css = new StringBuilder();
