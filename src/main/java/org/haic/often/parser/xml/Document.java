@@ -122,7 +122,7 @@ public class Document extends Element {
                     }
                     // 文本标签
                     case "textarea", "script", "style" -> {
-                        if (tree.name().equals("div")) tree = tree.parent(); // 异常位置
+                        // if (tree.name().equals("div")) tree = tree.parent(); // 异常位置
                         int index = node.offset(1).indexOf("</" + child.name() + ">");
                         if (index == -1) index = node.indexOf("</" + child.name().toUpperCase() + ">");
                         var s = node.substring(node.site(), index).strip();
