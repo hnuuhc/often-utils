@@ -16,16 +16,20 @@ import java.util.stream.Collectors;
  */
 public class Element extends XmlTree {
 
+    private final Element parent; // 父节点
+
     public Element(@NotNull String name) {
-        super(name);
+        this(null, name);
     }
 
     public Element(Element parent, @NotNull String name) {
-        super(parent, name);
+        super(name);
+        this.parent = parent;
     }
 
-    protected Element(XmlTree parent, @NotNull ParserStringBuilder node) {
-        super(parent, node);
+    protected Element(Element parent, @NotNull ParserStringBuilder node) {
+        super(node);
+        this.parent = parent;
     }
 
     /**
@@ -171,7 +175,7 @@ public class Element extends XmlTree {
      * @return 当前节点的父节点
      */
     public Element parent() {
-        return (Element) super.parent();
+        return this.parent;
     }
 
     /**
