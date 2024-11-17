@@ -14,204 +14,208 @@ import java.util.List;
  */
 public class ParserStringBuilder {
 
-	private final String body;
-	private int index;
-	private int length;
+    private final String body;
+    private int index;
+    private int length;
 
-	public ParserStringBuilder(@NotNull String body) {
-		this.body = body;
-		this.length = body.length();
-	}
+    public ParserStringBuilder(@NotNull String body) {
+        this.body = body;
+        this.length = body.length();
+    }
 
-	public boolean startsWith(String prefix) {
-		return body.startsWith(prefix, index);
-	}
+    public boolean startsWith(String prefix) {
+        return body.startsWith(prefix, index);
+    }
 
-	public boolean startsWith(String prefix, int index) {
-		return body.startsWith(prefix, index);
-	}
+    public boolean startsWith(String prefix, int index) {
+        return body.startsWith(prefix, index);
+    }
 
-	public char charAt() {
-		return body.charAt(index);
-	}
+    public boolean endsWith(String tail) {
+        return body.endsWith(tail);
+    }
 
-	public char charAt(int index) {
-		return body.charAt(index);
-	}
+    public char charAt() {
+        return body.charAt(index);
+    }
 
-	public int length() {
-		return length;
-	}
+    public char charAt(int index) {
+        return body.charAt(index);
+    }
 
-	public int site() {
-		return index;
-	}
+    public int length() {
+        return length;
+    }
 
-	public ParserStringBuilder site(int index) {
-		this.index = index;
-		return this;
-	}
+    public int site() {
+        return index;
+    }
 
-	public ParserStringBuilder offset(int i) {
-		this.index += i;
-		return this;
-	}
+    public ParserStringBuilder site(int index) {
+        this.index = index;
+        return this;
+    }
 
-	public int indexOf(@NotNull String str) {
-		return body.indexOf(str, index);
-	}
+    public ParserStringBuilder offset(int i) {
+        this.index += i;
+        return this;
+    }
 
-	public int indexOf(@NotNull String str, int fromIndex) {
-		return body.indexOf(str, fromIndex);
-	}
+    public int indexOf(@NotNull String str) {
+        return body.indexOf(str, index);
+    }
 
-	public int lastIndexOf(@NotNull String str) {
-		return body.lastIndexOf(str, length - 1);
-	}
+    public int indexOf(@NotNull String str, int fromIndex) {
+        return body.indexOf(str, fromIndex);
+    }
 
-	public int lastIndexOf(@NotNull String str, int fromIndex) {
-		return body.lastIndexOf(str, fromIndex);
-	}
+    public int lastIndexOf(@NotNull String str) {
+        return body.lastIndexOf(str, length - 1);
+    }
 
-	public String substring(int start) {
-		return body.substring(start, length);
-	}
+    public int lastIndexOf(@NotNull String str, int fromIndex) {
+        return body.lastIndexOf(str, fromIndex);
+    }
 
-	public String substring(int start, int end) {
-		return body.substring(start, end);
-	}
+    public String substring(int start) {
+        return body.substring(start, length);
+    }
 
-	/**
-	 * 在StringBuilder中从指定(起始符号)位置开始截取字符串,自动对转义符转义,同样以起始符号为结束位,pos参数值会同步更新
-	 *
-	 * @return 字符串
-	 */
-	public String intercept() {
-		return intercept(charAt());
-	}
+    public String substring(int start, int end) {
+        return body.substring(start, end);
+    }
 
-	public String interceptNoEscape() {
-		return interceptNoEscape(charAt());
-	}
+    /**
+     * 在StringBuilder中从指定(起始符号)位置开始截取字符串,自动对转义符转义,同样以起始符号为结束位,pos参数值会同步更新
+     *
+     * @return 字符串
+     */
+    public String intercept() {
+        return intercept(charAt());
+    }
 
-	public String intercept(char eof) {
-		var sb = new StringBuilder();
-		for (char c = body.charAt(++index); c != eof; c = body.charAt(++index)) sb.append(c == '\\' ? interceptChar() : c);
-		return sb.toString();
-	}
+    public String interceptNoEscape() {
+        return interceptNoEscape(charAt());
+    }
 
-	public String intercept(List<Character> eofs) {
-		var sb = new StringBuilder();
-		for (char c = body.charAt(index); !eofs.contains(c); c = body.charAt(++index)) sb.append(c == '\\' ? interceptChar() : c);
-		return sb.toString();
-	}
+    public String intercept(char eof) {
+        var sb = new StringBuilder();
+        for (char c = body.charAt(++index); c != eof; c = body.charAt(++index)) sb.append(c == '\\' ? interceptChar() : c);
+        return sb.toString();
+    }
 
-	public String interceptNoEscape(char eof) {
-		var sb = new StringBuilder();
-		for (char c = body.charAt(++index); c != eof; c = body.charAt(++index)) sb.append(c);
-		return sb.toString();
-	}
+    public String intercept(List<Character> eofs) {
+        var sb = new StringBuilder();
+        for (char c = body.charAt(index); !eofs.contains(c); c = body.charAt(++index)) sb.append(c == '\\' ? interceptChar() : c);
+        return sb.toString();
+    }
 
-	public String interceptOrEof(char eof) {
-		var sb = new StringBuilder();
-		while (++index < length) {
-			var c = body.charAt(index);
-			if (c == eof) break;
-			sb.append(c == '\\' ? interceptChar() : c);
-		}
-		return sb.toString();
-	}
+    public String interceptNoEscape(char eof) {
+        var sb = new StringBuilder();
+        for (char c = body.charAt(++index); c != eof; c = body.charAt(++index)) sb.append(c);
+        return sb.toString();
+    }
 
-	public String interceptOrEofNoEscape(char eof) {
-		var sb = new StringBuilder();
-		while (++index < length) {
-			var c = body.charAt(index);
-			if (c == eof) break;
-			sb.append(c);
-		}
-		return sb.toString();
-	}
+    public String interceptOrEof(char eof) {
+        var sb = new StringBuilder();
+        while (++index < length) {
+            var c = body.charAt(index);
+            if (c == eof) break;
+            sb.append(c == '\\' ? interceptChar() : c);
+        }
+        return sb.toString();
+    }
 
-	private char interceptChar() {
-		switch (body.charAt(++index)) {
-			case 'u' -> {return (char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16);}
-			case '\\' -> {return '\\';}
-			case '/' -> {return '/';}
-			case '\'' -> {return '\'';}
-			case '"' -> {return '"';}
-			case 'r' -> {return '\r';}
-			case 'n' -> {return '\n';}
-			case 't' -> {return '\t';}
-			case 'f' -> {return '\f';}
-			case 'b' -> {return '\b';}
-			case '&' -> {return '&';}
-			case '0' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 8);}
-			case 'x' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 16);}
-			case '\n' -> {return '\n';} // 兼容json5
-			default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
-		}
-	}
+    public String interceptOrEofNoEscape(char eof) {
+        var sb = new StringBuilder();
+        while (++index < length) {
+            var c = body.charAt(index);
+            if (c == eof) break;
+            sb.append(c);
+        }
+        return sb.toString();
+    }
 
-	/**
-	 * 从pos参数位置开始跳过空格
-	 *
-	 * @return 当前pos参数值
-	 */
-	public ParserStringBuilder strip() {
-		return stripLeading().stripTrailing();
-	}
+    private char interceptChar() {
+        switch (body.charAt(++index)) {
+            case 'u' -> {return (char) Integer.parseInt(body.substring(++index, (index += 3) + 1), 16);}
+            case '\\' -> {return '\\';}
+            case '/' -> {return '/';}
+            case '\'' -> {return '\'';}
+            case '"' -> {return '"';}
+            case 'r' -> {return '\r';}
+            case 'n' -> {return '\n';}
+            case 't' -> {return '\t';}
+            case 'f' -> {return '\f';}
+            case 'b' -> {return '\b';}
+            case '&' -> {return '&';}
+            case '0' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 8);}
+            case 'x' -> {return (char) Integer.parseInt(body.substring(++index, ++index + 1), 16);}
+            case '\n' -> {return '\n';} // 兼容json5
+            default -> throw new JSONException("存在非法转义字符: \\" + body.charAt(index));
+        }
+    }
 
-	public ParserStringBuilder stripjsonnote() {
-		while (true) {
-			var nonote = true;
-			if (this.stripLeading().startsWith("/*")) {
-				var end = this.indexOf("*/", index += 2);
-				if (end == -1) throw new JSONException("注释不存在结束符号");
-				index = end + 2;
-				nonote = false;
-			}
-			if (this.stripLeading().startsWith("//")) {
-				index += 2;
-				while (index < length && this.charAt() != '\n') index++;
-				nonote = false;
-			}
-			if (nonote) break;
-		}
-		return this;
-	}
+    /**
+     * 从pos参数位置开始跳过空格
+     *
+     * @return 当前pos参数值
+     */
+    public ParserStringBuilder strip() {
+        return stripLeading().stripTrailing();
+    }
 
-	public ParserStringBuilder stripnote() {
-		return stripnote("//");
-	}
+    public ParserStringBuilder stripjsonnote() {
+        while (true) {
+            var nonote = true;
+            if (this.stripLeading().startsWith("/*")) {
+                var end = this.indexOf("*/", index += 2);
+                if (end == -1) throw new JSONException("注释不存在结束符号");
+                index = end + 2;
+                nonote = false;
+            }
+            if (this.stripLeading().startsWith("//")) {
+                index += 2;
+                while (index < length && this.charAt() != '\n') index++;
+                nonote = false;
+            }
+            if (nonote) break;
+        }
+        return this;
+    }
 
-	public ParserStringBuilder stripnote(@NotNull String s) {
-		var len = s.length();
-		while (this.stripLeading().startsWith(s)) {
-			index += len;
-			while (index < length && body.charAt(index) != '\n') index++;
-		}
-		return this;
-	}
+    public ParserStringBuilder stripnote() {
+        return stripnote("//");
+    }
 
-	public ParserStringBuilder stripLeading() {
-		while (index < length && Character.isWhitespace(body.charAt(index))) index++; // 跳过空格
-		return this;
-	}
+    public ParserStringBuilder stripnote(@NotNull String s) {
+        var len = s.length();
+        while (this.stripLeading().startsWith(s)) {
+            index += len;
+            while (index < length && body.charAt(index) != '\n') index++;
+        }
+        return this;
+    }
 
-	public ParserStringBuilder stripTrailing() {
-		int i = length - 1;
-		while (i > 0 && Character.isWhitespace(body.charAt(i))) i--; // 跳过空格
-		this.length = i + 1;
-		return this;
-	}
+    public ParserStringBuilder stripLeading() {
+        while (index < length && Character.isWhitespace(body.charAt(index))) index++; // 跳过空格
+        return this;
+    }
 
-	public boolean isNoOutBounds() {
-		return index < length;
-	}
+    public ParserStringBuilder stripTrailing() {
+        int i = length - 1;
+        while (i > 0 && Character.isWhitespace(body.charAt(i))) i--; // 跳过空格
+        this.length = i + 1;
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		return body;
-	}
+    public boolean isNoOutBounds() {
+        return index < length;
+    }
+
+    @Override
+    public String toString() {
+        return body;
+    }
 
 }

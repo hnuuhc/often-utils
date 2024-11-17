@@ -140,11 +140,14 @@ public class Document extends Element {
         }
         if (isHtml && node.stripLeading().site() < node.length()) { // 不规范的网页可能存在越界标签,即html结束标签后仍然存在标签
             var outbounds = new ParserStringBuilder("<body>" + node.substring(node.site(), node.length()) + "</body>");
+            if (outbounds.endsWith("</html>")) { // 中间错误的结束符导致越界
+                outbounds = new ParserStringBuilder("<html><body>" + outbounds);
+            } else {
+                outbounds = new ParserStringBuilder("<body>" + outbounds + "</body>");
+            }
             var body = this.selectFirst("@body"); // 修正为body标签子元素
             if (body == null) body = this; // 不规范网页可能不存在body
-            for (var child : new Document("", outbounds, true).childs()) {
-                if (child instanceof Element e) body.addChild(e);
-            }
+            body.addChilds(new Document("", outbounds, true).selectFirst("@body").childs());
         }
     }
 
